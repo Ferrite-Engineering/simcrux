@@ -460,7 +460,8 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
         ),
       );
       await _stageDemoTraces(manifest, caseDir, taskDir, controller);
-      final log = await _readOrNull(p.join(caseDir, manifest.log));
+      final logPath = _containedPath(caseDir, manifest.log);
+      final log = logPath == null ? null : await _readOrNull(logPath);
       if (log == null) {
         controller.add(
           TestLogLine(
@@ -851,8 +852,27 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     }
   }
 
+  /// [relative] joined onto [root], or null unless the result is strictly
+  /// inside [root].
+  ///
+  /// `case.json` is data a shared project carries, so every name it supplies
+  /// is treated as untrusted: `../` segments, an absolute path (which `p.join`
+  /// lets win outright) and the root itself are all refused. The same rule
+  /// [taskDirectoryFor] applies to the SymbiYosys task name, for the same
+  /// reason — a path that escapes is a path SimCrux would read or write
+  /// somewhere it never created.
+  static String? _containedPath(String root, String relative) {
+    final path = p.normalize(p.absolute(p.join(root, relative)));
+    return p.isWithin(p.normalize(p.absolute(root)), path) ? path : null;
+  }
+
   /// Copies the case's committed trace files into the task directory, so
   /// the same resolution the real path performs finds the same files.
+  ///
+  /// A trace name that would read outside the case directory or write outside
+  /// the task directory is refused and reported on stderr, never staged: the
+  /// manifest names the files, and the manifest is not trusted to name where
+  /// they go.
   Future<void> _stageDemoTraces(
     _DemoCase manifest,
     String caseDir,
@@ -860,10 +880,24 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     StreamController<TestExecutionEvent> controller,
   ) async {
     for (final relative in manifest.traces) {
-      final from = File(p.join(caseDir, relative));
+      final fromPath = _containedPath(caseDir, relative);
+      final toPath = _containedPath(taskDirectory, relative);
+      if (fromPath == null || toPath == null) {
+        controller.add(
+          TestLogLine(
+            line:
+                'riscv_formal: refused to stage demo trace "$relative": the '
+                'name resolves outside the case or task directory.',
+            fromStderr: true,
+            timestamp: DateTime.now().toUtc(),
+          ),
+        );
+        continue;
+      }
+      final from = File(fromPath);
       if (!from.existsSync()) continue;
       try {
-        final to = File(p.join(taskDirectory, relative));
+        final to = File(toPath);
         await to.parent.create(recursive: true);
         await to.writeAsBytes(await from.readAsBytes());
       } on FileSystemException catch (e) {

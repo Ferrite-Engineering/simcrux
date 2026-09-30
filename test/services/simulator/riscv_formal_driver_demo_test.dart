@@ -599,4 +599,162 @@ void main() {
       expect(results['formal/nocorpus']!.status, TestStatus.fail);
     });
   });
+
+  group('the corpus manifest cannot reach outside its directories', () {
+    // `case.json` travels with a shared project, so every name in it is an
+    // untrusted string. Before this the trace names were joined onto the task
+    // directory and written wherever they pointed — `../` walked out of the
+    // run root, and an absolute path won outright.
+    late Directory corpusRoot;
+
+    setUp(() {
+      corpusRoot = Directory.systemTemp.createTempSync(
+        'simcrux_formal_corpus_',
+      );
+    });
+
+    tearDown(() {
+      if (corpusRoot.existsSync()) corpusRoot.deleteSync(recursive: true);
+    });
+
+    /// A corpus case named [caseName] whose `case.json` is [manifest], with
+    /// the committed `insn_add_pass` log beside it unless [log] says otherwise.
+    Directory corpusCase(
+      String caseName,
+      Map<String, Object?> manifest, {
+      String? log,
+    }) {
+      final dir = Directory(p.join(corpusRoot.path, caseName))
+        ..createSync(recursive: true);
+      File(
+        p.join(dir.path, 'case.json'),
+      ).writeAsStringSync(jsonEncode(manifest));
+      File(p.join(dir.path, 'sby.log')).writeAsStringSync(
+        log ??
+            File(
+              p.join(_corpus, 'insn_add_pass', 'sby.log'),
+            ).readAsStringSync(),
+      );
+      return dir;
+    }
+
+    TestSpec specFor(String caseName) => TestSpec(
+      id: 'formal/$caseName',
+      name: caseName,
+      suiteName: 'formal',
+      simulatorId: RiscvFormalDriver.kId,
+      top: caseName,
+      timeout: const Duration(seconds: 30),
+      passFail: const StringMatchPassFailConfig(
+        passString: SbyLogReader.kPassMarker,
+      ),
+      riscv: RiscvConfig(
+        isa: 'rv32imc_zicsr',
+        mode: RiscvRunMode.demo,
+        demoCase: caseName,
+        formal: RiscvFormalConfig(
+          demoOutputs: corpusRoot.path,
+          check: 'insn_add_ch0',
+        ),
+      ),
+    );
+
+    Future<List<RegressionEvent>> runWithEvents(TestSpec spec) {
+      final driver = RiscvFormalDriver();
+      final scheduler = LocalJobScheduler(
+        driverRegistry: SimulatorDriverRegistry({driver.id: driver}),
+        config: RegressionConfig(
+          projectFilePath: '/fake/simcrux.yaml',
+          schemaVersion: '1',
+          suites: const [],
+          simulatorBinaries: const {},
+        ),
+        runRoot: runRoot.path,
+        retainSuccessfulWorkDirs: true,
+      );
+      return scheduler
+          .submit(RegressionRequest(runId: 'r1', tests: [spec]))
+          .toList();
+    }
+
+    List<String> filesNamed(Directory root, String name) => root
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => p.basename(f.path) == name)
+        .map((f) => f.path)
+        .toList();
+
+    test('a trace name that escapes is refused, not staged', () async {
+      // Two escapes and one honest trace. The honest one must still be
+      // staged — refusing everything would be a fix that also removes the
+      // feature.
+      final escapedSource = File(p.join(corpusRoot.path, 'escaped.vcd'))
+        ..writeAsStringSync('outside the case');
+      final absoluteSource = File(p.join(runRoot.path, 'absolute.vcd'))
+        ..writeAsStringSync('outside the task directory');
+      final caseDir = corpusCase('escape', <String, Object?>{
+        'log': 'sby.log',
+        'traces': <String>[
+          '../escaped.vcd',
+          absoluteSource.path,
+          'engine_0/trace.vcd',
+        ],
+        'exit_code': 0,
+      });
+      File(p.join(caseDir.path, 'engine_0', 'trace.vcd'))
+        ..createSync(recursive: true)
+        ..writeAsStringSync('honest');
+
+      final events = await runWithEvents(specFor('escape'));
+      final lines = events.whereType<TestLog>().map((e) => e.line).toList();
+
+      expect(
+        filesNamed(runRoot, 'escaped.vcd'),
+        isEmpty,
+        reason: '`../escaped.vcd` must not be written next to the task dir',
+      );
+      expect(
+        absoluteSource.readAsStringSync(),
+        'outside the task directory',
+        reason: 'an absolute trace must not be written back over itself',
+      );
+      expect(escapedSource.readAsStringSync(), 'outside the case');
+      expect(
+        filesNamed(runRoot, 'trace.vcd'),
+        hasLength(1),
+        reason: 'the honest trace inside the case is still staged',
+      );
+      expect(
+        lines.where((l) => l.contains('refused to stage demo trace')),
+        hasLength(2),
+      );
+      expect(
+        lines.any(
+          (l) => l.contains('refused to stage demo trace "../escaped.vcd"'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('a log name that escapes reads nothing', () async {
+      // The same string in the `log` slot would have streamed any file on the
+      // machine into the run as SymbiYosys output. A passing log outside the
+      // case must not turn into a pass.
+      File(p.join(corpusRoot.path, 'outside.log')).writeAsStringSync(
+        File(p.join(_corpus, 'insn_add_pass', 'sby.log')).readAsStringSync(),
+      );
+      corpusCase(
+        'escape_log',
+        <String, Object?>{'log': '../outside.log', 'traces': <String>[]},
+        log: 'no verdict here',
+      );
+
+      final events = await runWithEvents(specFor('escape_log'));
+      final lines = events.whereType<TestLog>().map((e) => e.line).toList();
+      final result = events.whereType<TestFinished>().single.result;
+
+      expect(lines.any((l) => l.contains(SbyLogReader.kPassMarker)), isFalse);
+      expect(result.status, isNot(TestStatus.pass));
+    });
+  });
 }
