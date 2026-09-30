@@ -24,7 +24,7 @@ SimCrux is localized in English, Simplified Chinese, Japanese and Korean. The
 
 ### Building from source {#from-source}
 
-To build the open-core app yourself (Flutter stable; CI pins 3.47.3):
+To build the open-core app yourself (Flutter stable; CI pins 3.47.5):
 
 ```bash
 git clone https://github.com/Ferrite-Engineering/simcrux.git

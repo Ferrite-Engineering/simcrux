@@ -82,7 +82,7 @@ jobs:
           # once, including repos with no commits that day. Bumping this is a
           # deliberate, reviewable commit; keep every workflow in the suite on the
           # same version, and bump the dev machines to match.
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Cache pub dependencies
@@ -150,7 +150,7 @@ jobs:
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Cache pub dependencies
@@ -302,7 +302,7 @@ jobs:
         with:
           channel: stable
           # Same pin as every other job in the suite — see `analyze`.
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Cache pub dependencies
@@ -372,7 +372,7 @@ jobs:
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Cache pub dependencies
@@ -426,7 +426,7 @@ jobs:
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Cache pub dependencies
@@ -487,7 +487,7 @@ jobs:
         with:
           channel: stable
           # Same pin as every other job in the suite — see `analyze`.
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Install dependencies
