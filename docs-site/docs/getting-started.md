@@ -1,9 +1,8 @@
 # Installation & first regression
 
 SimCrux is a desktop application that orchestrates the simulators you already
-have installed. There is no account to create, and through the 0.8.x public
-beta no license key to enter either — every tier is unlocked. From 1.0 the free
-Open Core runner still asks for no key; Pro and Enterprise features are what a
+have installed. There is no account to create, and the free
+Open Core runner asks for no key; Pro and Enterprise features are what a
 key unlocks ([Tiers & licensing](licensing.md)). This page covers getting the
 app on each platform, pointing it at your simulator binaries, and running your
 first regression end to end.
@@ -199,9 +198,9 @@ plain fetch of a static manifest and carries only the app name, its version and
 your operating system. Details are on
 [Updates, usage statistics & issue reporting](integrations/updates-and-feedback.md).
 
-## Reporting issues during the beta {#reporting-issues}
+## Reporting issues {#reporting-issues}
 
-SimCrux is in public beta. The fastest path to a fix is the built-in issue
+The fastest path to a fix is the built-in issue
 reporter: **Help → Submit Issue…**, the command palette
 (++cmd+shift+p++ / ++ctrl+shift+p++), or the **Submit Issue…** button in the
 About box. SimCrux assembles a diagnostic context for you — app version and

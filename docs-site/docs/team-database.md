@@ -7,12 +7,9 @@ no account or cloud service sits in the path, and verification data never leaves
 your network. This page is the database itself. Retention, the audit events and
 distributed execution are on [Administration](administration.md).
 
-!!! note "What it takes to try this"
-    Through the 0.8.x public beta every tier is unlocked and no licenses are
-    issued, so you can stand one of these up today without a key. From 1.0 the
-    team database is an Enterprise feature and asks for one; the PostgreSQL
-    server, the schema and everything else on this page are unchanged by that.
-    See [Tiers & licensing](licensing.md).
+!!! note "What it takes to run one"
+    The team database is an Enterprise feature and needs an Enterprise
+    license. See [Tiers & licensing](licensing.md).
 
 ## Local first, shared as well {#hybrid}
 

@@ -80,13 +80,11 @@ executable) looks for one in this order and uses the first it finds:
 
 The license is checked offline, exactly as the app checks it, with no network
 call. The run prints one `simcrux: license: …` line on stderr saying which tier
-it runs at and where the license came from. From 1.0 that tier decides what the
+it runs at and where the license came from. That tier decides what the
 project loads with — Pro, EDU and Enterprise expand `seeds:` and `parameters:`
 sweeps, Open Core does not — and whether `--fail-on-regression` runs: an Open
 Core run that asks for it prints `error: regression gate: …` naming the tier it
-resolved and exits `2` rather than passing a gate it did not evaluate. Through
-the 0.8.x public beta the line still names the tier, but nothing is withheld
-from a run whatever it says. With no license anywhere, the run is Open Core and
+resolved and exits `2` rather than passing a gate it did not evaluate. With no license anywhere, the run is Open Core and
 prints nothing.
 
 - A `--license-file` or `SIMCRUX_LICENSE_FILE` that cannot be read, or is empty,

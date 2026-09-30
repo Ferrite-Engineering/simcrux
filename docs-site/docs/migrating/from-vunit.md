@@ -93,8 +93,7 @@ which produces `alu_suite/alu+WIDTH=8`, `+WIDTH=16`, `+WIDTH=32` — three
 distinct, separately-reported tests — but the value does not reach GHDL.
 Until that lands, either bake the widths into three separate testbench
 entities, or drive them through a mechanism the simulator does see. Note
-too that a parameter sweep is a SimCrux Pro feature: the 0.8.x public beta
-expands it in every build, and from 1.0 an open-core build runs the test once
+too that a parameter sweep is a SimCrux Pro feature: an open-core build runs the test once
 and shows an advisory saying so ([details](../trends-and-flaky.md#sweeps)).
 
 ## Worked example

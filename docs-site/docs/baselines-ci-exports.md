@@ -32,11 +32,10 @@ not fail the gate. A baseline file that is missing, unreadable or holds no
 results is an error, not a pass: the run prints
 `error: regression gate: …` on stderr naming the path and exits `2`, so a
 mistyped path cannot quietly switch the gate off. The gate is a Pro feature and
-follows the run's [license tier](cli.md#license-in-ci). Through the 0.8.x public
-beta every run of the download's executable evaluates it; from 1.0 a run that
+follows the run's [license tier](cli.md#license-in-ci). A run that
 resolves as Open Core refuses it the same way a bad baseline is refused, with an
 `error: regression gate:` line naming the tier and exit `2`, rather than
-passing a gate it did not evaluate. Either way this needs the SimCrux
+passing a gate it did not evaluate. The gate needs the SimCrux
 download's own executable; in an open-core build the flag has no effect. See
 [Command line & CI](cli.md#arguments).
 

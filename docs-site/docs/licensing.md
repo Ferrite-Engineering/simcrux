@@ -17,17 +17,11 @@ In the app, actions that need a paid tier carry a **PRO** badge in the command
 palette and a tier suffix in the menu bar. The simulator drivers, the
 detectors and the RISC-V compatibility verdict are never tier-gated.
 
-## The beta, and what changes at 1.0 {#beta}
+## What the badges mean {#badges}
 
-Through the 0.8.x public beta every tier is unlocked for everyone and no
-license is needed: the badges above tell you what a key will unlock, not what
-is being withheld from you today.
-
-From 1.0 the badges take effect. Open Core stays free and stays open source —
-the whole runner in the first row of the table, with no account, no key and no
-time limit — and the Pro, Enterprise and EDU rows ask for a license. Nothing
-you configure in a beta build is invalidated by that: the same `simcrux.yaml`
-loads and the same tests run. Where a badged feature is the thing being asked
+Open Core is free and open source: the whole runner in the first row of the
+table, with no account, no key and no time limit. The Pro, Enterprise and EDU
+rows ask for a license. Where a badged feature is the thing being asked
 for, the app says so rather than quietly doing less — a sweep that is not
 expanded is named in a warning banner, and a CI regression gate that resolves
 below Pro fails the run instead of passing it.
@@ -35,6 +29,6 @@ below Pro fails the run instead of passing it.
 ## Entering a license key {#license-key}
 
 The SimCrux download includes a **Settings → License** section. It is where a
-key goes once licenses are issued — from 1.0 — and it is never tier-gated,
+key goes, and it is never tier-gated,
 because it is how a first key gets in. A CI run takes its license as a file
 instead; see [License tier in CI](cli.md#license-in-ci).

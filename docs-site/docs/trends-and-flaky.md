@@ -142,9 +142,8 @@ expands sweeps at the tier of the license it is given: `--license-file <path>`,
 else the file named by `SIMCRUX_LICENSE_FILE`, else the license in your
 organization's policy file — see [Command line & CI](cli.md#license-in-ci).
 
-!!! note "Sweeps need Pro from 1.0"
-    Through the 0.8.x public beta every build expands sweeps, whatever license
-    it holds. From 1.0 an open-core build runs a `seeds:` list or a list-valued
+!!! note "Sweeps need Pro"
+    An open-core build runs a `seeds:` list or a list-valued
     parameter once and says so: the app shows a **This project loaded with 1
     warning** banner above the results table, naming the file and line of each
     sweep it did not expand (**Dismiss** hides it until a load brings different

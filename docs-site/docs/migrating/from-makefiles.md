@@ -137,8 +137,7 @@ The effective seed is injected per simulator — `+seed=N` for Icarus,
 `+verilator+seed+N` for Verilator, `RANDOM_SEED` in the environment for
 cocotb. GHDL is report-only: the seed is recorded but not injected.
 
-Sweeps are a SimCrux Pro feature: the 0.8.x public beta expands them in every
-build, and from 1.0 an open-core build runs a `seeds:` list once and shows an
+Sweeps are a SimCrux Pro feature: an open-core build runs a `seeds:` list once and shows an
 [advisory](../trends-and-flaky.md#sweeps) that says so.
 `seed: N` — one pinned seed — works everywhere, in every tier.
 
@@ -156,8 +155,7 @@ expands to three tests with ids `alu/widths+WIDTH=8` etc.
 **Caveat:** parameters currently form the test id and drive the sweep,
 but are **not** emitted onto the simulator command line. If elaboration
 needs the value, use `defines:` for Verilog/SystemVerilog. Like `seeds:`,
-a parameter sweep is expanded in every 0.8.x beta build and needs SimCrux Pro
-from 1.0.
+a parameter sweep needs SimCrux Pro.
 
 One test entry may expand to at most 10,000 tests, so a careless
 three-axis sweep fails to load rather than melting your machine.

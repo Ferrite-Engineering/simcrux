@@ -86,8 +86,7 @@ Be clear-eyed about these before you plan the move:
   `TOPLEVEL_LANG` and `MODULE`.) If your tests are parameterized at
   elaboration time, use `defines:` where you can, and treat parameter
   sweeps as an id/organization mechanism for now.
-- **Sweeps are a Pro feature.** The 0.8.x public beta expands them in every
-  build; from 1.0 an open-core build runs a `seeds:` list or a list-valued
+- **Sweeps are a Pro feature.** An open-core build runs a `seeds:` list or a list-valued
   parameter once, and `--ci` expands them at the tier of the license it is
   given (see [Parameterization & seed sweeps](../trends-and-flaky.md#sweeps)).
 - **Concurrency is not a YAML key.** It comes from `--max-parallel` / `-j`

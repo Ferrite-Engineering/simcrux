@@ -63,9 +63,8 @@ records the seed but does not pass it to the testbench.
     `--license-file`, `SIMCRUX_LICENSE_FILE` or your policy file. See
     [License tier in CI](cli.md#license-in-ci).
 
-!!! note "Open core from 1.0"
-    Through the 0.8.x public beta every build expands sweeps, so this recipe
-    works as written with no license. From 1.0 the sweep is a Pro feature: an
+!!! note "Sweeps are Pro"
+    The sweep is a Pro feature: an
     open-core build runs the test once and shows a warning banner naming the
     sweep. See [Parameterization & seed sweeps](trends-and-flaky.md#sweeps).
 

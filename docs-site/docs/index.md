@@ -57,11 +57,8 @@ feature requires a paid tier, you will see a badge next to its name:
 | <span class="tier tier-edu">EDU</span> | Education tier. Every Pro feature, free for verified students, non-commercial. |
 
 !!! note "What a badge costs you"
-    Through the 0.8.x public beta every tier is unlocked for everyone and no
-    license key is needed, so a badge in the app or in these docs tells you what
-    a key will unlock rather than what is withheld. From 1.0 the badges take
-    effect: Open Core stays free, and Pro, Enterprise and EDU features ask for a
-    license. See [Tiers & licensing](licensing.md) for the full picture.
+    Open Core is free. A badge in the app or in these docs marks a feature that
+    asks for a Pro, Enterprise or EDU license. See [Tiers & licensing](licensing.md) for the full picture.
 
 ## How this guide is organized {#map}
 
@@ -75,8 +72,8 @@ feature requires a paid tier, you will see a badge next to its name:
   presets, color overrides, and `.crux-theme.json` theme packs.
 - [Keyboard & mouse reference](keyboard-mouse.md) — every default shortcut, the
   actions that ship unbound, and rebinding.
-- [Tiers & licensing](licensing.md) — what each tier unlocks, what the beta
-  unlocks for everyone, and what changes at 1.0.
+- [Tiers & licensing](licensing.md) — what each tier unlocks, and
+  entering a license key.
 
 **Running regressions**
 

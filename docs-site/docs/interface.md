@@ -127,7 +127,7 @@ Open Settings with ++cmd+comma++ / ++ctrl+comma++. The sections:
 |---|---|
 | General | **Auto-reload** (Prompt / Auto / Off), **Log preview lines**, **Run the regression when a config is opened**, **Automatically check for updates**, and in release builds **Enable diagnostics** (turns on **Tab Diagnostics…**; debug builds always have it). |
 | Appearance | **Language**, color theme **Presets**, **Color overrides** and **Theme packs**. See [Appearance & themes](appearance-and-themes.md). |
-| Privacy | **Send anonymous usage statistics** and the **Installation ID**. Shown only on builds that can send usage statistics: the 0.8.x beta builds collect nothing, so the section is absent from them and appears from 1.0. See [Usage statistics](integrations/updates-and-feedback.md#usage-statistics). |
+| Privacy | **Send anonymous usage statistics** and the **Installation ID**. See [Usage statistics](integrations/updates-and-feedback.md#usage-statistics). |
 | Simulators | A **Binary path** per simulator id. |
 | Editors | The **Editor command** for *Open testbench source*, with VS Code, Sublime Text, Vim, Emacs and Custom presets. |
 | CXP Cross-Probe | **Enable CXP server**, **CXP port** (default `54325`), **Request attention on cross-probe**, **Broadcast selection automatically**, and the CXP status. |

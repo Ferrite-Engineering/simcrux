@@ -40,10 +40,8 @@ Never project, design or result data.
 
 ## Usage statistics
 
-The 0.8.x public-beta builds collect nothing at all: no counters are sent, the
-first-launch notice does not appear, and neither does the **Privacy** section of
-Settings. Builds from 1.0 on collect anonymous usage statistics, and the rest of
-this section describes what those builds do and how you control it.
+SimCrux can send anonymous usage statistics. This section describes what it
+sends and how you control it.
 
 **Where you decide.** On first launch a one-time notice, **Help make
 SimCrux better**, shows a **Send anonymous usage statistics** switch above
