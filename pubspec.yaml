@@ -1,7 +1,7 @@
 name: simcrux
 description: "SimCrux: open-core EDA tool (Ferrite Engineering). See the WaveCrux reference implementation for the canonical open-core + Pro/Enterprise overlay pattern."
 publish_to: 'none'
-version: 1.0.0+9
+version: 1.0.1+10
 license: Apache-2.0
 
 environment:

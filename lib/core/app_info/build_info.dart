@@ -33,5 +33,5 @@ abstract final class SimCruxBuildInfo {
 
   /// Product version (semver, no build number) as it appears in
   /// `pubspec.yaml`.
-  static const String productVersion = '1.0.0';
+  static const String productVersion = '1.0.1';
 }

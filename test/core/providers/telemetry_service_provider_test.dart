@@ -73,13 +73,15 @@ void main() {
     expect(container.read(telemetryBetaPeriodProvider), isFalse);
 
     // Nobody has answered: once the stored answer has been read, nothing is
-    // collected.
+    // collected — the disclosure is on screen, and the launch's events wait
+    // for its answer rather than going anywhere.
     await container.read(telemetryConsentReadyProvider.future);
     expect(container.read(telemetryEnabledProvider), isFalse);
     expect(
       container.read(telemetryServiceProvider),
-      isA<NoopTelemetryService>(),
+      isA<PendingTelemetryService>(),
     );
+    expect(container.read(telemetryGateProvider), TelemetryGate.closed);
 
     // An explicit yes opens the gate, which no beta build allowed.
     container.read(telemetryConsentStoreProvider.notifier).state =
