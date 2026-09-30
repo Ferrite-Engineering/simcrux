@@ -87,7 +87,7 @@ Future<void> _settle() async {
 Future<UpdateStatus> _launchAndSettle(ProviderContainer container) async {
   container.read(updateStatusProvider);
   await _settle();
-  return container.read(updateStatusProvider);
+  return await container.read(updateStatusProvider);
 }
 
 void main() {

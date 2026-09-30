@@ -84,7 +84,6 @@ abstract class RetryPolicy {
 /// error from [prepareForRun] so a trend-store hiccup degrades to the
 /// policy's cold-cache behavior (conservative "no retry") instead of
 /// aborting the run.
-// ignore: one_member_abstracts
 abstract class PreparableRetryPolicy {
   /// Eagerly loads any async state the policy's [RetryPolicy.shouldRetry]
   /// decisions depend on for the tests in [specs]. Called once per run,

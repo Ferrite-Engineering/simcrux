@@ -37,7 +37,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     final service = ref.read(settingsServiceProvider);
-    return service.load();
+    return await service.load();
   }
 
   /// Records [path] at the top of the recent-projects list, removing

@@ -98,6 +98,6 @@ class WaveformArchive {
   Future<int> prune(DumpRetentionPolicy policy) async {
     if (policy.isUnbounded) return 0;
     final root = await _root();
-    return pruneRetainedDumpsAcrossRunsAsync(Directory(root), policy);
+    return await pruneRetainedDumpsAcrossRunsAsync(Directory(root), policy);
   }
 }

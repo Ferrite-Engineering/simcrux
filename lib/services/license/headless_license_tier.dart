@@ -129,20 +129,23 @@ class HeadlessLicenseTierResolver {
   Future<HeadlessLicenseResolution> resolve({String? licenseFilePath}) async {
     final flag = licenseFilePath?.trim();
     if (flag != null && flag.isNotEmpty) {
-      return _fromExplicitFile(flag, 'license file $flag (--license-file)');
+      return await _fromExplicitFile(
+        flag,
+        'license file $flag (--license-file)',
+      );
     }
 
     final env =
         (_environment ?? Platform.environment)[kSimcruxLicenseFileEnvVar]
             ?.trim();
     if (env != null && env.isNotEmpty) {
-      return _fromExplicitFile(
+      return await _fromExplicitFile(
         env,
         'license file $env ($kSimcruxLicenseFileEnvVar)',
       );
     }
 
-    return _fromPolicy();
+    return await _fromPolicy();
   }
 
   Future<HeadlessLicenseResolution> _fromExplicitFile(
@@ -158,7 +161,7 @@ class HeadlessLicenseTierResolver {
     if (credential.trim().isEmpty) {
       throw HeadlessLicenseException('$label is empty');
     }
-    return _validate(credential, label);
+    return await _validate(credential, label);
   }
 
   Future<HeadlessLicenseResolution> _fromPolicy() async {
@@ -199,7 +202,7 @@ class HeadlessLicenseTierResolver {
           ]);
         }
     }
-    return _validate(credential, label);
+    return await _validate(credential, label);
   }
 
   Future<HeadlessLicenseResolution> _validate(

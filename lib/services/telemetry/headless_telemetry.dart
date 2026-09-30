@@ -105,5 +105,5 @@ Future<TelemetryService> resolveHeadlessTelemetry(
   if (!await headlessTelemetryAllowed(container)) {
     return const NoopTelemetryService();
   }
-  return container.read(telemetryServiceProvider);
+  return await container.read(telemetryServiceProvider);
 }

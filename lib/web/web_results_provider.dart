@@ -31,7 +31,7 @@ final FutureProvider<WebResultsDocument> webResultsProvider =
     FutureProvider<WebResultsDocument>((ref) async {
       final loader = ref.watch(webResultsLoaderProvider);
       final url = ref.watch(webResultsUrlProvider);
-      return loader.load(resultsUrl: url);
+      return await loader.load(resultsUrl: url);
     });
 
 /// Notifier backing [webOpenedDocumentProvider].

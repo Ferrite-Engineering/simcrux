@@ -235,9 +235,9 @@ class InboundRequestHandler {
         reason: refusal,
       );
     }
-    return isSimcruxProjectPath(path)
+    return await (isSimcruxProjectPath(path)
         ? _openProjectForPeer(path)
-        : _openSourceInEditor(path);
+        : _openSourceInEditor(path));
   }
 
   /// Opens the SimCrux project at [path] as a config tab, through the
@@ -355,7 +355,7 @@ class InboundRequestHandler {
     // path gets the wire rule on the value about to be opened.
     if (!ref.read(cxpPathContainmentProvider).allows(path)) return false;
     final launcher = ref.read(editorLauncherProvider);
-    return launcher.openSource(filePath: path);
+    return await launcher.openSource(filePath: path);
   }
 
   /// Reads provider [provider] from the active tab's container when

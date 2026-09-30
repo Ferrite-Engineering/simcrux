@@ -158,7 +158,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.3.2
-  go_router: ^17.3.0
+  go_router: ^18.0.2
   intl: any
   # Log records: SEVERE and above are written to stderr alongside the issue
   # reporter's in-memory buffer (lib/services/logging/).
@@ -196,7 +196,7 @@ dependencies:
   # its XML with a StringBuffer; that is a writer with fixed shape, whereas
   # reading a document another tool produced is exactly where a real parser
   # earns its place.
-  xml: ^6.6.1
+  xml: ^7.1.0
   yaml: ^3.1.2
 
 dev_dependencies:
@@ -243,7 +243,7 @@ dev_dependencies:
   # depend_on_referenced_packages.
   path_provider_platform_interface: ^2.1.3
   plugin_platform_interface: ^2.1.8
-  very_good_analysis: ^10.2.0
+  very_good_analysis: ^11.0.0
 
 flutter:
   generate: true

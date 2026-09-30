@@ -182,12 +182,12 @@ class SimcruxCli {
 
     final importPath = parsedArgs.importFusesoc;
     if (importPath != null && importPath.isNotEmpty) {
-      return _runFusesocImport(importPath, stdoutSink, stderrSink);
+      return await _runFusesocImport(importPath, stdoutSink, stderrSink);
     }
 
     final importKind = RiscvImportKind.fromSubcommand(parsedArgs.subcommand);
     if (importKind != null) {
-      return _runRiscvImport(
+      return await _runRiscvImport(
         importKind,
         parsedArgs.subcommandArgs,
         stdoutSink,
@@ -196,7 +196,7 @@ class SimcruxCli {
     }
 
     if (parsedArgs.subcommand == CliArgParser.kExportDashboardSubcommand) {
-      return _runExportDashboard(
+      return await _runExportDashboard(
         parsedArgs.subcommandArgs,
         stdoutSink,
         stderrSink,
@@ -204,7 +204,7 @@ class SimcruxCli {
     }
 
     if (parsedArgs.ciMode && parsedArgs.hasProject) {
-      return _runCi(parsedArgs, stdoutSink, stderrSink);
+      return await _runCi(parsedArgs, stdoutSink, stderrSink);
     }
 
     // Everything else is a GUI invocation — a positional project without

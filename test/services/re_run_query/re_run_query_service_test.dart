@@ -40,7 +40,7 @@ void main() {
         ),
       );
       addTearDown(
-        () async => store.recordRunCompletion(
+        () async => await store.recordRunCompletion(
           RunSummary(
             runId: _runId,
             startedAt: DateTime.utc(2026, 5, 25, 12),

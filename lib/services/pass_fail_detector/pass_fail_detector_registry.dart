@@ -170,7 +170,7 @@ class PassFailDetectorRegistry {
       case RegexPassFailConfig():
         final detector = regexDetector;
         if (detector is RegexDetector) {
-          return detector.detectAsync(
+          return await detector.detectAsync(
             stdout: stdout,
             stderr: stderr,
             exitCode: exitCode,
@@ -191,7 +191,7 @@ class PassFailDetectorRegistry {
       case GoldenComparePassFailConfig():
         final detector = goldenCompareDetector;
         if (detector is GoldenCompareDetector) {
-          return detector.detectAsync(
+          return await detector.detectAsync(
             stdout: stdout,
             stderr: stderr,
             exitCode: exitCode,
@@ -211,7 +211,7 @@ class PassFailDetectorRegistry {
           config: config,
         );
       case CompositePassFailConfig():
-        return _classifyCompositeAsync(
+        return await _classifyCompositeAsync(
           config,
           stdout: stdout,
           stderr: stderr,

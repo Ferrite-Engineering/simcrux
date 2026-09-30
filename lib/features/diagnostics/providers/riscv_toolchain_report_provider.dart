@@ -43,5 +43,5 @@ final FutureProvider<RiscvToolchainReport> riscvToolchainReportProvider =
       if (driver is! RiscvArchDriver) {
         return RiscvToolchainReport(components: const <RiscvComponentReport>[]);
       }
-      return driver.probeFor().probe(const RiscvConfig());
+      return await driver.probeFor().probe(const RiscvConfig());
     }, name: 'riscvToolchainReportProvider');

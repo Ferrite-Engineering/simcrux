@@ -13,7 +13,6 @@ import 'package:simcrux/web/web_results_document.dart';
 /// `simcrux-results.json` or `results.ndjson` from same-origin URLs.
 /// Tests inject a fake implementation through the provider's
 /// `overrideWith`.
-// ignore: one_member_abstracts
 abstract class WebResultsLoader {
   /// Const constructor for subclasses.
   const WebResultsLoader();

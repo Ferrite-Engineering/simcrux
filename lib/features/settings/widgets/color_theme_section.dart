@@ -157,7 +157,7 @@ class _ColorThemeSectionState extends ConsumerState<ColorThemeSection> {
     );
     final path = result?.files.single.path;
     if (path == null) return null;
-    return File(path).readAsString();
+    return await File(path).readAsString();
   }
 
   /// Writes [document] to a user-chosen destination and returns the

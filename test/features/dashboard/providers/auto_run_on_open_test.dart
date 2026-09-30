@@ -184,7 +184,7 @@ void main() {
         overrides: [
           ...answeredTelemetryOverrides(),
           configLoaderProvider.overrideWithValue(
-            ConfigLoader(readFile: (_) async => gate),
+            ConfigLoader(readFile: (_) async => await gate),
           ),
         ],
       );

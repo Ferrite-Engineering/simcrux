@@ -275,7 +275,7 @@ void main() {
         }
       },
     );
-    return completer.future;
+    return await completer.future;
   }
 
   group('RegressionRunner.start', () {

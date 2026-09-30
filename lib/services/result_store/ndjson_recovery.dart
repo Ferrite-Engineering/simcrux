@@ -47,7 +47,6 @@ class NdjsonRecoveryResult {
 /// per-project stores; no Pro call site consumes it today.
 // Single-method by design — this is a swappable seam, not a candidate
 // for a top-level function.
-// ignore: one_member_abstracts
 abstract class NdjsonRecovery {
   /// Scans [path], trims any truncated/garbled trailing record, and (when
   /// it trimmed) rewrites the file to its repaired state. Idempotent: a

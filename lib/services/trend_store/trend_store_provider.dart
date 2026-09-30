@@ -100,7 +100,7 @@ final FutureProvider<TrendStore> trendStoreProvider =
 final FutureProvider<TrendStorageStats> trendStorageStatsProvider =
     FutureProvider<TrendStorageStats>((ref) async {
       final store = await ref.watch(trendStoreProvider.future);
-      return store.storageStats();
+      return await store.storageStats();
     }, retry: trendStoreRetry);
 
 /// What `trends.db` records about its own schema — version, the build that
@@ -127,5 +127,5 @@ final FutureProvider<TrendSchemaInfo> trendSchemaInfoProvider =
       final store = await ref.watch(trendStoreProvider.future);
       // Stores with no file behind them inherit the interface default, which
       // is `absent` — the same answer, reached by asking rather than guessing.
-      return store.schemaInfo();
+      return await store.schemaInfo();
     }, retry: trendStoreRetry);

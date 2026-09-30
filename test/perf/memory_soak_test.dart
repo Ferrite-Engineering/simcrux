@@ -152,7 +152,7 @@ class _DiscardSink implements IOSink {
   void addError(Object error, [StackTrace? stackTrace]) {}
   @override
   Future<void> addStream(Stream<List<int>> stream) async =>
-      stream.drain<void>();
+      await stream.drain<void>();
   @override
   Future<void> close() async {}
   @override

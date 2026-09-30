@@ -17,7 +17,6 @@ import 'package:simcrux/domain/models/pass_fail_config.dart';
 // variant. The "convert to top-level function" lint hint does not
 // apply because 4+ concrete classes plug in against this
 // single interface.
-// ignore: one_member_abstracts
 abstract class PassFailDetector {
   /// Classify a single completed run.
   ///

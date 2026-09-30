@@ -194,7 +194,7 @@ class RiscvArchDriver extends ProcessBackedSimulatorDriver {
     final stderrCapture = request.stderrCapture ?? BoundedLogCapture();
     switch (cfg.effectiveMode) {
       case RiscvRunMode.demo:
-        return _demoCompile(request, cfg, stdoutCapture, stderrCapture);
+        return await _demoCompile(request, cfg, stdoutCapture, stderrCapture);
       case RiscvRunMode.riscofPassthrough:
         stdoutCapture.addLine(
           'riscv_arch: mode=riscof_passthrough — no compile stage; the '
@@ -207,7 +207,7 @@ class RiscvArchDriver extends ProcessBackedSimulatorDriver {
           stderr: stderrCapture.text,
         );
       case RiscvRunMode.normal:
-        return _normalCompile(request, cfg, stdoutCapture, stderrCapture);
+        return await _normalCompile(request, cfg, stdoutCapture, stderrCapture);
     }
   }
 

@@ -103,7 +103,6 @@ class FailOnRegressionDecision {
 /// always-pass; the Pro implementation runs the comparison engine.
 /// The abstract class is load-bearing so Pro overrides do not need
 /// to redefine the typedef.
-// ignore: one_member_abstracts
 abstract class FailOnRegressionPolicy {
   /// Returns the decision for the just-completed [candidate] run.
   ///

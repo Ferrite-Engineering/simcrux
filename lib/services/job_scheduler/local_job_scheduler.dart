@@ -1000,7 +1000,7 @@ class LocalJobScheduler implements JobScheduler {
     if (waveformPath == null || waveformPath.isEmpty) return null;
     final archive = passingWaveformArchive;
     if (archive == null) return null;
-    return archive.retain(
+    return await archive.retain(
       waveformPath: waveformPath,
       runId: runId,
       testId: testId,

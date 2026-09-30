@@ -39,9 +39,9 @@ class _FakeProcess implements TestProcess {
 
   @override
   Future<int> get exitCode async {
-    if (_exitCompleter.isCompleted) return _exitCompleter.future;
+    if (_exitCompleter.isCompleted) return await _exitCompleter.future;
     if (!hangForever) _exitCompleter.complete(exit);
-    return _exitCompleter.future;
+    return await _exitCompleter.future;
   }
 
   @override

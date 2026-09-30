@@ -374,7 +374,7 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
       },
       buildFinished: (exitCode, process) async {
         stopwatch.stop();
-        return buildTerminalEvent(
+        return await buildTerminalEvent(
           cfg: cfg,
           outcome: reader.outcome,
           script: script,

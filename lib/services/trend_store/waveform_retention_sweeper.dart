@@ -138,7 +138,7 @@ class FileSystemDelegate {
   Future<int?> sizeOf(String path) async {
     final file = File(path);
     if (!file.existsSync()) return null;
-    return file.length();
+    return await file.length();
   }
 
   /// Unlinks [path].

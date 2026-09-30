@@ -988,7 +988,7 @@ WHERE waveform_path IS NOT NULL
     );
     final lo = boundsRows.first['lo'];
     if (lo is! int) return 0;
-    return _db.rawDelete(
+    return await _db.rawDelete(
       '''
 DELETE FROM runs
 WHERE started_at < ?

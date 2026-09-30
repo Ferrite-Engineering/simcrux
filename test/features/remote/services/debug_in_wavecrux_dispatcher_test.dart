@@ -696,7 +696,7 @@ void main() {
           ).cancel,
         );
       }
-      return container
+      return await container
           .read(debugInWaveCruxDispatcherProvider)
           .dispatch(
             waveformPath: waveformFile.path,

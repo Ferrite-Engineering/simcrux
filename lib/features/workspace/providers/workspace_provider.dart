@@ -198,7 +198,7 @@ class SimcruxWorkspaceNotifier extends WorkspaceNotifier<SimcruxTabPayload> {
   @override
   Future<bool> shouldRestoreOnLaunch() async {
     final injected = restoreGate;
-    if (injected != null) return injected();
+    if (injected != null) return await injected();
     try {
       final settings = await ref.read(settingsServiceProvider).load();
       return settings.restoreTabsOnLaunch;

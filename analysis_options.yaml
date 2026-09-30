@@ -1,5 +1,13 @@
 include: package:very_good_analysis/analysis_options.yaml
 
+# very_good_analysis 11 sets `trailing_commas: automate`, under which the
+# formatter removes every trailing comma that fits on one line and would
+# reformat a large share of this tree. The suite still formats with
+# `preserve` on purpose: that migration is a deliberate, suite-wide,
+# one-commit-per-repo change, not a side effect of a lint-set bump.
+formatter:
+  trailing_commas: preserve
+
 analyzer:
   # Dart's strict language modes.
   #
