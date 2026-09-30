@@ -1,0 +1,53 @@
+# Analysis rules for `tool/` — one-shot generators and maintenance scripts.
+#
+# `tool/` is analyzed with a lighter rule set rather than excluded: excluding
+# `tool/**` from the analyzer leaves thousands of lines of real code
+# unanalyzed.
+#
+# **Errors and warnings stay on, unchanged.** That is where the value is, and
+# turning them on immediately found two: `generate_riscv_fixtures.dart` and
+# `generate_spi_flash_fixtures.dart` each carried a constructor parameter no
+# caller ever overrode. The strict language modes inherited from the root stay
+# on too — a script that silently casts a `dynamic` is exactly as wrong as a
+# widget that does.
+#
+# **The style lints below are off.** They exist to keep *library* code legible
+# for the next reader of an API. Nothing imports these files; they are run by
+# hand or by CI, they print, and they exit. Enforcing cascade syntax and const
+# constructors in a fixture generator costs edits and buys nothing, and a
+# ruleset that reports 83 findings none of which are defects is one people
+# learn to run with `|| true`.
+include: ../analysis_options.yaml
+
+linter:
+  rules:
+    # Call-site ergonomics for APIs with no callers outside the file.
+    always_put_required_named_parameters_first: false
+    avoid_redundant_argument_values: false
+    public_member_api_docs: false
+    # Syntax preference, not correctness.
+    cascade_invocations: false
+    curly_braces_in_flow_control_structures: false
+    prefer_function_declarations_over_variables: false
+    unnecessary_brace_in_string_interps: false
+    use_is_even_rather_than_modulo: false
+    use_null_aware_elements: false
+    use_raw_strings: false
+    avoid_escaping_inner_quotes: false
+    directives_ordering: false
+    unnecessary_underscores: false
+    # `const` in a script that runs once and exits saves nothing measurable.
+    prefer_const_constructors: false
+    prefer_const_declarations: false
+    prefer_const_literals_to_create_immutables: false
+    # Local-variable typing conventions. The strict *language* modes above are
+    # what actually prevent an untyped value flowing somewhere it shouldn't.
+    omit_local_variable_types: false
+    prefer_final_locals: false
+    specify_nonobvious_property_types: false
+    # A stale `// ignore:` in a generator is untidy, not a defect, and this
+    # rule fires precisely when a lint above has been turned off.
+    unnecessary_ignore: false
+    # See the file-level exemption in lintcrux's generate_engine_corpus.dart
+    # for why these are handled per-file rather than disabled here: the
+    # missing-comma bug they catch is real.

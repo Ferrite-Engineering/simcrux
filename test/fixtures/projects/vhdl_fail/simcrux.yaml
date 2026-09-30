@@ -1,0 +1,19 @@
+version: '1'
+
+defaults:
+  simulator: ghdl
+  pass_fail:
+    type: string_match
+    pass_string: TEST PASSED
+    fail_string: TEST FAILED
+  waveform:
+    capture: never
+
+suites:
+  smoke:
+    description: Single-test fail-path smoke suite for the ghdl driver fixture.
+    tests:
+      - name: fail_basic
+        top: tb_fail
+        sources:
+          - tb_fail.vhd

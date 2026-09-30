@@ -1,0 +1,46 @@
+# Tab walk: 45 stops, cycles
+1. Passing button
+2. Filter by test name… edit
+3. Pass button
+4. Fail button
+5. Vacuous button
+6. Cover hit button
+7. Running button
+8. Skipped button
+9. Timeout button
+10. Cancelled button
+11. Unknown button
+12. uart button
+13. spi button
+14. icarus button
+15. verilator button
+16. Table button selected
+17. Heatmap button
+18. Status button
+19. Suite button
+20. Test button
+21. Simulator button
+22. Duration button
+23. Started button
+24. Pass: uart / tx_basic, icarus, ran in 1.2s check box not checked
+25. Fail: uart / rx_parity, icarus, ran in 350ms check box not checked
+26. Pass: spi / loopback, verilator, ran in 2.4s check box not checked
+27. [Panel dock Log grouping] Hide Panel button
+28. [Details dock Details grouping] Hide Panel button
+29. Statistics button collapsed
+30. [Toolbar grouping] Open Config… (Ctrl+O) button
+31. Close Project (Ctrl+Shift+W) button
+32. Search… (Ctrl+F) button
+33. Cross-Probe Panel (Ctrl+Shift+X) button
+34. Settings… (Ctrl+,) button
+35. Import FuseSoC .core File… (Ctrl+I) button
+36. Run Regression button
+37. [Active pane grouping] simcrux.yaml button selected — /kit/simcrux.yaml
+38. [simcrux.yaml button] Close simcrux.yaml button
+39. [Browser dock Tests grouping] Hide Panel button
+40. uart button expanded
+41. tx_basic, Pass button
+42. rx_parity, Fail button
+43. spi button expanded
+44. loopback, Pass button
+45. Failures button

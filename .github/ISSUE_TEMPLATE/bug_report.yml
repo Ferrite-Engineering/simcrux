@@ -1,0 +1,112 @@
+name: 🐞 Bug report
+description: Something in SimCrux is broken or behaves incorrectly.
+title: "[Bug]: "
+labels: ["bug", "user-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve SimCrux!
+
+        **Tip:** the easiest way to file a bug is from inside the app —
+        **Help → Submit Issue** — which fills in your version, platform, and an
+        optional diagnostics snapshot for you. Use this form if you'd rather
+        report by hand.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: |
+        1. Opened simcrux.yaml for my regression (42 tests, 8 in parallel)
+        2. Ran the suite; smoke/uvm_error_case emitted UVM_ERROR and exited 0
+        3. Expected it to be reported as a fail; SimCrux reported a pass
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A numbered list we can follow exactly.
+    validations:
+      required: true
+  - type: dropdown
+    id: simulator
+    attributes:
+      label: Which simulator?
+      options:
+        - Icarus Verilog
+        - Verilator
+        - GHDL
+        - cocotb
+        - Multiple / mixed
+        - Not simulator-specific
+    validations:
+      required: true
+  - type: input
+    id: simulator-version
+    attributes:
+      label: Simulator version
+      description: "`iverilog -V`, `verilator --version`, `ghdl --version`, or `cocotb-config --version`."
+      placeholder: "e.g. Icarus Verilog 12.0"
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of SimCrux?
+      options:
+        - Run orchestration (parallelism, timeouts, cancel, leftover processes)
+        - Pass/fail detection
+        - Results dashboard (table, filters, heatmap, test browser)
+        - Log streaming or the log viewer
+        - Test detail / inspector
+        - Trends, flaky detection, or baselines
+        - Seed sweeps / parameterization
+        - Config — simcrux.yaml parsing, filelists, mixed language
+        - FuseSoC .core import
+        - Export (JUnit / JSON / CSV / HTML / dashboard bundle)
+        - CLI or CI mode
+        - Multi-project workspace, sessions, or tabs
+        - Cross-probing (CXP) / Debug in WaveCrux
+        - Settings, theming, or shortcuts
+        - Web dashboard viewer
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Web (read-only dashboard viewer)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SimCrux version / build SHA
+      description: From **Help → About SimCrux** → **Copy Version Info** (the in-app reporter fills this in automatically).
+      placeholder: "e.g. 1.0.0 (00e3ec9)"
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics (optional)
+      description: |
+        Paste the diagnostics report from **Help → Submit Issue** if you have it.
+        Do **not** paste proprietary testbench source or simulator output.
+      render: text
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        **Got a project that reproduces this?** A minimal `simcrux.yaml` plus a
+        testbench is the most valuable thing you can attach — use the
+        [fixture submission form](https://github.com/Ferrite-Engineering/simcrux/issues/new?template=fixture_submission.yml).
+        Please only attach files you can share under a permissive license.

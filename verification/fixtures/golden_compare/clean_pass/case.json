@@ -1,0 +1,6 @@
+{
+  "description": "Identical dumps. The only case that may report pass.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

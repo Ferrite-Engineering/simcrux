@@ -1,0 +1,20 @@
+{
+  "scenario": "timeout_then_sigkill",
+  "tests": {
+    "alu_mul": {
+      "exitCode": 0,
+      "delayMs": 86400000,
+      "ignoresSigterm": true,
+      "spawnsChildren": 0
+    },
+    "uart_loopback": {
+      "exitCode": 1,
+      "delayMs": 1,
+      "ignoresSigterm": false,
+      "spawnsChildren": 0,
+      "stderr": [
+        "UVM_ERROR : 3 errors"
+      ]
+    }
+  }
+}

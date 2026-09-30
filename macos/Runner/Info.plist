@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>$(PRODUCT_COPYRIGHT)</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<!-- The suite design manifest, <design>.crux-project. SimCrux
+			     opens the regression config its simulation: entry names.
+
+			     Alternate, like every other EDACrux product: the manifest is
+			     the suite's, all four register it, and two of them claiming
+			     owner rank left which app a double-click opened to Launch
+			     Services' own ordering — an answer nobody chose and one that
+			     changes when an app is reinstalled or moved. With all four
+			     deferring, macOS asks the user once and keeps their answer. -->
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>crux-project</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>EDACrux Design Manifest</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>app.edacrux.project</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>yaml</string>
+				<string>yml</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>SimCrux Configuration</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<!-- Alternate, never the owner. A regression manager has no business
+			     becoming the default application for every YAML file on
+			     somebody's Mac; .yaml is a shared extension and simcrux.yaml is
+			     one file in a repository full of them. Alternate still lists
+			     SimCrux under Open With, and a user who wants double-click can
+			     still choose it in Get Info. SimCrux's own extensions
+			     (.simcrux-session, .simcrux-workspace) stay owner rank. -->
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<!-- By extension only, deliberately with no LSItemContentTypes. Naming
+			     public.yaml there would claim every type that conforms to it,
+			     whatever another app declared it as, and Launch Services ignores
+			     the extensions whenever content types are present. -->
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>simcrux-session</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>SimCrux Session File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.simcrux.session</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>simcrux-workspace</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>SimCrux Workspace File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.simcrux.workspace</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>app.edacrux.project</string>
+			<key>UTTypeDescription</key>
+			<string>EDACrux Design Manifest</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.yaml</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>crux-project</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>public.yaml</string>
+			<key>UTTypeDescription</key>
+			<string>YAML File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>yaml</string>
+					<string>yml</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/x-yaml</string>
+			</dict>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.simcrux.session</string>
+			<key>UTTypeDescription</key>
+			<string>SimCrux Session File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>simcrux-session</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.simcrux.workspace</string>
+			<key>UTTypeDescription</key>
+			<string>SimCrux Workspace File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>simcrux-workspace</string>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

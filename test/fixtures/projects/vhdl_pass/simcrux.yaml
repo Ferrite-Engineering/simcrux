@@ -1,0 +1,18 @@
+version: '1'
+
+defaults:
+  simulator: ghdl
+  pass_fail:
+    type: string_match
+    pass_string: TEST PASSED
+  waveform:
+    capture: never
+
+suites:
+  smoke:
+    description: Single-test smoke suite for the ghdl driver fixture.
+    tests:
+      - name: pass_basic
+        top: tb_pass
+        sources:
+          - tb_pass.vhd

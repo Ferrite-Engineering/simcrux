@@ -1,0 +1,75 @@
+CAPI=2:
+
+name: ::multi:0.1.0
+description: |
+  Multi-target fixture exercising parameter routing, fileset
+  dependencies, and tool selection across three simulators.
+
+filesets:
+  rtl_core:
+    files:
+      - rtl/alu.v
+      - rtl/regfile.v
+    file_type: verilogSource
+  rtl_vhdl:
+    files:
+      - rtl/uart_pkg.vhd
+    file_type: vhdlSource
+  tb_alu:
+    files:
+      - tb/alu_tb.sv
+    file_type: systemVerilogSource
+    depend:
+      - rtl_core
+  tb_regfile:
+    files:
+      - tb/regfile_tb.sv
+    file_type: systemVerilogSource
+    depend:
+      - rtl_core
+  tb_uart:
+    files:
+      - tb/uart_tb.vhd
+    file_type: vhdlSource
+    depend:
+      - rtl_vhdl
+
+parameters:
+  WIDTH:
+    datatype: int
+    default: 8
+    paramtype: vlogparam
+    description: Bus width
+  DEBUG:
+    datatype: bool
+    default: false
+    paramtype: vlogdefine
+    description: Enable debug printfs
+
+targets:
+  default:
+    filesets: [rtl_core]
+    description: Library packaging target (no toplevel — skipped).
+
+  sim_alu:
+    filesets: [tb_alu]
+    toplevel: alu_tb
+    default_tool: icarus
+    parameters:
+      - WIDTH=16
+      - DEBUG=1
+    tools:
+      icarus:
+        iverilog_options: [-g2012]
+
+  sim_regfile:
+    filesets: [tb_regfile]
+    toplevel: regfile_tb
+    default_tool: verilator
+    parameters:
+      - WIDTH=32
+
+  sim_uart:
+    filesets: [tb_uart]
+    toplevel: uart_tb
+    default_tool: ghdl

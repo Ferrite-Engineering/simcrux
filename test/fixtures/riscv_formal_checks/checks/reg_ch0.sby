@@ -1,0 +1,18 @@
+# Generated-shaped riscv-formal job file. See ../README.md — the sources
+# named below do not exist and are never read.
+[options]
+mode prove
+depth 15
+timeout 3600
+
+[engines]
+smtbmc --syn --nopresat yices
+
+[script]
+read_verilog -sv demo_core.v
+read_verilog -sv rvfi_reg_check.sv
+prep -top rvfi_testbench -nordff
+
+[files]
+demo_core.v
+rvfi_reg_check.sv

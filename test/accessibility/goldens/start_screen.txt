@@ -1,0 +1,12 @@
+# Tab walk: 11 stops, cycles
+1. Open Session… button
+2. Open Workspace… button
+3. WaveCrux Open the waveform a failing run wrote. VCD, FST and GHW, on desktop, web and phone. link
+4. NetCrux Read the logic behind a failure. Hierarchical schematic browsing over the same sources. link
+5. LintCrux Find the bug before the regression does. Lint and CDC over the RTL the run compiles. link
+6. A member of the EDACrux suite of products — edacrux.app link
+7. [Toolbar grouping] Open Config… (Ctrl+O) button
+8. Cross-Probe Panel (Ctrl+Shift+X) button
+9. Settings… (Ctrl+,) button
+10. Import FuseSoC .core File… (Ctrl+I) button
+11. [SimCrux grouping] Open Config… button

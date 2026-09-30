@@ -1,0 +1,6 @@
+{
+  "description": "Divergence at offset 0 \u2014 the boundary case an off-by-one hides.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

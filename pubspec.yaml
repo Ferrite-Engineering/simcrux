@@ -1,0 +1,255 @@
+name: simcrux
+description: "SimCrux: open-core EDA tool (Ferrite Engineering). See the WaveCrux reference implementation for the canonical open-core + Pro/Enterprise overlay pattern."
+publish_to: 'none'
+version: 1.0.0+9
+license: Apache-2.0
+
+environment:
+  sdk: ^3.12.0
+
+# The headless CI binary. Built with `dart build cli` (not
+# `dart compile exe` — a package in the resolution declares a build
+# hook, which `dart compile` refuses); see `tool/build_cli.sh`.
+executables:
+  simcrux: simcrux
+
+dependencies:
+  args: ^2.5.0
+  crux_about_dialog:
+    path: ./crux-shared/packages/crux_about_dialog
+  crux_app_info:
+    path: ./crux-shared/packages/crux_app_info
+  # The suite's one trailing-edge Debouncer: the dashboard's test-name filter
+  # coalesces keystrokes through it.
+  crux_async:
+    path: ./crux-shared/packages/crux_async
+  crux_command_palette:
+    path: ./crux-shared/packages/crux_command_palette
+  crux_cxp:
+    path: ./crux-shared/packages/crux_cxp
+  # Shared docked cross-probe panel widget + app-agnostic controller
+  # contract. SimCrux hosts it via
+  # SimCruxCrossProbePanel and its SimCruxCrossProbePanelController adapter.
+  crux_cxp_ui:
+    path: ./crux-shared/packages/crux_cxp_ui
+  # Cross-suite VSCode-style tabbed dock for CruxIdeLayout regions.
+  crux_dock:
+    path: ./crux-shared/packages/crux_dock
+  # Cross-suite first-launch EULA acceptance — the agreement text generated
+  # from the executed document, a store that records which VERSION was accepted
+  # (so a changed agreement re-prompts, per EULA 2.3), and the blocking gate.
+  # Mounted outside TelemetryConsentGate: the telemetry disclosure asks consent
+  # for a term the EULA defines, so it cannot come first. The agreement is not
+  # localized — it is executed in English.
+  crux_eula:
+    path: ./crux-shared/packages/crux_eula
+  crux_file_watcher:
+    path: ./crux-shared/packages/crux_file_watcher
+  crux_ide_layout:
+    path: ./crux-shared/packages/crux_ide_layout
+  # Cross-suite beta issue reporter: diagnostic-log ring
+  # buffer, category collection, screenshot capture, markdown report builder
+  # and the pre-filled GitHub new-issue dialog. SimCrux supplies the config
+  # (repo slug), the ARB strings adapter, and the session-state contributor.
+  crux_io:
+    path: ./crux-shared/packages/crux_io
+  crux_issue_reporter:
+    path: ./crux-shared/packages/crux_issue_reporter
+  # Cross-suite customizable keyboard-binding infrastructure:
+  # platform-neutral KeyBinding/KeymapCodec/KeyBindingsStore, conflict
+  # detection, and the KeyBindingsEditor widget — all generic over CruxAction.
+  # SimCrux supplies its own SimcruxAction enum + defaultBindings + labels.
+  crux_keybindings:
+    path: ./crux-shared/packages/crux_keybindings
+  crux_license:
+    path: ./crux-shared/packages/crux_license
+  # AppImage first-run desktop self-integration (Linux/Wayland): writes the
+  # host-side .desktop + hicolor icons so GNOME/Ubuntu matches the running
+  # window's app_id to its dock icon. maybeIntegrateDesktopEntry is called in
+  # bootstrap(); it is inert off Linux and off AppImage.
+  crux_linux_integration:
+    path: ./crux-shared/packages/crux_linux_integration
+  # Cross-suite desktop menu bar: one declarative CruxMenuLayout rendered as
+  # the native macOS PlatformMenuBar or the in-window VS Code-style menu bar on
+  # Windows/Linux, with shared separator grouping, platform-idiomatic
+  # About/Settings/Quit placement, and the native key-equivalent guard.
+  crux_menu_bar:
+    path: ./crux-shared/packages/crux_menu_bar
+  crux_policy:
+    path: ./crux-shared/packages/crux_policy
+  # The `.crux-project` suite design manifest — SimCrux reads the
+  # `simulation` artifact, so one file opens the right config across the
+  # suite.
+  crux_project:
+    path: ./crux-shared/packages/crux_project
+  # Cross-suite multi-project workspace layer (ProjectDescriptor/Workspace,
+  # ProjectRegistry extension point, perProjectScope, JsonFileProjectRegistry)
+  # extracted from the near-verbatim LintCrux/SimCrux copies.
+  crux_projects:
+    path: ./crux-shared/packages/crux_projects
+  crux_settings:
+    path: ./crux-shared/packages/crux_settings
+  crux_settings_ui:
+    path: ./crux-shared/packages/crux_settings_ui
+  crux_shortcut_action:
+    path: ./crux-shared/packages/crux_shortcut_action
+  # The one SQLite open path in the suite (migration runner, open policy,
+  # PRECIOUS/DERIVABLE recovery, typed failure vocabulary) — see
+  # `sql_trend_store_io.dart`. Pure Dart; the headless `dart build cli`
+  # binary opens `trends.db` through it too.
+  crux_sqlite:
+    path: ./crux-shared/packages/crux_sqlite
+  # Shared live statistics strip: the collapsible ambient
+  # monitor, its sparkline, and the app-level FPS / process-RSS collectors.
+  crux_stats_strip:
+    path: ./crux-shared/packages/crux_stats_strip
+  # Cross-suite bottom status bar. RegressionStatusBar feeds the open
+  # config's file identity + a compact run summary into the shared
+  # CruxStatusBar chrome so SimCrux's bottom bar matches WaveCrux.
+  crux_status_bar:
+    path: ./crux-shared/packages/crux_status_bar
+  # Cross-suite anonymous usage-statistics pipeline: the
+  # event model, the disk queue, the coalescing batcher, the never-throwing
+  # ingest client, the beta × dev × consent gate, and both consent surfaces.
+  # SimCrux supplies the product slug, the ARB strings adapter, the
+  # persistence adapter, the `form_factor` derivation and — the one part that
+  # is genuinely per-product — the event catalog in
+  # `lib/services/telemetry/telemetry_event_catalog.dart`.
+  crux_telemetry:
+    path: ./crux-shared/packages/crux_telemetry
+  crux_theme:
+    path: ./crux-shared/packages/crux_theme
+  # Cross-suite application toolbar: one geometry token set, one button, one
+  # divider, one overflow strategy, plus the split-button, morphing run/stop,
+  # and badge affordances every product shares.
+  crux_toolbar:
+    path: ./crux-shared/packages/crux_toolbar
+  # Cross-suite update-check mechanism: manifest model,
+  # semver comparison, HTTP fetch, status notifier and the update banner.
+  # SimCrux supplies the manifest URI, the ARB strings adapter, the persisted
+  # auto-check setting and the observed-server-time store.
+  crux_updates:
+    path: ./crux-shared/packages/crux_updates
+  # Cross-suite VS Code-style frameless window chrome (custom title bar,
+  # left-aligned mnemonic menu bar, caption buttons) over window_manager on
+  # Windows/Linux; macOS keeps its native menu. SimCrux supplies its own logo
+  # and its DesktopMenuBar feeds the shared MnemonicMenuBar.
+  crux_window_chrome:
+    path: ./crux-shared/packages/crux_window_chrome
+  crux_workspace:
+    path: ./crux-shared/packages/crux_workspace
+  # PINNED, not caret-ranged, and **do not migrate to 12.0.0** — it is broken on
+  # macOS. 12.0.0's federated split lost the macOS Dart implementation:
+  # `file_picker_darwin` 1.0.0 has one Dart class serving two native handlers
+  # that speak different protocols. It sends the iOS method names (the *file
+  # type* — `custom`, `any`, `image`) while `MacOSFilePickerHandler.swift`
+  # switches on the *operation* (`pickFiles`, `saveFile`, `getDirectoryPath`),
+  # so every call raises MissingPluginException. Open, save and pick-directory
+  # are all dead on macOS; only `clear` survives. Linux, Windows and iOS are
+  # unaffected, which is why CI never saw it.
+  #
+  # A caret on a prerelease admits the stable, which is how 12.0.0 arrived
+  # uninvited. 12.0.0-beta.7 is the last working version — it carries a separate
+  # `lib/src/platform/macos/file_picker_macos.dart`.
+  # `test/static/file_picker_pin_test.dart` holds the line.
+  file_picker: 12.0.0-beta.7
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.3.2
+  go_router: ^17.3.0
+  intl: any
+  # Log records: SEVERE and above are written to stderr alongside the issue
+  # reporter's in-memory buffer (lib/services/logging/).
+  logging: ^1.3.0
+  meta: ^1.18.0  # pinned to 1.18.0 by flutter_test
+  package_info_plus: ^10.1.0  # file_picker 12 brings win32 ^6, which unblocks pip 10.x
+  panes: ^1.3.0
+  path: ^1.9.0
+  path_provider: ^2.1.0
+  # Riverpod core, imported (instead of the Flutter-bound
+  # `flutter_riverpod` barrel) by the provider files inside the headless
+  # CLI's import closure — see `lib/core/cli/simcrux_cli.dart` and
+  # `tool/build_cli.sh`. Same types; flutter_riverpod re-exports them.
+  riverpod: ^3.3.2
+  shared_preferences: ^2.2.0
+  # Kept as DIRECT dependencies even though `crux_sqlite` now owns the open
+  # path: `sql_trend_store_io.dart` and its tests still import `Database`,
+  # `DatabaseException`, `OpenDatabaseOptions` and `inMemoryDatabasePath`
+  # (sqflite_common) directly for the query/transaction surface that isn't
+  # migration or open-policy code, and the recovery/skew tests open a raw
+  # database via `sqfliteFfiInit()`/`databaseFactoryFfi` (sqflite_common_ffi)
+  # to craft fixtures bypassing the store. Dropping either would trip
+  # `depend_on_referenced_packages`. Versions match crux_sqlite's own pin, so
+  # this resolves no new major either way.
+  sqflite_common: ^2.5.4
+  sqflite_common_ffi: ^2.3.3
+  url_launcher: ^6.3.0
+  # Frameless custom title bar on Windows/Linux (VS Code-style chrome via
+  # crux_window_chrome); TitleBarStyle.hidden removes the OS decorations.
+  window_manager: ^0.5.0
+  # Reading Cocotb's results.xml. Already present transitively (6.6.1 via the
+  # existing graph), so this declares what is in the build rather than pulling
+  # in new third-party code — and `depend_on_referenced_packages` requires the
+  # declaration once it is imported directly. The JUnit *exporter* still builds
+  # its XML with a StringBuffer; that is a writer with fixed shape, whereas
+  # reading a document another tool produced is exactly where a real parser
+  # earns its place.
+  xml: ^6.6.1
+  yaml: ^3.1.2
+
+dev_dependencies:
+  # Resolved-AST source analysis for the static guards under `test/static/`
+  # (the per-tab provider scope-leak scanner). Pinned below 13.0.0: analyzer 13+
+  # requires Dart 3.13 and this package targets the 3.12 SDK. 12.1.0 is already
+  # the transitively resolved version, so the lockfile does not move.
+  analyzer: '>=12.1.0 <13.0.0'
+  # The focus walk (`crux_a11y_testing.dart`) behind
+  # `test/accessibility/screen_reader_test.dart`: what a desktop screen reader
+  # hears when Tab moves through a surface, pinned as a text transcript.
+  crux_a11y:
+    path: ./crux-shared/packages/crux_a11y
+  # Deterministic control of `Timer` for the tests whose subject IS a timing
+  # window (the trend-tick coalescing debounce). Polling cannot shorten a real
+  # debounce window, and asserting after a wall-clock sleep loses the race
+  # under load; `fakeAsync` removes the wall clock from the assertion instead
+  # of racing it. Already a transitive dep via flutter_test; promoted to a
+  # direct dev_dependency so the import satisfies
+  # depend_on_referenced_packages.
+  # The audit envelope, named directly by the emission tests' capturing sink.
+  # Test-only: production code reaches `AuditEvent` through crux_license's
+  # `CruxAuditRecorder`, so the runtime dependency stays where the binding is.
+  crux_audit:
+    path: ./crux-shared/packages/crux_audit
+  fake_async: ^1.3.0
+  flutter_test:
+    sdk: flutter
+  # `package:http/testing.dart`'s MockClient, for the hermetic update-check
+  # tests that drive the real crux_updates provider graph against a scripted
+  # manifest response. Already a transitive runtime dep via crux_updates;
+  # promoted to a direct dev_dependency so the import satisfies
+  # depend_on_referenced_packages.
+  http: ^1.2.0
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  # Test-only fake for path_provider. `flutter test` on Windows has no
+  # registered path_provider plugin, so any test that transitively resolves
+  # `getApplicationSupportDirectory()` throws MissingPluginException there
+  # (Linux's pure-Dart path_provider_linux masks it). Tests mock
+  # PathProviderPlatform.instance to a writable temp dir. Both are transitive
+  # runtime deps promoted to direct dev_deps so the imports satisfy
+  # depend_on_referenced_packages.
+  path_provider_platform_interface: ^2.1.3
+  plugin_platform_interface: ^2.1.8
+  very_good_analysis: ^10.2.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    # The SimCrux app icon (the VS Code-style title-bar logo via
+    # SimcruxIconImage). The master lives under macos/.../AppIcon; this is the
+    # Flutter-bundled copy.
+    - assets/images/

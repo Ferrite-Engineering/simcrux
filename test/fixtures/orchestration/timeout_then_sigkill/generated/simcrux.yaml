@@ -1,0 +1,16 @@
+# timeout_then_sigkill/generated/simcrux.yaml
+version: '1'
+
+defaults:
+  simulator: icarus
+  timeout: 60ms
+  pass_fail:
+    type: exit_code
+
+suites:
+  suite:
+    description: Timeout escalation — SIGTERM ignored, SIGKILL required.
+    tests:
+      - { name: alu_add, top: tb }
+      - { name: uart_loopback, top: tb }   # exits 1 with a UVM_ERROR summary
+      - { name: alu_mul, top: tb, timeout: 40ms }   # sleeps past timeout, ignores SIGTERM

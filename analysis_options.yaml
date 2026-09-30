@@ -1,0 +1,42 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  # Dart's strict language modes.
+  #
+  # very_good_analysis is a lint-rule package — it does not turn these on, so
+  # without them implicit dynamic downcasts typecheck throughout a codebase that
+  # parses a lot of untyped JSON and YAML: session documents, workspace files,
+  # pack manifests, CXP messages, update manifests.
+  #
+  # Measured before enabling rather than assumed: all three modes across all
+  # nine targets produced ZERO findings. The gap was real, but the discipline
+  # was already being kept by hand, so making it mechanical cost nothing.
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - lib/generated/**
+    - lib/l10n/generated/**
+    - '**/*.g.dart'
+    # The crux-shared submodule is a separate pub workspace with its own CI.
+    # `flutter analyze` would otherwise walk it and report unresolved
+    # `package:crux_yosys/...` self-imports for packages this app doesn't
+    # depend on (so they're absent from this package's config). It is
+    # validated by crux-shared's own analyze job, not here.
+    - crux-shared/**
+    - build/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
+linter:
+  rules:
+    # Deferred: class-level docs cover intent; member-level added incrementally.
+    public_member_api_docs: false
+    # Line length: 80 chars is too strict for complex doc lines; enforced
+    # by dartfmt in CI instead.
+    lines_longer_than_80_chars: false
+    # Doc comment cross-refs across files are valid in IDEs; no need to flag.
+    comment_references: false

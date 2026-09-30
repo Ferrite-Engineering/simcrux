@@ -1,0 +1,19 @@
+# Frozen schema fingerprints — SimCrux trend store
+#
+# APPEND ONLY. One line per shipped schema version:
+#   v<N>  <sha256 of the normalised sqlite_master dump at vN>
+#
+# Adding schema version N+1 adds ONE line here and changes
+# none. If a diff to this file MODIFIES an existing line, a
+# migration that has already shipped was edited — which means
+# fresh installs and upgraded installs now disagree about the
+# schema, silently, forever. Revert that edit and express the
+# change as a new migration instead.
+#
+# Guard G1 in crux_sqlite_guards.dart checks this file.
+# The rule: crux-shared/packages/crux_sqlite/README.md, rule 1.
+#
+v1  53da2a8f930ab72a757f3ed534f027e67bbd6a9d0bbe74e0cfffdee85538eeb8
+v2  4304b35c8b1b6b5b3b1583cfdabd66f266d9f573611efb900765a5b923e23e47
+v3  76a5931ebdf3784672c91332410b51f8da6a1fdaced7d236ba743f495f307036
+v4  07df668e1a827a81d983e37d71211521afcc896081643d3a46b03719a4a6ac9d

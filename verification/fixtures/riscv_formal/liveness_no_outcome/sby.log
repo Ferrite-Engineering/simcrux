@@ -1,0 +1,8 @@
+SBY 11:12:44 [liveness_ch0] Removing directory 'liveness_ch0'.
+SBY 11:12:44 [liveness_ch0] Copy 'rvfi_liveness_check.sv' to 'liveness_ch0/src/rvfi_liveness_check.sv'.
+SBY 11:12:44 [liveness_ch0] engine_0: aiger suprove
+SBY 11:12:44 [liveness_ch0] base: starting process "cd liveness_ch0/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 11:12:46 [liveness_ch0] base: finished (returncode=0)
+SBY 11:12:46 [liveness_ch0] aig: starting process "cd liveness_ch0/model; yosys -ql design_aiger.log design_aiger.ys"
+SBY 11:12:47 [liveness_ch0] aig: finished (returncode=0)
+SBY 11:12:47 [liveness_ch0] engine_0: starting process "cd liveness_ch0; suprove model/design_aiger.aig"

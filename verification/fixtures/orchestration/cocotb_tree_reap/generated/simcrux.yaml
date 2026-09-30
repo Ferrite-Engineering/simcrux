@@ -1,0 +1,14 @@
+# cocotb_tree_reap/generated/simcrux.yaml
+version: '1'
+
+defaults:
+  simulator: cocotb
+  timeout: 60ms
+  pass_fail:
+    type: exit_code
+
+suites:
+  suite:
+    description: Process-tree reaping for a cocotb run that outlives its timeout.
+    tests:
+      - { name: cocotb_dff, top: tb, timeout: 40ms }   # make -> python -> vvp grandchildren

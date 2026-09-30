@@ -1,0 +1,6 @@
+{
+  "description": "DUT dump is a strict prefix of the golden: the common prefix agrees but the DUT stopped early. Offset is where it ran out; only the golden carries a word there.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

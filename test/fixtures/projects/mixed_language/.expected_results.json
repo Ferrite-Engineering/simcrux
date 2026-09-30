@@ -1,0 +1,9 @@
+{
+  "description": "Mixed-language fixture: Verilog + VHDL + Cocotb Python sources under cocotb. The integration test asserts the fixture's `simcrux.yaml` loads without error (Cocotb admits any HDL); a parallel negative-path test asserts that switching `simulator: icarus` rejects the .vhd source with a clear mixed-language error.",
+  "tests": [
+    {
+      "id": "smoke/mixed_smoke",
+      "expected_status": "pass"
+    }
+  ]
+}

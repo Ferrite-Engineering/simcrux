@@ -1,0 +1,97 @@
+site_name: SimCrux Documentation
+site_url: https://docs.simcrux.app/
+site_description: >-
+  The SimCrux user guide — installing, writing simcrux.yaml, running parallel
+  regressions, pass/fail detection, the results dashboard, waveform debug,
+  trends and flaky tests, CI, and the team database.
+copyright: Copyright &copy; 2026 Ferrite Engineering LLC
+use_directory_urls: false
+docs_dir: docs
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  font: false
+  palette:
+    # Dark first, matching the marketing site; the toggle offers light.
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+extra:
+  homepage: https://simcrux.app
+extra_css:
+  - assets/brand.css
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed: { alternate_style: true }
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
+nav:
+  - Getting started:
+      - Overview: index.md
+      - Installation & first regression: getting-started.md
+      - The interface: interface.md
+      - Appearance & themes: appearance-and-themes.md
+      - Keyboard & mouse reference: keyboard-mouse.md
+      - Tiers & licensing: licensing.md
+  - Running regressions:
+      - Projects & simulators: projects-and-simulators.md
+      - Running tests: running-tests.md
+      - Pass/fail detection: pass-fail-detection.md
+      - The results dashboard: results-dashboard.md
+      - Waveforms & debug: waveforms-and-debug.md
+  - Track & ship:
+      - Trends, flaky tests & seeds: trends-and-flaky.md
+      - Baselines, CI & exports: baselines-ci-exports.md
+      - Command line & CI: cli.md
+      - CI recipes: ci.md
+      - Publishing the results dashboard: ci-integration.md
+      - The web dashboard: web-mode.md
+      - Team results database: team-database.md
+      - Cross-probe & the suite: integrations.md
+      - Use in VS Code: vscode.md
+      - Updates, usage statistics & issue reporting: integrations/updates-and-feedback.md
+  - Migrating:
+      - migrating/index.md
+      - From Makefiles: migrating/from-makefiles.md
+      - From VUnit: migrating/from-vunit.md
+      - From FuseSoC: fusesoc-import.md
+  - Administration:
+      - Org-wide configuration: administration.md
+      - Policy file reference: https://edacrux.app/policy-reference
+      - Audit log: https://edacrux.app/audit-log
+      - Deployment: https://edacrux.app/deployment
+  - Cookbook:
+      - Workflow recipes: cookbook.md
+      - Run your first regression: cookbook-first-regression.md
+      - Triage failures & open the waveform: cookbook-triage-failures.md
+      - Hunt down flaky tests: cookbook-flaky-tests.md
+      - Run a seed sweep: cookbook-seed-sweep.md

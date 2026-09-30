@@ -1,0 +1,9 @@
+{
+  "description": "Expected results for the cocotb_dff fixture. Requires `make` + `cocotb-config` + `iverilog` on PATH (the fixture pins `sim: icarus`); the fixture-pipeline integration test skips when any of those are missing. The test id carries the ConfigLoader's sorted `+key=value` parameter suffix — scalar `parameters:` entries are part of the id, not just make args.",
+  "tests": [
+    {
+      "id": "smoke/dff+MODULE=test_dff+TOPLEVEL_LANG=verilog",
+      "expected_status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# happy_path_8tests/generated/simcrux.yaml
+version: '1'
+
+defaults:
+  simulator: icarus
+  timeout: 60ms
+  pass_fail:
+    type: exit_code
+
+suites:
+  suite:
+    description: Eight seeded ALU tests plus one failing UART loopback.
+    tests:
+      - { name: alu_0, top: tb, seed: 0 }
+      - { name: alu_1, top: tb, seed: 1 }
+      - { name: alu_2, top: tb, seed: 2 }
+      - { name: alu_3, top: tb, seed: 3 }
+      - { name: alu_4, top: tb, seed: 4 }
+      - { name: alu_5, top: tb, seed: 5 }
+      - { name: alu_6, top: tb, seed: 6 }
+      - { name: alu_7, top: tb, seed: 7 }
+      - { name: uart_loopback, top: tb }   # exits 1 with a UVM_ERROR summary

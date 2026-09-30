@@ -1,0 +1,29 @@
+{
+  // Cloudflare Workers Static Assets host for the OPEN-CORE SimCrux web viewer
+  // (the read-only Flutter web regression-dashboard viewer). Same model as the
+  // WaveCrux app and the marketing sites — a separate Worker on its own
+  // subdomain. Deployed via scripts/deploy_web.sh (builds the lib/main_web.dart
+  // read-only entrypoint).
+  "name": "simcrux-app",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    // The Flutter web build output. Built by
+    // `flutter build web --release --target lib/main_web.dart`
+    // (see scripts/deploy_web.sh) before `wrangler deploy`. Gitignored.
+    "directory": "build/web",
+    // Flutter web is a single-page app: serve index.html for unknown routes so
+    // ?results= deep links resolve client-side instead of 404ing.
+    "not_found_handling": "single-page-application"
+  },
+  // Provision app.simcrux.app as a custom domain on first deploy.
+  // Requires the simcrux.app zone to be on this Cloudflare account (it hosts
+  // the marketing site).
+  // NOTE: this Worker serves the REAL Flutter web build and lives at
+  // app.<product>.app, matching app.wavecrux.app. The viewer./dashboard.
+  // hostnames belong to the hand-written interactive DEMOS on the marketing
+  // site — a different deployment. Two deployments on one hostname, or under
+  // one Worker NAME, replace each other on every deploy. Keep them apart.
+  "routes": [
+    { "pattern": "app.simcrux.app", "custom_domain": true }
+  ]
+}

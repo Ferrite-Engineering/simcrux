@@ -1,0 +1,78 @@
+name: Performance
+
+# ─── Trigger configuration ─────────────────────────────────────────────────────
+# Wall-clock companion to the deterministic perf-shaped guards that already
+# run in ci.yml's `test` job (trend_query_index_test.dart, memory_soak_test.dart,
+# trend_query_count_test.dart — index-plan / ring-bound / query-count
+# invariants, all machine-independent). This job runs the raw elapsed-time
+# measurement instead and records it as an artifact rather than gating the
+# build, since wall-clock numbers are machine-dependent and unsuited to a
+# shared CI runner.
+#
+# ci.yml dropped its nightly schedule at beta launch (now PR + manual only);
+# this workflow keeps the nightly + manual cadence so wall-clock perf checks
+# don't run on every PR.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 4 * * *' # nightly; staggered off the shared 05:00 slot
+
+concurrency:
+  # Keyed by event as well as ref: a nightly must never be cancelled by a
+  # push, and a push must never be cancelled by a nightly.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  # Superseded pushes are cancelled outright. `false` on main was the source
+  # of a whole class of phantom failures: a run still QUEUED when a third
+  # push arrives is cancelled by GitHub regardless, and a run whose jobs were
+  # cancelled reports conclusion=failure — not cancelled. So main never did
+  # verify every commit, it just misreported the ones it skipped. Cancelling
+  # is honest, cheaper, and gates the thing that matters: the tip.
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    name: Benchmarks (recorded)
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token: a pull request from a fork
+          # gets no secrets, and the workflow token reads a public crux-shared.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-ubuntu-bench-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-ubuntu-bench-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      # Invoked by exact file path so the runner picks it up regardless of
+      # the `*_test.dart` discovery glob applied to directory arguments.
+      - name: Trend aggregate query — wall-clock budget
+        run: >
+          flutter test --dart-define=RUN_BENCHMARKS=true
+          test/perf/trend_query_wallclock_bench_test.dart

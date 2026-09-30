@@ -1,0 +1,22 @@
+CAPI=2:
+
+name: ::simple:0.1.0
+description: A minimal single-target CAPI2 fixture.
+
+filesets:
+  rtl:
+    files:
+      - rtl/counter.v
+    file_type: verilogSource
+  tb:
+    files:
+      - tb/counter_tb.v
+    file_type: verilogSource
+    depend:
+      - rtl
+
+targets:
+  sim:
+    filesets: [tb]
+    toplevel: counter_tb
+    default_tool: icarus

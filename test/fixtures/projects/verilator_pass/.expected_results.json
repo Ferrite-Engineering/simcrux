@@ -1,0 +1,9 @@
+{
+  "description": "Expected results for the verilator_pass fixture. Requires `verilator` + `make` + a host C++ toolchain on PATH (Verilator's --build path compiles the generated model); the fixture-pipeline integration test skips when any of those are missing.",
+  "tests": [
+    {
+      "id": "smoke/pass_basic",
+      "expected_status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "description": "A clean bounded proof over the configured depth. The only case besides cover_multi_trace that may report pass.",
+  "check": "insn_add_ch0",
+  "group": "insn",
+  "verdict": "PASS",
+  "status": "pass",
+  "return_code": 0,
+  "depth_reached": 19,
+  "engine": "smtbmc boolector",
+  "elapsed_seconds": 7,
+  "traces": []
+}

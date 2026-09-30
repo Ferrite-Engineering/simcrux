@@ -1,0 +1,20 @@
+{
+  "description": "Identical dumps. The only case that may report pass.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "dut_present": true,
+  "reference": "golden.sig",
+  "status": "pass",
+  "comparison": {
+    "matched": true,
+    "mismatch_offset": null,
+    "dut_value": null,
+    "ref_value": null,
+    "dut_words": 8,
+    "ref_words": 8
+  },
+  "metrics": {
+    "golden.dut_words": "8",
+    "golden.ref_words": "8"
+  }
+}

@@ -1,0 +1,87 @@
+name: Dependency canary (advisory)
+
+# ─── What a red run here means ─────────────────────────────────────────────────
+# NOT "main is broken". It means: a direct dependency has published a version
+# inside the range pubspec.yaml already allows, and the tracked pubspec.lock
+# has not moved to it. That is a scheduling signal, not an incident.
+#
+# pubspec.lock is tracked so that an upstream publish can never redden CI on
+# an unrelated commit. The flip side is that in-range drift accumulates
+# silently: nothing in the ordinary CI path ever runs `pub upgrade`, so the
+# lock only moves when somebody remembers. This job is the reminder — one
+# cheap Linux run a month whose only job is to fail, EARLY and in ONE place,
+# when `flutter pub outdated` finds a direct dependency that a plain
+# `flutter pub upgrade` (no majors) would move. Fixing it is never urgent;
+# ignoring it forever is how the eventual sweep becomes a bad afternoon.
+#
+# It deliberately does not open a pull request. The crux repositories resolve
+# path dependencies through git submodules, which Dependabot does not check
+# out, and the organisation does not let workflow tokens create pull
+# requests. The sweep itself stays a human-driven `flutter pub upgrade`
+# followed by the real CI gates, one repository at a time.
+#
+# Exactly pinned dependencies (file_picker is one, on purpose) never show up
+# here: a pin has no range to drift inside.
+on:
+  schedule:
+    # First of the month, after the Sunday toolchain canary has had its say.
+    - cron: '20 9 1 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  outdated:
+    name: Has a direct dependency drifted inside its range?
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT when defined, else the workflow token (the workflow
+          # token reads a public crux-shared).
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: 3.47.3
+          cache: true
+
+      - name: Resolve from the tracked lock
+        run: flutter pub get
+
+      - name: Report in-range drift
+        run: |
+          flutter pub outdated --no-dev-dependencies --no-transitive --json > outdated.json
+          python3 - <<'PY'
+          import json, os, sys
+          data = json.load(open('outdated.json'))
+          rows = []
+          for p in data.get('packages', []):
+              cur = (p.get('current') or {}).get('version')
+              upg = (p.get('upgradable') or {}).get('version')
+              latest = (p.get('latest') or {}).get('version')
+              if cur and upg and cur != upg:
+                  rows.append((p['package'], cur, upg, latest or ''))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('### Dependency canary\n\n')
+              if not rows:
+                  out.write('No direct dependency has drifted inside its range.\n')
+              else:
+                  out.write('| Package | Locked | In-range upgrade | Latest |\n|---|---|---|---|\n')
+                  for r in rows:
+                      out.write('| %s | %s | %s | %s |\n' % r)
+                  out.write('\nA plain `flutter pub upgrade` moves every row above. '
+                            'Run it locally, run the real CI gates, commit the lock.\n')
+          for r in rows:
+              print('%-28s %-14s -> %s' % (r[0], r[1], r[2]))
+          sys.exit(1 if rows else 0)
+          PY

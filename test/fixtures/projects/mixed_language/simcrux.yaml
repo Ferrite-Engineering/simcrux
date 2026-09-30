@@ -1,0 +1,33 @@
+version: '1'
+
+defaults:
+  simulator: cocotb
+  pass_fail:
+    type: exit_code
+  waveform:
+    capture: never
+
+simulators:
+  cocotb:
+    source: system
+    options:
+      sim: icarus
+
+suites:
+  smoke:
+    description: >-
+      Mixed-language fixture: a Verilog testbench plus a VHDL companion
+      file under Cocotb. Demonstrates that the config-load path accepts
+      heterogeneous source languages under cocotb, while the same
+      sources under `icarus` would be rejected by the mixed-language
+      compatibility validator.
+    tests:
+      - name: mixed_smoke
+        top: tb_pass
+        parameters:
+          TOPLEVEL_LANG: verilog
+          MODULE: test_mixed
+        sources:
+          - tb_pass.v
+          - companion.vhd
+          - test_mixed.py

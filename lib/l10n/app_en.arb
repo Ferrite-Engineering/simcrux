@@ -1,0 +1,2650 @@
+{
+  "@@locale": "en",
+  "settingsShortcutsSection": "Keyboard Shortcuts",
+  "@settingsShortcutsSection": {
+    "description": "Settings category title for the keyboard shortcuts editor"
+  },
+  "settingsShortcutsDescription": "Press the pencil to change a shortcut, then type the new keys. Use Export and Import to share your bindings with others.",
+  "@settingsShortcutsDescription": {
+    "description": "Intro note above the editable shortcuts list"
+  },
+  "settingsShortcutNotBound": "—",
+  "@settingsShortcutNotBound": {
+    "description": "Placeholder shown when an action has no key binding"
+  },
+  "settingsShortcutsKeyboardHint": "Up and Down move between shortcuts. Enter changes the selected shortcut, Delete removes it, and Shift+Delete restores its default.",
+  "@settingsShortcutsKeyboardHint": {
+    "description": "Keyboard instructions for the shortcut list in Settings > Keyboard Shortcuts. Shown under the description and spoken once by a screen reader when focus enters the list."
+  },
+  "settingsShortcutNotBoundSpoken": "no shortcut",
+  "@settingsShortcutNotBoundSpoken": {
+    "description": "What a screen reader says for an action with no key binding. The visual placeholder is a dash, which is not spoken."
+  },
+  "settingsShortcutsImport": "Import…",
+  "@settingsShortcutsImport": {
+    "description": "Button that imports a shared .crux-keymap shortcut file"
+  },
+  "settingsShortcutsExport": "Export…",
+  "@settingsShortcutsExport": {
+    "description": "Button that exports shortcut customizations to a .crux-keymap file"
+  },
+  "settingsShortcutsResetAll": "Reset all",
+  "@settingsShortcutsResetAll": {
+    "description": "Button/confirm action restoring every shortcut to its default"
+  },
+  "settingsShortcutEditTooltip": "Change shortcut",
+  "@settingsShortcutEditTooltip": {
+    "description": "Tooltip for the per-action capture button"
+  },
+  "settingsShortcutUnbindTooltip": "Remove shortcut",
+  "@settingsShortcutUnbindTooltip": {
+    "description": "Tooltip for the per-action unbind button"
+  },
+  "settingsShortcutResetTooltip": "Reset to default",
+  "@settingsShortcutResetTooltip": {
+    "description": "Tooltip for the per-action reset button"
+  },
+  "settingsShortcutCapturePrompt": "Press the new shortcut… (Esc to cancel)",
+  "@settingsShortcutCapturePrompt": {
+    "description": "Prompt shown while capturing a new chord"
+  },
+  "settingsShortcutConflict": "Also used by {actions}",
+  "@settingsShortcutConflict": {
+    "description": "Warning under an action whose chord collides with others",
+    "placeholders": {
+      "actions": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictWins": "Takes precedence over {others}",
+  "@settingsShortcutConflictWins": {
+    "description": "Conflict warning on the row whose shortcut fires; lists the shadowed actions sharing the chord",
+    "placeholders": {
+      "others": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictShadowed": "Won''t fire — shadowed by {winner}",
+  "@settingsShortcutConflictShadowed": {
+    "description": "Conflict warning on a shadowed row whose shortcut will not fire; names the winning action",
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictSummary": "{count, plural, =1{1 shortcut conflict needs attention} other{{count} shortcut conflicts need attention}}",
+  "@settingsShortcutConflictSummary": {
+    "description": "Summary banner above the shortcut list showing how many chords are in conflict",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsShortcutResetAllTitle": "Reset all shortcuts?",
+  "@settingsShortcutResetAllTitle": {
+    "description": "Title of the reset-all confirmation dialog"
+  },
+  "settingsShortcutResetAllBody": "Every keyboard shortcut returns to its default and your customizations are removed.",
+  "@settingsShortcutResetAllBody": {
+    "description": "Body of the reset-all confirmation dialog"
+  },
+  "settingsShortcutResetAllCancel": "Cancel",
+  "@settingsShortcutResetAllCancel": {
+    "description": "Cancel button in the reset-all confirmation dialog"
+  },
+  "settingsShortcutExportSuccess": "Keyboard shortcuts exported.",
+  "@settingsShortcutExportSuccess": {
+    "description": "Snackbar after a successful keymap export"
+  },
+  "settingsShortcutExportFailure": "Couldn’t export shortcuts: {error}",
+  "@settingsShortcutExportFailure": {
+    "description": "Snackbar when keymap export fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutImportEmpty": "That file has no shortcut customizations.",
+  "@settingsShortcutImportEmpty": {
+    "description": "Snackbar when an imported keymap has no customizations"
+  },
+  "settingsShortcutImportSuccess": "{count, plural, =0{No shortcut customizations imported.} =1{Imported 1 customized shortcut.} other{Imported {count} customized shortcuts.}}",
+  "@settingsShortcutImportSuccess": {
+    "description": "Snackbar after a successful keymap import",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsShortcutImportFailure": "Couldn’t import shortcuts: {error}",
+  "@settingsShortcutImportFailure": {
+    "description": "Snackbar when keymap import fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutImportNewerVersion": "This keymap was saved by a newer version of SimCrux. Update SimCrux to import it.",
+  "@settingsShortcutImportNewerVersion": {
+    "description": "Snackbar when an imported keymap declares a schema version this build cannot read"
+  },
+  "settingsShortcutsPresetLabel": "Preset",
+  "@settingsShortcutsPresetLabel": {
+    "description": "Label for the keymap preset chooser above the editable shortcut list"
+  },
+  "settingsShortcutsPresetDescription": "Load a complete set of key bindings. You can still customize individual shortcuts afterward.",
+  "@settingsShortcutsPresetDescription": {
+    "description": "Description under the keymap preset chooser"
+  },
+  "settingsShortcutsPresetSimCrux": "SimCrux (Default)",
+  "@settingsShortcutsPresetSimCrux": {
+    "description": "Name of the default SimCrux keymap preset in the preset chooser"
+  },
+  "settingsShortcutsPresetCustom": "Custom",
+  "@settingsShortcutsPresetCustom": {
+    "description": "Shown in the preset chooser when the user's bindings match no built-in preset"
+  },
+  "appTitle": "SimCrux",
+  "@appTitle": {
+    "description": "Application title shown in the window title bar and About box."
+  },
+  "projectScreenPlaceholder": "No project loaded. Open a config from File > Open Config… to get started.",
+  "@projectScreenPlaceholder": {
+    "description": "Empty-state body shown when a tab has no configPath set (the user hasn't picked a config yet)."
+  },
+  "configLoadingPlaceholder": "Loading project…",
+  "@configLoadingPlaceholder": {
+    "description": "Body shown in the tab while the config file is being read and validated."
+  },
+  "configLoadFailedTitle": "Couldn't load this project",
+  "@configLoadFailedTitle": {
+    "description": "Header for the config-load-error empty state shown when the loader threw on the configured path."
+  },
+  "configLoadFailedDetail": "Couldn't load `{path}`:\n\n{reason}\n\nFix the issue and re-open the project, or pick a different config from File > Open Config….",
+  "@configLoadFailedDetail": {
+    "description": "Body of the config-load-error empty state. Includes the failing path and the loader's reason verbatim.",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "/Users/me/proj/simcrux.yaml"
+      },
+      "reason": {
+        "type": "String",
+        "example": "FileSystemException: Cannot open file"
+      }
+    }
+  },
+  "configLoadWarningsTitle": "{count, plural, =1{This project loaded with 1 warning} other{This project loaded with {count} warnings}}",
+  "@configLoadWarningsTitle": {
+    "description": "Heading of the banner above the results table when the project loaded but the loader recorded advisories (for example a seed sweep the license tier did not expand). The advisories themselves follow, verbatim and in English.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "configLoadWarningsDismiss": "Dismiss",
+  "@configLoadWarningsDismiss": {
+    "description": "Button that hides the project load-warnings banner until the project is loaded again."
+  },
+  "runScreenTitle": "Run",
+  "@runScreenTitle": {
+    "description": "Title shown on the Run detail screen (placeholder route — populated in later phases)."
+  },
+  "runScreenPlaceholder": "Open this run from the dashboard's run picker — the bookmarkable route surfaces the same data as the inspector pane in the main window.",
+  "@runScreenPlaceholder": {
+    "description": "Body shown on the bookmarkable /projects/:id/runs/:id route when reached without context."
+  },
+  "testDetailScreenTitle": "Test detail",
+  "@testDetailScreenTitle": {
+    "description": "Title shown on the Test detail screen (placeholder route — populated in later phases)."
+  },
+  "testDetailScreenPlaceholder": "Open this test from the dashboard's results table — the bookmarkable route surfaces the same data as the inspector pane in the main window.",
+  "@testDetailScreenPlaceholder": {
+    "description": "Body shown on the bookmarkable /projects/:id/tests/:id route when reached without context."
+  },
+  "actionCategoryApp": "SimCrux",
+  "@actionCategoryApp": {
+    "description": "Menu bar / overflow menu category label for the host application menu (macOS application menu, the first menu)."
+  },
+  "actionCategoryFile": "File",
+  "@actionCategoryFile": {
+    "description": "Menu bar / overflow menu category label for file operations (open, save, export, recent files)."
+  },
+  "actionCategoryView": "View",
+  "@actionCategoryView": {
+    "description": "Menu bar / overflow menu category label for view operations (panel toggles, layout, zoom)."
+  },
+  "actionCategoryNavigate": "Navigate",
+  "@actionCategoryNavigate": {
+    "description": "Menu bar / overflow menu category label for navigation operations (focus pane, jump to test, navigate results)."
+  },
+  "actionCategorySearch": "Search",
+  "@actionCategorySearch": {
+    "description": "Menu bar / overflow menu category label for search operations (find, command palette)."
+  },
+  "actionCategoryTools": "Tools",
+  "@actionCategoryTools": {
+    "description": "Menu bar / overflow menu category label for tool operations (settings, diagnostics, plugins, trend tracking)."
+  },
+  "actionCategoryHelp": "Help",
+  "@actionCategoryHelp": {
+    "description": "Menu bar / overflow menu category label for help operations (about, documentation, keyboard shortcuts)."
+  },
+  "actionOpenProject": "Open Config…",
+  "@actionOpenProject": {
+    "description": "Label for the action that opens a simcrux.yaml config file via the file picker."
+  },
+  "actionImportFusesoc": "Import FuseSoC .core File…",
+  "@actionImportFusesoc": {
+    "description": "Label for the action that imports a CAPI2 .core file and writes a simcrux.yaml next to it."
+  },
+  "fusesocImportSuccess": "Imported {filename}",
+  "@fusesocImportSuccess": {
+    "description": "Snackbar shown after a FuseSoC import wrote a simcrux.yaml file next to the source .core.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "fusesocImportSuccessWithWarnings": "Imported {filename} with {count} warning(s)",
+  "@fusesocImportSuccessWithWarnings": {
+    "description": "Snackbar shown after a successful FuseSoC import that surfaced one or more warnings.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fusesocImportFailed": "FuseSoC import failed: {error}",
+  "@fusesocImportFailed": {
+    "description": "Snackbar shown when the FuseSoC importer threw an unrecoverable error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "actionImportRiscvArchTest": "Import RISC-V Architectural Tests…",
+  "@actionImportRiscvArchTest": {
+    "description": "Label for the action that enumerates a riscv-arch-test checkout into one SimCrux test per architectural test."
+  },
+  "actionImportRiscvFormal": "Import riscv-formal Checks…",
+  "@actionImportRiscvFormal": {
+    "description": "Label for the action that enumerates a riscv-formal checks/ directory into one SimCrux test per bounded proof."
+  },
+  "riscvImportSuccess": "Imported {count} test(s) into {filename}",
+  "@riscvImportSuccess": {
+    "description": "Snackbar shown after a RISC-V import wrote a simcrux.yaml the user chose the location of.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "riscvImportSuccessWithWarnings": "Imported {count} test(s) into {filename} with {warnings} warning(s)",
+  "@riscvImportSuccessWithWarnings": {
+    "description": "Snackbar shown after a successful RISC-V import that surfaced one or more warnings.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      },
+      "warnings": {
+        "type": "int"
+      }
+    }
+  },
+  "riscvImportFailed": "RISC-V import failed: {error}",
+  "@riscvImportFailed": {
+    "description": "Snackbar shown when a RISC-V importer threw an unrecoverable error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCloseProject": "Close Project",
+  "@actionCloseProject": {
+    "description": "Label for the action that closes the currently open project."
+  },
+  "actionCloseTab": "Close Tab",
+  "@actionCloseTab": {
+    "description": "Label for the action that closes the active workspace tab (Cmd/Ctrl+W)."
+  },
+  "actionRunRegression": "Run Regression",
+  "@actionRunRegression": {
+    "description": "Label for the action that starts a regression run of the active project."
+  },
+  "actionReRunSelected": "Re-run Selected Test",
+  "@actionReRunSelected": {
+    "description": "Label for the action that re-runs the test currently selected in the inspector pane."
+  },
+  "actionCancelRegression": "Cancel Regression",
+  "@actionCancelRegression": {
+    "description": "Label for the action that cancels the in-flight regression."
+  },
+  "actionExportResults": "Export Results…",
+  "@actionExportResults": {
+    "description": "Menu / command-palette label for the action that opens the Export Results dialog."
+  },
+  "actionQuit": "Quit SimCrux",
+  "@actionQuit": {
+    "description": "Label for the action that quits the application."
+  },
+  "actionToggleTestBrowser": "Toggle Test Browser",
+  "@actionToggleTestBrowser": {
+    "description": "Label for the action that toggles the left test/run browser pane."
+  },
+  "actionToggleInspector": "Toggle Inspector",
+  "@actionToggleInspector": {
+    "description": "Label for the action that toggles the right inspector / detail pane."
+  },
+  "actionToggleLogPanel": "Toggle Log Panel",
+  "@actionToggleLogPanel": {
+    "description": "Label for the action that toggles the bottom log-stream pane."
+  },
+  "actionToggleTheme": "Toggle Theme",
+  "@actionToggleTheme": {
+    "description": "Label for the action that flips the app between the light and dark color themes."
+  },
+  "actionOpenSearch": "Search…",
+  "@actionOpenSearch": {
+    "description": "Label for the action that opens the test/run search dialog."
+  },
+  "actionOpenCommandPalette": "Command Palette…",
+  "@actionOpenCommandPalette": {
+    "description": "Label for the action that opens the command palette overlay."
+  },
+  "commandPaletteSearchHint": "Search commands…",
+  "@commandPaletteSearchHint": {
+    "description": "Placeholder hint text in the command palette search field"
+  },
+  "commandPaletteNoResults": "No commands found",
+  "@commandPaletteNoResults": {
+    "description": "Message displayed in the command palette when the search query matches no actions"
+  },
+  "actionOpenSettings": "Settings…",
+  "@actionOpenSettings": {
+    "description": "Label for the action that opens the settings screen."
+  },
+  "actionOpenAbout": "About SimCrux",
+  "@actionOpenAbout": {
+    "description": "Label for the action that opens the About box."
+  },
+  "actionSplitPaneRight": "Split Pane Right",
+  "@actionSplitPaneRight": {
+    "description": "Command palette / menu label for the action that splits the active pane horizontally."
+  },
+  "actionClosePane": "Close Pane",
+  "@actionClosePane": {
+    "description": "Command palette / menu label for the action that closes the active pane."
+  },
+  "actionFocusOtherPane": "Focus Other Pane",
+  "@actionFocusOtherPane": {
+    "description": "Command palette / menu label for the action that toggles focus to the other pane under split-pane."
+  },
+  "actionMoveTabToOtherPane": "Move Tab to Other Pane",
+  "@actionMoveTabToOtherPane": {
+    "description": "Command palette label for the action that moves the active tab to the other pane."
+  },
+  "actionOpenCrossProbePanel": "Open Cross-Probe Panel",
+  "@actionOpenCrossProbePanel": {
+    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionOpenSeedFailureHeatmap": "Show Seed Failure Heatmap",
+  "@actionOpenSeedFailureHeatmap": {
+    "description": "Command palette / menu label that opens the Pro Seed Failure Heatmap screen. Open-core builds register the action but the opener is unset until the Pro overlay installs its override."
+  },
+  "actionShowTrendChart": "Show Test Trend Chart…",
+  "@actionShowTrendChart": {
+    "description": "Command palette / menu label that opens the Pro per-test trend chart screen. Open-core registers the action; the opener is provided by the Pro overlay via perTestTrendChartOpenerProvider."
+  },
+  "actionShowSuiteTrendChart": "Show Suite Trend Chart…",
+  "@actionShowSuiteTrendChart": {
+    "description": "Command palette / menu label that opens the Pro per-suite trend chart screen. Open-core registers the action; the opener is provided by the Pro overlay via perSuiteTrendChartOpenerProvider."
+  },
+  "actionShowCalendarHeatmap": "Show Calendar Heatmap…",
+  "@actionShowCalendarHeatmap": {
+    "description": "Command palette / menu label that opens the Pro calendar heatmap screen. Open-core registers the action; the opener is provided by the Pro overlay via calendarHeatmapOpenerProvider."
+  },
+  "actionShowFlakyTests": "Show Flaky Tests…",
+  "@actionShowFlakyTests": {
+    "description": "Command palette / menu label that opens the Pro Flaky Tests panel. Open-core registers the action; the opener is provided by the Pro overlay via flakyTestsPanelOpenerProvider."
+  },
+  "actionConfigureRetentionPolicy": "Configure Trend Retention…",
+  "@actionConfigureRetentionPolicy": {
+    "description": "Command palette / menu label that opens the Pro retention policy settings (max-age days, max-data-points, prune strategy)."
+  },
+  "actionDispatchPrAnnotations": "Dispatch PR Annotations",
+  "@actionDispatchPrAnnotations": {
+    "description": "Command palette / menu label that dispatches the current run's failures as annotations to the configured PR / MR / webhook target. Open-core registers the action; the actual dispatcher implementations live in the Pro overlay."
+  },
+  "actionConfigurePrAnnotationTarget": "Configure PR Annotations…",
+  "@actionConfigurePrAnnotationTarget": {
+    "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog (platform selector, repo / MR number, auth token, test connection)."
+  },
+  "crossProbePanelTitle": "Cross-probe",
+  "@crossProbePanelTitle": {
+    "description": "Title of the CXP cross-probe panel."
+  },
+  "crossProbeCloseTooltip": "Close cross-probe panel",
+  "@crossProbeCloseTooltip": {
+    "description": "Tooltip on the docked cross-probe panel's header close chevron."
+  },
+  "crossProbeServerOffline": "Cross-probe server is offline.",
+  "@crossProbeServerOffline": {
+    "description": "Banner shown at the top of the docked cross-probe panel when the CXP server is not running."
+  },
+  "crossProbeSendTooltip": "Send selection to this peer",
+  "@crossProbeSendTooltip": {
+    "description": "Tooltip on each connected-peer row's direct-send button in the docked cross-probe panel."
+  },
+  "crossProbeUnreachableTitle": "Unreachable peers",
+  "@crossProbeUnreachableTitle": {
+    "description": "Section header above the list of discovered CXP peers the connector cannot open a socket to."
+  },
+  "crossProbeSectionPeers": "Connected peers",
+  "@crossProbeSectionPeers": {
+    "description": "Section header listing the CXP peers SimCrux is currently connected to."
+  },
+  "crossProbeSectionEvents": "Recent activity",
+  "@crossProbeSectionEvents": {
+    "description": "Section header for the rolling buffer of recent cross-probe events."
+  },
+  "crossProbeNoPeers": "No peers connected yet. Launch WaveCrux, NetCrux, or LintCrux on this machine to see them here.",
+  "@crossProbeNoPeers": {
+    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
+  },
+  "crossProbeNoEvents": "No cross-probe activity yet.",
+  "@crossProbeNoEvents": {
+    "description": "Empty-state shown in the cross-probe events section before any events arrive."
+  },
+  "crossProbeClearEvents": "Clear",
+  "@crossProbeClearEvents": {
+    "description": "Button label that clears the rolling cross-probe events buffer."
+  },
+  "crossProbeSendFailed": "The cross-probe to {peer} did not go through",
+  "@crossProbeSendFailed": {
+    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
+    "placeholders": {
+      "peer": {
+        "type": "String",
+        "example": "WaveCrux"
+      }
+    }
+  },
+  "crossProbeSendRefused": "Cross-probe to {peer}: {reason}",
+  "@crossProbeSendRefused": {
+    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
+    "placeholders": {
+      "peer": {
+        "type": "String",
+        "example": "WaveCrux"
+      },
+      "reason": {
+        "type": "String",
+        "example": "element not found: top.data"
+      }
+    }
+  },
+  "panelTestBrowserPlaceholder": "Open a project to browse its tests.",
+  "@panelTestBrowserPlaceholder": {
+    "description": "Empty-state body text shown in the left test browser pane when no project is open or no testBrowserBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelRunResultsPlaceholder": "Run results appear here.",
+  "@panelRunResultsPlaceholder": {
+    "description": "Placeholder body text shown in the center run-results pane when no runResultsBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelRunDetailsPlaceholder": "Run details appear here.",
+  "@panelRunDetailsPlaceholder": {
+    "description": "Placeholder body text shown in the right run-details pane when no runDetailsBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelLogStreamPlaceholder": "Select a test to view its log.",
+  "@panelLogStreamPlaceholder": {
+    "description": "Empty-state body text shown in the bottom log-stream pane when no test is selected in the inspector, or when no logPanelBuilder was supplied to SimcruxIdeLayout."
+  },
+  "dashboardColumnStatus": "Status",
+  "@dashboardColumnStatus": {
+    "description": "Column header for the dashboard table's status icon column."
+  },
+  "dashboardColumnSuite": "Suite",
+  "@dashboardColumnSuite": {
+    "description": "Column header for the dashboard table's suite name column."
+  },
+  "dashboardColumnTest": "Test",
+  "@dashboardColumnTest": {
+    "description": "Column header for the dashboard table's test name column."
+  },
+  "dashboardColumnSimulator": "Simulator",
+  "@dashboardColumnSimulator": {
+    "description": "Column header for the dashboard table's simulator id column."
+  },
+  "dashboardColumnDuration": "Duration",
+  "@dashboardColumnDuration": {
+    "description": "Column header for the dashboard table's runtime duration column."
+  },
+  "dashboardColumnStartedAt": "Started",
+  "@dashboardColumnStartedAt": {
+    "description": "Column header for the dashboard table's started-at timestamp column."
+  },
+  "dashboardEmpty": "No results yet. Open a project to begin a regression.",
+  "@dashboardEmpty": {
+    "description": "Placeholder body text shown in the dashboard when no run is active."
+  },
+  "dashboardLoading": "Loading results…",
+  "@dashboardLoading": {
+    "description": "Placeholder shown while the dashboard waits for the first results stream update."
+  },
+  "dashboardError": "Failed to read run results.",
+  "@dashboardError": {
+    "description": "Placeholder shown when the dashboard fails to read the active result store."
+  },
+  "dashboardTotalsTotal": "Total",
+  "@dashboardTotalsTotal": {
+    "description": "Label for the total-tests-scheduled count in the dashboard status bar."
+  },
+  "dashboardTotalsPass": "Passed",
+  "@dashboardTotalsPass": {
+    "description": "Label for the passing-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsFail": "Failed",
+  "@dashboardTotalsFail": {
+    "description": "Label for the failing-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsSkipped": "Skipped",
+  "@dashboardTotalsSkipped": {
+    "description": "Label for the skipped-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsTimeout": "Timed out",
+  "@dashboardTotalsTimeout": {
+    "description": "Label for the timed-out-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsRunning": "Running",
+  "@dashboardTotalsRunning": {
+    "description": "Label for the currently-running-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsError": "Error",
+  "@dashboardTotalsError": {
+    "description": "Label for the errored / unknown-status tests count in the dashboard status bar."
+  },
+  "dashboardFilterTestNameHint": "Filter by test name…",
+  "@dashboardFilterTestNameHint": {
+    "description": "Placeholder text inside the dashboard's filter-by-test-name text field."
+  },
+  "dashboardFilterClear": "Clear filters",
+  "@dashboardFilterClear": {
+    "description": "Button label that clears every active dashboard filter."
+  },
+  "dashboardFilterByStatus": "Status",
+  "@dashboardFilterByStatus": {
+    "description": "Section heading above the multi-select status filter chips on the dashboard."
+  },
+  "dashboardFilterBySuite": "Suite",
+  "@dashboardFilterBySuite": {
+    "description": "Section heading above the multi-select suite filter chips on the dashboard."
+  },
+  "dashboardFilterBySimulator": "Simulator",
+  "@dashboardFilterBySimulator": {
+    "description": "Section heading above the multi-select simulator filter chips on the dashboard."
+  },
+  "testStatusPass": "Pass",
+  "@testStatusPass": {
+    "description": "Localized label for a passing test status."
+  },
+  "testStatusFail": "Fail",
+  "@testStatusFail": {
+    "description": "Localized label for a failing test status."
+  },
+  "testStatusRunning": "Running",
+  "@testStatusRunning": {
+    "description": "Localized label for an in-flight test status."
+  },
+  "testStatusSkipped": "Skipped",
+  "@testStatusSkipped": {
+    "description": "Localized label for a skipped test status."
+  },
+  "testStatusTimeout": "Timeout",
+  "@testStatusTimeout": {
+    "description": "Localized label for a timed-out test status."
+  },
+  "testStatusCancelled": "Cancelled",
+  "@testStatusCancelled": {
+    "description": "Localized label for a cancelled test status."
+  },
+  "testStatusVacuous": "Vacuous",
+  "@testStatusVacuous": {
+    "description": "Localized label for a vacuously-passing test status."
+  },
+  "testStatusCover": "Cover hit",
+  "@testStatusCover": {
+    "description": "Localized label for a test status reporting a coverage hit."
+  },
+  "testStatusUnknown": "Unknown",
+  "@testStatusUnknown": {
+    "description": "Localized label for an unknown-classifier test status."
+  },
+  "inspectorEmpty": "Select a test to inspect.",
+  "@inspectorEmpty": {
+    "description": "Inspector pane placeholder when no test is selected."
+  },
+  "inspectorSectionDetails": "Details",
+  "@inspectorSectionDetails": {
+    "description": "Section header in the inspector for test detail rows."
+  },
+  "inspectorSectionLog": "Recent log",
+  "@inspectorSectionLog": {
+    "description": "Section header in the inspector above the log preview."
+  },
+  "inspectorFieldSuite": "Suite",
+  "@inspectorFieldSuite": {
+    "description": "Inspector row label for the test's parent suite."
+  },
+  "inspectorFieldSimulator": "Simulator",
+  "@inspectorFieldSimulator": {
+    "description": "Inspector row label for the simulator the test ran on."
+  },
+  "inspectorFieldDuration": "Duration",
+  "@inspectorFieldDuration": {
+    "description": "Inspector row label for the test's wall-clock runtime."
+  },
+  "inspectorFieldExitCode": "Exit code",
+  "@inspectorFieldExitCode": {
+    "description": "Inspector row label for the simulator process exit code."
+  },
+  "inspectorFieldWorkingDirectory": "Working dir",
+  "@inspectorFieldWorkingDirectory": {
+    "description": "Inspector row label for the per-test working directory."
+  },
+  "inspectorFieldWaveform": "Waveform",
+  "@inspectorFieldWaveform": {
+    "description": "Inspector row label for the captured waveform file."
+  },
+  "inspectorFieldStartedAt": "Started",
+  "@inspectorFieldStartedAt": {
+    "description": "Inspector row label for the test start timestamp."
+  },
+  "inspectorActionOpenFullLog": "Open full log",
+  "@inspectorActionOpenFullLog": {
+    "description": "Button label that opens the built-in log viewer for the selected test."
+  },
+  "inspectorActionRerun": "Re-run",
+  "@inspectorActionRerun": {
+    "description": "Button label that re-runs the selected test."
+  },
+  "inspectorActionRerunWithWaveform": "Re-run with waveform",
+  "@inspectorActionRerunWithWaveform": {
+    "description": "Button label that re-runs the selected test with waveform capture forced on."
+  },
+  "inspectorActionDebugInWavecrux": "Debug in WaveCrux",
+  "@inspectorActionDebugInWavecrux": {
+    "description": "Button label that dispatches the active waveform file to WaveCrux via the CXP cross-product cross-probe protocol."
+  },
+  "inspectorActionDebugInWavecruxTooltip": "Open the captured waveform in WaveCrux. Requires WaveCrux to be running on this machine.",
+  "@inspectorActionDebugInWavecruxTooltip": {
+    "description": "Tooltip on the Debug in WaveCrux button explaining the prerequisite of having WaveCrux running."
+  },
+  "debugInWavecruxDispatched": "Sent to WaveCrux ({peerId}).",
+  "@debugInWavecruxDispatched": {
+    "description": "Snackbar shown after a successful Debug in WaveCrux dispatch. peerId identifies which WaveCrux peer received the request.",
+    "placeholders": {
+      "peerId": {
+        "type": "String",
+        "example": "wavecrux-12345-1700000000000"
+      }
+    }
+  },
+  "debugInWavecruxNoPeer": "WaveCrux is not connected. Launch WaveCrux on this machine and try again.",
+  "@debugInWavecruxNoPeer": {
+    "description": "Snackbar shown when a Debug in WaveCrux dispatch finds no connected WaveCrux peer."
+  },
+  "debugInWavecruxServerDisabled": "Cross-probe is disabled. Enable it in Settings > CXP Cross-Probe to use Debug in WaveCrux.",
+  "@debugInWavecruxServerDisabled": {
+    "description": "Snackbar shown when a Debug in WaveCrux dispatch is attempted with CXP disabled in settings."
+  },
+  "debugInWavecruxNoWaveform": "This test did not capture a waveform. Re-run with waveform capture enabled.",
+  "@debugInWavecruxNoWaveform": {
+    "description": "Snackbar shown when the selected test result has no waveform path attached."
+  },
+  "debugInWavecruxWaveformMissing": "This test's waveform is no longer on disk — it was cleaned up after the run. Re-run the test to regenerate it, then debug in WaveCrux.",
+  "@debugInWavecruxWaveformMissing": {
+    "description": "Snackbar shown when the selected test result has a waveform path but the file no longer exists on disk."
+  },
+  "debugInWavecruxPartial": "WaveCrux opened the trace but could not land where it was asked to: {reason}",
+  "@debugInWavecruxPartial": {
+    "description": "Snackbar shown when WaveCrux honoured the cross-probe but reported, in its acknowledgement, something it could not do — typically a stream coordinate it could not resolve. reason is the peer's own explanation, passed through verbatim.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "the loaded trace exposes no RVFI bundle"
+      }
+    }
+  },
+  "debugInWavecruxRejected": "WaveCrux could not act on the request: {reason}",
+  "@debugInWavecruxRejected": {
+    "description": "Snackbar shown when WaveCrux acknowledged the cross-probe as not honoured. reason is the peer's own explanation, passed through verbatim.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "no waveform file loaded"
+      }
+    }
+  },
+  "debugInWavecruxUnacknowledged": "Sent to WaveCrux, but it never confirmed it acted on the request.",
+  "@debugInWavecruxUnacknowledged": {
+    "description": "Snackbar shown when a cross-probe was delivered to WaveCrux but no acknowledgement came back before the wait expired."
+  },
+  "inspectorActionOpenSource": "Open testbench source",
+  "@inspectorActionOpenSource": {
+    "description": "Button label that opens the test's top-module testbench source in the configured editor."
+  },
+  "inspectorLogPreviewLineCount": "Last {n} lines",
+  "@inspectorLogPreviewLineCount": {
+    "description": "Caption above the log preview indicating how many tail lines are shown.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorLogPreviewEmpty": "No log output captured yet.",
+  "@inspectorLogPreviewEmpty": {
+    "description": "Placeholder shown in the inspector log preview when the selected test has no log lines."
+  },
+  "inspectorLogPreviewDropped": "({count} earlier lines elided)",
+  "@inspectorLogPreviewDropped": {
+    "description": "Note shown when the log buffer has elided older lines due to its size cap.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorTrendHeading": "Recent runs",
+  "@inspectorTrendHeading": {
+    "description": "Section heading above the per-test sparkline in the inspector."
+  },
+  "inspectorTrendEmpty": "No prior runs recorded.",
+  "@inspectorTrendEmpty": {
+    "description": "Placeholder under the trend heading when this test has no historical runs."
+  },
+  "logViewerTitle": "Log — {testId}",
+  "@logViewerTitle": {
+    "description": "Title of the built-in log viewer dialog.",
+    "placeholders": {
+      "testId": {
+        "type": "String"
+      }
+    }
+  },
+  "logViewerEmpty": "No log lines captured for this test.",
+  "@logViewerEmpty": {
+    "description": "Placeholder text in the log viewer when no lines are available."
+  },
+  "logViewerSearchHint": "Search log…",
+  "@logViewerSearchHint": {
+    "description": "Placeholder text inside the log viewer's search field."
+  },
+  "logViewerSearchNext": "Next match",
+  "@logViewerSearchNext": {
+    "description": "Tooltip for the log viewer's 'next search match' button."
+  },
+  "logViewerSearchPrev": "Previous match",
+  "@logViewerSearchPrev": {
+    "description": "Tooltip for the log viewer's 'previous search match' button."
+  },
+  "logViewerJumpToLineHint": "Line",
+  "@logViewerJumpToLineHint": {
+    "description": "Placeholder text inside the log viewer's jump-to-line input."
+  },
+  "logViewerJumpToLineGo": "Go",
+  "@logViewerJumpToLineGo": {
+    "description": "Label on the log viewer's 'jump to line' submit button."
+  },
+  "logViewerClose": "Close",
+  "@logViewerClose": {
+    "description": "Label on the log viewer's close button."
+  },
+  "logViewerMatchPosition": "{current}/{total}",
+  "@logViewerMatchPosition": {
+    "description": "Compact match position indicator (e.g. 3/12) shown in the log viewer search toolbar.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "logViewerCopy": "Copy all to clipboard",
+  "@logViewerCopy": {
+    "description": "Log viewer toolbar action that copies the full log to the clipboard."
+  },
+  "exportDialogTitle": "Export results",
+  "@exportDialogTitle": {
+    "description": "Title of the export dialog."
+  },
+  "exportFormatJunit": "JUnit XML",
+  "@exportFormatJunit": {
+    "description": "Label for the JUnit XML export option."
+  },
+  "exportFormatJson": "JSON",
+  "@exportFormatJson": {
+    "description": "Label for the JSON export option."
+  },
+  "exportFormatCsv": "CSV",
+  "@exportFormatCsv": {
+    "description": "Label for the CSV export option."
+  },
+  "exportFormatHtml": "HTML",
+  "@exportFormatHtml": {
+    "description": "Label for the HTML static-site export option."
+  },
+  "exportActionExport": "Export",
+  "@exportActionExport": {
+    "description": "Confirm button on the export dialog."
+  },
+  "exportActionCancel": "Cancel",
+  "@exportActionCancel": {
+    "description": "Cancel button on the export dialog."
+  },
+  "exportEmpty": "Nothing to export — run a regression first.",
+  "@exportEmpty": {
+    "description": "Placeholder shown when the user opens the export dialog with no completed run."
+  },
+  "exportSuccess": "Exported to {path}",
+  "@exportSuccess": {
+    "description": "Snackbar shown after a successful export.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFailure": "Export failed: {reason}",
+  "@exportFailure": {
+    "description": "Snackbar shown after a failed export.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "watcherAutoReloadPromptTitle": "Sources changed",
+  "@watcherAutoReloadPromptTitle": {
+    "description": "Snackbar title shown when a watched source file changed and AutoReloadMode is prompt."
+  },
+  "watcherAutoReloadPromptMessage": "Re-run the suite to pick up the latest changes?",
+  "@watcherAutoReloadPromptMessage": {
+    "description": "Snackbar body shown when a watched source file changed."
+  },
+  "watcherAutoReloadActionRerun": "Re-run now",
+  "@watcherAutoReloadActionRerun": {
+    "description": "Snackbar action label that re-runs the suite immediately."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Settings page app-bar title."
+  },
+  "settingsGeneralSection": "General",
+  "@settingsGeneralSection": {
+    "description": "Settings page section header for general preferences."
+  },
+  "settingsAppearanceSection": "Appearance",
+  "@settingsAppearanceSection": {
+    "description": "Settings page section header for theme and appearance preferences."
+  },
+  "settingsSimulatorsSection": "Simulators",
+  "@settingsSimulatorsSection": {
+    "description": "Settings page section header for per-simulator binary configuration."
+  },
+  "settingsEditorsSection": "Editors",
+  "@settingsEditorsSection": {
+    "description": "Settings page section header for the editor command used by source navigation."
+  },
+  "settingsAutoReloadLabel": "Auto-reload",
+  "@settingsAutoReloadLabel": {
+    "description": "Settings page label for the auto-reload-mode dropdown."
+  },
+  "settingsAutoReloadPrompt": "Prompt",
+  "@settingsAutoReloadPrompt": {
+    "description": "Auto-reload-mode option label: ask the user before re-running on file change."
+  },
+  "settingsAutoReloadAuto": "Auto",
+  "@settingsAutoReloadAuto": {
+    "description": "Auto-reload-mode option label: re-run automatically on file change."
+  },
+  "settingsAutoReloadOff": "Off",
+  "@settingsAutoReloadOff": {
+    "description": "Auto-reload-mode option label: never re-run on file change."
+  },
+  "settingsLogPreviewLineCountLabel": "Log preview lines",
+  "@settingsLogPreviewLineCountLabel": {
+    "description": "Settings page label for the inspector log preview line count slider."
+  },
+  "settingsEditorCommandLabel": "Editor command",
+  "@settingsEditorCommandLabel": {
+    "description": "Settings page label for the editor shell-out command template."
+  },
+  "settingsEditorCommandHelp": "Placeholders: <file>, <line>, <column>. Example: code --goto <file>:<line>:<column>",
+  "@settingsEditorCommandHelp": {
+    "description": "Helper text under the editor command field describing the placeholder substitution. Use angle brackets in the text to avoid conflict with ARB {placeholder} syntax."
+  },
+  "settingsEditorPresetVscode": "VS Code",
+  "@settingsEditorPresetVscode": {
+    "description": "Editor preset label: VS Code."
+  },
+  "settingsEditorPresetSublime": "Sublime Text",
+  "@settingsEditorPresetSublime": {
+    "description": "Editor preset label: Sublime Text."
+  },
+  "settingsEditorPresetVim": "Vim",
+  "@settingsEditorPresetVim": {
+    "description": "Editor preset label: Vim."
+  },
+  "settingsEditorPresetEmacs": "Emacs",
+  "@settingsEditorPresetEmacs": {
+    "description": "Editor preset label: Emacs."
+  },
+  "settingsEditorPresetCustom": "Custom",
+  "@settingsEditorPresetCustom": {
+    "description": "Editor preset label: user-supplied custom command."
+  },
+  "settingsSimulatorBinaryLabel": "Binary path",
+  "@settingsSimulatorBinaryLabel": {
+    "description": "Settings page label for the per-simulator binary path override."
+  },
+  "settingsAllowProjectDefinedToolingLabel": "Let project files choose simulator binaries and environment",
+  "@settingsAllowProjectDefinedToolingLabel": {
+    "description": "Settings \u2192 Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
+  },
+  "settingsAllowProjectDefinedToolingDescription": "Off by default. A project file can name the program SimCrux runs and the environment it runs under, which is code execution chosen by whoever wrote that file. While this is off those keys are ignored and the binary path above is used instead. Turn it on only for project files you trust.",
+  "@settingsAllowProjectDefinedToolingDescription": {
+    "description": "Explanatory text under the Settings \u2192 Simulators project-defined tooling toggle."
+  },
+  "diagnosticsTabConfigInfo": "Config info",
+  "@diagnosticsTabConfigInfo": {
+    "description": "Tab Diagnostics drawer section: project / config info."
+  },
+  "diagnosticsTabSimulatorBackend": "Simulator backend",
+  "@diagnosticsTabSimulatorBackend": {
+    "description": "Tab Diagnostics drawer section: per-simulator binary + version."
+  },
+  "diagnosticsTabSchedulerState": "Scheduler state",
+  "@diagnosticsTabSchedulerState": {
+    "description": "Tab Diagnostics drawer section: scheduler concurrency + queue + longest-running test."
+  },
+  "diagnosticsTabRowPath": "Path",
+  "@diagnosticsTabRowPath": {
+    "description": "Tab Diagnostics row label: the loaded project file path."
+  },
+  "diagnosticsTabRowSchemaVersion": "Schema version",
+  "@diagnosticsTabRowSchemaVersion": {
+    "description": "Tab Diagnostics row label: the config schema version."
+  },
+  "diagnosticsTabRowSuites": "Suites",
+  "@diagnosticsTabRowSuites": {
+    "description": "Tab Diagnostics row label: number of suites in the loaded config."
+  },
+  "diagnosticsTabRowTests": "Tests",
+  "@diagnosticsTabRowTests": {
+    "description": "Tab Diagnostics row label: number of tests across all suites."
+  },
+  "diagnosticsTabRowLastRunWallTime": "Last run wall time",
+  "@diagnosticsTabRowLastRunWallTime": {
+    "description": "Tab Diagnostics row label: wall-clock duration of the last run."
+  },
+  "diagnosticsTabRowTotalTests": "Total tests",
+  "@diagnosticsTabRowTotalTests": {
+    "description": "Tab Diagnostics row label: total tests in the active run."
+  },
+  "diagnosticsTabRowCompleted": "Completed",
+  "@diagnosticsTabRowCompleted": {
+    "description": "Tab Diagnostics row label: results recorded so far in the active run."
+  },
+  "diagnosticsTabRowFinished": "Finished",
+  "@diagnosticsTabRowFinished": {
+    "description": "Tab Diagnostics row label: whether the active run has finished."
+  },
+  "diagnosticsTabDriverRegistered": "driver registered",
+  "@diagnosticsTabDriverRegistered": {
+    "description": "Tab Diagnostics row value: this simulator driver is registered."
+  },
+  "diagnosticsTrendStoreSection": "Trend store",
+  "@diagnosticsTrendStoreSection": {
+    "description": "App Diagnostics dialog section: trend-store storage statistics (data points, runs, on-disk size)."
+  },
+  "diagnosticsTrendStoreSummary": "{points} data points across {runs} runs · {size}",
+  "@diagnosticsTrendStoreSummary": {
+    "description": "One-line trend-store storage summary in the App Diagnostics dialog. {points} = retained data-point count, {runs} = distinct run count, {size} = approximate on-disk size (already formatted, e.g. '1.2 MB', or the localized size-unknown label).",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "runs": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendStoreSizeUnknown": "size unknown",
+  "@diagnosticsTrendStoreSizeUnknown": {
+    "description": "Substituted into the {size} slot of diagnosticsTrendStoreSummary when the trend store cannot estimate its on-disk size."
+  },
+  "diagnosticsTrendStoreEmpty": "Trend store is empty.",
+  "@diagnosticsTrendStoreEmpty": {
+    "description": "Shown in the App Diagnostics dialog's Trend store section when no trend data points are retained."
+  },
+  "diagnosticsTrendSchemaSection": "Trend store schema",
+  "@diagnosticsTrendSchemaSection": {
+    "description": "App Diagnostics dialog section: what the trend database records about its own schema (schema_meta and the migration ledger)."
+  },
+  "diagnosticsTrendSchemaUnrecorded": "Not recorded — this database was written before schema v4.",
+  "@diagnosticsTrendSchemaUnrecorded": {
+    "description": "Shown in the App Diagnostics dialog's trend-schema section when the database was written before schema v4 and therefore records nothing about itself. Not an error."
+  },
+  "diagnosticsTrendSchemaUnknown": "unknown",
+  "@diagnosticsTrendSchemaUnknown": {
+    "description": "Substituted wherever the trend database records a value as unknown — a migration that ran before the ledger existed has no recorded time or app version."
+  },
+  "diagnosticsTrendSchemaVersion": "Schema version: {version}",
+  "@diagnosticsTrendSchemaVersion": {
+    "description": "App Diagnostics: the schema version recorded in the trend database. {version} = schema version number.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaMigratedBy": "Last migrated by {appVersion} at {when}",
+  "@diagnosticsTrendSchemaMigratedBy": {
+    "description": "App Diagnostics: which build last migrated the trend database and when. {appVersion} = app version string or the localized unknown label, {when} = ISO 8601 UTC timestamp or the localized unknown label.",
+    "placeholders": {
+      "appVersion": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaLastOpenedBy": "Last opened by {appVersion}",
+  "@diagnosticsTrendSchemaLastOpenedBy": {
+    "description": "App Diagnostics: which build opened the trend database most recently. {appVersion} = app version string or the localized unknown label.",
+    "placeholders": {
+      "appVersion": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaLedger": "Recent migrations:",
+  "@diagnosticsTrendSchemaLedger": {
+    "description": "App Diagnostics: label introducing the list of recent migration-ledger rows."
+  },
+  "diagnosticsTrendSchemaLedgerRow": "v{version} · {when} · {appVersion} — {description}",
+  "@diagnosticsTrendSchemaLedgerRow": {
+    "description": "App Diagnostics: one migration-ledger row. {version} = schema version produced, {when} = ISO 8601 UTC timestamp or the localized unknown label, {appVersion} = app version or the localized unknown label, {description} = the migration's own description.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      },
+      "appVersion": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryTitle": "Trend database was damaged",
+  "@diagnosticsTrendRecoveryTitle": {
+    "description": "App Diagnostics recovery card title, shown only when the trend database failed to open and was quarantined."
+  },
+  "diagnosticsTrendRecoveryQuarantined": "The trend database at {path} could not be read. The damaged file was kept at {quarantinedPath} and a new, empty one was started in its place. Nothing was deleted.",
+  "@diagnosticsTrendRecoveryQuarantined": {
+    "description": "App Diagnostics recovery card body when the damaged trend database was successfully renamed aside. {path} = absolute path of the database that could not be read (and of the fresh one now in use), {quarantinedPath} = absolute path the damaged bytes were kept at.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "quarantinedPath": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryUnmoved": "The trend database at {path} could not be read, and moving it aside failed, so it is still there under a new, empty database. Nothing was deleted.",
+  "@diagnosticsTrendRecoveryUnmoved": {
+    "description": "App Diagnostics recovery card body when the damaged trend database could not be renamed aside, so it is still in place. {path} = absolute path of the database.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryBackup": "A backup taken before the last schema upgrade is at {backupPath}. It is a complete database and recovers more history than a rebuild can: quit SimCrux and copy it over the trend database to use it.",
+  "@diagnosticsTrendRecoveryBackup": {
+    "description": "App Diagnostics recovery card line naming the pre-upgrade VACUUM INTO snapshot, shown only when one exists. {backupPath} = its absolute path.",
+    "placeholders": {
+      "backupPath": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildExplainer": "A rebuild replays the results.ndjson archives written by runs with streaming output (--ci). Only runs whose archive you still have come back. Runs recorded without one cannot be recovered, and neither can a run's configuration hash or trigger.",
+  "@diagnosticsTrendRecoveryRebuildExplainer": {
+    "description": "App Diagnostics recovery card: what a rebuild from results.ndjson does and does not recover. Deliberately explicit about the limit, because a partial history that looks complete is worse than an empty one."
+  },
+  "diagnosticsTrendRecoveryRebuildAction": "Rebuild from results.ndjson…",
+  "@diagnosticsTrendRecoveryRebuildAction": {
+    "description": "App Diagnostics recovery card button that opens the archive picker and starts a rebuild."
+  },
+  "diagnosticsTrendRecoveryRebuilding": "Rebuilding…",
+  "@diagnosticsTrendRecoveryRebuilding": {
+    "description": "App Diagnostics recovery card button label while a rebuild is running."
+  },
+  "diagnosticsTrendRecoveryPickerTitle": "Choose results.ndjson archives",
+  "@diagnosticsTrendRecoveryPickerTitle": {
+    "description": "Title of the file picker that selects results.ndjson archives for a trend-store rebuild."
+  },
+  "diagnosticsTrendRecoveryRebuildResult": "Recovered {points, plural, =1{1 data point} other{{points} data points}} across {runs, plural, =1{1 run} other{{runs} runs}}.",
+  "@diagnosticsTrendRecoveryRebuildResult": {
+    "description": "App Diagnostics recovery card result line after a rebuild. {points} = trend data points written, {runs} = runs written.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "runs": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildNothing": "{archives, plural, =1{Nothing was recovered from the archive you chose.} other{Nothing was recovered from the {archives} archives you chose.}}",
+  "@diagnosticsTrendRecoveryRebuildNothing": {
+    "description": "App Diagnostics recovery card result line when a rebuild recovered nothing at all. {archives} = number of archives the user chose.",
+    "placeholders": {
+      "archives": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoverySkipped": "{archives} of them contributed nothing.",
+  "@diagnosticsTrendRecoverySkipped": {
+    "description": "App Diagnostics recovery card tail appended to the result line when some chosen archives contributed nothing (unreadable, no run id, or already present). {archives} = how many.",
+    "placeholders": {
+      "archives": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildFailed": "The rebuild failed: {error}",
+  "@diagnosticsTrendRecoveryRebuildFailed": {
+    "description": "App Diagnostics recovery card line shown when the rebuild itself threw. {error} = the error, unlocalized.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryDismiss": "Dismiss",
+  "@diagnosticsTrendRecoveryDismiss": {
+    "description": "App Diagnostics recovery card button that clears the corruption notice."
+  },
+  "diagnosticsActionCopyTabReport": "Copy tab diagnostics report",
+  "@diagnosticsActionCopyTabReport": {
+    "description": "Action that copies the per-tab diagnostics report to the clipboard."
+  },
+  "diagnosticsCopiedToClipboard": "Diagnostics report copied to clipboard.",
+  "@diagnosticsCopiedToClipboard": {
+    "description": "Snackbar confirmation shown after a diagnostics report is copied."
+  },
+  "webDashboardTitle": "SimCrux regression",
+  "@webDashboardTitle": {
+    "description": "AppBar title on the read-only web dashboard."
+  },
+  "webDashboardEmptyTitle": "No results found",
+  "@webDashboardEmptyTitle": {
+    "description": "Heading shown when the loaded document contains zero results."
+  },
+  "webDashboardEmptyBody": "The exported document was decoded successfully but does not contain any test results.",
+  "@webDashboardEmptyBody": {
+    "description": "Body text shown when the loaded document contains zero results."
+  },
+  "webDashboardLoadFailed": "Could not load results: {reason}",
+  "@webDashboardLoadFailed": {
+    "description": "Snackbar shown when the web dashboard's fetch for simcrux-results.json fails.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "webDashboardOpenFileButton": "Open results file…",
+  "@webDashboardOpenFileButton": {
+    "description": "Label of the web dashboard action that opens a local results .ndjson / .json file into the read-only viewer."
+  },
+  "webDashboardOpenFileFailed": "Could not open results file: {reason}",
+  "@webDashboardOpenFileFailed": {
+    "description": "Snackbar shown when a user-picked results file cannot be read or decoded in the web dashboard.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "webDashboardSearchHint": "Filter by test, suite, or simulator",
+  "@webDashboardSearchHint": {
+    "description": "Hint text inside the web dashboard's filter text field."
+  },
+  "webDashboardClearFilter": "Clear",
+  "@webDashboardClearFilter": {
+    "description": "Button label that clears the web dashboard's active filter set."
+  },
+  "webDashboardStatusSummary": "{total} tests · {pass} passed · {fail} failed · {timeout} timed out · {skipped} skipped",
+  "@webDashboardStatusSummary": {
+    "description": "Bottom status-bar summary line on the web dashboard.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "pass": {
+        "type": "int"
+      },
+      "fail": {
+        "type": "int"
+      },
+      "timeout": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "webDashboardReadOnlyBanner": "Read-only view — exported regression results",
+  "@webDashboardReadOnlyBanner": {
+    "description": "Banner shown at the top of the web dashboard explaining it is a static export."
+  },
+  "webInspectorTitle": "Test details — {testId}",
+  "@webInspectorTitle": {
+    "description": "Title of the web dashboard's inspector dialog when a test row is selected.",
+    "placeholders": {
+      "testId": {
+        "type": "String"
+      }
+    }
+  },
+  "webInspectorFieldStatus": "Status",
+  "@webInspectorFieldStatus": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldRuntime": "Runtime",
+  "@webInspectorFieldRuntime": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldSuite": "Suite",
+  "@webInspectorFieldSuite": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldSimulator": "Simulator",
+  "@webInspectorFieldSimulator": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldExitCode": "Exit code",
+  "@webInspectorFieldExitCode": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldFailureMessage": "Failure",
+  "@webInspectorFieldFailureMessage": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldMetrics": "Metrics",
+  "@webInspectorFieldMetrics": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorClose": "Close",
+  "@webInspectorClose": {
+    "description": "Close button label in the web inspector dialog."
+  },
+  "settingsCxpEnabledLabel": "Enable CXP server",
+  "@settingsCxpEnabledLabel": {
+    "description": "Switch label that turns the SimCrux CXP server on or off."
+  },
+  "settingsCxpEnabledDescription": "Lets WaveCrux, NetCrux, LintCrux, and SimCrux exchange selection and highlight events on this machine.",
+  "@settingsCxpEnabledDescription": {
+    "description": "Helper text under the CXP enable switch explaining what the toggle does."
+  },
+  "settingsCxpPortLabel": "CXP port",
+  "@settingsCxpPortLabel": {
+    "description": "Text field label for the CXP server's listening port."
+  },
+  "settingsCxpPortDescription": "TCP port number (1–65535)",
+  "@settingsCxpPortDescription": {
+    "description": "Helper text under the CXP port field describing the valid port range."
+  },
+  "settingsCxpPortError": "Enter a port between 1 and 65535.",
+  "@settingsCxpPortError": {
+    "description": "Error string when the user enters an invalid CXP port number."
+  },
+  "settingsRequestAttentionOnCrossProbeLabel": "Request attention on cross-probe",
+  "@settingsRequestAttentionOnCrossProbeLabel": {
+    "description": "Switch label controlling whether an actionable inbound cross-probe bounces the dock / flashes the taskbar."
+  },
+  "settingsRequestAttentionOnCrossProbeDescription": "Bounce the dock (or flash the taskbar) when a peer sends a cross-probe. Never steals focus.",
+  "@settingsRequestAttentionOnCrossProbeDescription": {
+    "description": "Helper text under the request-attention switch explaining the dock-bounce behaviour and that it never steals focus."
+  },
+  "settingsBroadcastSelectionOnCrossProbeLabel": "Broadcast selection automatically",
+  "@settingsBroadcastSelectionOnCrossProbeLabel": {
+    "description": "Switch label controlling whether the local selection is announced to connected CXP peers as it changes (live cross-probe)."
+  },
+  "settingsBroadcastSelectionOnCrossProbeDescription": "Announce your selection to connected peers as you select it (live cross-probe). When off, only explicit sends are shared.",
+  "@settingsBroadcastSelectionOnCrossProbeDescription": {
+    "description": "Helper text under the broadcast-selection switch explaining live cross-probe and that only explicit sends are shared when off."
+  },
+  "settingsCxpStatus": "CXP Status",
+  "@settingsCxpStatus": {
+    "description": "Label for the CXP server status line in Settings."
+  },
+  "settingsCxpStatusRunning": "Running on port {port}",
+  "@settingsCxpStatusRunning": {
+    "description": "Status text shown when the CXP server is running on a given port.",
+    "placeholders": {
+      "port": {
+        "type": "int",
+        "example": "54325"
+      }
+    }
+  },
+  "settingsCxpStatusStopped": "Stopped",
+  "@settingsCxpStatusStopped": {
+    "description": "Status text shown when the CXP server is not running."
+  },
+  "settingsCxpPeersConnected": "{count} peer(s) connected",
+  "@settingsCxpPeersConnected": {
+    "description": "Status subtitle showing how many CXP peers are currently connected.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "settingsDetectorsSection": "Detectors",
+  "@settingsDetectorsSection": {
+    "description": "Settings screen section header for the reusable pass/fail detector library."
+  },
+  "settingsDetectorsEmpty": "No reusable detectors defined. Add one to share a tree across multiple simcrux.yaml files.",
+  "@settingsDetectorsEmpty": {
+    "description": "Placeholder shown in Settings → Detectors when no detectors are defined."
+  },
+  "settingsDetectorsAddButton": "Add detector…",
+  "@settingsDetectorsAddButton": {
+    "description": "Button label that opens the dialog to define a new reusable detector."
+  },
+  "settingsDetectorEditDialogTitle": "Reusable detector",
+  "@settingsDetectorEditDialogTitle": {
+    "description": "Title of the dialog used to add or edit a reusable detector."
+  },
+  "settingsDetectorNameLabel": "Name",
+  "@settingsDetectorNameLabel": {
+    "description": "Text field label for the reusable detector's name."
+  },
+  "settingsDetectorNameHint": "e.g. strict-uvm",
+  "@settingsDetectorNameHint": {
+    "description": "Hint text inside the reusable detector name field."
+  },
+  "settingsDetectorNameRequired": "Name is required",
+  "@settingsDetectorNameRequired": {
+    "description": "Validation error when the user submits a detector without a name."
+  },
+  "settingsDetectorKindLabel": "Kind",
+  "@settingsDetectorKindLabel": {
+    "description": "Label preceding the detector kind chip row."
+  },
+  "settingsDetectorKindExitCode": "Exit code",
+  "@settingsDetectorKindExitCode": {
+    "description": "Chip label for the exit-code detector kind."
+  },
+  "settingsDetectorKindStringMatch": "String match",
+  "@settingsDetectorKindStringMatch": {
+    "description": "Chip label for the string-match detector kind."
+  },
+  "settingsDetectorKindRegex": "Regex",
+  "@settingsDetectorKindRegex": {
+    "description": "Chip label for the regex detector kind."
+  },
+  "settingsDetectorKindCocotb": "Cocotb summary",
+  "@settingsDetectorKindCocotb": {
+    "description": "Detector kind label for the Cocotb summary-line detector"
+  },
+  "settingsDetectorFieldAllowNoTests": "Allow a run that reports no tests",
+  "@settingsDetectorFieldAllowNoTests": {
+    "description": "Checkbox label: allow a Cocotb run reporting TESTS=0 to pass"
+  },
+  "settingsDetectorFieldAllowNoTestsHint": "A run with TESTS=0 passes instead of failing. Off by default: a regression that executed nothing is not a success.",
+  "@settingsDetectorFieldAllowNoTestsHint": {
+    "description": "Explanation under the allow-no-tests checkbox"
+  },
+  "settingsDetectorKindUvmReport": "UVM report",
+  "@settingsDetectorKindUvmReport": {
+    "description": "Chip label for the UVM-report detector kind."
+  },
+  "settingsDetectorKindComposite": "Composite",
+  "@settingsDetectorKindComposite": {
+    "description": "Chip label for the composite (AND/OR) detector kind."
+  },
+  "settingsDetectorKindUse": "Use another",
+  "@settingsDetectorKindUse": {
+    "description": "Chip label for the use-by-reference detector kind."
+  },
+  "settingsDetectorFieldPassString": "Pass substring",
+  "@settingsDetectorFieldPassString": {
+    "description": "Field label for the string-match pass substring."
+  },
+  "settingsDetectorFieldFailString": "Fail substring",
+  "@settingsDetectorFieldFailString": {
+    "description": "Field label for the string-match fail substring."
+  },
+  "settingsDetectorFieldPassPattern": "Pass regex",
+  "@settingsDetectorFieldPassPattern": {
+    "description": "Field label for the regex pass pattern."
+  },
+  "settingsDetectorFieldFailPattern": "Fail regex",
+  "@settingsDetectorFieldFailPattern": {
+    "description": "Field label for the regex fail pattern."
+  },
+  "settingsDetectorFieldFatalThreshold": "Fatal threshold",
+  "@settingsDetectorFieldFatalThreshold": {
+    "description": "Field label for the UVM-report fatal threshold."
+  },
+  "settingsDetectorFieldErrorThreshold": "Error threshold",
+  "@settingsDetectorFieldErrorThreshold": {
+    "description": "Field label for the UVM-report error threshold."
+  },
+  "settingsDetectorFieldWarningThreshold": "Warning threshold",
+  "@settingsDetectorFieldWarningThreshold": {
+    "description": "Field label for the UVM-report warning threshold."
+  },
+  "settingsDetectorFieldUseName": "Referenced detector",
+  "@settingsDetectorFieldUseName": {
+    "description": "Field label for the use-spec target name."
+  },
+  "settingsDetectorKindGoldenCompare": "Golden compare",
+  "@settingsDetectorKindGoldenCompare": {
+    "description": "Chip label for the golden-file comparison detector kind."
+  },
+  "settingsDetectorFieldGoldenProfile": "Profile",
+  "@settingsDetectorFieldGoldenProfile": {
+    "description": "Field label for the golden-compare word-normalization profile."
+  },
+  "settingsDetectorProfileGeneric": "Generic",
+  "@settingsDetectorProfileGeneric": {
+    "description": "Dropdown item for the generic (bit-exact) golden-compare profile."
+  },
+  "settingsDetectorProfileRiscvSignature": "RISC-V signature",
+  "@settingsDetectorProfileRiscvSignature": {
+    "description": "Dropdown item for the RISC-V architectural-signature golden-compare profile."
+  },
+  "settingsDetectorFieldGoldenDut": "DUT output file",
+  "@settingsDetectorFieldGoldenDut": {
+    "description": "Field label for the golden-compare DUT output file path."
+  },
+  "settingsDetectorFieldGoldenReference": "Golden reference file",
+  "@settingsDetectorFieldGoldenReference": {
+    "description": "Field label for the golden-compare golden reference file path."
+  },
+  "settingsDetectorCompositeAllOfHeading": "All of (AND)",
+  "@settingsDetectorCompositeAllOfHeading": {
+    "description": "Heading for the all-of children list in the composite detector editor."
+  },
+  "settingsDetectorCompositeAnyOfHeading": "Any of (OR)",
+  "@settingsDetectorCompositeAnyOfHeading": {
+    "description": "Heading for the any-of children list in the composite detector editor."
+  },
+  "settingsDetectorAddChild": "Add child",
+  "@settingsDetectorAddChild": {
+    "description": "Button that appends a child to a composite detector group."
+  },
+  "settingsDetectorRemoveChild": "Remove",
+  "@settingsDetectorRemoveChild": {
+    "description": "Action label that removes a child from a composite detector group."
+  },
+  "settingsDetectorSave": "Save",
+  "@settingsDetectorSave": {
+    "description": "Button label that commits the detector definition."
+  },
+  "settingsDetectorCancel": "Cancel",
+  "@settingsDetectorCancel": {
+    "description": "Button label that discards the detector definition."
+  },
+  "settingsDetectorDiscardConfirmTitle": "Discard changes?",
+  "@settingsDetectorDiscardConfirmTitle": {
+    "description": "Title of the confirmation dialog shown when the user cancels the detector editor with unsaved changes."
+  },
+  "settingsDetectorDiscardConfirmBody": "You have unsaved changes. Discard them?",
+  "@settingsDetectorDiscardConfirmBody": {
+    "description": "Body of the discard-changes confirmation dialog."
+  },
+  "settingsDetectorDiscardConfirmYes": "Discard",
+  "@settingsDetectorDiscardConfirmYes": {
+    "description": "Affirmative button on the discard-changes confirmation dialog."
+  },
+  "settingsDetectorDiscardConfirmNo": "Keep editing",
+  "@settingsDetectorDiscardConfirmNo": {
+    "description": "Negative button on the discard-changes confirmation dialog. Returns to the detector editor."
+  },
+  "settingsDetectorDelete": "Delete",
+  "@settingsDetectorDelete": {
+    "description": "Action label that deletes a reusable detector definition."
+  },
+  "viewerTabBarCloseTabTooltip": "Close tab",
+  "@viewerTabBarCloseTabTooltip": {
+    "description": "Tooltip shown over the close (×) button on each workspace tab chip."
+  },
+  "viewerTabBarNewTabTooltip": "New tab",
+  "@viewerTabBarNewTabTooltip": {
+    "description": "Tooltip shown over the trailing + button on the workspace tab bar."
+  },
+  "viewerTabBarNewTabDefaultDisplayName": "New tab",
+  "@viewerTabBarNewTabDefaultDisplayName": {
+    "description": "Default chip label used when the user opens an empty new tab via the + button before picking a project file."
+  },
+  "viewerTabBarUnnamedTabFallback": "(unnamed tab)",
+  "@viewerTabBarUnnamedTabFallback": {
+    "description": "Fallback chip label shown when a tab has no display name."
+  },
+  "viewerTabBarCloseTabMenuItem": "Close Tab",
+  "@viewerTabBarCloseTabMenuItem": {
+    "description": "Tab chip context-menu item that closes the tab."
+  },
+  "viewerTabBarCloseOtherTabsMenuItem": "Close Other Tabs",
+  "@viewerTabBarCloseOtherTabsMenuItem": {
+    "description": "Tab chip context-menu item that closes every other tab in the pane."
+  },
+  "viewerTabBarCloseTabsToTheRightMenuItem": "Close Tabs to the Right",
+  "@viewerTabBarCloseTabsToTheRightMenuItem": {
+    "description": "Tab chip context-menu item that closes every tab to the right of the focused tab."
+  },
+  "viewerTabBarMoveToNewWindowMenuItem": "Move to New Window",
+  "@viewerTabBarMoveToNewWindowMenuItem": {
+    "description": "Tab chip context-menu item that detaches the tab into a new window (currently disabled until Flutter multi-window stabilizes)."
+  },
+  "viewerTabBarMultiWindowUnavailableTooltip": "Available when Flutter multi-window reaches stable",
+  "@viewerTabBarMultiWindowUnavailableTooltip": {
+    "description": "Tooltip shown next to the disabled Move to New Window menu item."
+  },
+  "viewerTabBarActivePaneAccessibilityLabel": "Active pane",
+  "@viewerTabBarActivePaneAccessibilityLabel": {
+    "description": "Accessibility label announced by screen readers when focusing the active pane container."
+  },
+  "viewerTabBarDragToPaneAccessibilityHint": "Drop here to move the tab into this pane",
+  "@viewerTabBarDragToPaneAccessibilityHint": {
+    "description": "Accessibility hint announced while a tab is being dragged toward another pane's tab bar."
+  },
+  "viewerTabBarReorderHandleTooltip": "Drag to reorder",
+  "@viewerTabBarReorderHandleTooltip": {
+    "description": "Tooltip on the leading drag-handle of each tab chip used for reordering tabs within a pane."
+  },
+  "viewerTabBarScrollTabsLeftTooltip": "Scroll tabs left",
+  "@viewerTabBarScrollTabsLeftTooltip": {
+    "description": "Tooltip on the chevron that scrolls the tab strip toward its start."
+  },
+  "viewerTabBarScrollTabsRightTooltip": "Scroll tabs right",
+  "@viewerTabBarScrollTabsRightTooltip": {
+    "description": "Tooltip on the chevron that scrolls the tab strip toward its end."
+  },
+  "emptyCanvasTitle": "SimCrux",
+  "@emptyCanvasTitle": {
+    "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
+  },
+  "emptyCanvasSubtitle": "Open a regression config to get started — or open a saved workspace.",
+  "@emptyCanvasSubtitle": {
+    "description": "One-line subtitle shown under the empty-canvas headline."
+  },
+  "emptyCanvasVersion": "Version {version}",
+  "@emptyCanvasVersion": {
+    "description": "Muted version line under the empty-canvas (welcome) subtitle. The only always-visible version indicator on web, where there is no native menu bar to host an About entry point.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyCanvasSuiteFooter": "A member of the EDACrux suite of products — edacrux.app",
+  "@emptyCanvasSuiteFooter": {
+    "description": "Suite-membership line at the foot of the empty-canvas (welcome) screen. The whole line is a link to the EDACrux suite site. \"edacrux.app\" must appear verbatim — the widget splits the sentence around it to underline the domain — but a translation that drops it still renders and is still followable, just without an underlined segment. \"EDACrux\" is one word and is never translated."
+  },
+  "emptyCanvasPeersHeading": "MORE FROM EDACRUX",
+  "@emptyCanvasPeersHeading": {
+    "description": "Section header above the three sibling-product rows at the foot of the empty-canvas (welcome) screen. Rendered upper-case in English as a small letter-spaced label, matching the \"RECENT FILES\" headers above it; a locale whose script has no case simply reads as a label. \"EDACrux\" is one word and is never translated."
+  },
+  "emptyCanvasPeerWaveCrux": "Open the waveform a failing run wrote. VCD, FST and GHW, on desktop, web and phone.",
+  "@emptyCanvasPeerWaveCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing WaveCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what WaveCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasPeerNetCrux": "Read the logic behind a failure. Hierarchical schematic browsing over the same sources.",
+  "@emptyCanvasPeerNetCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing NetCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what NetCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasPeerLintCrux": "Find the bug before the regression does. Lint and CDC over the RTL the run compiles.",
+  "@emptyCanvasPeerLintCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing LintCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what LintCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasOpenConfig": "Open Config…",
+  "@emptyCanvasOpenConfig": {
+    "description": "Primary action button label on the empty-canvas state — opens a simcrux.yaml project file."
+  },
+  "emptyCanvasOpenSession": "Open Session…",
+  "@emptyCanvasOpenSession": {
+    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-session export."
+  },
+  "emptyCanvasOpenWorkspace": "Open Workspace…",
+  "@emptyCanvasOpenWorkspace": {
+    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
+  },
+  "emptyCanvasRecentConfigsHeading": "Recent configs",
+  "@emptyCanvasRecentConfigsHeading": {
+    "description": "Section heading above the list of recently-opened simcrux.yaml files."
+  },
+  "emptyCanvasNoRecentConfigs": "No recent configs yet.",
+  "@emptyCanvasNoRecentConfigs": {
+    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
+  },
+  "emptyCanvasRecentSessionsHeading": "Recent sessions",
+  "@emptyCanvasRecentSessionsHeading": {
+    "description": "Section heading above the list of recently-opened .simcrux-session export files."
+  },
+  "emptyCanvasOpenFailed": "Could not open the file picker: {error}",
+  "@emptyCanvasOpenFailed": {
+    "description": "Snackbar shown when the file picker throws (e.g. macOS rejects an unknown extension). Surfaces the underlying error so file-open failures are not silent.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectLegacyFileName": "This design manifest uses the old file name .crux-project, which file pickers hide. Rename it to {suggested}; a later release stops reading the old name.",
+  "@cruxProjectLegacyFileName": {
+    "description": "Info snackbar shown once when a design manifest named with the legacy bare .crux-project file name is opened. It still opens; suggested is the file name to rename it to (the design directory's name plus .crux-project). Keep .crux-project literal.",
+    "placeholders": {
+      "suggested": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectInvalid": "Not a valid design manifest: {detail}",
+  "@cruxProjectInvalid": {
+    "description": "Error snackbar shown when a <design>.crux-project manifest cannot be parsed. detail is the parser's English diagnostic.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectConfigMissing": "The regression config this design names is missing: {path}",
+  "@cruxProjectConfigMissing": {
+    "description": "Error snackbar shown when a design manifest names a regression config (its simulation: entry) that is not on disk. path is the entry as written.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectNoSimulation": "{name} does not name a regression config yet. Add a simulation: entry under artifacts: in its manifest.",
+  "@cruxProjectNoSimulation": {
+    "description": "Error snackbar shown when a design manifest has no simulation: entry under artifacts:. name is the manifest's display name. Keep simulation: and artifacts: literal.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectAmbiguous": "{directory} holds more than one design manifest ({candidates}). A design directory holds exactly one: remove the extras, or open one of them directly.",
+  "@cruxProjectAmbiguous": {
+    "description": "Error snackbar shown when a design directory opened from the command line holds more than one design manifest, so none is opened. directory is the directory path; candidates is a comma-separated list of the manifest file names.",
+    "placeholders": {
+      "directory": {
+        "type": "String"
+      },
+      "candidates": {
+        "type": "String"
+      }
+    }
+  },
+  "actionSwitchProject": "Switch Project…",
+  "@actionSwitchProject": {
+    "description": "Action label for the project switcher dialog (Ctrl/Cmd+P). Lets the user pick from open and recently-closed projects in the multi-project workspace."
+  },
+  "actionReopenRecentProject": "Reopen Recent Project",
+  "@actionReopenRecentProject": {
+    "description": "Action label that re-opens the most-recently-closed project from the recent-projects list."
+  },
+  "actionPinActiveProject": "Pin Project Tab",
+  "@actionPinActiveProject": {
+    "description": "Action label that pins (or unpins) the active project tab. Pinned tabs survive Close-All-Projects actions. Pro-tier feature."
+  },
+  "actionCloseAllProjects": "Close All Projects",
+  "@actionCloseAllProjects": {
+    "description": "Action label that closes every open project except pinned ones. Pro-tier feature."
+  },
+  "actionCloseAllTabs": "Close All Tabs",
+  "@actionCloseAllTabs": {
+    "description": "Action label that closes every open workspace tab. Open-core; no project registry involved."
+  },
+  "closeAllTabsConfirmTitle": "Close all tabs?",
+  "@closeAllTabsConfirmTitle": {
+    "description": "Title of the confirmation dialog shown before closing every open workspace tab."
+  },
+  "closeAllTabsConfirmBody": "Every open workspace tab will be closed.",
+  "@closeAllTabsConfirmBody": {
+    "description": "Body of the confirmation dialog shown before closing every open workspace tab."
+  },
+  "closeAllTabsConfirmCancel": "Cancel",
+  "@closeAllTabsConfirmCancel": {
+    "description": "Cancel button label on the close-all-tabs confirmation dialog."
+  },
+  "closeAllTabsConfirmConfirm": "Close All",
+  "@closeAllTabsConfirmConfirm": {
+    "description": "Confirm button label on the close-all-tabs confirmation dialog."
+  },
+  "actionSearchAcrossProjects": "Search Across Projects…",
+  "@actionSearchAcrossProjects": {
+    "description": "Action label for the cross-project search dialog (Ctrl/Cmd+Shift+F). Searches test names, failure messages, and file paths across every open project in the multi-project workspace. Pro-tier feature."
+  },
+  "actionOpenPluginManager": "Manage Driver Plugins…",
+  "@actionOpenPluginManager": {
+    "description": "Action label that opens the Settings → Plugins section for custom simulator driver plugins. Pro-tier feature."
+  },
+  "actionReloadPlugins": "Reload Driver Plugins",
+  "@actionReloadPlugins": {
+    "description": "Action label that re-scans the plugin directory and refreshes the installed-plugin list. Pro-tier feature."
+  },
+  "tierBadgePro": "PRO",
+  "@tierBadgePro": {
+    "description": "Short tier badge chip text shown next to features that require a SimCrux Pro license."
+  },
+  "menuItemTierSuffix": " ({tier})",
+  "@menuItemTierSuffix": {
+    "description": "Suffix appended to a native menu-bar item's label to mark the license tier it requires; the placeholder is the short PRO/ENT badge text. The platform menu bar can only render a string label (no badge widget), so tier is shown as a parenthetical suffix there.",
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "tierBadgeProSemantic": "Pro tier feature",
+  "@tierBadgeProSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated PRO tier badge."
+  },
+  "tierBadgeEnterprise": "ENT",
+  "@tierBadgeEnterprise": {
+    "description": "Short tier badge chip text shown next to features that require a SimCrux Enterprise license."
+  },
+  "tierBadgeEnterpriseSemantic": "Enterprise tier feature",
+  "@tierBadgeEnterpriseSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated ENT tier badge."
+  },
+  "editionMenuLine": "{edition} edition — {identity}",
+  "@editionMenuLine": {
+    "description": "macOS application-menu line stating the edition in force and who it is licensed to. Shown disabled above About.",
+    "placeholders": {
+      "edition": {
+        "type": "String",
+        "example": "Pro"
+      },
+      "identity": {
+        "type": "String",
+        "example": "buyer@example.com"
+      }
+    }
+  },
+  "editionMenuLineOrganization": "{edition} edition — licensed by your organization",
+  "@editionMenuLineOrganization": {
+    "description": "macOS application-menu line when the licence names no individual — an Enterprise seat licensed from a policy file has no user email by construction.",
+    "placeholders": {
+      "edition": {
+        "type": "String",
+        "example": "Enterprise"
+      }
+    }
+  },
+  "editionNameEducational": "Educational",
+  "@editionNameEducational": {
+    "description": "Full name of the Educational edition, as used in the application-menu edition line."
+  },
+  "editionNamePro": "Pro",
+  "@editionNamePro": {
+    "description": "Full name of the Pro edition, as used in the application-menu edition line."
+  },
+  "editionNameEnterprise": "Enterprise",
+  "@editionNameEnterprise": {
+    "description": "Full name of the Enterprise edition, as used in the application-menu edition line."
+  },
+  "editionBadgeEduSemantic": "Educational edition",
+  "@editionBadgeEduSemantic": {
+    "description": "Accessibility / screen reader label for the badge stating the user is running the Educational edition. Distinct from tierBadgeEduSemantic, which labels a FEATURE as needing a tier."
+  },
+  "editionBadgeProSemantic": "Pro edition",
+  "@editionBadgeProSemantic": {
+    "description": "Accessibility / screen reader label for the badge stating the user is running the Pro edition. Distinct from tierBadgeProSemantic, which labels a FEATURE as needing a tier."
+  },
+  "editionBadgeEnterpriseSemantic": "Enterprise edition",
+  "@editionBadgeEnterpriseSemantic": {
+    "description": "Accessibility / screen reader label for the badge stating the user is running the Enterprise edition. Distinct from tierBadgeEnterpriseSemantic, which labels a FEATURE as needing a tier."
+  },
+  "tierBadgeEdu": "EDU",
+  "@tierBadgeEdu": {
+    "description": "Short tier badge chip text shown on user-status surfaces (About box, Welcome screen) indicating the user holds an Educational/non-commercial SimCrux license."
+  },
+  "tierBadgeEduSemantic": "Educational license",
+  "@tierBadgeEduSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated EDU edition badge."
+  },
+  "aboutDialogTitle": "About SimCrux",
+  "@aboutDialogTitle": {
+    "description": "Title of the About dialog (shown in the header / app bar)."
+  },
+  "aboutTagline": "Modern simulation results dashboard for hardware engineers",
+  "@aboutTagline": {
+    "description": "One-line product tagline shown under the app name in the About dialog header."
+  },
+  "aboutBetaChip": "Public Beta",
+  "@aboutBetaChip": {
+    "description": "Label on the public-beta chip in the About dialog header, shown while the beta period is active."
+  },
+  "aboutEditionOpenCore": "Open Core",
+  "@aboutEditionOpenCore": {
+    "description": "Edition label for the free open-core build; the About dialog hides the edition chip when this is the active edition."
+  },
+  "aboutSectionVersion": "Version",
+  "@aboutSectionVersion": {
+    "description": "Header for the version sub-section of the About dialog."
+  },
+  "aboutBuildNumber": "Build",
+  "@aboutBuildNumber": {
+    "description": "Row label for the platform build number in the About dialog."
+  },
+  "aboutGitSha": "Commit",
+  "@aboutGitSha": {
+    "description": "Row label for the short git commit SHA in the About dialog."
+  },
+  "aboutSectionPlatform": "Platform",
+  "@aboutSectionPlatform": {
+    "description": "Header for the platform sub-section of the About dialog."
+  },
+  "aboutOperatingSystem": "OS",
+  "@aboutOperatingSystem": {
+    "description": "Row label for the host operating system in the About dialog."
+  },
+  "aboutArchitecture": "Architecture",
+  "@aboutArchitecture": {
+    "description": "Row label for the CPU architecture in the About dialog."
+  },
+  "aboutFlutterVersion": "Flutter",
+  "@aboutFlutterVersion": {
+    "description": "Row label for the Flutter SDK version in the About dialog."
+  },
+  "aboutDartVersion": "Dart",
+  "@aboutDartVersion": {
+    "description": "Row label for the Dart SDK version in the About dialog."
+  },
+  "aboutButtonVisitWebsite": "Visit Website",
+  "@aboutButtonVisitWebsite": {
+    "description": "Action button label that opens the company website from the About dialog."
+  },
+  "aboutButtonDocs": "Documentation",
+  "@aboutButtonDocs": {
+    "description": "Action button label that opens the SimCrux documentation site from the About dialog."
+  },
+  "aboutButtonPrivacy": "Privacy Policy",
+  "@aboutButtonPrivacy": {
+    "description": "Action button label that opens the SimCrux privacy policy from the About dialog."
+  },
+  "aboutButtonTerms": "Terms of Service",
+  "@aboutButtonTerms": {
+    "description": "Action button label that opens the SimCrux terms of service from the About dialog."
+  },
+  "aboutButtonCopyVersionInfo": "Copy Version Info",
+  "@aboutButtonCopyVersionInfo": {
+    "description": "Action button label that copies the structured version paragraph to the clipboard from the About dialog."
+  },
+  "aboutCopiedConfirmation": "Version info copied",
+  "@aboutCopiedConfirmation": {
+    "description": "Snackbar confirmation shown after the Copy Version Info action copies the version paragraph to the clipboard."
+  },
+  "aboutCompanyName": "Ferrite Engineering",
+  "@aboutCompanyName": {
+    "description": "Company name shown on the branding banner of the About dialog."
+  },
+  "snackActionNotYetImplemented": "{action} is not yet implemented.",
+  "@snackActionNotYetImplemented": {
+    "description": "Snackbar shown when a command palette / menu / shortcut action has no UI surface yet.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackActionRequiresPro": "{action} requires SimCrux Pro.",
+  "@snackActionRequiresPro": {
+    "description": "Snackbar shown when a Pro-tier action is invoked in an open-core build with no Pro overlay installed.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackNoActiveProjectToPin": "No active project to pin.",
+  "@snackNoActiveProjectToPin": {
+    "description": "Snackbar shown when the Pin Active Project action fires with no active project open."
+  },
+  "snackActionUnavailableInThisBuild": "{action} is not available in this build.",
+  "@snackActionUnavailableInThisBuild": {
+    "description": "Snackbar shown when an open-core-tier action's extension-point opener is not installed in this build.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackNoProjectOpen": "No project is open.",
+  "@snackNoProjectOpen": {
+    "description": "Snackbar shown when a project-scoped action (run, stop, re-run, close project, close all) fires with no project open."
+  },
+  "snackNoTestSelected": "No test is selected.",
+  "@snackNoTestSelected": {
+    "description": "Snackbar shown when Re-run Selected fires with no test selected in the results table."
+  },
+  "dashboardViewModeTable": "Table",
+  "@dashboardViewModeTable": {
+    "description": "Segmented-button label for the dashboard's table view mode."
+  },
+  "dashboardViewModeHeatmap": "Heatmap",
+  "@dashboardViewModeHeatmap": {
+    "description": "Segmented-button label for the dashboard's heatmap view mode."
+  },
+  "diagnosticsTabNoConfigLoaded": "No config loaded.",
+  "@diagnosticsTabNoConfigLoaded": {
+    "description": "Placeholder shown in the Tab Diagnostics drawer's Config Info section when no project is loaded in the active tab."
+  },
+  "settingsLoadFailed": "Could not load settings: {reason}",
+  "@settingsLoadFailed": {
+    "description": "Error text shown in place of the Settings body when the persisted settings fail to load.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "updateBannerMessage": "SimCrux {version} is available.",
+  "@updateBannerMessage": {
+    "description": "Non-intrusive banner shown when a newer SimCrux version is available. Names the available version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateViewChangesAction": "View Changes",
+  "@updateViewChangesAction": {
+    "description": "Update banner action that opens the changelog / release notes for the available update."
+  },
+  "updateNowAction": "Update Now",
+  "@updateNowAction": {
+    "description": "Update banner action that opens the SimCrux download page for the available update."
+  },
+  "updateDismissLabel": "Dismiss",
+  "@updateDismissLabel": {
+    "description": "Semantic label for the close button that dismisses the update-available banner until a newer version is offered."
+  },
+  "updateCheckInProgress": "Checking for updates…",
+  "@updateCheckInProgress": {
+    "description": "Transient message shown while a manual Check for Updates is in flight."
+  },
+  "updateCheckUpToDate": "You’re on the latest version ({version}).",
+  "@updateCheckUpToDate": {
+    "description": "Confirmation shown after a manual update check finds no newer version. Names the running version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCheckFailed": "Couldn’t check for updates.",
+  "@updateCheckFailed": {
+    "description": "Non-fatal message shown when a manual update check fails (network or malformed manifest)."
+  },
+  "actionCheckForUpdates": "Check for Updates",
+  "@actionCheckForUpdates": {
+    "description": "Help-menu / command-palette / About-box action that runs a manual update check."
+  },
+  "settingsAutoCheckUpdatesLabel": "Automatically check for updates",
+  "@settingsAutoCheckUpdatesLabel": {
+    "description": "Settings → General toggle controlling whether SimCrux checks for updates automatically at launch and periodically."
+  },
+  "settingsAutoCheckUpdatesDescription": "Check the release manifest at launch and once a day. Only the app version and your operating system are sent — never project, design or result data.",
+  "@settingsAutoCheckUpdatesDescription": {
+    "description": "Explanatory text under the Settings → General automatic-update-check toggle, stating what the check transmits."
+  },
+  "settingsDiagnosticsEnabledLabel": "Enable diagnostics",
+  "@settingsDiagnosticsEnabledLabel": {
+    "description": "Settings → General toggle, shown only in release builds, that turns on the diagnostics surfaces (Tab Diagnostics)."
+  },
+  "settingsDiagnosticsEnabledDescription": "Makes Tab Diagnostics… available for the active tab. Always on in debug and profile builds.",
+  "@settingsDiagnosticsEnabledDescription": {
+    "description": "Explanatory text under the Settings → General diagnostics toggle."
+  },
+  "settingsAutoRunOnOpenLabel": "Run the regression when a config is opened",
+  "@settingsAutoRunOnOpenLabel": {
+    "description": "Settings → General toggle controlling whether opening a regression config immediately starts the run. Off by default."
+  },
+  "settingsAutoRunOnOpenDescription": "Off by default. Opening a config loads it and arms the tab; the run waits for Run Regression, so opening a file never starts hundreds of tests or checks out simulator licences on its own.",
+  "@settingsAutoRunOnOpenDescription": {
+    "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
+  },
+  "actionSubmitIssue": "Submit Issue…",
+  "@actionSubmitIssue": {
+    "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."
+  },
+  "issueReporterTitle": "Submit Issue",
+  "@issueReporterTitle": {
+    "description": "Title of the beta issue reporter dialog."
+  },
+  "issueReporterTitleFieldLabel": "Issue Summary",
+  "@issueReporterTitleFieldLabel": {
+    "description": "Label for the single-line text field where the user types a short summary of the bug."
+  },
+  "issueReporterTitleFieldHint": "Briefly describe what went wrong",
+  "@issueReporterTitleFieldHint": {
+    "description": "Hint text inside the empty issue-summary field of the beta issue reporter."
+  },
+  "issueReporterPrivacyNotice": "More context helps reproduce your issue. Review and toggle off anything you’d rather not share. No file contents or file paths are ever included.",
+  "@issueReporterPrivacyNotice": {
+    "description": "Privacy callout in the beta issue reporter explaining that data categories can be toggled off and that no file paths are included."
+  },
+  "issueReporterPreviewHeader": "Preview issue body",
+  "@issueReporterPreviewHeader": {
+    "description": "Expander label that reveals the live markdown preview of the GitHub issue body."
+  },
+  "issueReporterCategoryAppEnv": "App & Environment",
+  "@issueReporterCategoryAppEnv": {
+    "description": "Title of the always-on issue-report category covering app version, build SHA, platform, OS, DPI, locale and SDK versions."
+  },
+  "issueReporterCategoryAppEnvDescription": "Version, build SHA, platform, OS, screen DPI, locale, SDK versions.",
+  "@issueReporterCategoryAppEnvDescription": {
+    "description": "One-line summary of what the App & Environment issue-report category contributes."
+  },
+  "issueReporterCategorySession": "Session State",
+  "@issueReporterCategorySession": {
+    "description": "Title of the toggleable issue-report category covering open projects, configured simulators, and run totals."
+  },
+  "issueReporterCategorySessionDescription": "Counts, simulator names and versions only — never file paths or file contents.",
+  "@issueReporterCategorySessionDescription": {
+    "description": "One-line summary of what the Session State issue-report category contributes, stressing that no paths are included."
+  },
+  "issueReporterCategoryLog": "Diagnostics",
+  "@issueReporterCategoryLog": {
+    "description": "Title of the toggleable issue-report category covering the diagnostics snapshot plus the recent in-memory session log."
+  },
+  "issueReporterCategoryLogDescription": "Recent warnings and errors captured this session.",
+  "@issueReporterCategoryLogDescription": {
+    "description": "One-line summary of what the Diagnostics issue-report category contributes."
+  },
+  "issueReporterCategoryScreenshot": "Screenshot",
+  "@issueReporterCategoryScreenshot": {
+    "description": "Title of the toggleable issue-report category that attaches a screenshot (desktop only)."
+  },
+  "issueReporterCategoryScreenshotDescription": "A picture of the app window, saved so you can attach it.",
+  "@issueReporterCategoryScreenshotDescription": {
+    "description": "One-line summary of what the Screenshot issue-report category contributes."
+  },
+  "issueReporterLockedCategorySemantics": "Always included",
+  "@issueReporterLockedCategorySemantics": {
+    "description": "Screen-reader description of the lock icon on the always-on App & Environment issue-report tile."
+  },
+  "issueReporterSubmitButton": "Submit",
+  "@issueReporterSubmitButton": {
+    "description": "Primary button that copies the report body to the clipboard and opens the GitHub new-issue page."
+  },
+  "issueReporterCancelButton": "Cancel",
+  "@issueReporterCancelButton": {
+    "description": "Button that dismisses the beta issue reporter without filing an issue."
+  },
+  "issueReporterOpenedToast": "GitHub issue opened — paste the report from your clipboard into the body.",
+  "@issueReporterOpenedToast": {
+    "description": "Snackbar shown after submitting when the report body did not fit in the GitHub URL and must be pasted from the clipboard."
+  },
+  "issueReporterOpenedToastPrefilled": "GitHub issue opened with the report pre-filled.",
+  "@issueReporterOpenedToastPrefilled": {
+    "description": "Snackbar shown after submitting when the report body was pre-filled into the GitHub new-issue URL."
+  },
+  "issueReporterScreenshotSaved": "Screenshot saved to {path}",
+  "@issueReporterScreenshotSaved": {
+    "description": "Confirmation appended to the submission snackbar naming where the screenshot PNG was written.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "issueReporterEmptyLog": "(no log entries captured)",
+  "@issueReporterEmptyLog": {
+    "description": "Placeholder rendered in the Diagnostics issue-report category when the log ring buffer captured nothing at all."
+  },
+  "issueReporterEmptySessionLog": "(no errors or warnings logged this session)",
+  "@issueReporterEmptySessionLog": {
+    "description": "Placeholder rendered under the session-log heading of the Diagnostics issue-report category when nothing was logged this session."
+  },
+  "betaExpiryBannerMessage": "{days, plural, =1{SimCrux Beta expires in 1 day. Download the latest build.} other{SimCrux Beta expires in {days} days. Download the latest build.}}",
+  "@betaExpiryBannerMessage": {
+    "description": "Dismissible banner shown at startup/resume when the public-beta build is within the warning window of its hard expiry date.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "betaExpiryBannerAction": "Download",
+  "@betaExpiryBannerAction": {
+    "description": "Label of the inline action button in the beta-expiry warning banner that opens the download page."
+  },
+  "betaExpiryDismissLabel": "Dismiss",
+  "@betaExpiryDismissLabel": {
+    "description": "Semantic label for the close button that dismisses the beta-expiry warning banner for the session."
+  },
+  "betaExpiryExpiredTitle": "Beta build expired",
+  "@betaExpiryExpiredTitle": {
+    "description": "Title of the blocking, non-dismissable modal shown when the public-beta build has reached or passed its hard expiry date."
+  },
+  "betaExpiryExpiredBody": "This SimCrux Beta build has reached its expiration date. Download the latest build to keep using SimCrux.",
+  "@betaExpiryExpiredBody": {
+    "description": "Body text of the blocking beta-expiry modal explaining that the build has expired and the user must download the latest build."
+  },
+  "betaExpiryExpiredAction": "Download latest build",
+  "@betaExpiryExpiredAction": {
+    "description": "Label of the primary button in the blocking beta-expiry modal that opens the download page for the latest build."
+  },
+  "betaExpiryExpiredQuit": "Quit SimCrux",
+  "@betaExpiryExpiredQuit": {
+    "description": "Label of the secondary button in the blocking beta-expiry modal that quits the application. Load-bearing on Windows/Linux where the custom window-chrome close button sits behind the modal barrier."
+  },
+  "actionCategoryFileMnemonic": "&File",
+  "@actionCategoryFileMnemonic": {
+    "description": "File menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryEditMnemonic": "&Edit",
+  "@actionCategoryEditMnemonic": {
+    "description": "Edit menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryViewMnemonic": "&View",
+  "@actionCategoryViewMnemonic": {
+    "description": "View menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryNavigateMnemonic": "&Navigate",
+  "@actionCategoryNavigateMnemonic": {
+    "description": "Navigate menu title with the & Alt-accelerator marker"
+  },
+  "actionCategorySearchMnemonic": "&Search",
+  "@actionCategorySearchMnemonic": {
+    "description": "Search menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryToolsMnemonic": "&Tools",
+  "@actionCategoryToolsMnemonic": {
+    "description": "Tools menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryHelpMnemonic": "&Help",
+  "@actionCategoryHelpMnemonic": {
+    "description": "Help menu title with the & Alt-accelerator marker"
+  },
+  "actionCategoryEdit": "Edit",
+  "@actionCategoryEdit": {
+    "description": "Edit menu title in the desktop menu bar"
+  },
+  "menuWindow": "Window",
+  "@menuWindow": {
+    "description": "Title of the standard macOS Window menu"
+  },
+  "actionExit": "Exit",
+  "@actionExit": {
+    "description": "Windows/Linux label for the quit action at the bottom of the File menu; macOS uses actionQuit instead"
+  },
+  "actionOpenDocumentation": "Documentation",
+  "@actionOpenDocumentation": {
+    "description": "Help menu label for the action that opens the online SimCrux documentation at docs.simcrux.app"
+  },
+  "accessibilityResultRow": "{status}: {suite} / {test}, {simulator}, ran in {runtime}",
+  "@accessibilityResultRow": {
+    "description": "Screen-reader label for one dashboard results row. The row renders five separate Text cells, which a screen reader announces as disconnected fragments with no column context; this reads the row as one sentence instead.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "suite": {
+        "type": "String"
+      },
+      "test": {
+        "type": "String"
+      },
+      "simulator": {
+        "type": "String"
+      },
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityTestBrowserRow": "{test}, {status}",
+  "@accessibilityTestBrowserRow": {
+    "description": "Screen-reader name of one test in the Tests dock: the test name and its latest status. The status is otherwise shown only as a colored icon, which a screen reader does not announce.",
+    "placeholders": {
+      "test": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityTestNotRun": "not run",
+  "@accessibilityTestNotRun": {
+    "description": "Status spoken for a test in the Tests dock that has no result in the current run yet."
+  },
+  "statisticsStripTitle": "Statistics",
+  "@statisticsStripTitle": {
+    "description": "Screen-reader name of the live statistics strip's disclosure button (the visible caption is the short 'Stats')."
+  },
+  "tabChipCloseTooltip": "Close {name}",
+  "@tabChipCloseTooltip": {
+    "description": "Tooltip and screen-reader name of the close (×) button on a tab chip; name is the tab display name",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityToolbarRegion": "Toolbar",
+  "@accessibilityToolbarRegion": {
+    "description": "Screen-reader label for the application toolbar region"
+  },
+  "toolbarOverflowActions": "Actions",
+  "@toolbarOverflowActions": {
+    "description": "Tooltip on the toolbar's trailing overflow button, which opens the full action list"
+  },
+  "toolbarToggleCrossProbe": "Cross-Probe Panel",
+  "@toolbarToggleCrossProbe": {
+    "description": "Toolbar tooltip for the cross-probe panel toggle. One key name and one wording across the suite; NetCrux and SimCrux previously used crossProbeToggleTooltip, and WaveCrux and LintCrux disagreed on the English."
+  },
+  "actionOpenTabDiagnostics": "Tab Diagnostics…",
+  "@actionOpenTabDiagnostics": {
+    "description": "Tools menu / command palette label for the per-tab Tab Diagnostics drawer. Matches the WaveCrux label exactly — it is the same command in every product."
+  },
+  "actionOpenAppDiagnostics": "App Diagnostics…",
+  "@actionOpenAppDiagnostics": {
+    "description": "Tools menu / command palette label for the process-wide App Diagnostics dialog. Matches the WaveCrux and LintCrux label exactly — it is the same command in every product."
+  },
+  "statusBarBusyRegression": "Running regression",
+  "@statusBarBusyRegression": {
+    "description": "Accessibility label on the status-bar busy indicator while a regression is running."
+  },
+  "statusBarNoConfig": "No configuration open",
+  "@statusBarNoConfig": {
+    "description": "Status-bar idle label on the empty canvas, when no regression config is open. Mirrors NetCrux statusBarNoDesign so every product keeps a bottom bar that says something rather than vanishing."
+  },
+  "dockTabDetails": "Details",
+  "@dockTabDetails": {
+    "description": "Right-dock tab label for the run-details inspector."
+  },
+  "dockTabCrossProbe": "Cross-Probe",
+  "@dockTabCrossProbe": {
+    "description": "Right-dock tab label for the docked cross-probe panel."
+  },
+  "dockCollapseTooltip": "Hide Panel",
+  "@dockCollapseTooltip": {
+    "description": "Tooltip on the dock strip button that hides the whole region (VSCode panel-close)."
+  },
+  "accessibilityRightDockRegion": "Details dock",
+  "@accessibilityRightDockRegion": {
+    "description": "Accessibility label announced for the right dock region."
+  },
+  "accessibilityLeftDockRegion": "Browser dock",
+  "@accessibilityLeftDockRegion": {
+    "description": "Accessibility label announced for the left dock region."
+  },
+  "accessibilityBottomDockRegion": "Panel dock",
+  "@accessibilityBottomDockRegion": {
+    "description": "Accessibility label announced for the bottom dock region."
+  },
+  "dockTabTests": "Tests",
+  "@dockTabTests": {
+    "description": "Left-dock header label for the test browser."
+  },
+  "dockTabLog": "Log",
+  "@dockTabLog": {
+    "description": "Bottom-dock header label for the log-stream pane."
+  },
+  "settingsLanguageLabel": "Language",
+  "@settingsLanguageLabel": {
+    "description": "Label for the UI language picker in Appearance settings."
+  },
+  "settingsLanguageDescription": "Language used for the application interface",
+  "@settingsLanguageDescription": {
+    "description": "Description for the UI language picker."
+  },
+  "settingsCxpSectionTitle": "CXP Cross-Probe",
+  "@settingsCxpSectionTitle": {
+    "description": "Settings category title for CXP cross-probe configuration."
+  },
+  "settingsAutoReloadDescription": "How SimCrux responds when a loaded config changes on disk",
+  "@settingsAutoReloadDescription": {
+    "description": "Description for the auto-reload segmented control."
+  },
+  "dialogClose": "Close",
+  "@dialogClose": {
+    "description": "Tooltip for dialog close buttons."
+  },
+  "settingsLogPreviewLineCountDescription": "Lines of log output shown in the inspector preview",
+  "@settingsLogPreviewLineCountDescription": {
+    "description": "Description for the log-preview line-count slider."
+  },
+  "searchDialogTitle": "Search Tests",
+  "@searchDialogTitle": {
+    "description": "Title of the test search dialog."
+  },
+  "searchDialogHint": "Search by test, suite, or simulator…",
+  "@searchDialogHint": {
+    "description": "Hint in the test search field."
+  },
+  "searchDialogNoMatches": "No matching tests.",
+  "@searchDialogNoMatches": {
+    "description": "Empty state of the test search dialog."
+  },
+  "tabContextMenuRevealInFinder": "Reveal in Finder",
+  "@tabContextMenuRevealInFinder": {
+    "description": "Tab context-menu reveal label on macOS."
+  },
+  "tabContextMenuRevealInExplorer": "Reveal in Explorer",
+  "@tabContextMenuRevealInExplorer": {
+    "description": "Tab context-menu reveal label on Windows."
+  },
+  "tabContextMenuRevealInFiles": "Reveal in Files",
+  "@tabContextMenuRevealInFiles": {
+    "description": "Tab context-menu reveal label on Linux."
+  },
+  "diagnosticsAppDialogTitle": "App Diagnostics",
+  "@diagnosticsAppDialogTitle": {
+    "description": "Title of the App Diagnostics dialog."
+  },
+  "diagnosticsCopyFullReport": "Copy Full Diagnostics Report",
+  "@diagnosticsCopyFullReport": {
+    "description": "Tooltip on the diagnostics copy button."
+  },
+  "helpLinkLearnMore": "Learn more",
+  "@helpLinkLearnMore": {
+    "description": "Default tooltip shown on help icon buttons that open documentation pages"
+  },
+  "statsStripLabel": "Stats",
+  "@statsStripLabel": {
+    "description": "Caption on the live statistics strip's disclosure row."
+  },
+  "statsStripExpandTooltip": "Show live statistics",
+  "@statsStripExpandTooltip": {
+    "description": "Tooltip on the collapsed statistics strip."
+  },
+  "statsStripCollapseTooltip": "Hide live statistics",
+  "@statsStripCollapseTooltip": {
+    "description": "Tooltip on the expanded statistics strip."
+  },
+  "statsSegmentMemory": "Memory",
+  "@statsSegmentMemory": {
+    "description": "Statistics strip segment: process resident memory."
+  },
+  "statsSegmentMemoryTooltip": "Resident memory of the SimCrux process, including simulator subprocess buffers.",
+  "@statsSegmentMemoryTooltip": {
+    "description": "Tooltip for the memory segment."
+  },
+  "statsSegmentFps": "FPS",
+  "@statsSegmentFps": {
+    "description": "Statistics strip segment: frames per second."
+  },
+  "statsSegmentFpsTooltip": "Frames per second over the last 60 rendered frames.",
+  "@statsSegmentFpsTooltip": {
+    "description": "Tooltip for the FPS segment."
+  },
+  "statsSegmentJank": "Dropped",
+  "@statsSegmentJank": {
+    "description": "Statistics strip segment: frames that exceeded the frame budget."
+  },
+  "statsSegmentJankTooltip": "Frames that exceeded the 16.7 ms budget this session. Average FPS hides stutter; this does not.",
+  "@statsSegmentJankTooltip": {
+    "description": "Tooltip for the dropped-frames segment."
+  },
+  "statsSegmentConcurrency": "Running",
+  "@statsSegmentConcurrency": {
+    "description": "Statistics strip segment: running tests over the worker-pool ceiling."
+  },
+  "statsSegmentConcurrencyTooltip": "Tests executing now, over the configured concurrency ceiling. Answers whether the pool is saturated.",
+  "@statsSegmentConcurrencyTooltip": {
+    "description": "Tooltip for the concurrency segment."
+  },
+  "statsSegmentQueue": "Queue",
+  "@statsSegmentQueue": {
+    "description": "Statistics strip segment: tests waiting to start."
+  },
+  "statsSegmentQueueTooltip": "Tests admitted to the run that have not started yet.",
+  "@statsSegmentQueueTooltip": {
+    "description": "Tooltip for the queue-depth segment."
+  },
+  "statsSegmentThroughput": "Tests/min",
+  "@statsSegmentThroughput": {
+    "description": "Statistics strip segment: completion rate."
+  },
+  "statsSegmentThroughputTooltip": "Completion rate since the run started. The sparkline shows whether it is speeding up or grinding.",
+  "@statsSegmentThroughputTooltip": {
+    "description": "Tooltip for the throughput segment."
+  },
+  "statsSegmentMeanRuntime": "Mean",
+  "@statsSegmentMeanRuntime": {
+    "description": "Statistics strip segment: mean test runtime."
+  },
+  "statsSegmentMeanRuntimeTooltip": "Mean wall-clock runtime of completed tests. A rising value means heavy tests are dominating the tail.",
+  "@statsSegmentMeanRuntimeTooltip": {
+    "description": "Tooltip for the mean-runtime segment."
+  },
+  "statsSegmentRender": "Render",
+  "@statsSegmentRender": {
+    "description": "Statistics strip segment: results-body paint time for the active pane."
+  },
+  "statsSegmentRenderTooltip": "Time the results table or heatmap took to paint its most recent frame in this pane.",
+  "@statsSegmentRenderTooltip": {
+    "description": "Tooltip for the render-time segment."
+  },
+  "riscvToolchainTitle": "RISC-V toolchain",
+  "@riscvToolchainTitle": {
+    "description": "Heading of the RISC-V toolchain report in the diagnostics panel."
+  },
+  "riscvToolchainAllPresent": "Every component was found.",
+  "@riscvToolchainAllPresent": {
+    "description": "Summary line when every RISC-V toolchain component was found."
+  },
+  "riscvToolchainMissingSummary": "Not found: {names}",
+  "@riscvToolchainMissingSummary": {
+    "description": "Summary line listing the RISC-V toolchain components that were not found.",
+    "placeholders": {
+      "names": {
+        "type": "String",
+        "example": "Reference model, RISCOF"
+      }
+    }
+  },
+  "riscvToolchainStatusFound": "Found",
+  "@riscvToolchainStatusFound": {
+    "description": "Per-component status: the tool was found and ran."
+  },
+  "riscvToolchainStatusMissing": "Not found",
+  "@riscvToolchainStatusMissing": {
+    "description": "Per-component status: the tool could not be run."
+  },
+  "riscvToolchainVersionUnknown": "Installed (no version reported)",
+  "@riscvToolchainVersionUnknown": {
+    "description": "Shown when a tool ran but printed no version banner."
+  },
+  "riscvToolchainDemoModeNote": "Demo mode replays committed signatures, so no RISC-V toolchain is needed and none is probed.",
+  "@riscvToolchainDemoModeNote": {
+    "description": "Shown instead of the report when the run is in demo mode, where no toolchain is probed at all."
+  },
+  "riscvToolchainNoBundlingNote": "SimCrux locates the tools you install. It never bundles them and never installs them for you.",
+  "@riscvToolchainNoBundlingNote": {
+    "description": "Footer stating that SimCrux locates user-installed tools and never bundles or installs them."
+  },
+  "riscvToolchainOptionalRiscof": "Only needed for mode: riscof_passthrough.",
+  "@riscvToolchainOptionalRiscof": {
+    "description": "Footnote: RISCOF is only needed for the riscof_passthrough mode."
+  },
+  "riscvToolchainOptionalFormal": "Only needed for the riscv-formal driver.",
+  "@riscvToolchainOptionalFormal": {
+    "description": "Footnote: SymbiYosys is only needed for the riscv-formal driver."
+  },
+  "riscvComponentCrossCompiler": "RISC-V GNU cross-compiler",
+  "@riscvComponentCrossCompiler": {
+    "description": "Display name of the RISC-V GNU cross-compiler toolchain component."
+  },
+  "riscvComponentReferenceModel": "Reference model",
+  "@riscvComponentReferenceModel": {
+    "description": "Display name of the golden reference model (Sail or Spike) component."
+  },
+  "riscvComponentPythonRiscof": "Python + RISCOF",
+  "@riscvComponentPythonRiscof": {
+    "description": "Display name of the Python + RISCOF component."
+  },
+  "riscvComponentFormalEngine": "Yosys / SymbiYosys",
+  "@riscvComponentFormalEngine": {
+    "description": "Display name of the Yosys / SymbiYosys formal-engine component."
+  },
+  "riscvGuidanceCrossCompilerLinux": "Install your distribution's package (gcc-riscv64-unknown-elf on Debian and Ubuntu, riscv64-elf-gcc on Fedora and Arch), or unpack an xPack or SiFive prebuilt. Set riscv.toolchain.path if it lives off PATH.",
+  "@riscvGuidanceCrossCompilerLinux": {
+    "description": "Remediation for a missing RISC-V cross-compiler on Linux."
+  },
+  "riscvGuidanceCrossCompilerMacos": "Install it with brew tap riscv-software-src/riscv, then brew install riscv-gnu-toolchain. An app launched from Finder does not inherit your shell's PATH, so a Homebrew install can be invisible — relaunch SimCrux from a terminal or set riscv.toolchain.path.",
+  "@riscvGuidanceCrossCompilerMacos": {
+    "description": "Remediation for a missing RISC-V cross-compiler on macOS."
+  },
+  "riscvGuidanceCrossCompilerWindows": "Windows is the least well-trodden path for this toolchain. xPack prebuilts do work, but riscv-arch-test's linker scripts and target plugins assume a POSIX layout, so running the whole flow under WSL2 is the better-supported option.",
+  "@riscvGuidanceCrossCompilerWindows": {
+    "description": "Remediation for a missing RISC-V cross-compiler on Windows."
+  },
+  "riscvGuidanceReferenceModelLinux": "Build Sail from riscv/sail-riscv, or install Spike (riscv-isa-sim), which is the easier of the two. Set riscv.reference.path to the binary, or switch riscv.reference.model.",
+  "@riscvGuidanceReferenceModelLinux": {
+    "description": "Remediation for a missing reference model on Linux."
+  },
+  "riscvGuidanceReferenceModelMacos": "Install Spike with brew tap riscv-software-src/riscv, then brew install riscv-isa-sim. Sail builds on macOS but takes effort. Remember that a Finder launch does not inherit your shell's PATH.",
+  "@riscvGuidanceReferenceModelMacos": {
+    "description": "Remediation for a missing reference model on macOS."
+  },
+  "riscvGuidanceReferenceModelWindows": "Sail has no practical native Windows build, and SimCrux will not pretend otherwise by spawning a command that cannot work. Run the flow under WSL2, or switch riscv.reference.model to spike, which the OSS CAD Suite ships for Windows.",
+  "@riscvGuidanceReferenceModelWindows": {
+    "description": "Remediation for a missing reference model on Windows, where Sail has no practical native build."
+  },
+  "riscvGuidanceRiscofLinux": "Install it into a virtualenv: python3 -m venv .venv, activate it, then pip install riscof. Activate that venv before launching SimCrux, or point riscv.riscof.command at .venv/bin/riscof.",
+  "@riscvGuidanceRiscofLinux": {
+    "description": "Remediation for a missing RISCOF on Linux."
+  },
+  "riscvGuidanceRiscofMacos": "Install it into a virtualenv: python3 -m venv .venv, activate it, then pip install riscof. Activate that venv before launching SimCrux, or point riscv.riscof.command at .venv/bin/riscof.",
+  "@riscvGuidanceRiscofMacos": {
+    "description": "Remediation for a missing RISCOF on macOS."
+  },
+  "riscvGuidanceRiscofWindows": "RISCOF installs cleanly on Windows and is the one component of the four that gives no trouble here: py -m venv .venv, activate it, then pip install riscof. Point riscv.riscof.command at the venv's riscof.exe if SimCrux was launched outside it.",
+  "@riscvGuidanceRiscofWindows": {
+    "description": "Remediation for a missing RISCOF on Windows."
+  },
+  "riscvGuidanceFormalEngineLinux": "Install the OSS CAD Suite bundle — it ships Yosys, SymbiYosys and the SMT solvers together.",
+  "@riscvGuidanceFormalEngineLinux": {
+    "description": "Remediation for a missing SymbiYosys on Linux."
+  },
+  "riscvGuidanceFormalEngineMacos": "Install the OSS CAD Suite bundle, or Yosys with Homebrew plus SymbiYosys from source. A Finder launch does not inherit your shell's PATH.",
+  "@riscvGuidanceFormalEngineMacos": {
+    "description": "Remediation for a missing SymbiYosys on macOS."
+  },
+  "riscvGuidanceFormalEngineWindows": "The OSS CAD Suite ships a Windows build; running it under WSL2 is also common.",
+  "@riscvGuidanceFormalEngineWindows": {
+    "description": "Remediation for a missing SymbiYosys on Windows."
+  },
+  "telemetryConsentTitle": "Help make SimCrux better",
+  "@telemetryConsentTitle": {
+    "description": "Title of the one-time first-launch telemetry disclosure"
+  },
+  "telemetryConsentBody": "Anonymous usage and error counts help decide what to build and fix next. Never your files, your designs, or anything that identifies you.",
+  "@telemetryConsentBody": {
+    "description": "The whole of the first-launch disclosure prose: why the data is wanted, and the categories never collected"
+  },
+  "telemetryConsentLearnMore": "See exactly what's collected",
+  "@telemetryConsentLearnMore": {
+    "description": "Label of the link to the suite telemetry page, where the exhaustive field list lives"
+  },
+  "telemetryConsentToggleLabel": "Send anonymous usage statistics",
+  "@telemetryConsentToggleLabel": {
+    "description": "Label of the telemetry switch in the first-launch disclosure"
+  },
+  "telemetryConsentContinue": "Continue",
+  "@telemetryConsentContinue": {
+    "description": "Label of the single confirming button in the first-launch disclosure"
+  },
+  "settingsPrivacySection": "Privacy",
+  "@settingsPrivacySection": {
+    "description": "Title of the Settings > Privacy category"
+  },
+  "settingsTelemetryLabel": "Send anonymous usage statistics",
+  "@settingsTelemetryLabel": {
+    "description": "Label of the telemetry switch in Settings > Privacy"
+  },
+  "settingsTelemetryDescription": "Feature and error counters, app and OS version, form factor, language, and license tier. Never test names, log contents, error messages, or personal information.",
+  "@settingsTelemetryDescription": {
+    "description": "Description under the telemetry switch in Settings > Privacy"
+  },
+  "settingsTelemetryDocsLabel": "Telemetry documentation",
+  "@settingsTelemetryDocsLabel": {
+    "description": "Label of the telemetry documentation row in Settings > Privacy"
+  },
+  "settingsTelemetryDocsDescription": "The exact list of fields, the never-collect list, and the source that sends them.",
+  "@settingsTelemetryDocsDescription": {
+    "description": "Description of the telemetry documentation row in Settings > Privacy"
+  },
+  "settingsTelemetryInstallationIdLabel": "Installation ID",
+  "@settingsTelemetryInstallationIdLabel": {
+    "description": "Title of the Settings > Privacy row showing this installation id."
+  },
+  "settingsTelemetryInstallationIdDescription": "The only identifier attached to what is collected. It is random, and not linked to you. Send it to support if you want the data from this installation deleted.",
+  "@settingsTelemetryInstallationIdDescription": {
+    "description": "Explains what the installation id is for. It is the only handle on this installation data, so the deletion path the privacy policy promises depends on the user being able to read it."
+  },
+  "settingsTelemetryInstallationIdCopy": "Copy",
+  "@settingsTelemetryInstallationIdCopy": {
+    "description": "Label of the button that copies the installation id to the clipboard."
+  },
+  "settingsTelemetryInstallationIdCopied": "Installation ID copied.",
+  "@settingsTelemetryInstallationIdCopied": {
+    "description": "Confirmation shown after the installation id is copied."
+  }
+}

@@ -1,0 +1,3 @@
+{"testId":"alu_add","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"uart_loopback","status":"fail","exitCode":1,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_mul","status":"timeout","exitCode":-9,"durationMsBucketed":">=timeout","killSignal":"SIGKILL"}

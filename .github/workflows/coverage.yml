@@ -1,0 +1,101 @@
+name: Coverage
+
+# ─── Trigger configuration ─────────────────────────────────────────────────────
+# Code-coverage floor gate. Coverage is the unit+widget suite with --coverage
+# (the same tests CI already runs, plus instrumentation), so it is cheap. One
+# platform only — coverage is identical across OSes (same Dart), so Linux (the
+# cheapest) is sufficient.
+#
+# The floor (MIN_COVERAGE) is a ratchet: set to the current baseline and raised
+# as tests are added; the build fails if coverage falls below it. Generated code
+# (build_runner *.g.dart, generated l10n) is excluded by tool/coverage.sh.
+#
+# Ported from WaveCrux, via NetCrux, which is where the two filter bugs in
+# tool/coverage.sh were found and fixed — WaveCrux's original was measuring
+# generated code into its denominator. See tool/coverage.sh for both.
+#
+# No Riverpod codegen step: SimCrux declares every provider manually, by
+# documented policy at both tiers, because the headless binary's import
+# closure uses plain `riverpod` rather than the Flutter-bound barrel.
+# Introducing build_runner here would contradict simcrux/CLAUDE.md.
+#
+# Daily, not per push: a push already runs the full test suite in ci.yml.
+# Until this schedule existed the gate had never executed once — it ran on
+# pull requests only, in a repository whose work lands directly on `main`.
+# Measured before enabling, 2026-09-21: 87.6% against the floor of 84, ~14
+# minutes on Linux.
+on:
+  workflow_dispatch:
+  pull_request:
+  schedule:
+    - cron: '40 3 * * *'
+
+concurrency:
+  # Keyed by event as well as ref so a scheduled run and a push never cancel
+  # each other.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Coverage (line %, generated excluded)
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded.
+    timeout-minutes: 45
+    env:
+      # Ratchet floor — raise as coverage improves. The build fails below this.
+      # Measured 88.4% on this runner 2026-09-22 (run 35675059294, commit
+      # adb9c24b739d58618779b0b78bfb5d4f072c2d4e, dispatched fresh since the
+      # daily schedule's last run was 39 commits stale). Floor set a couple
+      # of points below to absorb measurement variance.
+      MIN_COVERAGE: '86'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT when defined, else the workflow token (fork PRs get
+          # no secrets; the workflow token reads a public crux-shared).
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install lcov
+        run: sudo apt-get update -y && sudo apt-get install -y lcov
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-coverage-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-coverage-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Test with coverage + floor gate
+        run: |
+          chmod +x tool/coverage.sh
+          tool/coverage.sh
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.filtered.info
+          if-no-files-found: ignore

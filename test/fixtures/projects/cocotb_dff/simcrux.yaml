@@ -1,0 +1,28 @@
+version: '1'
+
+defaults:
+  simulator: cocotb
+  pass_fail:
+    type: exit_code
+  waveform:
+    capture: never
+
+simulators:
+  cocotb:
+    source: system
+    options:
+      sim: icarus
+
+suites:
+  smoke:
+    description: Cocotb fixture wrapping a tiny DFF; requires make + cocotb-config + iverilog.
+    tests:
+      - name: dff
+        top: dff
+        parameters:
+          TOPLEVEL_LANG: verilog
+          MODULE: test_dff
+        sources:
+          - dff.v
+          - test_dff.py
+          - Makefile

@@ -1,0 +1,8 @@
+SBY 11:09:12 [causal_ch0] Removing directory 'causal_ch0'.
+SBY 11:09:12 [causal_ch0] Copy 'rvfi_causal_check.sv' to 'causal_ch0/src/rvfi_causal_check.sv'.
+SBY 11:09:12 [causal_ch0] engine_0: smtbmc boolector
+SBY 11:09:12 [causal_ch0] base: starting process "cd causal_ch0/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 11:09:13 [causal_ch0] base: finished (returncode=1)
+SBY 11:09:13 [causal_ch0] ERROR: Can't open input file `democore_wrapper.v' for reading: No such file or directory
+SBY 11:09:13 [causal_ch0] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:01 (1)
+SBY 11:09:13 [causal_ch0] DONE (ERROR, rc=16)

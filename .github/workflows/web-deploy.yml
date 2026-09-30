@@ -1,0 +1,80 @@
+name: Web dashboard build & deploy
+
+# Manual-only — trigger via the GitHub UI "Run workflow" button. Rebuilds and
+# republishes the live web dashboard at app.simcrux.app through Cloudflare
+# Workers Static Assets (wrangler.jsonc), the same mechanism all four products
+# use.
+on:
+  workflow_dispatch:
+    inputs:
+      base_href:
+        description: "Base href for the build (e.g. / for an apex domain, /preview/ for a subpath)"
+        required: false
+        default: "/"
+
+concurrency:
+  # One deploy of a ref at a time. A dispatch is never cancelled by a later
+  # one: a half-finished `wrangler deploy` is worse than a queued one.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    name: Build + publish web bundle
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    permissions:
+      # Checkout only. Publishing goes through wrangler with the Cloudflare
+      # token, not through a push to this repository.
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token, as in ci.yml.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+
+      - name: Restore pub deps
+        run: flutter pub get
+
+      - name: Build web bundle (read-only dashboard)
+        run: |
+          flutter build web \
+            --target lib/main_web.dart \
+            --release \
+            --base-href "${{ inputs.base_href }}"
+
+      - name: Smoke-test the produced bundle
+        run: |
+          test -f build/web/index.html
+          test -f build/web/main.dart.js
+          # The bundle should include the locale data for all four
+          # CJK locales we ship.
+          grep -q "ja" build/web/main.dart.js || (echo "missing ja locale" && exit 1)
+
+      # Publishes to the `simcrux-app` Worker (wrangler.jsonc), custom domain
+      # app.simcrux.app. `dashboard.simcrux.app` is a different site, a
+      # curated live demo with seeded data, and must not be targeted here.
+      - name: Deploy to Cloudflare (simcrux-app -> app.simcrux.app)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${CLOUDFLARE_API_TOKEN:-}" || -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+            echo "CLOUDFLARE_API_TOKEN secret and/or CLOUDFLARE_ACCOUNT_ID variable absent — the bundle was built but NOT published."
+            exit 0
+          fi
+          npx --yes wrangler@4 deploy
+          echo "Deployed. Live at https://app.simcrux.app/"

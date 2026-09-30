@@ -1,0 +1,14 @@
+{
+  "description": "A counterexample at step 7, with the VCD SymbiYosys wrote. This is the WaveCrux counterexample hand-off case: the path must reach TestResult.waveformPath and the file must still exist, because the scheduler only sweeps successful work dirs.",
+  "check": "insn_sub_ch0",
+  "group": "insn",
+  "verdict": "FAIL",
+  "status": "fail",
+  "return_code": 2,
+  "depth_reached": 7,
+  "engine": "smtbmc boolector",
+  "elapsed_seconds": 4,
+  "traces": [
+    "insn_sub_ch0/engine_0/trace.vcd"
+  ]
+}

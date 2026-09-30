@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "description": "Terminology mapping for SimCrux localization. Auto-generated from .claude/instructions.md (canonical suite house style: wavecrux/.claude/instructions.md). suite_wide_terms apply to every Crux app.",
+  "terms": {
+    "testbench": { "en": "testbench", "zh": "测试平台", "ja": "テストベンチ", "ko": "테스트벤치" },
+    "regression": { "en": "regression (run)", "zh": "回归", "ja": "リグレッション", "ko": "회귀" },
+    "regression_comparison": { "en": "regression comparison", "zh": "回归比较", "ja": "リグレッション比較", "ko": "회귀 비교" },
+    "pass_result": { "en": "pass (test result)", "zh": "通过", "ja": "成功", "ko": "통과" },
+    "fail_result": { "en": "fail (test result)", "zh": "失败", "ja": "失敗", "ko": "실패" },
+    "vacuous_pass": { "en": "vacuous pass", "zh": "空匹配通过", "ja": "空虚成功", "ko": "공허 성공" },
+    "cover_hit": { "en": "cover hit", "zh": "覆盖命中", "ja": "カバレッジヒット", "ko": "커버 히트" },
+    "cancelled_status": { "en": "cancelled", "zh": "已取消", "ja": "キャンセル済み", "ko": "취소됨" },
+    "flaky_test": { "en": "flaky (test)", "zh": "不稳定测试", "ja": "不安定なテスト", "ko": "불안정 테스트" },
+    "trend": { "en": "trend", "zh": "趋势", "ja": "トレンド", "ko": "트렌드" },
+    "retention": { "en": "retention", "zh": "保留", "ja": "保持", "ko": "보존" },
+    "seed": { "en": "seed", "zh": "种子", "ja": "シード", "ko": "시드" },
+    "simulator": { "en": "simulator", "zh": "仿真器", "ja": "シミュレーター", "ko": "시뮬레이터" },
+    "config_file": { "en": "config (project config file)", "zh": "配置", "ja": "構成", "ko": "구성" },
+    "duration": { "en": "duration", "zh": "耗时", "ja": "実行時間", "ko": "소요 시간" },
+    "heatmap": { "en": "heatmap", "zh": "热图", "ja": "ヒートマップ", "ko": "히트맵" },
+    "suite": { "en": "suite (test suite)", "zh": "套件", "ja": "スイート", "ko": "스위트" },
+    "statistics_window": { "en": "statistics window", "zh": "窗口", "ja": "ウィンドウ", "ko": "구간" },
+    "search_across_projects": { "en": "search across projects", "zh": "跨项目搜索", "ja": "プロジェクト横断検索", "ko": "프로젝트 간 검색" },
+    "log_line": { "en": "log line", "zh": "行", "ja": "行", "ko": "줄" },
+    "table_row": { "en": "row (table row)", "zh": "行", "ja": "行", "ko": "행" },
+    "pr_annotation": { "en": "PR annotation", "zh": "PR 批注", "ja": "PR アノテーション", "ko": "PR 어노테이션" },
+    "appearance_section": { "en": "Appearance", "zh": "外观", "ja": "外観", "ko": "외관" },
+    "plugin": { "en": "plugin", "zh": "插件", "ja": "プラグイン", "ko": "플러그인" },
+    "detector": { "en": "detector", "zh": "检测器", "ja": "ディテクター", "ko": "감지기" },
+    "forget_action": { "en": "Forget (recent-project action)", "zh": "移除", "ja": "履歴から削除", "ko": "목록에서 제거" }
+  },
+  "suite_wide_terms": {
+    "description": "Identical renderings required in every Crux app (core + Pro overlays). App-local glossaries may add terms but never override these.",
+    "cross_probe": { "en": "cross-probe", "zh": "交叉探测", "ja": "クロスプローブ", "ko": "교차 프로브" },
+    "remote_control": { "en": "Remote Control", "zh": "远程控制", "ja": "リモートコントロール", "ko": "원격 제어" },
+    "waiver": { "en": "waiver", "zh": "豁免", "ja": "ウェイバー", "ko": "면제" },
+    "workspace": { "en": "workspace", "zh": "工作区", "ja": "ワークスペース", "ko": "워크스페이스" },
+    "preset": { "en": "preset", "zh": "预设", "ja": "プリセット", "ko": "프리셋" },
+    "editor": { "en": "editor", "zh": "编辑器", "ja": "エディター", "ko": "에디터" },
+    "viewer": { "en": "viewer", "zh": "查看器", "ja": "ビューアー", "ko": "뷰어" },
+    "open_core_edition": { "en": "open-core", "zh": "开放核心版", "ja": "オープンコア", "ko": "오픈 코어" },
+    "command_palette": { "en": "command palette", "zh": "命令面板", "ja": "コマンドパレット", "ko": "명령 팔레트" },
+    "panel": { "en": "panel", "zh": "面板", "ja": "パネル", "ko": "패널" },
+    "pane": { "en": "pane", "zh": "窗格", "ja": "ペイン", "ko": "창" },
+    "custom": { "en": "custom", "zh": "自定义", "ja": "カスタム", "ko": "사용자 정의" },
+    "clock": { "en": "clock", "zh": "时钟", "ja": "クロック", "ko": "클럭" }
+  },
+  "acronyms": {
+    "description": "Never translate these values",
+    "list": [
+      "VCD", "FST", "GHW", "LXT", "LXT2", "FSDB", "PCAP", "CSV", "JSON",
+      "XML", "YAML", "HTML", "SVG", "PNG", "RGB", "LED", "LCD", "OLED",
+      "FSM", "RTL", "API", "SDK", "ABI", "CLI", "GUI", "WASM", "TCP", "UDP",
+      "HTTP", "JSON-RPC", "CXP", "WCP", "SPI", "I2C", "I²C", "UART", "AXI",
+      "AXI4", "AXI4-Lite", "APB", "AHB", "AHB-Lite", "Wishbone", "JTAG",
+      "MDIO", "CAN", "CAN-FD", "USB", "PCIe", "Ethernet", "MII", "RMII",
+      "GMII", "RGMII", "AXIS", "RISC-V", "RV32", "RV64", "Cocotb", "GTKWave",
+      "Synopsys", "JUnit", "UVM", "p50", "p95", "p99"
+    ]
+  },
+  "brands": {
+    "description": "Product / brand names — never translate, always Latin script ('Stage' never becomes 舞台 / ステージ / 스테이지)",
+    "list": [
+      "WaveCrux", "NetCrux", "LintCrux", "SimCrux", "EDACrux",
+      "Ferrite Engineering", "Stage", "Stage Pro", "Rive",
+      "Yosys", "Verible", "Verilator", "svlint", "GHDL", "Icarus Verilog",
+      "cocotb", "FuseSoC", "Vivado", "Quartus"
+    ]
+  },
+  "pluralization_rules": {
+    "zh": { "singular": "=1{1个%s}", "plural": "other{{count}个%s}" },
+    "ja": { "singular": "=1{1%s}", "plural": "other{{count}%s}" },
+    "ko": { "singular": "=1{1개 %s}", "plural": "other{{count}개 %s}" }
+  }
+}

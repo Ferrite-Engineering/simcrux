@@ -1,0 +1,22 @@
+{
+  "description": "DUT dump is a strict prefix of the golden: the common prefix agrees but the DUT stopped early. Offset is where it ran out; only the golden carries a word there.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "dut_present": true,
+  "reference": "golden.sig",
+  "status": "fail",
+  "comparison": {
+    "matched": false,
+    "mismatch_offset": 5,
+    "dut_value": null,
+    "ref_value": "abcdef01",
+    "dut_words": 5,
+    "ref_words": 8
+  },
+  "metrics": {
+    "golden.dut_words": "5",
+    "golden.ref_words": "8",
+    "golden.mismatch_offset": "5",
+    "golden.ref_value": "abcdef01"
+  }
+}

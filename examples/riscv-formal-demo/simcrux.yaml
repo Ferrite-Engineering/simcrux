@@ -1,0 +1,161 @@
+# SimCrux — RISC-V formal demo (no toolchain required)
+#
+# Open this file with File → Open Config…, then Tools → Run Regression.
+#
+# Every test below runs the `riscv_formal` driver in `mode: demo`: the driver
+# replays the committed
+# SymbiYosys outputs under `verification/fixtures/riscv_formal/` through the
+# *same* code path a real run takes — the captured log is fed line by line
+# into the same `SbyLogReader`, every line still reaches the stream as a
+# `TestLogLine` so the `string_match` detector sees exactly the text it would
+# see in production, and the terminal event is built by the same
+# `buildTerminalEvent`. Only the `sby` spawn is skipped. You need no
+# SymbiYosys, no Yosys, no SMT solver, no riscv-formal checkout and no
+# network.
+#
+# One test per bounded proof — SimCrux schedules, times out and cancels each
+# one independently, which a single `make -C checks` cannot do.
+#
+# The seven cases cover one verdict each, which is the point: the four-way
+# PASS / FAIL / UNKNOWN / TIMEOUT distinction is exactly what an exit-code
+# reading collapses, and collapsing it is how a broken core goes green.
+#
+#   pass  insn     / insn_add_pass            DONE (PASS) over the full depth
+#   fail  insn     / insn_sub_counterexample  DONE (FAIL) at step 7, with the
+#                                             VCD SymbiYosys wrote — the
+#                                             "Debug in WaveCrux" hand-off case
+#   fail  pc_fwd   / pc_fwd_unknown           DONE (UNKNOWN): nothing proved
+#                                             and nothing refuted. Must report
+#                                             fail — never pass, never vacuous
+#   fail  reg      / reg_timeout              DONE (TIMEOUT): SymbiYosys's own
+#                                             solver budget expired. Reports
+#                                             fail, and deliberately NOT
+#                                             `TestStatus.timeout`, which means
+#                                             SimCrux killed the job
+#   fail  causal   / causal_error             DONE (ERROR): Yosys could not read
+#                                             a source, so the proof never ran
+#   fail  liveness / liveness_no_outcome      THE TRAP — no DONE (…) line at
+#                                             all and the process exits 0.
+#                                             Classifying from the exit code
+#                                             would report a proof that never
+#                                             happened as a pass
+#   pass  cover    / cover_multi_trace        a cover run that reached two
+#                                             cover statements and wrote a
+#                                             trace for each
+#
+# Two passes, five failures. The `group:` tag on each test is the formal
+# analogue of `riscv.extension` — it is what the Pro formal property
+# dashboard's "coverage of the RVFI check set" rollup groups on.
+#
+# To point this at a real core instead, do not hand-write any of it — run
+# riscv-formal's `genchecks.py`, then run the importer over what it wrote:
+#
+#   simcrux import-riscv-formal ~/src/riscv-formal/cores/mycore/checks \
+#     --isa rv32imc_zicsr
+#
+# (or File → Import riscv-formal Checks… in the app). It emits
+# `mode: normal` and `riscv.formal.checks_dir` once under `defaults:`, and
+# one test per generated `.sby` — one test per *task* for a `.sby` that
+# declares `[tasks]`, because a single `sby` invocation over several tasks
+# prints several `DONE (…)` lines into one result row. Nothing on this path
+# is tier-gated.
+
+version: '1'
+
+defaults:
+  simulator: riscv_formal
+  timeout: 30s
+
+  # The detector's config is self-contained and never sees the `riscv:`
+  # block. A required pass string that never appears is a FAIL by the
+  # detector's own documented semantics — never an `unknown` that would fall
+  # back to the driver's exit code, which is precisely the trap
+  # `liveness_no_outcome` exists to catch. The literal is the same constant
+  # the driver's log parser keys off, so the two halves cannot drift.
+  pass_fail:
+    type: string_match
+    pass_string: 'DONE (PASS'
+
+  riscv:
+    isa: rv32imc_zicsr
+    mode: demo
+    formal:
+      # Relative to THIS file. A separate key from the compatibility flow's
+      # `demo_signatures` because the two corpora are different shapes —
+      # captured logs and traces here, signature pairs there — and a project
+      # may legitimately run both flows in demo mode at once.
+      demo_outputs: ../../verification/fixtures/riscv_formal
+
+suites:
+  insn:
+    description: Per-instruction RVFI checks — one clean proof and one counterexample with a trace.
+    tests:
+      - name: insn_add_pass
+        top: insn_add_pass
+        riscv:
+          demo_case: insn_add_pass
+          formal:
+            check: insn_add_ch0
+            group: insn
+      - name: insn_sub_counterexample
+        top: insn_sub_counterexample
+        riscv:
+          demo_case: insn_sub_counterexample
+          formal:
+            check: insn_sub_ch0
+            group: insn
+
+  pc_fwd:
+    description: Program-counter forward check — the engine could not decide.
+    tests:
+      - name: pc_fwd_unknown
+        top: pc_fwd_unknown
+        riscv:
+          demo_case: pc_fwd_unknown
+          formal:
+            check: pc_fwd_ch0
+            group: pc_fwd
+
+  reg:
+    description: Register-file check — SymbiYosys's own solver budget expired.
+    tests:
+      - name: reg_timeout
+        top: reg_timeout
+        riscv:
+          demo_case: reg_timeout
+          formal:
+            check: reg_ch0
+            group: reg
+
+  causal:
+    description: Causality check — the proof never ran because Yosys errored out.
+    tests:
+      - name: causal_error
+        top: causal_error
+        riscv:
+          demo_case: causal_error
+          formal:
+            check: causal_ch0
+            group: causal
+
+  liveness:
+    description: Liveness check — the no-verdict-on-exit-0 trap.
+    tests:
+      - name: liveness_no_outcome
+        top: liveness_no_outcome
+        riscv:
+          demo_case: liveness_no_outcome
+          formal:
+            check: liveness_ch0
+            group: liveness
+
+  cover:
+    description: Cover run — two cover statements reached, one trace written for each.
+    tests:
+      - name: cover_multi_trace
+        top: cover_multi_trace
+        riscv:
+          demo_case: cover_multi_trace
+          formal:
+            check: cover_ch0
+            group: cover

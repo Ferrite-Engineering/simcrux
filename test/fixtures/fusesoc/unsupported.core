@@ -1,0 +1,61 @@
+CAPI=2:
+
+name: ::unsupported_demo:0.1.0
+description: |
+  CAPI2 fixture that exercises every "warn + continue" path of the
+  SimCrux importer. Used to verify that an obviously messy `.core`
+  still produces a usable simcrux.yaml and a full set of warnings.
+
+filesets:
+  rtl:
+    files:
+      - rtl/foo.v
+      - { rtl/macros.vh: { file_type: verilogSource, is_include_file: true } }
+      - rtl/constraints.xdc
+    file_type: verilogSource
+  scripts:
+    files:
+      - scripts/post.tcl
+    file_type: tclSource
+
+vpi:
+  my_vpi:
+    src_files:
+      - vpi/foo.c
+
+generators:
+  rtl_gen:
+    interpreter: python3
+    command: gen_rtl.py
+
+scripts:
+  pre_run:
+    - echo starting
+  post_run:
+    - echo done
+
+parameters:
+  BLOB:
+    datatype: file
+    default: data.bin
+    description: Binary asset
+
+provides:
+  - some_library
+
+targets:
+  default:
+    filesets: [rtl]
+
+  sim:
+    filesets: [rtl, scripts]
+    toplevel: tb
+    default_tool: modelsim
+    parameters:
+      - BLOB=mydata.bin
+      - UNDECLARED=42
+    tools:
+      modelsim:
+        vsim_options: [-novopt]
+      ghosttool:
+        whatever: yes

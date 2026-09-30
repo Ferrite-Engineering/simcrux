@@ -1,0 +1,705 @@
+SimCrux open-core third-party attributions
+=========================================
+
+SimCrux is licensed under the Apache License, Version 2.0 (see LICENSE).
+This file lists third-party software that ships in or with SimCrux source
+and binary distributions, together with the license terms under which each
+component is redistributed, plus the external programs SimCrux invokes but
+does not redistribute.
+
+Notes:
+- Flutter SDK and Dart SDK packages bundled by the Flutter toolchain
+  (`flutter`, `flutter_localizations`, `flutter_test`, `integration_test`,
+  `sky_engine`, `flutter_web_plugins`, etc.) are not enumerated
+  individually here. They are governed by the Flutter and Dart project
+  licenses; see https://flutter.dev/ and https://dart.dev/ for their
+  respective notices.
+- This file covers the dependency set as of the snapshot recorded in
+  `pubspec.lock`. Run `flutter pub deps` after dependency upgrades to
+  refresh this list; see §10.
+- SimCrux contains no native code of its own. See §1 for the
+  process-isolation boundary that governs every simulator, and §8 for the
+  one third-party package in the dependency graph that does load a native
+  library.
+
+
+--------------------------------------------------------------------------
+1. Simulators — separate programs, invoked as subprocesses
+--------------------------------------------------------------------------
+
+1.0 Process isolation — why this section is separate
+
+SimCrux does not embed, link, or statically or dynamically bind ANY
+simulator. Every driver under `lib/services/simulator/` extends
+`ProcessBackedSimulatorDriver`, which spawns the tool as an independent
+operating-system process via `dart:io`'s `Process.start` (through the
+`ProcessReaper` seam, which retains a kill handle so a hung simulator can
+be terminated). SimCrux exchanges only command-line arguments, environment
+variables, working-directory paths, and captured stdout/stderr text with
+those processes.
+
+There is no `dart:ffi` usage and no `DynamicLibrary` load in SimCrux's own
+source. The desktop CMake/Xcode build configurations under `linux/`,
+`macos/`, and `windows/` contain only the stock Flutter runner targets — no
+simulator library is compiled or linked.
+
+This is a deliberate, documented invariant, not an accident of the current
+implementation. `lib/domain/interfaces/simulator_driver_plugin_registry.dart`
+states it as a contract on the Pro-tier plugin SDK:
+
+    **Process isolation.** Implementations MUST run each plugin as a
+    separate OS subprocess. `dart:ffi`-style in-process loading is
+    forbidden by the open-core/Pro contract because it conflates GPL (or
+    proprietary) plugin code with the host process and removes the
+    crash-isolation guarantee.
+
+`include/simcrux_driver_plugin_abi.md` gives the same rule with its
+rationale, license isolation first.
+
+That boundary matters legally as well as architecturally. Icarus Verilog
+and GHDL are GPL-licensed; invoking them as separate programs across a
+process boundary keeps SimCrux's own Apache-2.0-licensed code cleanly
+separated from their copyleft terms. A change that links a simulator into
+the SimCrux process would invalidate that analysis.
+
+1.1 Distribution posture
+
+SimCrux **does not distribute any simulator binary**. Simulators are
+resolved at run time by `ProcessBackedSimulatorDriver.resolveBinary()`:
+the `system` and `bundled` `SimulatorBinarySource` modes both return the
+bare executable name (`iverilog`, `vvp`, `verilator`, `ghdl`, `make`), which
+`Process.start` resolves against the host `PATH`; the `custom` mode uses an
+explicit path the user configures. The `bundled` mode and the
+`assets/sim_binaries/<id>/<platform>/` layout referenced in
+`lib/domain/models/simulator_binary_config.dart` are forward-looking
+documentation — no such directory exists and no simulator binary is
+tracked in this repository.
+
+If bundling is activated later, each simulator's own license obligations
+attach to that distribution — including, for the GPL simulators, the
+obligation to convey or offer the corresponding source of the binary being
+distributed. See §9.
+
+1.2 Icarus Verilog
+
+  Component: Icarus Verilog (`iverilog` compiler, `vvp` runtime)
+  Role:      Verilog compilation and simulation; driver at
+             `lib/services/simulator/icarus_driver.dart`
+             (`iverilog -g<gen> -o sim.vvp -s<top> …` then
+             `vvp sim.vvp [-fst|-vcd]`)
+  License:   GPL-2.0 (GNU General Public License v2.0; the project's
+             source headers state "or later")
+  Upstream:  https://github.com/steveicarus/iverilog
+  Copyright: Stephen Williams and the Icarus Verilog contributors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.3 Verilator
+
+  Component: Verilator
+  Role:      Cycle-accurate Verilog/SystemVerilog simulation; driver at
+             `lib/services/simulator/verilator_driver.dart`
+             (`verilator --cc --exe --build …`, then execution of the
+             native model Verilator itself built)
+  License:   LGPL-3.0-only OR Artistic-2.0 (dual; the licensee chooses)
+  Upstream:  https://github.com/verilator/verilator
+  Copyright: Wilson Snyder and the Verilator contributors
+
+  Verilator's own README carries
+  `SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0`.
+
+  **A nuance worth stating precisely.** Verilator's `--build` step compiles
+  a C++ harness (`sim_main.cpp`, emitted by SimCrux's
+  `_writeSimMain()` template) together with Verilator's generated model and
+  Verilator's own runtime headers into a **separate native executable**
+  under `obj_dir/`. SimCrux then runs that executable as an ordinary child
+  process. That compile-and-link happens inside Verilator's own build
+  invocation, entirely outside SimCrux's Flutter build — no CMakeLists,
+  Podfile, or Xcode phase in this repository compiles or links against
+  Verilator's runtime, and the SimCrux application binary never links it.
+  The produced model executable is a build artifact on the user's machine,
+  not something SimCrux distributes.
+
+1.4 GHDL
+
+  Component: GHDL
+  Role:      VHDL analysis / elaboration / simulation; driver at
+             `lib/services/simulator/ghdl_driver.dart`
+             (`ghdl -a`, `ghdl -e`, `ghdl -r`)
+  License:   GPL-2.0 (GNU General Public License v2.0; the project's
+             source headers state "or later")
+  Upstream:  https://github.com/ghdl/ghdl
+  Copyright: Tristan Gingold and the GHDL contributors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.5 cocotb
+
+  Component: cocotb
+  Role:      Python coroutine-based testbench framework; driver at
+             `lib/services/simulator/cocotb_driver.dart`. SimCrux spawns
+             `make SIM=<sim> TOPLEVEL=<top> …` against the user's own
+             testbench Makefile, which includes cocotb's installed
+             `Makefile.sim` (`cocotb-config --makefiles`), and parses
+             cocotb's plain-text stdout summary with regular expressions.
+  License:   BSD-3-Clause
+  Upstream:  https://github.com/cocotb/cocotb
+  Copyright: Potential Ventures Ltd and the cocotb contributors
+
+  **No cocotb Python source is vendored into this repository.** SimCrux
+  imports nothing from cocotb, does not drive cocotb's Python runner API,
+  and does not invoke pytest. See `docs/cocotb-strategy.md` for why the
+  `make`-wrapping approach was chosen over the Python runner. The `.py`
+  files under `test/fixtures/projects/` are SimCrux's own test testbenches
+  that `import cocotb` exactly the way any end-user testbench would.
+
+  Note that cocotb itself drives one of the simulators above (selected by
+  the `SIM=` environment variable, default `icarus`) through VPI/VHPI. That
+  linkage is between cocotb and the simulator, inside the child process
+  tree — SimCrux is not a party to it.
+
+1.6 Verification status of the simulator licenses above
+
+Each license identifier in §1.2–§1.5 was read from the LICENSE file at the
+HEAD of the named upstream repository. SimCrux pins no simulator version
+and redistributes no simulator artifact, so no per-release license text was
+downloaded or diffed. Re-verify if bundling is ever activated (§9).
+
+
+--------------------------------------------------------------------------
+2. Cross-suite first-party packages (crux-shared)
+--------------------------------------------------------------------------
+
+The `crux_*` packages consumed via `path:` from the `crux-shared` Git
+submodule are first-party Ferrite Engineering code, developed alongside
+SimCrux and published under the same Apache License 2.0 as this
+repository. They are listed here for completeness, not because they impose
+a separate attribution obligation.
+
+Each `crux_*` package, with its version, is listed in the generated
+inventory in §11.
+
+
+--------------------------------------------------------------------------
+3. Dart packages by the Dart project authors (BSD-3-Clause)
+--------------------------------------------------------------------------
+
+The following packages are authored by the Dart project authors and
+distributed under a common BSD-3-Clause license. They are listed together
+because they share an identical license text differing only in the
+copyright year.
+
+Direct dependencies:
+  - args     2.7.0   https://pub.dev/packages/args
+  - intl     0.20.3  https://pub.dev/packages/intl
+  - meta     1.19.0  https://pub.dev/packages/meta
+  - path     1.9.1   https://pub.dev/packages/path
+
+Notable transitive dependencies:
+  - async 2.13.1, characters 1.4.1, collection 1.19.1, convert 3.1.2,
+    crypto 3.0.7, ffi 2.2.0, fixnum 1.1.1, http 1.6.0, logging 1.3.0,
+    source_span 1.10.2, stack_trace 1.12.1, string_scanner 1.4.1,
+    typed_data 1.4.0, web 1.1.1, and the remaining `dart-lang` packages
+    recorded in `pubspec.lock`.
+
+License: BSD-3-Clause
+Upstream: https://github.com/dart-lang
+
+Representative verbatim license text (from the `path` package; the
+copyright year varies per package, e.g. 2013, 2014, 2015, 2023):
+
+    Copyright 2014, the Dart project authors.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above
+          copyright notice, this list of conditions and the following
+          disclaimer in the documentation and/or other materials provided
+          with the distribution.
+        * Neither the name of Google LLC nor the names of its
+          contributors may be used to endorse or promote products derived
+          from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+--------------------------------------------------------------------------
+4. Flutter-team-authored Dart packages (BSD-3-Clause)
+--------------------------------------------------------------------------
+
+The following packages are authored by the Flutter Authors and distributed
+under a common BSD-3-Clause license.
+
+Components and versions:
+  - go_router              17.3.0   https://pub.dev/packages/go_router
+  - path_provider          2.1.6    https://pub.dev/packages/path_provider
+  - path_provider_android  2.3.1
+  - path_provider_foundation 2.6.0
+  - path_provider_linux    2.2.1
+  - path_provider_windows  2.3.0
+  - path_provider_platform_interface 2.1.3
+  - shared_preferences     2.5.5    https://pub.dev/packages/shared_preferences
+  - shared_preferences_android 2.4.26
+  - shared_preferences_foundation 2.5.6
+  - shared_preferences_linux 2.4.1
+  - shared_preferences_web 2.4.3
+  - shared_preferences_windows 2.4.1
+  - shared_preferences_platform_interface 2.4.2
+  - url_launcher           6.3.2    https://pub.dev/packages/url_launcher
+  - url_launcher_android   6.3.32
+  - url_launcher_ios       6.4.1
+  - url_launcher_linux     3.2.2
+  - url_launcher_macos     3.2.5
+  - url_launcher_web       2.4.3
+  - url_launcher_windows   3.1.5
+  - url_launcher_platform_interface 2.3.2
+  - cross_file             0.3.5+4
+  - flutter_plugin_android_lifecycle 2.0.35
+  - plugin_platform_interface 2.1.8
+  - xdg_directories        1.1.0
+
+License: BSD-3-Clause
+Upstream: https://github.com/flutter
+
+Representative verbatim license text:
+
+    Copyright 2013 The Flutter Authors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification,
+    are permitted provided that the following conditions are met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above
+          copyright notice, this list of conditions and the following
+          disclaimer in the documentation and/or other materials provided
+          with the distribution.
+        * Neither the name of Google Inc. nor the names of its
+          contributors may be used to endorse or promote products derived
+          from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+--------------------------------------------------------------------------
+5. Other BSD-3-Clause Dart packages
+--------------------------------------------------------------------------
+
+5.1 package_info_plus (BSD-3-Clause)
+    Versions: package_info_plus 10.1.0,
+              package_info_plus_platform_interface 4.1.0
+    Upstream: https://github.com/fluttercommunity/plus_plugins
+    Copyright: 2017 The Chromium Authors. All rights reserved.
+    (Same BSD-3-Clause body as §4.)
+
+5.2 win32 (BSD-3-Clause)
+    Version:  6.3.0
+    Upstream: https://github.com/halildurmus/win32
+    Copyright: (c) 2024, Halil Durmus
+    (Same BSD-3-Clause body as §4. Transitive; Windows builds only.)
+
+
+--------------------------------------------------------------------------
+6. BSD-2-Clause Dart packages — sqflite
+--------------------------------------------------------------------------
+
+Components and versions:
+  - sqflite_common      2.5.11  https://pub.dev/packages/sqflite_common
+  - sqflite_common_ffi  2.4.2   https://pub.dev/packages/sqflite_common_ffi
+
+Role:      SQL persistence for the regression trend store
+           (`lib/services/trend_store/`).
+Upstream:  https://github.com/tekartik/sqflite
+License:   BSD-2-Clause
+
+Verbatim license text:
+
+    BSD 2-Clause License
+
+    Copyright (c) 2019, Alexandre Roux Tekartik
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this
+      list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The transitive `synchronized` 3.4.1 package, by the same author, is MIT —
+see §7.
+
+
+--------------------------------------------------------------------------
+7. MIT-licensed Dart packages
+--------------------------------------------------------------------------
+
+7.1 file_picker (MIT)
+    Version:  12.0.0-beta.7
+    Upstream: https://github.com/miguelpruivo/flutter_file_picker
+    Copyright (c) 2018 Miguel Ruivo
+
+7.2 flutter_riverpod / riverpod / state_notifier (MIT)
+    Versions: flutter_riverpod 3.3.2, riverpod 3.3.2, state_notifier 1.0.0
+    Upstream: https://github.com/rrousselGit/riverpod
+              https://github.com/rrousselGit/state_notifier
+    Copyright (c) 2020 Remi Rousselet
+
+7.3 panes (MIT)
+    Version:  1.3.0
+    Upstream: https://pub.dev/packages/panes
+    Copyright (c) 2025 Simon
+
+7.4 sqlite3 (MIT)
+    Version:  3.3.3
+    Upstream: https://github.com/simolus3/sqlite3.dart
+    Copyright (c) 2020 Simon Binder
+    Role:     Dart FFI bindings to the SQLite C library, reached through
+              `sqflite_common_ffi`. See §8 for the SQLite library itself.
+
+7.5 synchronized (MIT)
+    Version:  3.4.1
+    Upstream: https://github.com/tekartik/synchronized.dart
+    Copyright (c) 2016, Alexandre Roux Tekartik.
+
+7.6 yaml (MIT)
+    Version:  3.1.3
+    Upstream: https://github.com/dart-lang/yaml
+    Copyright (c) 2014, the Dart project authors.
+
+7.7 xml / petitparser (MIT)
+    Versions: xml 6.6.1, petitparser 7.0.2
+    Upstream: https://github.com/renggli/dart-xml
+              https://github.com/petitparser/dart-petitparser
+    Copyright (c) 2006-2025 Lukas Renggli.
+
+7.8 uuid (MIT)
+    Version:  4.5.3
+    Upstream: https://github.com/Daegalus/dart-uuid
+    Copyright (c) 2021 Yulian Kuncheff
+
+7.9 mocktail (MIT) — test-only
+    Version:  1.0.5
+    Upstream: https://github.com/felangel/mocktail
+    Copyright (c) 2026 Felix Angelov
+
+7.10 very_good_analysis (MIT) — lint rules, dev-only
+    Version:  10.3.0
+    Upstream: https://github.com/VeryGoodOpenSource/very_good_analysis
+    Copyright (c) 2020 Very Good Ventures
+
+The MIT License (verbatim; each component's own copyright line above
+applies in place of the placeholder):
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+--------------------------------------------------------------------------
+8. SQLite (public domain) — the one native library in the graph
+--------------------------------------------------------------------------
+
+Component: SQLite
+Role:      The C library behind the regression trend store. Reached at
+           run time through `sqflite_common_ffi` → the `sqlite3` Dart
+           package (§7.4), which uses `dart:ffi` to open the SQLite
+           shared library.
+License:   Public domain
+Upstream:  https://www.sqlite.org/
+
+SimCrux does **not** depend on `sqlite3_flutter_libs` and therefore ships
+no SQLite binary of its own: the `sqlite3` package opens the host's SQLite
+(`libsqlite3.dylib` on macOS, `libsqlite3.so` on Linux — both present by
+default). On Windows there is no system SQLite, so a
+`sqlite3.dll` must be supplied by the distribution or the environment; that
+packaging decision is unresolved. See §9.
+
+SQLite's authors have dedicated the code to the public domain, so no
+attribution is legally required. It is recorded here because it is the only
+native library SimCrux's dependency graph loads, and because the Windows
+packaging question above is a real open item.
+
+
+--------------------------------------------------------------------------
+9. Open items / not independently verified
+--------------------------------------------------------------------------
+
+These are recorded rather than guessed. Resolve them before the public
+open-source flip.
+
+9.1 Copyright holder. Resolved 2026-07-22: the copyright holder is
+    **Ferrite Engineering LLC**. The LICENSE file's copyright line now
+    reads `Copyright 2026 Ferrite Engineering LLC`, applied in the same
+    sweep across WaveCrux, NetCrux, SimCrux, and LintCrux so all four
+    open cores name the same holder.
+
+9.2 crux-shared licensing. Resolved: the `crux-shared` submodule
+    that supplies every `crux_*` package in §2 now carries its own
+    LICENSE, NOTICES, TRADEMARK.md, CONTRIBUTING.md and SECURITY.md.
+    It is Apache-2.0, and flips public at the same moment the open
+    cores do.
+
+9.3 Simulator licenses are HEAD-verified, not release-verified. §1.6
+    records the limitation. SimCrux redistributes no simulator artifact, so
+    there is nothing to diff today; re-verify if bundling is activated.
+
+9.4 GPL redistribution obligations, if bundling is ever activated.
+    `lib/domain/models/simulator_binary_config.dart` documents a
+    `bundled` mode that today behaves identically to `system`. Actually
+    shipping an Icarus Verilog or GHDL binary inside a SimCrux release
+    would trigger that project's own source-conveyance obligations for the
+    binary being distributed. Mere aggregation on the same medium, with
+    the simulators invoked only as separate programs, is the intended
+    posture — but the concrete mechanics have not been decided. This
+    should be reviewed by counsel before any release bundles a simulator.
+
+9.5 Windows SQLite packaging. See §8 — the app has no SQLite binary and
+    Windows has no system SQLite. Either add `sqlite3_flutter_libs` (which
+    would then need its own NOTICES entry) or ship a `sqlite3.dll` and
+    attribute it here.
+
+9.6 Trademark. Apache 2.0 covers the code, not the "SimCrux" name. The
+    name and logo policy is in TRADEMARK.md.
+
+
+--------------------------------------------------------------------------
+10. Refresh procedure
+--------------------------------------------------------------------------
+
+To refresh this file after dependency upgrades:
+
+    flutter pub get
+    flutter pub deps --no-dev --style=compact
+
+For each new or upgraded dependency, locate its license file (typically
+`LICENSE`, `LICENSE.md`) under `~/.pub-cache/hosted/pub.dev/<name>-<version>/`
+and either add a new section here or extend the relevant existing section.
+
+Re-check §1 whenever a new simulator driver lands, and whenever the
+`bundled` binary-source mode changes behavior.
+
+-- BEGIN GENERATED INVENTORY --
+
+--------------------------------------------------------------------------
+11. Complete resolved inventory
+--------------------------------------------------------------------------
+
+Every package in pubspec.lock, with the licence its own
+LICENSE file matches. Generated: do not hand-edit inside the
+markers, and do not use it to replace the narrative sections
+above -- a package that needs explaining still needs an entry
+there.
+
+Some entries are development-only and are never redistributed
+in a product binary. They are listed anyway: `pub deps` marks
+only direct dev dependencies as such, so the shipped subset
+cannot be computed exactly, and over-listing is the safe side
+of an attribution question.
+
+  Apache-2.0 4,  BSD-2-Clause 2,  BSD-3-Clause 79,  MIT 19,  MPL-2.0 1,  SDK 42
+
+  _fe_analyzer_shared                          99.0.0           BSD-3-Clause
+  analyzer                                     12.1.0           BSD-3-Clause
+  args                                         2.7.0            BSD-3-Clause
+  async                                        2.13.1           BSD-3-Clause
+  boolean_selector                             2.1.2            BSD-3-Clause
+  characters                                   1.4.1            BSD-3-Clause
+  clock                                        1.1.3            Apache-2.0
+  code_assets                                  2.0.0            BSD-3-Clause
+  collection                                   1.19.1           BSD-3-Clause
+  convert                                      3.1.2            BSD-3-Clause
+  cross_file                                   0.3.5+5          BSD-3-Clause
+  crux_a11y                                    0.2.0            SDK
+  crux_about_dialog                            0.1.0            SDK
+  crux_app_info                                0.0.1            SDK
+  crux_async                                   0.1.0            SDK
+  crux_audit                                   0.1.0            SDK
+  crux_command_palette                         0.0.2            SDK
+  crux_cxp                                     0.8.0            SDK
+  crux_cxp_ui                                  0.1.0            SDK
+  crux_dock                                    0.1.1            SDK
+  crux_eula                                    0.1.0            SDK
+  crux_file_watcher                            0.0.1            SDK
+  crux_ide_layout                              0.3.0            SDK
+  crux_io                                      0.3.0            SDK
+  crux_issue_reporter                          0.1.0            SDK
+  crux_keybindings                             0.3.0            SDK
+  crux_license                                 0.13.0           SDK
+  crux_linux_integration                       0.1.0            SDK
+  crux_menu_bar                                0.1.0            SDK
+  crux_policy                                  0.1.0            SDK
+  crux_project                                 0.1.1            SDK
+  crux_projects                                0.3.0            SDK
+  crux_settings                                0.0.1            SDK
+  crux_settings_ui                             0.2.0            SDK
+  crux_shortcut_action                         0.0.1            SDK
+  crux_signing                                 0.1.0            SDK
+  crux_sqlite                                  0.4.1            SDK
+  crux_stats_strip                             0.1.0            SDK
+  crux_status_bar                              0.1.0            SDK
+  crux_telemetry                               0.5.0            SDK
+  crux_theme                                   0.3.0            SDK
+  crux_toolbar                                 0.1.0            SDK
+  crux_updates                                 0.1.0            SDK
+  crux_window_chrome                           0.2.0            SDK
+  crux_workspace                               0.10.0           SDK
+  crypto                                       3.0.7            BSD-3-Clause
+  dbus                                         0.7.15           MPL-2.0
+  fake_async                                   1.3.3            Apache-2.0
+  ffi                                          2.2.0            BSD-3-Clause
+  ffi_leak_tracker                             0.1.2            BSD-3-Clause
+  file                                         7.0.1            BSD-3-Clause
+  file_picker                                  12.0.0-beta.7    MIT
+  fixnum                                       1.1.1            BSD-3-Clause
+  flutter                                      0.0.0            SDK
+  flutter_driver                               0.0.0            SDK
+  flutter_localizations                        0.0.0            SDK
+  flutter_plugin_android_lifecycle             2.0.35           BSD-3-Clause
+  flutter_riverpod                             3.4.3            MIT
+  flutter_test                                 0.0.0            SDK
+  flutter_web_plugins                          0.0.0            SDK
+  fuchsia_remote_debug_protocol                0.0.0            SDK
+  glob                                         2.2.0            BSD-3-Clause
+  go_router                                    17.5.0           BSD-3-Clause
+  hooks                                        2.2.0            BSD-3-Clause
+  http                                         1.6.0            BSD-3-Clause
+  http_parser                                  4.1.2            BSD-3-Clause
+  integration_test                             0.0.0            SDK
+  intl                                         0.20.3           BSD-3-Clause
+  jni                                          1.0.3            BSD-3-Clause
+  jni_flutter                                  1.0.3            BSD-3-Clause
+  jni_util                                     1.0.0            BSD-3-Clause
+  json_annotation                              4.12.0           BSD-3-Clause
+  leak_tracker                                 11.0.2           BSD-3-Clause
+  leak_tracker_flutter_testing                 3.0.10           BSD-3-Clause
+  leak_tracker_testing                         3.0.2            BSD-3-Clause
+  listen                                       1.0.1            BSD-3-Clause
+  logging                                      1.3.0            BSD-3-Clause
+  matcher                                      0.12.20          BSD-3-Clause
+  material_color_utilities                     0.13.0           Apache-2.0
+  meta                                         1.19.0           BSD-3-Clause
+  mocktail                                     1.0.5            MIT
+  native_toolchain_c                           0.19.4           BSD-3-Clause
+  objective_c                                  9.6.0            BSD-3-Clause
+  package_config                               2.2.0            BSD-3-Clause
+  package_info_plus                            10.2.1           BSD-3-Clause
+  package_info_plus_platform_interface         4.1.0            BSD-3-Clause
+  panes                                        1.3.0            MIT
+  path                                         1.9.1            BSD-3-Clause
+  path_provider                                2.1.6            BSD-3-Clause
+  path_provider_android                        2.3.1            BSD-3-Clause
+  path_provider_foundation                     2.6.0            BSD-3-Clause
+  path_provider_linux                          2.2.2            BSD-3-Clause
+  path_provider_platform_interface             2.1.3            BSD-3-Clause
+  path_provider_windows                        2.3.0            BSD-3-Clause
+  petitparser                                  7.0.2            MIT
+  platform                                     3.2.0            BSD-3-Clause
+  plugin_platform_interface                    2.1.8            BSD-3-Clause
+  process                                      5.0.6            BSD-3-Clause
+  pub_semver                                   2.2.1            BSD-3-Clause
+  record_use                                   1.1.1            BSD-3-Clause
+  riverpod                                     3.4.3            MIT
+  screen_retriever                             0.2.2            MIT
+  screen_retriever_linux                       0.2.2            MIT
+  screen_retriever_macos                       0.2.2            MIT
+  screen_retriever_platform_interface          0.2.2            MIT
+  screen_retriever_windows                     0.2.2            MIT
+  shared_preferences                           2.5.5            BSD-3-Clause
+  shared_preferences_android                   2.4.28           BSD-3-Clause
+  shared_preferences_foundation                2.5.7            BSD-3-Clause
+  shared_preferences_linux                     2.4.1            BSD-3-Clause
+  shared_preferences_platform_interface        2.4.2            BSD-3-Clause
+  shared_preferences_web                       2.4.3            BSD-3-Clause
+  shared_preferences_windows                   2.4.1            BSD-3-Clause
+  sky_engine                                   0.0.0            SDK
+  source_span                                  1.10.2           BSD-3-Clause
+  sqflite_common                               2.5.12           BSD-2-Clause
+  sqflite_common_ffi                           2.4.3            BSD-2-Clause
+  sqlite3                                      3.6.0            MIT
+  stack_trace                                  1.12.2           BSD-3-Clause
+  state_notifier                               1.0.0            MIT
+  stream_channel                               2.1.4            BSD-3-Clause
+  string_scanner                               1.4.1            BSD-3-Clause
+  sync_http                                    0.3.1            BSD-3-Clause
+  synchronized                                 3.4.2            MIT
+  term_glyph                                   1.2.2            BSD-3-Clause
+  test_api                                     0.7.12           BSD-3-Clause
+  typed_data                                   1.4.0            BSD-3-Clause
+  url_launcher                                 6.3.2            BSD-3-Clause
+  url_launcher_android                         6.3.33           BSD-3-Clause
+  url_launcher_ios                             6.4.2            BSD-3-Clause
+  url_launcher_linux                           3.2.3            BSD-3-Clause
+  url_launcher_macos                           3.2.6            BSD-3-Clause
+  url_launcher_platform_interface              2.3.2            BSD-3-Clause
+  url_launcher_web                             2.4.3            BSD-3-Clause
+  url_launcher_windows                         3.1.6            BSD-3-Clause
+  uuid                                         4.6.0            MIT
+  vector_math                                  2.4.2            BSD-3-Clause
+  very_good_analysis                           10.3.0           MIT
+  vm_service                                   15.3.0           BSD-3-Clause
+  watcher                                      1.2.1            BSD-3-Clause
+  web                                          1.1.1            BSD-3-Clause
+  webdriver                                    3.2.0            Apache-2.0
+  win32                                        6.4.0            BSD-3-Clause
+  window_manager                               0.5.2            MIT
+  xdg_directories                              1.1.0            BSD-3-Clause
+  xml                                          6.6.1            MIT
+  yaml                                         3.1.4            MIT
+
+-- END GENERATED INVENTORY --
+
+End of NOTICES.

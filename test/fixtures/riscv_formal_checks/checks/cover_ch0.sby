@@ -1,0 +1,26 @@
+# Generated-shaped riscv-formal job file with a [tasks] section. See
+# ../README.md — the sources named below do not exist and are never read.
+#
+# One `sby` invocation over both tasks prints two `DONE (…)` lines, so the
+# importer must expand this file into one test per task.
+[tasks]
+reach
+liveness
+
+[options]
+mode cover
+depth 30
+reach: depth 30
+liveness: depth 60
+
+[engines]
+smtbmc boolector
+
+[script]
+read_verilog -sv demo_core.v
+read_verilog -sv rvfi_cover_check.sv
+prep -top rvfi_testbench -nordff
+
+[files]
+demo_core.v
+rvfi_cover_check.sv

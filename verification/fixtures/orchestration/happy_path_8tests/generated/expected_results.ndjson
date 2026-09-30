@@ -1,0 +1,9 @@
+{"testId":"alu_0","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_1","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_2","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_3","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_4","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_5","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_6","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"alu_7","status":"pass","exitCode":0,"durationMsBucketed":"<timeout","killSignal":null}
+{"testId":"uart_loopback","status":"fail","exitCode":1,"durationMsBucketed":"<timeout","killSignal":null}

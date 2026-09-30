@@ -1,0 +1,14 @@
+{
+  "scenario": "happy_path_8tests",
+  "tests": {
+    "uart_loopback": {
+      "exitCode": 1,
+      "delayMs": 1,
+      "ignoresSigterm": false,
+      "spawnsChildren": 0,
+      "stderr": [
+        "UVM_ERROR : 3 errors"
+      ]
+    }
+  }
+}

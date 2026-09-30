@@ -1,0 +1,24 @@
+version: '1'
+
+defaults:
+  simulator: verilator
+  pass_fail:
+    type: string_match
+    pass_string: TEST PASSED
+    fail_string: TEST FAILED
+  waveform:
+    capture: never
+
+simulators:
+  verilator:
+    options:
+      args: "-DARGS_REACHED=1"
+
+suites:
+  smoke:
+    description: Delays, -Wall style warnings and extra flags under Verilator 5.
+    tests:
+      - name: timing_basic
+        top: tb_timing
+        sources:
+          - delay_bench.v

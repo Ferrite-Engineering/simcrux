@@ -1,0 +1,9 @@
+{
+  "description": "Expected results for the vhdl_pass fixture. Tests load the corresponding simcrux.yaml through ConfigLoader and assert the regression-runner produces one TestResult whose status matches `expected_status` when ghdl is installed.",
+  "tests": [
+    {
+      "id": "smoke/pass_basic",
+      "expected_status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "DUT dump exists but holds no words. Must fail, not vacuously pass: an empty dump proves nothing about the DUT.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

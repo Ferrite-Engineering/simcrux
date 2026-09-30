@@ -1,0 +1,9 @@
+{
+  // SimCrux user documentation, built by `mkdocs build --strict` into
+  // ./site and served by Workers Static Assets. Only the build output is
+  // uploaded, so no .assetsignore is needed.
+  "name": "simcrux-docs",
+  "compatibility_date": "2025-06-01",
+  "assets": { "directory": "./site", "not_found_handling": "404-page" },
+  "routes": [{ "pattern": "docs.simcrux.app", "custom_domain": true }]
+}

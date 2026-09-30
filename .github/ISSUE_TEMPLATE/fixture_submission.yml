@@ -1,0 +1,94 @@
+name: 🧪 Fixture submission
+description: Contribute a regression project that SimCrux runs, classifies, or reports incorrectly.
+title: "[Fixture]: "
+labels: ["fixture", "user-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A project that SimCrux gets wrong is the most valuable thing you can give
+        us — once it's in the suite, that behavior can never silently regress.
+
+        **Licensing — read before you attach anything.** We can only accept
+        material you can share under MIT, BSD-2/3-Clause, Apache-2.0, ISC, CC0 or
+        public domain. Please do not attach proprietary, GPL or AGPL sources; a
+        hand-built minimal case that reproduces the same behaviour is always
+        welcome, and is often better.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What does it exercise?
+      options:
+        - Pass/fail detection — the wrong status is reported
+        - Config — simcrux.yaml, filelists, seed sweeps, mixed language
+        - Orchestration — timeouts, cancel, leftover or orphaned processes
+        - Simulator invocation — the command line SimCrux builds is wrong
+        - Log parsing — summary tables, per-test lines, UVM reports
+        - Trends, flaky classification, or baselines
+        - FuseSoC .core import
+        - Export format (JUnit / JSON / CSV / HTML)
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: simulator
+    attributes:
+      label: Simulator
+      options:
+        - Icarus Verilog
+        - Verilator
+        - GHDL
+        - cocotb
+        - Multiple / mixed
+        - None needed (orchestration / process-behavior scenario)
+    validations:
+      required: true
+  - type: input
+    id: simulator-version
+    attributes:
+      label: Simulator version
+      description: "`iverilog -V`, `verilator --version`, `ghdl --version`, or `cocotb-config --version`."
+      placeholder: "e.g. Verilator 5.026 2024-08-04"
+    validations:
+      required: false
+  - type: textarea
+    id: current-vs-expected
+    attributes:
+      label: What SimCrux does vs. what it should do
+      description: Be as precise as you can — ideally the exact test ID, the status it gets, and the status it should get.
+      placeholder: |
+        `smoke/uvm_error_case` is reported as PASS.
+        It should be FAIL: the log contains `UVM_ERROR : 1`, even though the
+        simulator exits 0.
+    validations:
+      required: true
+  - type: textarea
+    id: attach
+    attributes:
+      label: The fixture
+      description: |
+        Drag in the smallest project that reproduces it — the `simcrux.yaml` and
+        the testbench sources it names (`.v`, `.sv`, `.vhd`, `.py`, a cocotb
+        `Makefile`) — or link to it. For a process-behavior bug, describe the
+        process behavior instead: exit code, how long it runs, whether it ignores
+        `SIGTERM`, and what it forks.
+    validations:
+      required: true
+  - type: dropdown
+    id: license
+    attributes:
+      label: License / origin
+      description: We can only publish permissively-licensed fixtures. See the guide for details.
+      options:
+        - My own hand-written testbench — I contribute it under CC0 / public domain
+        - Derived from an open-source project under MIT / BSD / Apache-2.0 / ISC / CC0 / public domain
+        - Other / not sure (we'll follow up — do not attach proprietary, GPL, or AGPL sources)
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source project + version (for derived projects)
+      description: Project name and commit/tag, and anything you changed to make it run standalone.
+    validations:
+      required: false

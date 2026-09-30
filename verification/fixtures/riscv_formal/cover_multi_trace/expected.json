@@ -1,0 +1,15 @@
+{
+  "description": "A cover run that reached two cover statements and wrote a trace for each. What makes riscv.formal.trace_count observable — and a reminder that a PASSING run's work dir is swept, so the recorded waveform path is archived or dropped rather than left dangling.",
+  "check": "cover_ch0",
+  "group": "cover",
+  "verdict": "PASS",
+  "status": "pass",
+  "return_code": 0,
+  "depth_reached": 6,
+  "engine": "smtbmc yices",
+  "elapsed_seconds": 3,
+  "traces": [
+    "cover_ch0/engine_0/trace0.vcd",
+    "cover_ch0/engine_0/trace1.vcd"
+  ]
+}

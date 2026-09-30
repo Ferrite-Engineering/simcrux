@@ -1,0 +1,11 @@
+{
+  "scenario": "cocotb_tree_reap",
+  "tests": {
+    "cocotb_dff": {
+      "exitCode": 0,
+      "delayMs": 86400000,
+      "ignoresSigterm": false,
+      "spawnsChildren": 2
+    }
+  }
+}

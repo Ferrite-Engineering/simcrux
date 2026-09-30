@@ -1,0 +1,9 @@
+{
+  "description": "Expected results for the verilator_timing fixture: a testbench with # delays, -Wall style warnings and a define supplied only through simulators.verilator.options.args. Requires `verilator` 5 or newer + `make` + a host C++ toolchain on PATH; the fixture-pipeline integration test skips otherwise.",
+  "tests": [
+    {
+      "id": "smoke/timing_basic",
+      "expected_status": "pass"
+    }
+  ]
+}

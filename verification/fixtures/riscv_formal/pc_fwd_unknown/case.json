@@ -1,0 +1,10 @@
+{
+  "description": "The engine could not decide. Nothing was proved and nothing was refuted, so this must report fail — never pass, never vacuous, never unknown.",
+  "check": "pc_fwd_ch0",
+  "group": "pc_fwd",
+  "proof_mode": "prove",
+  "depth": 16,
+  "log": "sby.log",
+  "traces": [],
+  "exit_code": 4
+}

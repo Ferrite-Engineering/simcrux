@@ -1,0 +1,20 @@
+SBY 11:14:20 [cover_ch0] Removing directory 'cover_ch0'.
+SBY 11:14:20 [cover_ch0] Copy 'rvfi_cover_check.sv' to 'cover_ch0/src/rvfi_cover_check.sv'.
+SBY 11:14:20 [cover_ch0] engine_0: smtbmc yices
+SBY 11:14:20 [cover_ch0] base: starting process "cd cover_ch0/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 11:14:21 [cover_ch0] base: finished (returncode=0)
+SBY 11:14:21 [cover_ch0] engine_0: starting process "cd cover_ch0; yosys-smtbmc -c --presat --unroll -s yices --noprogress -t 12 --dump-vcd engine_0/trace%.vcd model/design_smt2.smt2"
+SBY 11:14:21 [cover_ch0] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 11:14:22 [cover_ch0] engine_0: ##   0:00:01  Reached cover statement at rvfi_cover_retire in step 3.
+SBY 11:14:22 [cover_ch0] engine_0: ##   0:00:01  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 11:14:23 [cover_ch0] engine_0: ##   0:00:02  Reached cover statement at rvfi_cover_trap in step 6.
+SBY 11:14:23 [cover_ch0] engine_0: ##   0:00:02  Writing trace to VCD file: engine_0/trace1.vcd
+SBY 11:14:23 [cover_ch0] engine_0: ##   0:00:02  Checking assertions in step 6..
+SBY 11:14:23 [cover_ch0] engine_0: ##   0:00:02  Status: passed
+SBY 11:14:23 [cover_ch0] engine_0: finished (returncode=0)
+SBY 11:14:23 [cover_ch0] engine_0: Status returned by engine: pass
+SBY 11:14:23 [cover_ch0] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:03 (3)
+SBY 11:14:23 [cover_ch0] summary: engine_0 (smtbmc yices) returned pass
+SBY 11:14:23 [cover_ch0] summary: cover trace: cover_ch0/engine_0/trace0.vcd
+SBY 11:14:23 [cover_ch0] summary: cover trace: cover_ch0/engine_0/trace1.vcd
+SBY 11:14:23 [cover_ch0] DONE (PASS, rc=0)

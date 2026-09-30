@@ -1,0 +1,10 @@
+{
+  "description": "SymbiYosys's own solver budget expired. It must report fail, and deliberately NOT TestStatus.timeout, which means SimCrux killed the job.",
+  "check": "reg_ch0",
+  "group": "reg",
+  "proof_mode": "bmc",
+  "depth": 64,
+  "log": "sby.log",
+  "traces": [],
+  "exit_code": 8
+}

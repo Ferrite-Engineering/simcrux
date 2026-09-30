@@ -1,0 +1,2361 @@
+{
+  "@@locale": "ko",
+  "settingsShortcutsSection": "키보드 단축키",
+  "@settingsShortcutsSection": {
+    "description": "Settings category title for the keyboard shortcuts editor"
+  },
+  "settingsShortcutsDescription": "연필 아이콘을 눌러 단축키를 변경한 다음 새 키를 누르세요. 내보내기와 가져오기로 키 설정을 다른 사용자와 공유할 수 있습니다.",
+  "@settingsShortcutsDescription": {
+    "description": "Intro note above the editable shortcuts list"
+  },
+  "settingsShortcutNotBound": "—",
+  "@settingsShortcutNotBound": {
+    "description": "Placeholder shown when an action has no key binding"
+  },
+  "settingsShortcutsKeyboardHint": "위아래 화살표 키로 단축키 사이를 이동합니다. Enter는 변경, Delete는 제거, Shift+Delete는 기본값으로 복원합니다.",
+  "@settingsShortcutsKeyboardHint": {
+    "description": "Keyboard instructions for the shortcut list in Settings > Keyboard Shortcuts. Shown under the description and spoken once by a screen reader when focus enters the list."
+  },
+  "settingsShortcutNotBoundSpoken": "단축키 없음",
+  "@settingsShortcutNotBoundSpoken": {
+    "description": "What a screen reader says for an action with no key binding. The visual placeholder is a dash, which is not spoken."
+  },
+  "settingsShortcutsImport": "가져오기…",
+  "@settingsShortcutsImport": {
+    "description": "Button that imports a shared .crux-keymap shortcut file"
+  },
+  "settingsShortcutsExport": "내보내기…",
+  "@settingsShortcutsExport": {
+    "description": "Button that exports shortcut customizations to a .crux-keymap file"
+  },
+  "settingsShortcutsResetAll": "모두 재설정",
+  "@settingsShortcutsResetAll": {
+    "description": "Button/confirm action restoring every shortcut to its default"
+  },
+  "settingsShortcutEditTooltip": "단축키 변경",
+  "@settingsShortcutEditTooltip": {
+    "description": "Tooltip for the per-action capture button"
+  },
+  "settingsShortcutUnbindTooltip": "단축키 제거",
+  "@settingsShortcutUnbindTooltip": {
+    "description": "Tooltip for the per-action unbind button"
+  },
+  "settingsShortcutResetTooltip": "기본값으로 재설정",
+  "@settingsShortcutResetTooltip": {
+    "description": "Tooltip for the per-action reset button"
+  },
+  "settingsShortcutCapturePrompt": "새 단축키를 누르세요… (Esc로 취소)",
+  "@settingsShortcutCapturePrompt": {
+    "description": "Prompt shown while capturing a new chord"
+  },
+  "settingsShortcutConflict": "{actions}에서도 사용 중",
+  "@settingsShortcutConflict": {
+    "description": "Warning under an action whose chord collides with others",
+    "placeholders": {
+      "actions": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictWins": "{others}보다 우선합니다",
+  "@settingsShortcutConflictWins": {
+    "description": "Conflict warning on the row whose shortcut fires; lists the shadowed actions sharing the chord",
+    "placeholders": {
+      "others": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictShadowed": "{winner}에 가려져 실행되지 않습니다",
+  "@settingsShortcutConflictShadowed": {
+    "description": "Conflict warning on a shadowed row whose shortcut will not fire; names the winning action",
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutConflictSummary": "{count, plural, =1{단축키 충돌 1건이 있습니다} other{단축키 충돌 {count}건이 있습니다}}",
+  "@settingsShortcutConflictSummary": {
+    "description": "Summary banner above the shortcut list showing how many chords are in conflict",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsShortcutResetAllTitle": "모든 단축키를 재설정하시겠습니까?",
+  "@settingsShortcutResetAllTitle": {
+    "description": "Title of the reset-all confirmation dialog"
+  },
+  "settingsShortcutResetAllBody": "모든 키보드 단축키가 기본값으로 돌아가고 사용자 정의가 제거됩니다.",
+  "@settingsShortcutResetAllBody": {
+    "description": "Body of the reset-all confirmation dialog"
+  },
+  "settingsShortcutResetAllCancel": "취소",
+  "@settingsShortcutResetAllCancel": {
+    "description": "Cancel button in the reset-all confirmation dialog"
+  },
+  "settingsShortcutExportSuccess": "키보드 단축키를 내보냈습니다.",
+  "@settingsShortcutExportSuccess": {
+    "description": "Snackbar after a successful keymap export"
+  },
+  "settingsShortcutExportFailure": "단축키를 내보내지 못했습니다: {error}",
+  "@settingsShortcutExportFailure": {
+    "description": "Snackbar when keymap export fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutImportEmpty": "해당 파일에는 단축키 사용자 정의가 없습니다.",
+  "@settingsShortcutImportEmpty": {
+    "description": "Snackbar when an imported keymap has no customizations"
+  },
+  "settingsShortcutImportSuccess": "{count, plural, =0{가져온 단축키 사용자 정의가 없습니다.} =1{사용자 정의 단축키 1개를 가져왔습니다.} other{사용자 정의 단축키 {count}개를 가져왔습니다.}}",
+  "@settingsShortcutImportSuccess": {
+    "description": "Snackbar after a successful keymap import",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsShortcutImportFailure": "단축키를 가져오지 못했습니다: {error}",
+  "@settingsShortcutImportFailure": {
+    "description": "Snackbar when keymap import fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShortcutImportNewerVersion": "이 키맵은 최신 버전의 SimCrux에서 저장되었습니다. SimCrux를 업데이트한 후 가져오세요.",
+  "@settingsShortcutImportNewerVersion": {
+    "description": "Snackbar when an imported keymap declares a schema version this build cannot read"
+  },
+  "settingsShortcutsPresetLabel": "프리셋",
+  "@settingsShortcutsPresetLabel": {
+    "description": "Label for the keymap preset chooser above the editable shortcut list"
+  },
+  "settingsShortcutsPresetDescription": "전체 키 바인딩 세트를 불러옵니다. 불러온 후에도 개별 단축키를 사용자 정의할 수 있습니다.",
+  "@settingsShortcutsPresetDescription": {
+    "description": "Description under the keymap preset chooser"
+  },
+  "settingsShortcutsPresetSimCrux": "SimCrux(기본값)",
+  "@settingsShortcutsPresetSimCrux": {
+    "description": "Name of the default SimCrux keymap preset in the preset chooser"
+  },
+  "settingsShortcutsPresetCustom": "사용자 정의",
+  "@settingsShortcutsPresetCustom": {
+    "description": "Shown in the preset chooser when the user's bindings match no built-in preset"
+  },
+  "appTitle": "SimCrux",
+  "@appTitle": {
+    "description": "Application title shown in the window title bar and About box."
+  },
+  "projectScreenPlaceholder": "로드된 프로젝트가 없습니다. 파일 > 구성 열기…에서 시작하세요.",
+  "@projectScreenPlaceholder": {
+    "description": "Empty-state body shown when a tab has no configPath set."
+  },
+  "configLoadingPlaceholder": "프로젝트 로드 중…",
+  "@configLoadingPlaceholder": {
+    "description": "Body shown while the config file is being read."
+  },
+  "configLoadFailedTitle": "이 프로젝트를 로드할 수 없습니다",
+  "@configLoadFailedTitle": {
+    "description": "Header for the config-load-error empty state."
+  },
+  "configLoadFailedDetail": "`{path}`을(를) 로드할 수 없습니다:\n\n{reason}\n\n문제를 해결한 후 프로젝트를 다시 열거나 파일 > 구성 열기…에서 다른 구성을 선택하세요.",
+  "@configLoadFailedDetail": {
+    "description": "Body of the config-load-error empty state.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "configLoadWarningsTitle": "{count, plural, =1{이 프로젝트를 로드했지만 경고가 1개 있습니다} other{이 프로젝트를 로드했지만 경고가 {count}개 있습니다}}",
+  "@configLoadWarningsTitle": {
+    "description": "Heading of the project load-warnings banner.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "configLoadWarningsDismiss": "닫기",
+  "@configLoadWarningsDismiss": {
+    "description": "Button that hides the project load-warnings banner."
+  },
+  "runScreenTitle": "실행",
+  "@runScreenTitle": {
+    "description": "Title shown on the Run detail screen (placeholder route — populated in later phases)."
+  },
+  "runScreenPlaceholder": "대시보드의 실행 선택기에서 이 실행을 여세요. 즐겨찾기 가능한 경로는 메인 창의 인스펙터 창과 동일한 데이터를 표시합니다.",
+  "@runScreenPlaceholder": {
+    "description": "Body shown on /projects/:id/runs/:id route reached without context."
+  },
+  "testDetailScreenTitle": "테스트 상세",
+  "@testDetailScreenTitle": {
+    "description": "Title shown on the Test detail screen (placeholder route — populated in later phases)."
+  },
+  "testDetailScreenPlaceholder": "대시보드의 결과 표에서 이 테스트를 여세요. 즐겨찾기 가능한 경로는 메인 창의 인스펙터 창과 동일한 데이터를 표시합니다.",
+  "@testDetailScreenPlaceholder": {
+    "description": "Body shown on /projects/:id/tests/:id route reached without context."
+  },
+  "actionCategoryApp": "SimCrux",
+  "@actionCategoryApp": {
+    "description": "Menu bar / overflow menu category label for the host application menu (macOS application menu, the first menu)."
+  },
+  "actionCategoryFile": "파일",
+  "@actionCategoryFile": {
+    "description": "Menu bar / overflow menu category label for file operations (open, save, export, recent files)."
+  },
+  "actionCategoryView": "보기",
+  "@actionCategoryView": {
+    "description": "Menu bar / overflow menu category label for view operations (panel toggles, layout, zoom)."
+  },
+  "actionCategoryNavigate": "탐색",
+  "@actionCategoryNavigate": {
+    "description": "Menu bar / overflow menu category label for navigation operations (focus pane, jump to test, navigate results)."
+  },
+  "actionCategorySearch": "검색",
+  "@actionCategorySearch": {
+    "description": "Menu bar / overflow menu category label for search operations (find, command palette)."
+  },
+  "actionCategoryTools": "도구",
+  "@actionCategoryTools": {
+    "description": "Menu bar / overflow menu category label for tool operations (settings, diagnostics, plugins, trend tracking)."
+  },
+  "actionCategoryHelp": "도움말",
+  "@actionCategoryHelp": {
+    "description": "Menu bar / overflow menu category label for help operations (about, documentation, keyboard shortcuts)."
+  },
+  "actionOpenProject": "구성 열기…",
+  "@actionOpenProject": {
+    "description": "Label for the action that opens a simcrux.yaml config file via the file picker."
+  },
+  "actionImportFusesoc": "FuseSoC .core 파일 가져오기…",
+  "@actionImportFusesoc": {
+    "description": "Label for the action that imports a CAPI2 .core file and writes a simcrux.yaml next to it."
+  },
+  "fusesocImportSuccess": "{filename}을(를) 가져왔습니다",
+  "@fusesocImportSuccess": {
+    "description": "Snackbar shown after a FuseSoC import wrote a simcrux.yaml file next to the source .core.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "fusesocImportSuccessWithWarnings": "{filename} 가져옴 (경고 {count}건)",
+  "@fusesocImportSuccessWithWarnings": {
+    "description": "Snackbar shown after a successful FuseSoC import that surfaced one or more warnings.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fusesocImportFailed": "FuseSoC 가져오기 실패: {error}",
+  "@fusesocImportFailed": {
+    "description": "Snackbar shown when the FuseSoC importer threw an unrecoverable error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "actionImportRiscvArchTest": "RISC-V 아키텍처 테스트 가져오기…",
+  "@actionImportRiscvArchTest": {
+    "description": "Label for the action that enumerates a riscv-arch-test checkout into one SimCrux test per architectural test."
+  },
+  "actionImportRiscvFormal": "riscv-formal 검사 가져오기…",
+  "@actionImportRiscvFormal": {
+    "description": "Label for the action that enumerates a riscv-formal checks/ directory into one SimCrux test per bounded proof."
+  },
+  "riscvImportSuccess": "테스트 {count}개를 {filename}(으)로 가져왔습니다",
+  "@riscvImportSuccess": {
+    "description": "Snackbar shown after a RISC-V import wrote a simcrux.yaml the user chose the location of.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "riscvImportSuccessWithWarnings": "테스트 {count}개를 {filename}(으)로 가져왔습니다. 경고 {warnings}개",
+  "@riscvImportSuccessWithWarnings": {
+    "description": "Snackbar shown after a successful RISC-V import that surfaced one or more warnings.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      },
+      "warnings": {
+        "type": "int"
+      }
+    }
+  },
+  "riscvImportFailed": "RISC-V 가져오기 실패: {error}",
+  "@riscvImportFailed": {
+    "description": "Snackbar shown when a RISC-V importer threw an unrecoverable error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCloseTab": "탭 닫기",
+  "@actionCloseTab": {
+    "description": "Label for the action that closes the active workspace tab (Cmd/Ctrl+W)."
+  },
+  "actionCloseProject": "프로젝트 닫기",
+  "@actionCloseProject": {
+    "description": "Label for the action that closes the currently open project."
+  },
+  "actionRunRegression": "회귀 테스트 실행",
+  "@actionRunRegression": {
+    "description": "Label for the action that starts a regression run of the active project."
+  },
+  "actionReRunSelected": "선택한 테스트 다시 실행",
+  "@actionReRunSelected": {
+    "description": "Label for the action that re-runs the test currently selected in the inspector pane."
+  },
+  "actionCancelRegression": "회귀 테스트 취소",
+  "@actionCancelRegression": {
+    "description": "Label for the action that cancels the in-flight regression."
+  },
+  "actionExportResults": "결과 내보내기…",
+  "@actionExportResults": {
+    "description": "Menu / command-palette label for the action that opens the Export Results dialog."
+  },
+  "actionQuit": "SimCrux 종료",
+  "@actionQuit": {
+    "description": "Label for the action that quits the application."
+  },
+  "actionToggleTestBrowser": "테스트 브라우저 토글",
+  "@actionToggleTestBrowser": {
+    "description": "Label for the action that toggles the left test/run browser pane."
+  },
+  "actionToggleInspector": "인스펙터 토글",
+  "@actionToggleInspector": {
+    "description": "Label for the action that toggles the right inspector / detail pane."
+  },
+  "actionToggleLogPanel": "로그 패널 토글",
+  "@actionToggleLogPanel": {
+    "description": "Label for the action that toggles the bottom log-stream pane."
+  },
+  "actionToggleTheme": "테마 전환",
+  "@actionToggleTheme": {
+    "description": "Label for the action that flips the app between the light and dark color themes."
+  },
+  "actionOpenSearch": "검색…",
+  "@actionOpenSearch": {
+    "description": "Label for the action that opens the test/run search dialog."
+  },
+  "actionOpenCommandPalette": "명령 팔레트…",
+  "@actionOpenCommandPalette": {
+    "description": "Label for the action that opens the command palette overlay."
+  },
+  "commandPaletteSearchHint": "명령 검색…",
+  "@commandPaletteSearchHint": {
+    "description": "Placeholder hint text in the command palette search field"
+  },
+  "commandPaletteNoResults": "명령을 찾을 수 없음",
+  "@commandPaletteNoResults": {
+    "description": "Message displayed in the command palette when the search query matches no actions"
+  },
+  "actionOpenSettings": "설정…",
+  "@actionOpenSettings": {
+    "description": "Label for the action that opens the settings screen."
+  },
+  "actionOpenAbout": "SimCrux 정보",
+  "@actionOpenAbout": {
+    "description": "Label for the action that opens the About box."
+  },
+  "actionSplitPaneRight": "오른쪽으로 창 분할",
+  "@actionSplitPaneRight": {
+    "description": "Command palette / menu label for the action that splits the active pane horizontally."
+  },
+  "actionClosePane": "창 닫기",
+  "@actionClosePane": {
+    "description": "Command palette / menu label for the action that closes the active pane."
+  },
+  "actionFocusOtherPane": "다른 창에 포커스",
+  "@actionFocusOtherPane": {
+    "description": "Command palette / menu label for the action that toggles focus to the other pane under split-pane."
+  },
+  "actionMoveTabToOtherPane": "다른 창으로 탭 이동",
+  "@actionMoveTabToOtherPane": {
+    "description": "Command palette label for the action that moves the active tab to the other pane."
+  },
+  "actionOpenCrossProbePanel": "교차 프로브 패널 열기",
+  "@actionOpenCrossProbePanel": {
+    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionOpenSeedFailureHeatmap": "시드 실패 히트맵 보기",
+  "@actionOpenSeedFailureHeatmap": {
+    "description": "Command palette / menu label that opens the Pro Seed Failure Heatmap screen. Open-core builds register the action but the opener is unset until the Pro overlay installs its override."
+  },
+  "actionShowTrendChart": "테스트 트렌드 차트 표시…",
+  "@actionShowTrendChart": {
+    "description": "Command palette / menu label that opens the Pro per-test trend chart screen. Open-core registers the action; the opener is provided by the Pro overlay via perTestTrendChartOpenerProvider."
+  },
+  "actionShowSuiteTrendChart": "스위트 트렌드 차트 표시…",
+  "@actionShowSuiteTrendChart": {
+    "description": "Command palette / menu label that opens the Pro per-suite trend chart screen. Open-core registers the action; the opener is provided by the Pro overlay via perSuiteTrendChartOpenerProvider."
+  },
+  "actionShowCalendarHeatmap": "달력 히트맵 표시…",
+  "@actionShowCalendarHeatmap": {
+    "description": "Command palette / menu label that opens the Pro calendar heatmap screen. Open-core registers the action; the opener is provided by the Pro overlay via calendarHeatmapOpenerProvider."
+  },
+  "actionShowFlakyTests": "불안정 테스트 표시…",
+  "@actionShowFlakyTests": {
+    "description": "Command palette / menu label that opens the Pro Flaky Tests panel. Open-core registers the action; the opener is provided by the Pro overlay via flakyTestsPanelOpenerProvider."
+  },
+  "actionConfigureRetentionPolicy": "트렌드 보존 정책 구성…",
+  "@actionConfigureRetentionPolicy": {
+    "description": "Command palette / menu label that opens the Pro retention policy settings (max-age days, max-data-points, prune strategy)."
+  },
+  "actionDispatchPrAnnotations": "PR 어노테이션 발송",
+  "@actionDispatchPrAnnotations": {
+    "description": "Command palette / menu label that dispatches the current run's failures as annotations to the configured PR / MR / webhook target."
+  },
+  "actionConfigurePrAnnotationTarget": "PR 어노테이션 구성…",
+  "@actionConfigurePrAnnotationTarget": {
+    "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog."
+  },
+  "crossProbePanelTitle": "교차 프로브",
+  "@crossProbePanelTitle": {
+    "description": "Title of the CXP cross-probe panel."
+  },
+  "crossProbeCloseTooltip": "크로스 프로브 패널 닫기",
+  "crossProbeServerOffline": "크로스 프로브 서버가 오프라인입니다.",
+  "crossProbeSendTooltip": "이 피어로 선택 항목 보내기",
+  "crossProbeUnreachableTitle": "연결할 수 없는 피어",
+  "settingsRequestAttentionOnCrossProbeLabel": "크로스 프로브 시 주의 요청",
+  "settingsRequestAttentionOnCrossProbeDescription": "피어가 크로스 프로브를 보내면 Dock을 바운스(또는 작업 표시줄 깜박임)합니다. 포커스를 가져오지 않습니다.",
+  "settingsBroadcastSelectionOnCrossProbeLabel": "선택 항목 자동 브로드캐스트",
+  "settingsBroadcastSelectionOnCrossProbeDescription": "선택하는 즉시 연결된 피어에 선택 항목을 알립니다(라이브 크로스 프로브). 끄면 명시적으로 보낸 항목만 공유됩니다.",
+  "crossProbeSectionPeers": "연결된 피어",
+  "@crossProbeSectionPeers": {
+    "description": "Section header listing the CXP peers SimCrux is currently connected to."
+  },
+  "crossProbeSectionEvents": "최근 활동",
+  "@crossProbeSectionEvents": {
+    "description": "Section header for the rolling buffer of recent cross-probe events."
+  },
+  "crossProbeNoPeers": "연결된 피어가 없습니다. 이 컴퓨터에서 WaveCrux, NetCrux, LintCrux를 실행하면 여기에 표시됩니다.",
+  "@crossProbeNoPeers": {
+    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
+  },
+  "crossProbeNoEvents": "교차 프로브 활동이 아직 없습니다.",
+  "@crossProbeNoEvents": {
+    "description": "Empty-state shown in the cross-probe events section before any events arrive."
+  },
+  "crossProbeClearEvents": "지우기",
+  "@crossProbeClearEvents": {
+    "description": "Button label that clears the rolling cross-probe events buffer."
+  },
+  "crossProbeSendFailed": "{peer}에 보낸 교차 프로브가 완료되지 않았습니다",
+  "@crossProbeSendFailed": {
+    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
+    "placeholders": {
+      "peer": {
+        "type": "String",
+        "example": "WaveCrux"
+      }
+    }
+  },
+  "crossProbeSendRefused": "{peer}에 보낸 교차 프로브: {reason}",
+  "@crossProbeSendRefused": {
+    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
+    "placeholders": {
+      "peer": {
+        "type": "String",
+        "example": "WaveCrux"
+      },
+      "reason": {
+        "type": "String",
+        "example": "element not found: top.data"
+      }
+    }
+  },
+  "panelTestBrowserPlaceholder": "프로젝트를 열어 테스트를 탐색하세요.",
+  "@panelTestBrowserPlaceholder": {
+    "description": "Empty-state body text shown in the left test browser pane when no project is open or no testBrowserBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelRunResultsPlaceholder": "실행 결과가 여기에 표시됩니다.",
+  "@panelRunResultsPlaceholder": {
+    "description": "Placeholder body text shown in the center run-results pane when no runResultsBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelRunDetailsPlaceholder": "실행 상세가 여기에 표시됩니다.",
+  "@panelRunDetailsPlaceholder": {
+    "description": "Placeholder body text shown in the right run-details pane when no runDetailsBuilder was supplied to SimcruxIdeLayout."
+  },
+  "panelLogStreamPlaceholder": "테스트를 선택하면 로그가 표시됩니다.",
+  "@panelLogStreamPlaceholder": {
+    "description": "Empty-state body text shown in the bottom log-stream pane when no test is selected in the inspector, or when no logPanelBuilder was supplied to SimcruxIdeLayout."
+  },
+  "dashboardColumnStatus": "상태",
+  "@dashboardColumnStatus": {
+    "description": "Column header for the dashboard table's status icon column."
+  },
+  "dashboardColumnSuite": "스위트",
+  "@dashboardColumnSuite": {
+    "description": "Column header for the dashboard table's suite name column."
+  },
+  "dashboardColumnTest": "테스트",
+  "@dashboardColumnTest": {
+    "description": "Column header for the dashboard table's test name column."
+  },
+  "dashboardColumnSimulator": "시뮬레이터",
+  "@dashboardColumnSimulator": {
+    "description": "Column header for the dashboard table's simulator id column."
+  },
+  "dashboardColumnDuration": "소요 시간",
+  "@dashboardColumnDuration": {
+    "description": "Column header for the dashboard table's runtime duration column."
+  },
+  "dashboardColumnStartedAt": "시작 시각",
+  "@dashboardColumnStartedAt": {
+    "description": "Column header for the dashboard table's started-at timestamp column."
+  },
+  "dashboardEmpty": "아직 결과가 없습니다. 프로젝트를 열어 회귀 테스트를 시작하세요.",
+  "@dashboardEmpty": {
+    "description": "Placeholder body text shown in the dashboard when no run is active."
+  },
+  "dashboardLoading": "결과를 불러오는 중…",
+  "@dashboardLoading": {
+    "description": "Placeholder shown while the dashboard waits for the first results stream update."
+  },
+  "dashboardError": "실행 결과를 읽을 수 없습니다.",
+  "@dashboardError": {
+    "description": "Placeholder shown when the dashboard fails to read the active result store."
+  },
+  "dashboardTotalsTotal": "전체",
+  "@dashboardTotalsTotal": {
+    "description": "Label for the total-tests-scheduled count in the dashboard status bar."
+  },
+  "dashboardTotalsPass": "통과",
+  "@dashboardTotalsPass": {
+    "description": "Label for the passing-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsFail": "실패",
+  "@dashboardTotalsFail": {
+    "description": "Label for the failing-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsSkipped": "건너뜀",
+  "@dashboardTotalsSkipped": {
+    "description": "Label for the skipped-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsTimeout": "시간 초과",
+  "@dashboardTotalsTimeout": {
+    "description": "Label for the timed-out-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsRunning": "실행 중",
+  "@dashboardTotalsRunning": {
+    "description": "Label for the currently-running-tests count in the dashboard status bar."
+  },
+  "dashboardTotalsError": "오류",
+  "@dashboardTotalsError": {
+    "description": "Label for the errored / unknown-status tests count in the dashboard status bar."
+  },
+  "dashboardFilterTestNameHint": "테스트 이름으로 필터…",
+  "@dashboardFilterTestNameHint": {
+    "description": "Placeholder text inside the dashboard's filter-by-test-name text field."
+  },
+  "dashboardFilterClear": "필터 지우기",
+  "@dashboardFilterClear": {
+    "description": "Button label that clears every active dashboard filter."
+  },
+  "dashboardFilterByStatus": "상태",
+  "@dashboardFilterByStatus": {
+    "description": "Section heading above the multi-select status filter chips on the dashboard."
+  },
+  "dashboardFilterBySuite": "스위트",
+  "@dashboardFilterBySuite": {
+    "description": "Section heading above the multi-select suite filter chips on the dashboard."
+  },
+  "dashboardFilterBySimulator": "시뮬레이터",
+  "@dashboardFilterBySimulator": {
+    "description": "Section heading above the multi-select simulator filter chips on the dashboard."
+  },
+  "testStatusPass": "통과",
+  "@testStatusPass": {
+    "description": "Localized label for a passing test status."
+  },
+  "testStatusFail": "실패",
+  "@testStatusFail": {
+    "description": "Localized label for a failing test status."
+  },
+  "testStatusRunning": "실행 중",
+  "@testStatusRunning": {
+    "description": "Localized label for an in-flight test status."
+  },
+  "testStatusSkipped": "건너뜀",
+  "@testStatusSkipped": {
+    "description": "Localized label for a skipped test status."
+  },
+  "testStatusTimeout": "시간 초과",
+  "@testStatusTimeout": {
+    "description": "Localized label for a timed-out test status."
+  },
+  "testStatusCancelled": "취소됨",
+  "@testStatusCancelled": {
+    "description": "Localized label for a cancelled test status."
+  },
+  "testStatusVacuous": "공허 성공",
+  "@testStatusVacuous": {
+    "description": "Localized label for a vacuously-passing test status."
+  },
+  "testStatusCover": "커버 히트",
+  "@testStatusCover": {
+    "description": "Localized label for a test status reporting a coverage hit."
+  },
+  "testStatusUnknown": "알 수 없음",
+  "@testStatusUnknown": {
+    "description": "Localized label for an unknown-classifier test status."
+  },
+  "inspectorEmpty": "검사할 테스트를 선택하세요.",
+  "@inspectorEmpty": {
+    "description": "Inspector pane placeholder when no test is selected."
+  },
+  "inspectorSectionDetails": "세부 정보",
+  "@inspectorSectionDetails": {
+    "description": "Section header in the inspector for test detail rows."
+  },
+  "inspectorSectionLog": "최근 로그",
+  "@inspectorSectionLog": {
+    "description": "Section header in the inspector above the log preview."
+  },
+  "inspectorFieldSuite": "스위트",
+  "@inspectorFieldSuite": {
+    "description": "Inspector row label for the test's parent suite."
+  },
+  "inspectorFieldSimulator": "시뮬레이터",
+  "@inspectorFieldSimulator": {
+    "description": "Inspector row label for the simulator the test ran on."
+  },
+  "inspectorFieldDuration": "소요 시간",
+  "@inspectorFieldDuration": {
+    "description": "Inspector row label for the test's wall-clock runtime."
+  },
+  "inspectorFieldExitCode": "종료 코드",
+  "@inspectorFieldExitCode": {
+    "description": "Inspector row label for the simulator process exit code."
+  },
+  "inspectorFieldWorkingDirectory": "작업 디렉터리",
+  "@inspectorFieldWorkingDirectory": {
+    "description": "Inspector row label for the per-test working directory."
+  },
+  "inspectorFieldWaveform": "파형",
+  "@inspectorFieldWaveform": {
+    "description": "Inspector row label for the captured waveform file."
+  },
+  "inspectorFieldStartedAt": "시작",
+  "@inspectorFieldStartedAt": {
+    "description": "Inspector row label for the test start timestamp."
+  },
+  "inspectorActionOpenFullLog": "전체 로그 열기",
+  "@inspectorActionOpenFullLog": {
+    "description": "Button label that opens the built-in log viewer for the selected test."
+  },
+  "inspectorActionRerun": "재실행",
+  "@inspectorActionRerun": {
+    "description": "Button label that re-runs the selected test."
+  },
+  "inspectorActionRerunWithWaveform": "파형과 함께 재실행",
+  "@inspectorActionRerunWithWaveform": {
+    "description": "Button label that re-runs the selected test with waveform capture forced on."
+  },
+  "inspectorActionDebugInWavecrux": "WaveCrux에서 디버그",
+  "@inspectorActionDebugInWavecrux": {
+    "description": "Button label that dispatches the active waveform file to WaveCrux via the CXP cross-product cross-probe protocol."
+  },
+  "inspectorActionDebugInWavecruxTooltip": "캡처된 파형을 WaveCrux에서 엽니다. WaveCrux가 이 컴퓨터에서 실행 중이어야 합니다.",
+  "@inspectorActionDebugInWavecruxTooltip": {
+    "description": "Tooltip on the Debug in WaveCrux button explaining the prerequisite of having WaveCrux running."
+  },
+  "debugInWavecruxDispatched": "WaveCrux({peerId})로 전송했습니다.",
+  "@debugInWavecruxDispatched": {
+    "description": "Snackbar shown after a successful Debug in WaveCrux dispatch. peerId identifies which WaveCrux peer received the request.",
+    "placeholders": {
+      "peerId": {
+        "type": "String",
+        "example": "wavecrux-12345-1700000000000"
+      }
+    }
+  },
+  "debugInWavecruxNoPeer": "WaveCrux에 연결되지 않았습니다. 이 컴퓨터에서 WaveCrux를 실행한 후 다시 시도하세요.",
+  "@debugInWavecruxNoPeer": {
+    "description": "Snackbar shown when a Debug in WaveCrux dispatch finds no connected WaveCrux peer."
+  },
+  "debugInWavecruxServerDisabled": "교차 프로브가 비활성화되어 있습니다. 설정 > CXP 교차 프로브에서 활성화하세요.",
+  "@debugInWavecruxServerDisabled": {
+    "description": "Snackbar shown when a Debug in WaveCrux dispatch is attempted with CXP disabled in settings."
+  },
+  "debugInWavecruxNoWaveform": "이 테스트는 파형을 캡처하지 않았습니다. 파형 캡처를 활성화하여 다시 실행하세요.",
+  "@debugInWavecruxNoWaveform": {
+    "description": "Snackbar shown when the selected test result has no waveform path attached."
+  },
+  "debugInWavecruxWaveformMissing": "이 테스트의 파형이 더 이상 디스크에 없습니다. 실행 후 정리되었습니다. 테스트를 다시 실행하여 파형을 재생성한 후 WaveCrux에서 디버깅하세요.",
+  "@debugInWavecruxWaveformMissing": {
+    "description": "Snackbar shown when the selected test result has a waveform path but the file no longer exists on disk."
+  },
+  "debugInWavecruxPartial": "WaveCrux가 트레이스를 열었지만 요청한 위치로 이동하지 못했습니다: {reason}",
+  "@debugInWavecruxPartial": {
+    "description": "Snackbar shown when WaveCrux honoured the cross-probe but reported, in its acknowledgement, something it could not do — typically a stream coordinate it could not resolve. reason is the peer's own explanation, passed through verbatim.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "the loaded trace exposes no RVFI bundle"
+      }
+    }
+  },
+  "debugInWavecruxRejected": "WaveCrux가 이 요청을 처리하지 못했습니다: {reason}",
+  "@debugInWavecruxRejected": {
+    "description": "Snackbar shown when WaveCrux acknowledged the cross-probe as not honoured. reason is the peer's own explanation, passed through verbatim.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "no waveform file loaded"
+      }
+    }
+  },
+  "debugInWavecruxUnacknowledged": "WaveCrux로 전송했지만 처리 확인 응답이 오지 않았습니다.",
+  "@debugInWavecruxUnacknowledged": {
+    "description": "Snackbar shown when a cross-probe was delivered to WaveCrux but no acknowledgement came back before the wait expired."
+  },
+  "inspectorActionOpenSource": "테스트벤치 소스 열기",
+  "@inspectorActionOpenSource": {
+    "description": "Button label that opens the test's top-module testbench source in the configured editor."
+  },
+  "inspectorLogPreviewLineCount": "마지막 {n}줄",
+  "@inspectorLogPreviewLineCount": {
+    "description": "Caption above the log preview indicating how many tail lines are shown.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorLogPreviewEmpty": "아직 캡처된 로그가 없습니다.",
+  "@inspectorLogPreviewEmpty": {
+    "description": "Placeholder shown in the inspector log preview when the selected test has no log lines."
+  },
+  "inspectorLogPreviewDropped": "(이전 {count}행 생략됨)",
+  "@inspectorLogPreviewDropped": {
+    "description": "Note shown when the log buffer has elided older lines due to its size cap.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorTrendHeading": "최근 실행",
+  "@inspectorTrendHeading": {
+    "description": "Section heading above the per-test sparkline in the inspector."
+  },
+  "inspectorTrendEmpty": "이전 실행 기록이 없습니다.",
+  "@inspectorTrendEmpty": {
+    "description": "Placeholder under the trend heading when this test has no historical runs."
+  },
+  "logViewerTitle": "로그 — {testId}",
+  "@logViewerTitle": {
+    "description": "Title of the built-in log viewer dialog.",
+    "placeholders": {
+      "testId": {
+        "type": "String"
+      }
+    }
+  },
+  "logViewerEmpty": "이 테스트에 대해 캡처된 로그가 없습니다.",
+  "@logViewerEmpty": {
+    "description": "Placeholder text in the log viewer when no lines are available."
+  },
+  "logViewerSearchHint": "로그 검색…",
+  "@logViewerSearchHint": {
+    "description": "Placeholder text inside the log viewer's search field."
+  },
+  "logViewerSearchNext": "다음 일치",
+  "@logViewerSearchNext": {
+    "description": "Tooltip for the log viewer's 'next search match' button."
+  },
+  "logViewerSearchPrev": "이전 일치",
+  "@logViewerSearchPrev": {
+    "description": "Tooltip for the log viewer's 'previous search match' button."
+  },
+  "logViewerJumpToLineHint": "줄",
+  "@logViewerJumpToLineHint": {
+    "description": "Placeholder text inside the log viewer's jump-to-line input."
+  },
+  "logViewerJumpToLineGo": "이동",
+  "@logViewerJumpToLineGo": {
+    "description": "Label on the log viewer's 'jump to line' submit button."
+  },
+  "logViewerClose": "닫기",
+  "@logViewerClose": {
+    "description": "Label on the log viewer's close button."
+  },
+  "logViewerMatchPosition": "{current}/{total}",
+  "@logViewerMatchPosition": {
+    "description": "Compact match position indicator (e.g. 3/12) shown in the log viewer search toolbar.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "logViewerCopy": "전체 클립보드 복사",
+  "@logViewerCopy": {
+    "description": "Log viewer toolbar action that copies the full log to the clipboard."
+  },
+  "exportDialogTitle": "결과 내보내기",
+  "@exportDialogTitle": {
+    "description": "Title of the export dialog."
+  },
+  "exportFormatJunit": "JUnit XML",
+  "@exportFormatJunit": {
+    "description": "Label for the JUnit XML export option."
+  },
+  "exportFormatJson": "JSON",
+  "@exportFormatJson": {
+    "description": "Label for the JSON export option."
+  },
+  "exportFormatCsv": "CSV",
+  "@exportFormatCsv": {
+    "description": "Label for the CSV export option."
+  },
+  "exportFormatHtml": "HTML",
+  "@exportFormatHtml": {
+    "description": "Label for the HTML static-site export option."
+  },
+  "exportActionExport": "내보내기",
+  "@exportActionExport": {
+    "description": "Confirm button on the export dialog."
+  },
+  "exportActionCancel": "취소",
+  "@exportActionCancel": {
+    "description": "Cancel button on the export dialog."
+  },
+  "exportEmpty": "내보낼 결과가 없습니다. 먼저 회귀를 실행하세요.",
+  "@exportEmpty": {
+    "description": "Placeholder shown when the user opens the export dialog with no completed run."
+  },
+  "exportSuccess": "{path}에 내보냈습니다",
+  "@exportSuccess": {
+    "description": "Snackbar shown after a successful export.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFailure": "내보내기 실패: {reason}",
+  "@exportFailure": {
+    "description": "Snackbar shown after a failed export.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "watcherAutoReloadPromptTitle": "소스가 변경되었습니다",
+  "@watcherAutoReloadPromptTitle": {
+    "description": "Snackbar title shown when a watched source file changed and AutoReloadMode is prompt."
+  },
+  "watcherAutoReloadPromptMessage": "변경 사항을 반영하기 위해 스위트를 다시 실행하시겠습니까?",
+  "@watcherAutoReloadPromptMessage": {
+    "description": "Snackbar body shown when a watched source file changed."
+  },
+  "watcherAutoReloadActionRerun": "지금 재실행",
+  "@watcherAutoReloadActionRerun": {
+    "description": "Snackbar action label that re-runs the suite immediately."
+  },
+  "settingsTitle": "설정",
+  "@settingsTitle": {
+    "description": "Settings page app-bar title."
+  },
+  "settingsGeneralSection": "일반",
+  "@settingsGeneralSection": {
+    "description": "Settings page section header for general preferences."
+  },
+  "settingsAppearanceSection": "외관",
+  "@settingsAppearanceSection": {
+    "description": "Settings page section header for theme and appearance preferences."
+  },
+  "settingsSimulatorsSection": "시뮬레이터",
+  "@settingsSimulatorsSection": {
+    "description": "Settings page section header for per-simulator binary configuration."
+  },
+  "settingsEditorsSection": "에디터",
+  "@settingsEditorsSection": {
+    "description": "Settings page section header for the editor command used by source navigation."
+  },
+  "settingsAutoReloadLabel": "자동 다시 로드",
+  "@settingsAutoReloadLabel": {
+    "description": "Settings page label for the auto-reload-mode dropdown."
+  },
+  "settingsAutoReloadPrompt": "묻기",
+  "@settingsAutoReloadPrompt": {
+    "description": "Auto-reload-mode option label: ask the user before re-running on file change."
+  },
+  "settingsAutoReloadAuto": "자동",
+  "@settingsAutoReloadAuto": {
+    "description": "Auto-reload-mode option label: re-run automatically on file change."
+  },
+  "settingsAutoReloadOff": "끔",
+  "@settingsAutoReloadOff": {
+    "description": "Auto-reload-mode option label: never re-run on file change."
+  },
+  "settingsLogPreviewLineCountLabel": "로그 미리보기 줄 수",
+  "@settingsLogPreviewLineCountLabel": {
+    "description": "Settings page label for the inspector log preview line count slider."
+  },
+  "settingsEditorCommandLabel": "에디터 명령어",
+  "@settingsEditorCommandLabel": {
+    "description": "Settings page label for the editor shell-out command template."
+  },
+  "settingsEditorCommandHelp": "<file>, <line>, <column> 자리표시자 사용. 예: code --goto <file>:<line>:<column>",
+  "@settingsEditorCommandHelp": {
+    "description": "Helper text under the editor command field describing the placeholder substitution."
+  },
+  "settingsEditorPresetVscode": "VS Code",
+  "@settingsEditorPresetVscode": {
+    "description": "Editor preset label: VS Code."
+  },
+  "settingsEditorPresetSublime": "Sublime Text",
+  "@settingsEditorPresetSublime": {
+    "description": "Editor preset label: Sublime Text."
+  },
+  "settingsEditorPresetVim": "Vim",
+  "@settingsEditorPresetVim": {
+    "description": "Editor preset label: Vim."
+  },
+  "settingsEditorPresetEmacs": "Emacs",
+  "@settingsEditorPresetEmacs": {
+    "description": "Editor preset label: Emacs."
+  },
+  "settingsEditorPresetCustom": "사용자 정의",
+  "@settingsEditorPresetCustom": {
+    "description": "Editor preset label: user-supplied custom command."
+  },
+  "settingsSimulatorBinaryLabel": "바이너리 경로",
+  "settingsAllowProjectDefinedToolingLabel": "프로젝트 파일이 시뮬레이터 바이너리와 환경 변수를 지정하도록 허용",
+  "settingsAllowProjectDefinedToolingDescription": "기본값은 꺼짐입니다. 프로젝트 파일은 SimCrux가 실행할 프로그램과 그 실행 환경을 지정할 수 있으며, 이는 해당 파일을 작성한 사람이 실행할 코드를 고르는 것과 같습니다. 꺼져 있는 동안 이러한 키는 무시되고 위의 바이너리 경로가 사용됩니다. 신뢰할 수 있는 프로젝트 파일에만 켜십시오.",
+  "@settingsSimulatorBinaryLabel": {
+    "description": "Settings page label for the per-simulator binary path override."
+  },
+  "diagnosticsTabConfigInfo": "구성 정보",
+  "@diagnosticsTabConfigInfo": {
+    "description": "Tab Diagnostics drawer section: project / config info."
+  },
+  "diagnosticsTabSimulatorBackend": "시뮬레이터 백엔드",
+  "@diagnosticsTabSimulatorBackend": {
+    "description": "Tab Diagnostics drawer section: per-simulator binary + version."
+  },
+  "diagnosticsTabSchedulerState": "스케줄러 상태",
+  "@diagnosticsTabSchedulerState": {
+    "description": "Tab Diagnostics drawer section: scheduler concurrency + queue + longest-running test."
+  },
+  "diagnosticsTabRowPath": "경로",
+  "@diagnosticsTabRowPath": {
+    "description": "Tab Diagnostics row label: the loaded project file path."
+  },
+  "diagnosticsTabRowSchemaVersion": "스키마 버전",
+  "@diagnosticsTabRowSchemaVersion": {
+    "description": "Tab Diagnostics row label: the config schema version."
+  },
+  "diagnosticsTabRowSuites": "스위트",
+  "@diagnosticsTabRowSuites": {
+    "description": "Tab Diagnostics row label: number of suites in the loaded config."
+  },
+  "diagnosticsTabRowTests": "테스트",
+  "@diagnosticsTabRowTests": {
+    "description": "Tab Diagnostics row label: number of tests across all suites."
+  },
+  "diagnosticsTabRowLastRunWallTime": "마지막 실행 소요 시간",
+  "@diagnosticsTabRowLastRunWallTime": {
+    "description": "Tab Diagnostics row label: wall-clock duration of the last run."
+  },
+  "diagnosticsTabRowTotalTests": "전체 테스트",
+  "@diagnosticsTabRowTotalTests": {
+    "description": "Tab Diagnostics row label: total tests in the active run."
+  },
+  "diagnosticsTabRowCompleted": "완료",
+  "@diagnosticsTabRowCompleted": {
+    "description": "Tab Diagnostics row label: results recorded so far in the active run."
+  },
+  "diagnosticsTabRowFinished": "종료됨",
+  "@diagnosticsTabRowFinished": {
+    "description": "Tab Diagnostics row label: whether the active run has finished."
+  },
+  "diagnosticsTabDriverRegistered": "드라이버 등록됨",
+  "@diagnosticsTabDriverRegistered": {
+    "description": "Tab Diagnostics row value: this simulator driver is registered."
+  },
+  "diagnosticsTrendStoreSection": "트렌드 저장소",
+  "@diagnosticsTrendStoreSection": {
+    "description": "App Diagnostics dialog section: trend-store storage statistics (data points, runs, on-disk size)."
+  },
+  "diagnosticsTrendStoreSummary": "데이터 포인트 {points}개, 실행 {runs}회 · {size}",
+  "@diagnosticsTrendStoreSummary": {
+    "description": "One-line trend-store storage summary in the App Diagnostics dialog. {points} = retained data-point count, {runs} = distinct run count, {size} = approximate on-disk size (already formatted, e.g. '1.2 MB', or the localized size-unknown label).",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "runs": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendStoreSizeUnknown": "크기 알 수 없음",
+  "@diagnosticsTrendStoreSizeUnknown": {
+    "description": "Substituted into the {size} slot of diagnosticsTrendStoreSummary when the trend store cannot estimate its on-disk size."
+  },
+  "diagnosticsTrendStoreEmpty": "트렌드 저장소가 비어 있습니다.",
+  "@diagnosticsTrendStoreEmpty": {
+    "description": "Shown in the App Diagnostics dialog's Trend store section when no trend data points are retained."
+  },
+  "diagnosticsTrendSchemaSection": "트렌드 저장소 스키마",
+  "@diagnosticsTrendSchemaSection": {
+    "description": "App Diagnostics dialog section: what the trend database records about its own schema (schema_meta and the migration ledger)."
+  },
+  "diagnosticsTrendSchemaUnrecorded": "기록 없음 — 이 데이터베이스는 스키마 v4 이전에 작성되었습니다.",
+  "@diagnosticsTrendSchemaUnrecorded": {
+    "description": "Shown in the App Diagnostics dialog's trend-schema section when the database was written before schema v4 and therefore records nothing about itself. Not an error."
+  },
+  "diagnosticsTrendSchemaUnknown": "알 수 없음",
+  "@diagnosticsTrendSchemaUnknown": {
+    "description": "Substituted wherever the trend database records a value as unknown — a migration that ran before the ledger existed has no recorded time or app version."
+  },
+  "diagnosticsTrendSchemaVersion": "스키마 버전: {version}",
+  "@diagnosticsTrendSchemaVersion": {
+    "description": "App Diagnostics: the schema version recorded in the trend database. {version} = schema version number.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaMigratedBy": "마지막 마이그레이션: {appVersion}, {when}",
+  "@diagnosticsTrendSchemaMigratedBy": {
+    "description": "App Diagnostics: which build last migrated the trend database and when. {appVersion} = app version string or the localized unknown label, {when} = ISO 8601 UTC timestamp or the localized unknown label.",
+    "placeholders": {
+      "appVersion": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaLastOpenedBy": "마지막 열기: {appVersion}",
+  "@diagnosticsTrendSchemaLastOpenedBy": {
+    "description": "App Diagnostics: which build opened the trend database most recently. {appVersion} = app version string or the localized unknown label.",
+    "placeholders": {
+      "appVersion": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendSchemaLedger": "최근 마이그레이션:",
+  "@diagnosticsTrendSchemaLedger": {
+    "description": "App Diagnostics: label introducing the list of recent migration-ledger rows."
+  },
+  "diagnosticsTrendSchemaLedgerRow": "v{version} · {when} · {appVersion} — {description}",
+  "@diagnosticsTrendSchemaLedgerRow": {
+    "description": "App Diagnostics: one migration-ledger row. {version} = schema version produced, {when} = ISO 8601 UTC timestamp or the localized unknown label, {appVersion} = app version or the localized unknown label, {description} = the migration's own description.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      },
+      "appVersion": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryTitle": "추세 데이터베이스가 손상되었습니다",
+  "@diagnosticsTrendRecoveryTitle": {
+    "description": "App Diagnostics recovery card title, shown only when the trend database failed to open and was quarantined."
+  },
+  "diagnosticsTrendRecoveryQuarantined": "{path}의 추세 데이터베이스를 읽을 수 없습니다. 손상된 파일은 {quarantinedPath}에 보관하고 그 자리에 비어 있는 새 데이터베이스를 만들었습니다. 삭제된 것은 없습니다.",
+  "@diagnosticsTrendRecoveryQuarantined": {
+    "description": "App Diagnostics recovery card body when the damaged trend database was successfully renamed aside. {path} = absolute path of the database that could not be read (and of the fresh one now in use), {quarantinedPath} = absolute path the damaged bytes were kept at.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "quarantinedPath": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryUnmoved": "{path}의 추세 데이터베이스를 읽을 수 없고 파일을 옮기지도 못해, 원본 파일이 비어 있는 새 데이터베이스 아래에 그대로 남아 있습니다. 삭제된 것은 없습니다.",
+  "@diagnosticsTrendRecoveryUnmoved": {
+    "description": "App Diagnostics recovery card body when the damaged trend database could not be renamed aside, so it is still in place. {path} = absolute path of the database.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryBackup": "마지막 스키마 업그레이드 전에 만든 백업이 {backupPath}에 있습니다. 완전한 데이터베이스이므로 재구성보다 더 많은 기록을 복구합니다. 사용하려면 SimCrux를 종료한 뒤 이 파일을 추세 데이터베이스 위에 복사하세요.",
+  "@diagnosticsTrendRecoveryBackup": {
+    "description": "App Diagnostics recovery card line naming the pre-upgrade VACUUM INTO snapshot, shown only when one exists. {backupPath} = its absolute path.",
+    "placeholders": {
+      "backupPath": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildExplainer": "재구성은 스트리밍 출력(--ci)으로 실행한 결과가 남긴 results.ndjson 아카이브를 재생합니다. 아카이브가 남아 있는 실행만 복구되며, 아카이브가 없는 실행은 복구할 수 없습니다. 실행 당시의 구성 해시와 트리거 종류도 복구되지 않습니다.",
+  "@diagnosticsTrendRecoveryRebuildExplainer": {
+    "description": "App Diagnostics recovery card: what a rebuild from results.ndjson does and does not recover. Deliberately explicit about the limit, because a partial history that looks complete is worse than an empty one."
+  },
+  "diagnosticsTrendRecoveryRebuildAction": "results.ndjson에서 재구성…",
+  "@diagnosticsTrendRecoveryRebuildAction": {
+    "description": "App Diagnostics recovery card button that opens the archive picker and starts a rebuild."
+  },
+  "diagnosticsTrendRecoveryRebuilding": "재구성 중…",
+  "@diagnosticsTrendRecoveryRebuilding": {
+    "description": "App Diagnostics recovery card button label while a rebuild is running."
+  },
+  "diagnosticsTrendRecoveryPickerTitle": "results.ndjson 아카이브 선택",
+  "@diagnosticsTrendRecoveryPickerTitle": {
+    "description": "Title of the file picker that selects results.ndjson archives for a trend-store rebuild."
+  },
+  "diagnosticsTrendRecoveryRebuildResult": "실행 {runs}건에서 데이터 포인트 {points}개를 복구했습니다.",
+  "@diagnosticsTrendRecoveryRebuildResult": {
+    "description": "App Diagnostics recovery card result line after a rebuild. {points} = trend data points written, {runs} = runs written.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "runs": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildNothing": "선택한 아카이브 {archives}개에서 복구된 것이 없습니다.",
+  "@diagnosticsTrendRecoveryRebuildNothing": {
+    "description": "App Diagnostics recovery card result line when a rebuild recovered nothing at all. {archives} = number of archives the user chose.",
+    "placeholders": {
+      "archives": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoverySkipped": "그중 {archives}개는 아무것도 제공하지 않았습니다.",
+  "@diagnosticsTrendRecoverySkipped": {
+    "description": "App Diagnostics recovery card tail appended to the result line when some chosen archives contributed nothing (unreadable, no run id, or already present). {archives} = how many.",
+    "placeholders": {
+      "archives": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryRebuildFailed": "재구성에 실패했습니다: {error}",
+  "@diagnosticsTrendRecoveryRebuildFailed": {
+    "description": "App Diagnostics recovery card line shown when the rebuild itself threw. {error} = the error, unlocalized.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsTrendRecoveryDismiss": "닫기",
+  "@diagnosticsTrendRecoveryDismiss": {
+    "description": "App Diagnostics recovery card button that clears the corruption notice."
+  },
+  "diagnosticsActionCopyTabReport": "탭 진단 보고서 복사",
+  "@diagnosticsActionCopyTabReport": {
+    "description": "Action that copies the per-tab diagnostics report to the clipboard."
+  },
+  "diagnosticsCopiedToClipboard": "진단 보고서를 클립보드에 복사했습니다.",
+  "@diagnosticsCopiedToClipboard": {
+    "description": "Snackbar confirmation shown after a diagnostics report is copied."
+  },
+  "webDashboardTitle": "SimCrux 회귀",
+  "@webDashboardTitle": {
+    "description": "AppBar title on the read-only web dashboard."
+  },
+  "webDashboardEmptyTitle": "결과를 찾을 수 없습니다",
+  "@webDashboardEmptyTitle": {
+    "description": "Heading shown when the loaded document contains zero results."
+  },
+  "webDashboardEmptyBody": "내보낸 문서는 정상적으로 디코딩되었지만 테스트 결과가 포함되어 있지 않습니다.",
+  "@webDashboardEmptyBody": {
+    "description": "Body text shown when the loaded document contains zero results."
+  },
+  "webDashboardLoadFailed": "결과를 불러올 수 없습니다: {reason}",
+  "@webDashboardLoadFailed": {
+    "description": "Snackbar shown when the web dashboard's fetch for simcrux-results.json fails.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "webDashboardOpenFileButton": "결과 파일 열기…",
+  "@webDashboardOpenFileButton": {
+    "description": "Label of the web dashboard action that opens a local results .ndjson / .json file into the read-only viewer."
+  },
+  "webDashboardOpenFileFailed": "결과 파일을 열 수 없습니다: {reason}",
+  "@webDashboardOpenFileFailed": {
+    "description": "Snackbar shown when a user-picked results file cannot be read or decoded in the web dashboard.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "webDashboardSearchHint": "테스트, 스위트 또는 시뮬레이터로 필터",
+  "@webDashboardSearchHint": {
+    "description": "Hint text inside the web dashboard's filter text field."
+  },
+  "webDashboardClearFilter": "지우기",
+  "@webDashboardClearFilter": {
+    "description": "Button label that clears the web dashboard's active filter set."
+  },
+  "webDashboardStatusSummary": "{total}개 테스트 · {pass}개 통과 · {fail}개 실패 · {timeout}개 시간 초과 · {skipped}개 건너뜀",
+  "@webDashboardStatusSummary": {
+    "description": "Bottom status-bar summary line on the web dashboard.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "pass": {
+        "type": "int"
+      },
+      "fail": {
+        "type": "int"
+      },
+      "timeout": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "webDashboardReadOnlyBanner": "읽기 전용 보기 — 내보낸 회귀 결과",
+  "@webDashboardReadOnlyBanner": {
+    "description": "Banner shown at the top of the web dashboard explaining it is a static export."
+  },
+  "webInspectorTitle": "테스트 상세 — {testId}",
+  "@webInspectorTitle": {
+    "description": "Title of the web dashboard's inspector dialog when a test row is selected.",
+    "placeholders": {
+      "testId": {
+        "type": "String"
+      }
+    }
+  },
+  "webInspectorFieldStatus": "상태",
+  "@webInspectorFieldStatus": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldRuntime": "실행 시간",
+  "@webInspectorFieldRuntime": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldSuite": "스위트",
+  "@webInspectorFieldSuite": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldSimulator": "시뮬레이터",
+  "@webInspectorFieldSimulator": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldExitCode": "종료 코드",
+  "@webInspectorFieldExitCode": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldFailureMessage": "실패 메시지",
+  "@webInspectorFieldFailureMessage": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorFieldMetrics": "메트릭",
+  "@webInspectorFieldMetrics": {
+    "description": "Field label in the web inspector dialog."
+  },
+  "webInspectorClose": "닫기",
+  "@webInspectorClose": {
+    "description": "Close button label in the web inspector dialog."
+  },
+  "settingsCxpEnabledLabel": "CXP 서버 활성화",
+  "@settingsCxpEnabledLabel": {
+    "description": "Switch label that turns the SimCrux CXP server on or off."
+  },
+  "settingsCxpEnabledDescription": "이 컴퓨터에서 WaveCrux, NetCrux, LintCrux, SimCrux가 선택과 강조 이벤트를 교환할 수 있게 합니다.",
+  "@settingsCxpEnabledDescription": {
+    "description": "Helper text under the CXP enable switch explaining what the toggle does."
+  },
+  "settingsCxpPortLabel": "CXP 포트",
+  "@settingsCxpPortLabel": {
+    "description": "Text field label for the CXP server's listening port."
+  },
+  "settingsCxpPortDescription": "TCP 포트 번호(1~65535)",
+  "@settingsCxpPortDescription": {
+    "description": "Helper text under the CXP port field describing the valid port range."
+  },
+  "settingsCxpPortError": "1부터 65535 사이의 포트를 입력하세요.",
+  "@settingsCxpPortError": {
+    "description": "Error string when the user enters an invalid CXP port number."
+  },
+  "settingsCxpStatus": "CXP 상태",
+  "settingsCxpStatusRunning": "포트 {port}에서 실행 중",
+  "settingsCxpStatusStopped": "중지됨",
+  "settingsCxpPeersConnected": "{count}개 피어 연결됨",
+  "settingsDetectorsSection": "디텍터",
+  "@settingsDetectorsSection": {
+    "description": "Settings screen section header for the reusable pass/fail detector library."
+  },
+  "settingsDetectorsEmpty": "재사용 가능한 디텍터가 없습니다. 여러 simcrux.yaml 파일에서 공유하려면 추가하세요.",
+  "@settingsDetectorsEmpty": {
+    "description": "Placeholder shown in Settings → Detectors when no detectors are defined."
+  },
+  "settingsDetectorsAddButton": "디텍터 추가…",
+  "@settingsDetectorsAddButton": {
+    "description": "Button label that opens the dialog to define a new reusable detector."
+  },
+  "settingsDetectorEditDialogTitle": "재사용 가능한 디텍터",
+  "@settingsDetectorEditDialogTitle": {
+    "description": "Title of the dialog used to add or edit a reusable detector."
+  },
+  "settingsDetectorNameLabel": "이름",
+  "@settingsDetectorNameLabel": {
+    "description": "Text field label for the reusable detector's name."
+  },
+  "settingsDetectorNameHint": "예: strict-uvm",
+  "@settingsDetectorNameHint": {
+    "description": "Hint text inside the reusable detector name field."
+  },
+  "settingsDetectorNameRequired": "이름은 필수입니다",
+  "@settingsDetectorNameRequired": {
+    "description": "Validation error when the user submits a detector without a name."
+  },
+  "settingsDetectorKindLabel": "종류",
+  "@settingsDetectorKindLabel": {
+    "description": "Label preceding the detector kind chip row."
+  },
+  "settingsDetectorKindExitCode": "종료 코드",
+  "@settingsDetectorKindExitCode": {
+    "description": "Chip label for the exit-code detector kind."
+  },
+  "settingsDetectorKindStringMatch": "문자열 일치",
+  "@settingsDetectorKindStringMatch": {
+    "description": "Chip label for the string-match detector kind."
+  },
+  "settingsDetectorKindRegex": "정규식",
+  "@settingsDetectorKindRegex": {
+    "description": "Chip label for the regex detector kind."
+  },
+  "settingsDetectorKindCocotb": "Cocotb 요약",
+  "@settingsDetectorKindCocotb": {
+    "description": "Detector kind label for the Cocotb summary-line detector"
+  },
+  "settingsDetectorFieldAllowNoTests": "테스트가 없는 실행 허용",
+  "@settingsDetectorFieldAllowNoTests": {
+    "description": "Checkbox label: allow a Cocotb run reporting TESTS=0 to pass"
+  },
+  "settingsDetectorFieldAllowNoTestsHint": "TESTS=0 인 실행을 실패가 아닌 통과로 처리합니다. 기본값은 꺼짐: 아무것도 실행하지 않은 회귀는 성공이 아닙니다.",
+  "@settingsDetectorFieldAllowNoTestsHint": {
+    "description": "Explanation under the allow-no-tests checkbox"
+  },
+  "settingsDetectorKindUvmReport": "UVM 보고서",
+  "@settingsDetectorKindUvmReport": {
+    "description": "Chip label for the UVM-report detector kind."
+  },
+  "settingsDetectorKindComposite": "복합",
+  "@settingsDetectorKindComposite": {
+    "description": "Chip label for the composite (AND/OR) detector kind."
+  },
+  "settingsDetectorKindUse": "참조",
+  "@settingsDetectorKindUse": {
+    "description": "Chip label for the use-by-reference detector kind."
+  },
+  "settingsDetectorFieldPassString": "통과 부분 문자열",
+  "@settingsDetectorFieldPassString": {
+    "description": "Field label for the string-match pass substring."
+  },
+  "settingsDetectorFieldFailString": "실패 부분 문자열",
+  "@settingsDetectorFieldFailString": {
+    "description": "Field label for the string-match fail substring."
+  },
+  "settingsDetectorFieldPassPattern": "통과 정규식",
+  "@settingsDetectorFieldPassPattern": {
+    "description": "Field label for the regex pass pattern."
+  },
+  "settingsDetectorFieldFailPattern": "실패 정규식",
+  "@settingsDetectorFieldFailPattern": {
+    "description": "Field label for the regex fail pattern."
+  },
+  "settingsDetectorFieldFatalThreshold": "치명 임계값",
+  "@settingsDetectorFieldFatalThreshold": {
+    "description": "Field label for the UVM-report fatal threshold."
+  },
+  "settingsDetectorFieldErrorThreshold": "오류 임계값",
+  "@settingsDetectorFieldErrorThreshold": {
+    "description": "Field label for the UVM-report error threshold."
+  },
+  "settingsDetectorFieldWarningThreshold": "경고 임계값",
+  "@settingsDetectorFieldWarningThreshold": {
+    "description": "Field label for the UVM-report warning threshold."
+  },
+  "settingsDetectorFieldUseName": "참조 디텍터",
+  "@settingsDetectorFieldUseName": {
+    "description": "Field label for the use-spec target name."
+  },
+  "settingsDetectorKindGoldenCompare": "골든 비교",
+  "@settingsDetectorKindGoldenCompare": {
+    "description": "Chip label for the golden-file comparison detector kind."
+  },
+  "settingsDetectorFieldGoldenProfile": "프로파일",
+  "@settingsDetectorFieldGoldenProfile": {
+    "description": "Field label for the golden-compare word-normalization profile."
+  },
+  "settingsDetectorProfileGeneric": "일반",
+  "@settingsDetectorProfileGeneric": {
+    "description": "Dropdown item for the generic (bit-exact) golden-compare profile."
+  },
+  "settingsDetectorProfileRiscvSignature": "RISC-V 시그니처",
+  "@settingsDetectorProfileRiscvSignature": {
+    "description": "Dropdown item for the RISC-V architectural-signature golden-compare profile."
+  },
+  "settingsDetectorFieldGoldenDut": "DUT 출력 파일",
+  "@settingsDetectorFieldGoldenDut": {
+    "description": "Field label for the golden-compare DUT output file path."
+  },
+  "settingsDetectorFieldGoldenReference": "골든 참조 파일",
+  "@settingsDetectorFieldGoldenReference": {
+    "description": "Field label for the golden-compare golden reference file path."
+  },
+  "settingsDetectorCompositeAllOfHeading": "모두(AND)",
+  "@settingsDetectorCompositeAllOfHeading": {
+    "description": "Heading for the all-of children list in the composite detector editor."
+  },
+  "settingsDetectorCompositeAnyOfHeading": "하나(OR)",
+  "@settingsDetectorCompositeAnyOfHeading": {
+    "description": "Heading for the any-of children list in the composite detector editor."
+  },
+  "settingsDetectorAddChild": "자식 추가",
+  "@settingsDetectorAddChild": {
+    "description": "Button that appends a child to a composite detector group."
+  },
+  "settingsDetectorRemoveChild": "제거",
+  "@settingsDetectorRemoveChild": {
+    "description": "Action label that removes a child from a composite detector group."
+  },
+  "settingsDetectorSave": "저장",
+  "@settingsDetectorSave": {
+    "description": "Button label that commits the detector definition."
+  },
+  "settingsDetectorCancel": "취소",
+  "@settingsDetectorCancel": {
+    "description": "Button label that discards the detector definition."
+  },
+  "settingsDetectorDiscardConfirmTitle": "변경 사항을 버리시겠습니까?",
+  "@settingsDetectorDiscardConfirmTitle": {
+    "description": "Title of the confirmation dialog shown when the user cancels the detector editor with unsaved changes."
+  },
+  "settingsDetectorDiscardConfirmBody": "저장되지 않은 변경 사항이 있습니다. 버리시겠습니까?",
+  "@settingsDetectorDiscardConfirmBody": {
+    "description": "Body of the discard-changes confirmation dialog."
+  },
+  "settingsDetectorDiscardConfirmYes": "버리기",
+  "@settingsDetectorDiscardConfirmYes": {
+    "description": "Affirmative button on the discard-changes confirmation dialog."
+  },
+  "settingsDetectorDiscardConfirmNo": "편집 계속",
+  "@settingsDetectorDiscardConfirmNo": {
+    "description": "Negative button on the discard-changes confirmation dialog. Returns to the detector editor."
+  },
+  "settingsDetectorDelete": "삭제",
+  "@settingsDetectorDelete": {
+    "description": "Action label that deletes a reusable detector definition."
+  },
+  "viewerTabBarCloseTabTooltip": "탭 닫기",
+  "@viewerTabBarCloseTabTooltip": {
+    "description": "Tooltip shown over the close (×) button on each workspace tab chip."
+  },
+  "viewerTabBarNewTabTooltip": "새 탭",
+  "@viewerTabBarNewTabTooltip": {
+    "description": "Tooltip shown over the trailing + button on the workspace tab bar."
+  },
+  "viewerTabBarNewTabDefaultDisplayName": "새 탭",
+  "@viewerTabBarNewTabDefaultDisplayName": {
+    "description": "Default chip label used when the user opens an empty new tab via the + button before picking a project file."
+  },
+  "viewerTabBarUnnamedTabFallback": "(이름 없는 탭)",
+  "@viewerTabBarUnnamedTabFallback": {
+    "description": "Fallback chip label shown when a tab has no display name."
+  },
+  "viewerTabBarCloseTabMenuItem": "탭 닫기",
+  "@viewerTabBarCloseTabMenuItem": {
+    "description": "Tab chip context-menu item that closes the tab."
+  },
+  "viewerTabBarCloseOtherTabsMenuItem": "다른 탭 닫기",
+  "@viewerTabBarCloseOtherTabsMenuItem": {
+    "description": "Tab chip context-menu item that closes every other tab in the pane."
+  },
+  "viewerTabBarCloseTabsToTheRightMenuItem": "오른쪽 탭 모두 닫기",
+  "@viewerTabBarCloseTabsToTheRightMenuItem": {
+    "description": "Tab chip context-menu item that closes every tab to the right of the focused tab."
+  },
+  "viewerTabBarMoveToNewWindowMenuItem": "새 창으로 이동",
+  "@viewerTabBarMoveToNewWindowMenuItem": {
+    "description": "Tab chip context-menu item that detaches the tab into a new window (currently disabled until Flutter multi-window stabilizes)."
+  },
+  "viewerTabBarMultiWindowUnavailableTooltip": "Flutter 멀티 윈도우가 안정 버전이 되면 사용할 수 있습니다",
+  "@viewerTabBarMultiWindowUnavailableTooltip": {
+    "description": "Tooltip shown next to the disabled Move to New Window menu item."
+  },
+  "viewerTabBarActivePaneAccessibilityLabel": "활성 창",
+  "@viewerTabBarActivePaneAccessibilityLabel": {
+    "description": "Accessibility label announced by screen readers when focusing the active pane container."
+  },
+  "viewerTabBarDragToPaneAccessibilityHint": "여기로 끌어서 탭을 이 창으로 이동하세요",
+  "@viewerTabBarDragToPaneAccessibilityHint": {
+    "description": "Accessibility hint announced while a tab is being dragged toward another pane's tab bar."
+  },
+  "viewerTabBarReorderHandleTooltip": "끌어서 순서 변경",
+  "@viewerTabBarReorderHandleTooltip": {
+    "description": "Tooltip on the leading drag-handle of each tab chip used for reordering tabs within a pane."
+  },
+  "viewerTabBarScrollTabsLeftTooltip": "탭 왼쪽으로 스크롤",
+  "@viewerTabBarScrollTabsLeftTooltip": {
+    "description": "Tooltip on the chevron that scrolls the tab strip toward its start."
+  },
+  "viewerTabBarScrollTabsRightTooltip": "탭 오른쪽으로 스크롤",
+  "@viewerTabBarScrollTabsRightTooltip": {
+    "description": "Tooltip on the chevron that scrolls the tab strip toward its end."
+  },
+  "emptyCanvasTitle": "SimCrux",
+  "@emptyCanvasTitle": {
+    "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
+  },
+  "emptyCanvasSubtitle": "회귀 구성을 열어 시작하세요 — 또는 저장된 워크스페이스를 엽니다.",
+  "@emptyCanvasSubtitle": {
+    "description": "One-line subtitle shown under the empty-canvas headline."
+  },
+  "emptyCanvasVersion": "버전 {version}",
+  "@emptyCanvasVersion": {
+    "description": "Muted version line under the empty-canvas (welcome) subtitle. The only always-visible version indicator on web, where there is no native menu bar to host an About entry point.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyCanvasSuiteFooter": "EDACrux 제품군의 일원 — edacrux.app",
+  "@emptyCanvasSuiteFooter": {
+    "description": "Suite-membership line at the foot of the empty-canvas (welcome) screen. The whole line is a link to the EDACrux suite site. \"edacrux.app\" must appear verbatim — the widget splits the sentence around it to underline the domain — but a translation that drops it still renders and is still followable, just without an underlined segment. \"EDACrux\" is one word and is never translated."
+  },
+  "emptyCanvasPeersHeading": "EDACrux의 다른 제품",
+  "@emptyCanvasPeersHeading": {
+    "description": "Section header above the three sibling-product rows at the foot of the empty-canvas (welcome) screen. Rendered upper-case in English as a small letter-spaced label, matching the \"RECENT FILES\" headers above it; a locale whose script has no case simply reads as a label. \"EDACrux\" is one word and is never translated."
+  },
+  "emptyCanvasPeerWaveCrux": "실패한 실행이 남긴 파형을 엽니다. VCD·FST·GHW를 데스크톱·웹·휴대폰에서.",
+  "@emptyCanvasPeerWaveCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing WaveCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what WaveCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasPeerNetCrux": "실패 뒤의 논리를 읽으세요. 같은 소스를 계층적 회로도로 탐색합니다.",
+  "@emptyCanvasPeerNetCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing NetCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what NetCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasPeerLintCrux": "회귀보다 먼저 버그를 찾으세요. 실행이 컴파일하는 RTL을 lint·CDC 검사합니다.",
+  "@emptyCanvasPeerLintCrux": {
+    "description": "One line in the \"More from EDACrux\" section of the empty-canvas (welcome) screen, describing LintCrux to someone using SimCrux. Written from THIS product's point of view on purpose — what LintCrux does for a SimCrux user is not what it does for a user of another product — so do not reuse another repository's wording. Keep it to roughly one short sentence plus one more; the row wraps but is not a paragraph. Product names are never translated."
+  },
+  "emptyCanvasOpenConfig": "구성 열기…",
+  "@emptyCanvasOpenConfig": {
+    "description": "Primary action button label on the empty-canvas state — opens a simcrux.yaml project file."
+  },
+  "emptyCanvasOpenSession": "세션 열기…",
+  "@emptyCanvasOpenSession": {
+    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-session export."
+  },
+  "emptyCanvasOpenWorkspace": "워크스페이스 열기…",
+  "@emptyCanvasOpenWorkspace": {
+    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
+  },
+  "emptyCanvasRecentConfigsHeading": "최근 구성",
+  "@emptyCanvasRecentConfigsHeading": {
+    "description": "Section heading above the list of recently-opened simcrux.yaml files."
+  },
+  "emptyCanvasNoRecentConfigs": "아직 최근 구성이 없습니다.",
+  "@emptyCanvasNoRecentConfigs": {
+    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
+  },
+  "emptyCanvasRecentSessionsHeading": "최근 세션",
+  "@emptyCanvasRecentSessionsHeading": {
+    "description": "Section heading above the list of recently-opened .simcrux-session export files."
+  },
+  "emptyCanvasOpenFailed": "파일 선택기를 열 수 없습니다: {error}",
+  "@emptyCanvasOpenFailed": {
+    "description": "Snackbar shown when the file picker throws (e.g. macOS rejects an unknown extension). Surfaces the underlying error so file-open failures are not silent.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectLegacyFileName": "이 디자인 매니페스트는 파일 선택기에 표시되지 않는 이전 파일 이름 .crux-project를 사용합니다. {suggested}(으)로 이름을 바꾸세요. 이후 릴리스에서는 이전 파일 이름을 읽지 않습니다.",
+  "@cruxProjectLegacyFileName": {
+    "description": "Info snackbar shown once when a design manifest named with the legacy bare .crux-project file name is opened. It still opens; suggested is the file name to rename it to (the design directory's name plus .crux-project). Keep .crux-project literal.",
+    "placeholders": {
+      "suggested": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectInvalid": "올바른 디자인 매니페스트가 아닙니다: {detail}",
+  "@cruxProjectInvalid": {
+    "description": "Error snackbar shown when a <design>.crux-project manifest cannot be parsed. detail is the parser's English diagnostic.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectConfigMissing": "이 디자인이 지정한 회귀 구성이 없습니다: {path}",
+  "@cruxProjectConfigMissing": {
+    "description": "Error snackbar shown when a design manifest names a regression config (its simulation: entry) that is not on disk. path is the entry as written.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectNoSimulation": "{name}에 아직 회귀 구성이 지정되지 않았습니다. 매니페스트의 artifacts: 아래에 simulation: 항목을 추가하세요.",
+  "@cruxProjectNoSimulation": {
+    "description": "Error snackbar shown when a design manifest has no simulation: entry under artifacts:. name is the manifest's display name. Keep simulation: and artifacts: literal.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectAmbiguous": "{directory}에 디자인 매니페스트가 여러 개 있습니다({candidates}). 디자인 디렉터리에는 매니페스트가 하나만 있어야 합니다. 나머지를 삭제하거나 그중 하나를 직접 여세요.",
+  "@cruxProjectAmbiguous": {
+    "description": "Error snackbar shown when a design directory opened from the command line holds more than one design manifest, so none is opened. directory is the directory path; candidates is a comma-separated list of the manifest file names.",
+    "placeholders": {
+      "directory": {
+        "type": "String"
+      },
+      "candidates": {
+        "type": "String"
+      }
+    }
+  },
+  "actionSwitchProject": "프로젝트 전환…",
+  "@actionSwitchProject": {
+    "description": "Action label for the project switcher dialog (Ctrl/Cmd+P). Lets the user pick from open and recently-closed projects in the multi-project workspace."
+  },
+  "actionReopenRecentProject": "최근 프로젝트 다시 열기",
+  "@actionReopenRecentProject": {
+    "description": "Action label that re-opens the most-recently-closed project from the recent-projects list."
+  },
+  "actionPinActiveProject": "프로젝트 탭 고정",
+  "@actionPinActiveProject": {
+    "description": "Action label that pins (or unpins) the active project tab. Pinned tabs survive Close-All-Projects actions. Pro-tier feature."
+  },
+  "actionCloseAllProjects": "모든 프로젝트 닫기",
+  "@actionCloseAllProjects": {
+    "description": "Action label that closes every open project except pinned ones. Pro-tier feature."
+  },
+  "actionCloseAllTabs": "모든 탭 닫기",
+  "@actionCloseAllTabs": {
+    "description": "Action label that closes every open workspace tab. Open-core; no project registry involved."
+  },
+  "closeAllTabsConfirmTitle": "모든 탭을 닫으시겠습니까?",
+  "@closeAllTabsConfirmTitle": {
+    "description": "Title of the confirmation dialog shown before closing every open workspace tab."
+  },
+  "closeAllTabsConfirmBody": "열려 있는 모든 작업 공간 탭이 닫힙니다.",
+  "@closeAllTabsConfirmBody": {
+    "description": "Body of the confirmation dialog shown before closing every open workspace tab."
+  },
+  "closeAllTabsConfirmCancel": "취소",
+  "@closeAllTabsConfirmCancel": {
+    "description": "Cancel button label on the close-all-tabs confirmation dialog."
+  },
+  "closeAllTabsConfirmConfirm": "모두 닫기",
+  "@closeAllTabsConfirmConfirm": {
+    "description": "Confirm button label on the close-all-tabs confirmation dialog."
+  },
+  "actionSearchAcrossProjects": "프로젝트 간 검색…",
+  "@actionSearchAcrossProjects": {
+    "description": "Action label for the cross-project search dialog (Ctrl/Cmd+Shift+F). Searches test names, failure messages, and file paths across every open project in the multi-project workspace. Pro-tier feature."
+  },
+  "actionOpenPluginManager": "드라이버 플러그인 관리…",
+  "@actionOpenPluginManager": {
+    "description": "Action label that opens the Settings → Plugins section for custom simulator driver plugins. Pro-tier feature."
+  },
+  "actionReloadPlugins": "드라이버 플러그인 다시 로드",
+  "@actionReloadPlugins": {
+    "description": "Action label that re-scans the plugin directory and refreshes the installed-plugin list. Pro-tier feature."
+  },
+  "tierBadgePro": "PRO",
+  "@tierBadgePro": {
+    "description": "Short tier badge chip text shown next to features that require a SimCrux Pro license."
+  },
+  "menuItemTierSuffix": " ({tier})",
+  "@menuItemTierSuffix": {
+    "description": "Suffix appended to a native menu-bar item's label to mark the license tier it requires; the placeholder is the short PRO/ENT badge text. The platform menu bar can only render a string label (no badge widget), so tier is shown as a parenthetical suffix there.",
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "tierBadgeProSemantic": "Pro 등급 기능",
+  "@tierBadgeProSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated PRO tier badge."
+  },
+  "tierBadgeEnterprise": "ENT",
+  "@tierBadgeEnterprise": {
+    "description": "Short tier badge chip text shown next to features that require a SimCrux Enterprise license."
+  },
+  "tierBadgeEnterpriseSemantic": "Enterprise 등급 기능",
+  "@tierBadgeEnterpriseSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated ENT tier badge."
+  },
+  "editionMenuLine": "{edition} 에디션 — {identity}",
+  "editionMenuLineOrganization": "{edition} 에디션 — 조직에서 라이선스를 부여함",
+  "editionNameEducational": "교육용",
+  "editionNamePro": "Pro",
+  "editionNameEnterprise": "Enterprise",
+  "editionBadgeEduSemantic": "교육용 에디션",
+  "editionBadgeProSemantic": "Pro 에디션",
+  "editionBadgeEnterpriseSemantic": "Enterprise 에디션",
+  "tierBadgeEdu": "EDU",
+  "@tierBadgeEdu": {
+    "description": "Short tier badge chip text shown on user-status surfaces (About box, Welcome screen) indicating the user holds an Educational/non-commercial SimCrux license."
+  },
+  "tierBadgeEduSemantic": "교육용 라이선스",
+  "@tierBadgeEduSemantic": {
+    "description": "Accessibility / screen reader label expanding the abbreviated EDU edition badge."
+  },
+  "aboutDialogTitle": "SimCrux 정보",
+  "@aboutDialogTitle": {
+    "description": "Title of the About dialog (shown in the header / app bar)."
+  },
+  "aboutTagline": "하드웨어 엔지니어를 위한 현대적인 시뮬레이션 결과 대시보드",
+  "@aboutTagline": {
+    "description": "One-line product tagline shown under the app name in the About dialog header."
+  },
+  "aboutBetaChip": "공개 베타",
+  "@aboutBetaChip": {
+    "description": "Label on the public-beta chip in the About dialog header, shown while the beta period is active."
+  },
+  "aboutEditionOpenCore": "오픈 코어",
+  "@aboutEditionOpenCore": {
+    "description": "Edition label for the free open-core build; the About dialog hides the edition chip when this is the active edition."
+  },
+  "aboutSectionVersion": "버전",
+  "@aboutSectionVersion": {
+    "description": "Header for the version sub-section of the About dialog."
+  },
+  "aboutBuildNumber": "빌드",
+  "@aboutBuildNumber": {
+    "description": "Row label for the platform build number in the About dialog."
+  },
+  "aboutGitSha": "커밋",
+  "@aboutGitSha": {
+    "description": "Row label for the short git commit SHA in the About dialog."
+  },
+  "aboutSectionPlatform": "플랫폼",
+  "@aboutSectionPlatform": {
+    "description": "Header for the platform sub-section of the About dialog."
+  },
+  "aboutOperatingSystem": "운영체제",
+  "@aboutOperatingSystem": {
+    "description": "Row label for the host operating system in the About dialog."
+  },
+  "aboutArchitecture": "아키텍처",
+  "@aboutArchitecture": {
+    "description": "Row label for the CPU architecture in the About dialog."
+  },
+  "aboutFlutterVersion": "Flutter",
+  "@aboutFlutterVersion": {
+    "description": "Row label for the Flutter SDK version in the About dialog."
+  },
+  "aboutDartVersion": "Dart",
+  "@aboutDartVersion": {
+    "description": "Row label for the Dart SDK version in the About dialog."
+  },
+  "aboutButtonVisitWebsite": "웹사이트 방문",
+  "@aboutButtonVisitWebsite": {
+    "description": "Action button label that opens the company website from the About dialog."
+  },
+  "aboutButtonDocs": "문서",
+  "@aboutButtonDocs": {
+    "description": "Action button label that opens the SimCrux documentation site from the About dialog."
+  },
+  "aboutButtonPrivacy": "개인정보 처리방침",
+  "@aboutButtonPrivacy": {
+    "description": "Action button label that opens the SimCrux privacy policy from the About dialog."
+  },
+  "aboutButtonTerms": "서비스 약관",
+  "@aboutButtonTerms": {
+    "description": "Action button label that opens the SimCrux terms of service from the About dialog."
+  },
+  "aboutButtonCopyVersionInfo": "버전 정보 복사",
+  "@aboutButtonCopyVersionInfo": {
+    "description": "Action button label that copies the structured version paragraph to the clipboard from the About dialog."
+  },
+  "aboutCopiedConfirmation": "버전 정보가 복사되었습니다",
+  "@aboutCopiedConfirmation": {
+    "description": "Snackbar confirmation shown after the Copy Version Info action copies the version paragraph to the clipboard."
+  },
+  "aboutCompanyName": "Ferrite Engineering",
+  "@aboutCompanyName": {
+    "description": "Company name shown on the branding banner of the About dialog."
+  },
+  "snackActionNotYetImplemented": "{action}은(는) 아직 구현되지 않았습니다.",
+  "@snackActionNotYetImplemented": {
+    "description": "Snackbar shown when a command palette / menu / shortcut action has no UI surface yet.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackActionRequiresPro": "{action}은(는) SimCrux Pro가 필요합니다.",
+  "@snackActionRequiresPro": {
+    "description": "Snackbar shown when a Pro-tier action is invoked in an open-core build with no Pro overlay installed.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackNoActiveProjectToPin": "고정할 활성 프로젝트가 없습니다.",
+  "@snackNoActiveProjectToPin": {
+    "description": "Snackbar shown when the Pin Active Project action fires with no active project open."
+  },
+  "snackActionUnavailableInThisBuild": "{action}은(는) 이 빌드에서 사용할 수 없습니다.",
+  "@snackActionUnavailableInThisBuild": {
+    "description": "Snackbar shown when an open-core-tier action's extension-point opener is not installed in this build.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "snackNoProjectOpen": "열려 있는 프로젝트가 없습니다.",
+  "@snackNoProjectOpen": {
+    "description": "Snackbar shown when a project-scoped action (run, stop, re-run, close project, close all) fires with no project open."
+  },
+  "snackNoTestSelected": "선택된 테스트가 없습니다.",
+  "@snackNoTestSelected": {
+    "description": "Snackbar shown when Re-run Selected fires with no test selected in the results table."
+  },
+  "dashboardViewModeTable": "테이블",
+  "@dashboardViewModeTable": {
+    "description": "Segmented-button label for the dashboard's table view mode."
+  },
+  "dashboardViewModeHeatmap": "히트맵",
+  "@dashboardViewModeHeatmap": {
+    "description": "Segmented-button label for the dashboard's heatmap view mode."
+  },
+  "diagnosticsTabNoConfigLoaded": "구성이 로드되지 않았습니다.",
+  "@diagnosticsTabNoConfigLoaded": {
+    "description": "Placeholder shown in the Tab Diagnostics drawer's Config Info section when no project is loaded in the active tab."
+  },
+  "settingsLoadFailed": "설정을 불러올 수 없습니다: {reason}",
+  "@settingsLoadFailed": {
+    "description": "Error text shown in place of the Settings body when the persisted settings fail to load.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "updateBannerMessage": "SimCrux {version} 업데이트를 사용할 수 있습니다.",
+  "@updateBannerMessage": {
+    "description": "Non-intrusive banner shown when a newer SimCrux version is available. Names the available version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateViewChangesAction": "변경 사항 보기",
+  "@updateViewChangesAction": {
+    "description": "Update banner action that opens the changelog / release notes for the available update."
+  },
+  "updateNowAction": "지금 업데이트",
+  "@updateNowAction": {
+    "description": "Update banner action that opens the SimCrux download page for the available update."
+  },
+  "updateDismissLabel": "닫기",
+  "@updateDismissLabel": {
+    "description": "Semantic label for the close button that dismisses the update-available banner until a newer version is offered."
+  },
+  "updateCheckInProgress": "업데이트를 확인하는 중…",
+  "@updateCheckInProgress": {
+    "description": "Transient message shown while a manual Check for Updates is in flight."
+  },
+  "updateCheckUpToDate": "최신 버전({version})을 사용하고 있습니다.",
+  "@updateCheckUpToDate": {
+    "description": "Confirmation shown after a manual update check finds no newer version. Names the running version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCheckFailed": "업데이트를 확인할 수 없습니다.",
+  "@updateCheckFailed": {
+    "description": "Non-fatal message shown when a manual update check fails (network or malformed manifest)."
+  },
+  "actionCheckForUpdates": "업데이트 확인",
+  "@actionCheckForUpdates": {
+    "description": "Help-menu / command-palette / About-box action that runs a manual update check."
+  },
+  "settingsAutoCheckUpdatesLabel": "자동으로 업데이트 확인",
+  "@settingsAutoCheckUpdatesLabel": {
+    "description": "Settings → General toggle controlling whether SimCrux checks for updates automatically at launch and periodically."
+  },
+  "settingsAutoCheckUpdatesDescription": "실행 시와 하루 한 번 릴리스 매니페스트를 확인합니다. 앱 버전과 운영 체제만 전송되며 프로젝트, 설계, 결과 데이터는 전송되지 않습니다.",
+  "@settingsAutoCheckUpdatesDescription": {
+    "description": "Explanatory text under the Settings → General automatic-update-check toggle, stating what the check transmits."
+  },
+  "settingsDiagnosticsEnabledLabel": "진단 사용",
+  "@settingsDiagnosticsEnabledLabel": {
+    "description": "Settings → General toggle, shown only in release builds, that turns on the diagnostics surfaces (Tab Diagnostics)."
+  },
+  "settingsDiagnosticsEnabledDescription": "활성 탭에서 탭 진단…을 사용할 수 있게 합니다. 디버그 및 프로파일 빌드에서는 항상 켜져 있습니다.",
+  "@settingsDiagnosticsEnabledDescription": {
+    "description": "Explanatory text under the Settings → General diagnostics toggle."
+  },
+  "settingsAutoRunOnOpenLabel": "구성을 열 때 회귀 테스트 실행",
+  "@settingsAutoRunOnOpenLabel": {
+    "description": "Settings → General toggle controlling whether opening a regression config immediately starts the run. Off by default."
+  },
+  "settingsAutoRunOnOpenDescription": "기본값은 꺼짐입니다. 구성을 열면 로드되어 탭이 준비 상태가 되며, 실행은 회귀 테스트 실행을 기다립니다. 따라서 파일을 여는 것만으로 수백 개의 테스트가 시작되거나 시뮬레이터 라이선스가 점유되지 않습니다.",
+  "@settingsAutoRunOnOpenDescription": {
+    "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
+  },
+  "actionSubmitIssue": "문제 보고…",
+  "@actionSubmitIssue": {
+    "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."
+  },
+  "issueReporterTitle": "문제 보고",
+  "@issueReporterTitle": {
+    "description": "Title of the beta issue reporter dialog."
+  },
+  "issueReporterTitleFieldLabel": "문제 요약",
+  "@issueReporterTitleFieldLabel": {
+    "description": "Label for the single-line text field where the user types a short summary of the bug."
+  },
+  "issueReporterTitleFieldHint": "무엇이 잘못되었는지 간단히 설명하세요",
+  "@issueReporterTitleFieldHint": {
+    "description": "Hint text inside the empty issue-summary field of the beta issue reporter."
+  },
+  "issueReporterPrivacyNotice": "정보가 많을수록 문제 재현에 도움이 됩니다. 공유하고 싶지 않은 항목은 끄세요. 파일 내용이나 파일 경로는 절대 포함되지 않습니다.",
+  "@issueReporterPrivacyNotice": {
+    "description": "Privacy callout in the beta issue reporter explaining that data categories can be toggled off and that no file paths are included."
+  },
+  "issueReporterPreviewHeader": "이슈 본문 미리보기",
+  "@issueReporterPreviewHeader": {
+    "description": "Expander label that reveals the live markdown preview of the GitHub issue body."
+  },
+  "issueReporterCategoryAppEnv": "앱 및 환경",
+  "@issueReporterCategoryAppEnv": {
+    "description": "Title of the always-on issue-report category covering app version, build SHA, platform, OS, DPI, locale and SDK versions."
+  },
+  "issueReporterCategoryAppEnvDescription": "버전, 빌드 SHA, 플랫폼, 운영 체제, 화면 DPI, 로캘, SDK 버전.",
+  "@issueReporterCategoryAppEnvDescription": {
+    "description": "One-line summary of what the App & Environment issue-report category contributes."
+  },
+  "issueReporterCategorySession": "세션 상태",
+  "@issueReporterCategorySession": {
+    "description": "Title of the toggleable issue-report category covering open projects, configured simulators, and run totals."
+  },
+  "issueReporterCategorySessionDescription": "개수, 시뮬레이터 이름 및 버전만 포함되며 파일 경로나 파일 내용은 포함되지 않습니다.",
+  "@issueReporterCategorySessionDescription": {
+    "description": "One-line summary of what the Session State issue-report category contributes, stressing that no paths are included."
+  },
+  "issueReporterCategoryLog": "진단 정보",
+  "@issueReporterCategoryLog": {
+    "description": "Title of the toggleable issue-report category covering the diagnostics snapshot plus the recent in-memory session log."
+  },
+  "issueReporterCategoryLogDescription": "이번 세션에서 수집된 최근 경고 및 오류.",
+  "@issueReporterCategoryLogDescription": {
+    "description": "One-line summary of what the Diagnostics issue-report category contributes."
+  },
+  "issueReporterCategoryScreenshot": "스크린샷",
+  "@issueReporterCategoryScreenshot": {
+    "description": "Title of the toggleable issue-report category that attaches a screenshot (desktop only)."
+  },
+  "issueReporterCategoryScreenshotDescription": "앱 창의 이미지입니다. 첨부할 수 있도록 저장됩니다.",
+  "@issueReporterCategoryScreenshotDescription": {
+    "description": "One-line summary of what the Screenshot issue-report category contributes."
+  },
+  "issueReporterLockedCategorySemantics": "항상 포함됨",
+  "@issueReporterLockedCategorySemantics": {
+    "description": "Screen-reader description of the lock icon on the always-on App & Environment issue-report tile."
+  },
+  "issueReporterSubmitButton": "제출",
+  "@issueReporterSubmitButton": {
+    "description": "Primary button that copies the report body to the clipboard and opens the GitHub new-issue page."
+  },
+  "issueReporterCancelButton": "취소",
+  "@issueReporterCancelButton": {
+    "description": "Button that dismisses the beta issue reporter without filing an issue."
+  },
+  "issueReporterOpenedToast": "GitHub 이슈가 열렸습니다 — 클립보드에서 보고서를 본문에 붙여넣으세요.",
+  "@issueReporterOpenedToast": {
+    "description": "Snackbar shown after submitting when the report body did not fit in the GitHub URL and must be pasted from the clipboard."
+  },
+  "issueReporterOpenedToastPrefilled": "보고서가 미리 입력된 상태로 GitHub 이슈가 열렸습니다.",
+  "@issueReporterOpenedToastPrefilled": {
+    "description": "Snackbar shown after submitting when the report body was pre-filled into the GitHub new-issue URL."
+  },
+  "issueReporterScreenshotSaved": "스크린샷을 {path}에 저장했습니다",
+  "@issueReporterScreenshotSaved": {
+    "description": "Confirmation appended to the submission snackbar naming where the screenshot PNG was written.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "issueReporterEmptyLog": "(수집된 로그 항목 없음)",
+  "@issueReporterEmptyLog": {
+    "description": "Placeholder rendered in the Diagnostics issue-report category when the log ring buffer captured nothing at all."
+  },
+  "issueReporterEmptySessionLog": "(이번 세션에 기록된 오류나 경고 없음)",
+  "@issueReporterEmptySessionLog": {
+    "description": "Placeholder rendered under the session-log heading of the Diagnostics issue-report category when nothing was logged this session."
+  },
+  "betaExpiryBannerMessage": "{days, plural, =1{SimCrux 베타가 1일 후 만료됩니다. 최신 빌드를 다운로드하세요.} other{SimCrux 베타가 {days}일 후 만료됩니다. 최신 빌드를 다운로드하세요.}}",
+  "@betaExpiryBannerMessage": {
+    "description": "Dismissible banner shown at startup/resume when the public-beta build is within the warning window of its hard expiry date.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "betaExpiryBannerAction": "다운로드",
+  "@betaExpiryBannerAction": {
+    "description": "Label of the inline action button in the beta-expiry warning banner that opens the download page."
+  },
+  "betaExpiryDismissLabel": "닫기",
+  "@betaExpiryDismissLabel": {
+    "description": "Semantic label for the close button that dismisses the beta-expiry warning banner for the session."
+  },
+  "betaExpiryExpiredTitle": "베타 빌드가 만료되었습니다",
+  "@betaExpiryExpiredTitle": {
+    "description": "Title of the blocking, non-dismissable modal shown when the public-beta build has reached or passed its hard expiry date."
+  },
+  "betaExpiryExpiredBody": "이 SimCrux 베타 빌드는 만료일에 도달했습니다. SimCrux를 계속 사용하려면 최신 빌드를 다운로드하세요.",
+  "@betaExpiryExpiredBody": {
+    "description": "Body text of the blocking beta-expiry modal explaining that the build has expired and the user must download the latest build."
+  },
+  "betaExpiryExpiredAction": "최신 빌드 다운로드",
+  "@betaExpiryExpiredAction": {
+    "description": "Label of the primary button in the blocking beta-expiry modal that opens the download page for the latest build."
+  },
+  "betaExpiryExpiredQuit": "SimCrux 종료",
+  "@betaExpiryExpiredQuit": {
+    "description": "Label of the secondary button in the blocking beta-expiry modal that quits the application. Load-bearing on Windows/Linux where the custom window-chrome close button sits behind the modal barrier."
+  },
+  "actionCategoryFileMnemonic": "파일(&F)",
+  "actionCategoryEditMnemonic": "편집(&E)",
+  "actionCategoryViewMnemonic": "보기(&V)",
+  "actionCategoryNavigateMnemonic": "탐색(&N)",
+  "actionCategorySearchMnemonic": "검색(&S)",
+  "actionCategoryToolsMnemonic": "도구(&T)",
+  "actionCategoryHelpMnemonic": "도움말(&H)",
+  "actionCategoryEdit": "편집",
+  "menuWindow": "윈도우",
+  "actionExit": "종료",
+  "actionOpenDocumentation": "문서",
+  "accessibilityResultRow": "{status}: {suite} / {test}, {simulator}, 실행 시간 {runtime}",
+  "@accessibilityResultRow": {
+    "description": "Screen-reader label for one dashboard results row.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "suite": {
+        "type": "String"
+      },
+      "test": {
+        "type": "String"
+      },
+      "simulator": {
+        "type": "String"
+      },
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityTestBrowserRow": "{test}, {status}",
+  "@accessibilityTestBrowserRow": {
+    "description": "Screen-reader name of one test in the Tests dock.",
+    "placeholders": {
+      "test": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityTestNotRun": "미실행",
+  "@accessibilityTestNotRun": {
+    "description": "Status spoken for a test with no result yet."
+  },
+  "statisticsStripTitle": "통계",
+  "@statisticsStripTitle": {
+    "description": "Screen-reader name of the live statistics strip's disclosure button."
+  },
+  "tabChipCloseTooltip": "{name} 닫기",
+  "@tabChipCloseTooltip": {
+    "description": "Tooltip on the close (×) button of a tab chip.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibilityToolbarRegion": "도구 모음",
+  "toolbarOverflowActions": "동작",
+  "toolbarToggleCrossProbe": "크로스프로브 패널",
+  "actionOpenTabDiagnostics": "탭 진단…",
+  "actionOpenAppDiagnostics": "앱 진단…",
+  "statusBarBusyRegression": "회귀 테스트 실행 중",
+  "statusBarNoConfig": "열린 구성 없음",
+  "dockTabDetails": "세부 정보",
+  "dockTabCrossProbe": "크로스 프로브",
+  "dockCollapseTooltip": "패널 숨기기",
+  "accessibilityRightDockRegion": "세부 정보 독",
+  "accessibilityLeftDockRegion": "브라우저 독",
+  "accessibilityBottomDockRegion": "패널 독",
+  "dockTabTests": "테스트",
+  "dockTabLog": "로그",
+  "settingsLanguageLabel": "언어",
+  "settingsLanguageDescription": "애플리케이션 인터페이스에 사용할 언어",
+  "settingsCxpSectionTitle": "CXP 교차 프로브",
+  "settingsAutoReloadDescription": "불러온 구성이 디스크에서 변경될 때 SimCrux의 응답 방식",
+  "dialogClose": "닫기",
+  "settingsLogPreviewLineCountDescription": "인스펙터 미리보기에 표시할 로그 줄 수",
+  "searchDialogTitle": "테스트 검색",
+  "searchDialogHint": "테스트, 스위트, 시뮬레이터로 검색…",
+  "searchDialogNoMatches": "일치하는 테스트가 없습니다.",
+  "tabContextMenuRevealInFinder": "Finder에서 표시",
+  "tabContextMenuRevealInExplorer": "Explorer에서 표시",
+  "tabContextMenuRevealInFiles": "파일 관리자에서 표시",
+  "diagnosticsAppDialogTitle": "앱 진단",
+  "diagnosticsCopyFullReport": "전체 진단 보고서 복사",
+  "helpLinkLearnMore": "자세히 알아보기",
+  "statsStripLabel": "통계",
+  "statsStripExpandTooltip": "라이브 통계 표시",
+  "statsStripCollapseTooltip": "라이브 통계 숨기기",
+  "statsSegmentMemory": "메모리",
+  "statsSegmentMemoryTooltip": "시뮬레이터 하위 프로세스 버퍼를 포함한 SimCrux 프로세스의 상주 메모리입니다.",
+  "statsSegmentFps": "FPS",
+  "statsSegmentFpsTooltip": "최근 60개 프레임의 초당 프레임 수입니다.",
+  "statsSegmentJank": "드롭",
+  "statsSegmentJankTooltip": "이번 세션에서 16.7ms 예산을 초과한 프레임 수입니다. 평균 FPS는 끊김을 감추지만 이 값은 감추지 않습니다.",
+  "statsSegmentConcurrency": "실행 중",
+  "statsSegmentConcurrencyTooltip": "현재 실행 중인 테스트 수 대비 설정된 동시 실행 상한입니다. 작업 풀이 포화 상태인지 알 수 있습니다.",
+  "statsSegmentQueue": "대기열",
+  "statsSegmentQueueTooltip": "실행에 등록되었지만 아직 시작하지 않은 테스트입니다.",
+  "statsSegmentThroughput": "테스트/분",
+  "statsSegmentThroughputTooltip": "실행 시작 이후의 완료 속도입니다. 스파크라인으로 빨라지는지 느려지는지 알 수 있습니다.",
+  "statsSegmentMeanRuntime": "평균",
+  "statsSegmentMeanRuntimeTooltip": "완료된 테스트의 평균 실제 실행 시간입니다. 값이 오르면 무거운 테스트가 후반부를 지배하고 있다는 뜻입니다.",
+  "statsSegmentRender": "렌더",
+  "statsSegmentRenderTooltip": "이 창에서 결과 테이블 또는 히트맵이 최근 프레임을 그리는 데 걸린 시간입니다.",
+  "riscvToolchainTitle": "RISC-V 툴체인",
+  "@riscvToolchainTitle": {
+    "description": "Heading of the RISC-V toolchain report in the diagnostics panel."
+  },
+  "riscvToolchainAllPresent": "모든 구성 요소를 찾았습니다.",
+  "@riscvToolchainAllPresent": {
+    "description": "Summary line when every RISC-V toolchain component was found."
+  },
+  "riscvToolchainMissingSummary": "찾지 못함: {names}",
+  "@riscvToolchainMissingSummary": {
+    "description": "Summary line listing the RISC-V toolchain components that were not found.",
+    "placeholders": {
+      "names": {
+        "type": "String",
+        "example": "Reference model, RISCOF"
+      }
+    }
+  },
+  "riscvToolchainStatusFound": "찾음",
+  "@riscvToolchainStatusFound": {
+    "description": "Per-component status: the tool was found and ran."
+  },
+  "riscvToolchainStatusMissing": "찾지 못함",
+  "@riscvToolchainStatusMissing": {
+    "description": "Per-component status: the tool could not be run."
+  },
+  "riscvToolchainVersionUnknown": "설치됨(버전 미보고)",
+  "@riscvToolchainVersionUnknown": {
+    "description": "Shown when a tool ran but printed no version banner."
+  },
+  "riscvToolchainDemoModeNote": "데모 모드는 커밋된 시그니처를 재생하므로 RISC-V 툴체인이 필요 없고 탐지도 하지 않습니다.",
+  "@riscvToolchainDemoModeNote": {
+    "description": "Shown instead of the report when the run is in demo mode, where no toolchain is probed at all."
+  },
+  "riscvToolchainNoBundlingNote": "SimCrux는 사용자가 설치한 도구를 찾을 뿐입니다. 도구를 함께 배포하거나 대신 설치하지 않습니다.",
+  "@riscvToolchainNoBundlingNote": {
+    "description": "Footer stating that SimCrux locates user-installed tools and never bundles or installs them."
+  },
+  "riscvToolchainOptionalRiscof": "mode: riscof_passthrough에서만 필요합니다.",
+  "@riscvToolchainOptionalRiscof": {
+    "description": "Footnote: RISCOF is only needed for the riscof_passthrough mode."
+  },
+  "riscvToolchainOptionalFormal": "riscv-formal 드라이버에서만 필요합니다.",
+  "@riscvToolchainOptionalFormal": {
+    "description": "Footnote: SymbiYosys is only needed for the riscv-formal driver."
+  },
+  "riscvComponentCrossCompiler": "RISC-V GNU 크로스 컴파일러",
+  "@riscvComponentCrossCompiler": {
+    "description": "Display name of the RISC-V GNU cross-compiler toolchain component."
+  },
+  "riscvComponentReferenceModel": "레퍼런스 모델",
+  "@riscvComponentReferenceModel": {
+    "description": "Display name of the golden reference model (Sail or Spike) component."
+  },
+  "riscvComponentPythonRiscof": "Python + RISCOF",
+  "@riscvComponentPythonRiscof": {
+    "description": "Display name of the Python + RISCOF component."
+  },
+  "riscvComponentFormalEngine": "Yosys / SymbiYosys",
+  "@riscvComponentFormalEngine": {
+    "description": "Display name of the Yosys / SymbiYosys formal-engine component."
+  },
+  "riscvGuidanceCrossCompilerLinux": "배포판 패키지(Debian과 Ubuntu는 gcc-riscv64-unknown-elf, Fedora와 Arch는 riscv64-elf-gcc)를 설치하거나 xPack 또는 SiFive 사전 빌드를 풀어 사용하세요. PATH 밖에 있다면 riscv.toolchain.path를 설정하세요.",
+  "@riscvGuidanceCrossCompilerLinux": {
+    "description": "Remediation for a missing RISC-V cross-compiler on Linux."
+  },
+  "riscvGuidanceCrossCompilerMacos": "brew tap riscv-software-src/riscv 후 brew install riscv-gnu-toolchain을 실행하세요. Finder에서 실행한 앱은 셸의 PATH를 상속하지 않으므로 Homebrew로 설치한 도구가 보이지 않을 수 있습니다. 터미널에서 SimCrux를 다시 실행하거나 riscv.toolchain.path를 설정하세요.",
+  "@riscvGuidanceCrossCompilerMacos": {
+    "description": "Remediation for a missing RISC-V cross-compiler on macOS."
+  },
+  "riscvGuidanceCrossCompilerWindows": "이 툴체인에 관한 한 Windows는 가장 검증이 덜 된 환경입니다. xPack 사전 빌드가 동작하기는 하지만 riscv-arch-test의 링커 스크립트와 타깃 플러그인이 POSIX 구성을 전제하므로, 전체 흐름을 WSL2에서 실행하는 편이 더 잘 지원됩니다.",
+  "@riscvGuidanceCrossCompilerWindows": {
+    "description": "Remediation for a missing RISC-V cross-compiler on Windows."
+  },
+  "riscvGuidanceReferenceModelLinux": "riscv/sail-riscv에서 Sail을 빌드하거나 더 구하기 쉬운 Spike(riscv-isa-sim)를 설치하세요. riscv.reference.path로 바이너리를 지정하거나 riscv.reference.model을 바꾸면 됩니다.",
+  "@riscvGuidanceReferenceModelLinux": {
+    "description": "Remediation for a missing reference model on Linux."
+  },
+  "riscvGuidanceReferenceModelMacos": "brew tap riscv-software-src/riscv 후 brew install riscv-isa-sim으로 Spike를 설치하세요. Sail도 macOS에서 빌드되지만 손이 많이 갑니다. Finder 실행은 셸의 PATH를 상속하지 않는다는 점도 기억하세요.",
+  "@riscvGuidanceReferenceModelMacos": {
+    "description": "Remediation for a missing reference model on macOS."
+  },
+  "riscvGuidanceReferenceModelWindows": "Sail은 실용적인 네이티브 Windows 빌드가 없으며, SimCrux는 동작하지 않을 명령을 실행해 이를 감추지 않습니다. WSL2에서 흐름을 실행하거나 riscv.reference.model을 spike로 바꾸세요. OSS CAD Suite가 Windows용을 제공합니다.",
+  "@riscvGuidanceReferenceModelWindows": {
+    "description": "Remediation for a missing reference model on Windows, where Sail has no practical native build."
+  },
+  "riscvGuidanceRiscofLinux": "가상 환경에 설치하세요. python3 -m venv .venv를 만들어 활성화한 뒤 pip install riscof를 실행합니다. SimCrux를 실행하기 전에 그 가상 환경을 활성화하거나 riscv.riscof.command를 .venv/bin/riscof로 지정하세요.",
+  "@riscvGuidanceRiscofLinux": {
+    "description": "Remediation for a missing RISCOF on Linux."
+  },
+  "riscvGuidanceRiscofMacos": "가상 환경에 설치하세요. python3 -m venv .venv를 만들어 활성화한 뒤 pip install riscof를 실행합니다. SimCrux를 실행하기 전에 그 가상 환경을 활성화하거나 riscv.riscof.command를 .venv/bin/riscof로 지정하세요.",
+  "@riscvGuidanceRiscofMacos": {
+    "description": "Remediation for a missing RISCOF on macOS."
+  },
+  "riscvGuidanceRiscofWindows": "RISCOF는 Windows에서도 무리 없이 설치되며, 네 구성 요소 가운데 이 환경에서 유일하게 말썽이 없는 항목입니다. py -m venv .venv를 만들어 활성화한 뒤 pip install riscof를 실행하세요. 가상 환경 밖에서 SimCrux를 실행했다면 riscv.riscof.command를 가상 환경의 riscof.exe로 지정하세요.",
+  "@riscvGuidanceRiscofWindows": {
+    "description": "Remediation for a missing RISCOF on Windows."
+  },
+  "riscvGuidanceFormalEngineLinux": "OSS CAD Suite 번들을 설치하세요. Yosys, SymbiYosys, SMT 솔버가 함께 들어 있습니다.",
+  "@riscvGuidanceFormalEngineLinux": {
+    "description": "Remediation for a missing SymbiYosys on Linux."
+  },
+  "riscvGuidanceFormalEngineMacos": "OSS CAD Suite 번들을 설치하거나 Homebrew로 Yosys를 설치하고 SymbiYosys를 소스에서 빌드하세요. Finder 실행은 셸의 PATH를 상속하지 않습니다.",
+  "@riscvGuidanceFormalEngineMacos": {
+    "description": "Remediation for a missing SymbiYosys on macOS."
+  },
+  "riscvGuidanceFormalEngineWindows": "OSS CAD Suite가 Windows 빌드를 제공하며, WSL2에서 실행하는 경우도 흔합니다.",
+  "@riscvGuidanceFormalEngineWindows": {
+    "description": "Remediation for a missing SymbiYosys on Windows."
+  },
+  "telemetryConsentTitle": "SimCrux 개선에 참여하기",
+  "@telemetryConsentTitle": {
+    "description": "Title of the one-time first-launch telemetry disclosure"
+  },
+  "telemetryConsentBody": "익명 사용 횟수와 오류 횟수는 다음에 무엇을 만들고 무엇을 고칠지 정하는 데 도움이 됩니다. 파일, 설계 데이터, 사용자를 식별할 수 있는 정보는 수집하지 않습니다.",
+  "@telemetryConsentBody": {
+    "description": "The whole of the first-launch disclosure prose: why the data is wanted, and the categories never collected"
+  },
+  "telemetryConsentLearnMore": "수집 항목 자세히 보기",
+  "@telemetryConsentLearnMore": {
+    "description": "Label of the link to the suite telemetry page, where the exhaustive field list lives"
+  },
+  "telemetryConsentToggleLabel": "익명 사용 통계 보내기",
+  "@telemetryConsentToggleLabel": {
+    "description": "Label of the telemetry switch in the first-launch disclosure"
+  },
+  "telemetryConsentContinue": "계속",
+  "@telemetryConsentContinue": {
+    "description": "Label of the single confirming button in the first-launch disclosure"
+  },
+  "settingsPrivacySection": "개인정보",
+  "@settingsPrivacySection": {
+    "description": "Title of the Settings > Privacy category"
+  },
+  "settingsTelemetryLabel": "익명 사용 통계 보내기",
+  "@settingsTelemetryLabel": {
+    "description": "Label of the telemetry switch in Settings > Privacy"
+  },
+  "settingsTelemetryDescription": "기능 및 오류 카운터, 앱과 OS 버전, 폼 팩터, 언어, 라이선스 등급. 테스트 이름, 로그 내용, 오류 메시지, 개인정보는 포함하지 않습니다.",
+  "@settingsTelemetryDescription": {
+    "description": "Description under the telemetry switch in Settings > Privacy"
+  },
+  "settingsTelemetryDocsLabel": "텔레메트리 문서",
+  "@settingsTelemetryDocsLabel": {
+    "description": "Label of the telemetry documentation row in Settings > Privacy"
+  },
+  "settingsTelemetryDocsDescription": "전송되는 필드 목록, 절대 수집하지 않는 항목 목록, 그리고 전송을 수행하는 소스 코드.",
+  "@settingsTelemetryDocsDescription": {
+    "description": "Description of the telemetry documentation row in Settings > Privacy"
+  },
+  "settingsTelemetryInstallationIdLabel": "설치 ID",
+  "settingsTelemetryInstallationIdDescription": "수집되는 데이터에 연결된 유일한 식별자입니다. 무작위 값이며 사용자와 연결되지 않습니다. 이 설치의 데이터 삭제를 원하시면 지원팀으로 보내주세요.",
+  "settingsTelemetryInstallationIdCopy": "복사",
+  "settingsTelemetryInstallationIdCopied": "설치 ID가 복사되었습니다."
+}

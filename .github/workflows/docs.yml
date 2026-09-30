@@ -1,0 +1,105 @@
+name: docs
+
+# Builds the SimCrux user documentation (docs-site/) on every pull request
+# that touches it, and deploys it to docs.simcrux.app (Workers Static Assets)
+# on merge to main.
+on:
+  pull_request:
+    paths:
+      - 'docs-site/**'
+      - '.github/workflows/docs.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs-site/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Install MkDocs Material
+        run: |
+          pip install --upgrade pip
+          # Pygments is pinned too, and that is the whole point of this block.
+          # mkdocs/material/pymdownx were already pinned but Pygments floated,
+          # so the pin was only ever three-quarters of a pin. Pygments 2.20.0
+          # made HtmlFormatter escape `options.get('filename', '')`, and
+          # pymdownx passes `filename=None` — an explicit None, so the `''`
+          # default never applies — which crashes the build with
+          # "'NoneType' object has no attribute 'replace'". Reproduced locally:
+          # 2.20.0 fails, 2.19.2 builds clean, and bumping pymdownx to 10.16
+          # does NOT help, so Pygments is the one that has to be held.
+          pip install \
+            mkdocs==1.6.0 \
+            mkdocs-material==9.5.27 \
+            pymdown-extensions==10.9 \
+            Pygments==2.19.2
+
+      - name: Build docs
+        working-directory: docs-site
+        run: mkdocs build --strict
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: simcrux-docs
+          path: docs-site/site
+
+  deploy:
+    # Credentials: a docs-only token (CLOUDFLARE_DOCS_API_TOKEN, a repository
+    # secret) that can deploy Workers on this product's zone and nothing else,
+    # and the account id as the CLOUDFLARE_ACCOUNT_ID repository variable (it
+    # is not a secret). The suite's release-publishing token is deliberately
+    # not used here: it can write release downloads.
+    needs: build
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Check for Cloudflare credentials
+        id: creds
+        env:
+          CLOUDFLARE_DOCS_API_TOKEN: ${{ secrets.CLOUDFLARE_DOCS_API_TOKEN }}
+        run: |
+          if [ -n "$CLOUDFLARE_DOCS_API_TOKEN" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLOUDFLARE_DOCS_API_TOKEN is not set; skipping the docs deploy."
+            echo "Docs deploy skipped: the CLOUDFLARE_DOCS_API_TOKEN secret is not configured for this repository." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Download built site
+        if: steps.creds.outputs.present == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: simcrux-docs
+          path: docs-site/site
+
+      - name: Deploy to Workers Static Assets
+        if: steps.creds.outputs.present == 'true'
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          # The action installs wrangler 3.90 unless told otherwise, which predates
+          # wrangler.jsonc and fails with "Missing entry-point". Pin a v4 release.
+          wranglerVersion: "4.132.0"
+          workingDirectory: docs-site
+          apiToken: ${{ secrets.CLOUDFLARE_DOCS_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

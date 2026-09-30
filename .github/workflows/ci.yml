@@ -1,0 +1,516 @@
+name: CI
+
+# ─── Trigger configuration ─────────────────────────────────────────────────────
+# Work lands directly on `main` under the auto-push convention, so `main` needs
+# the push trigger to be defended at all. Without it a commit can break `main`
+# and nothing notices: on 2026-07-30, `a68091d` changed a default and left a
+# fatal-info lint on `main` that this workflow never ran on — crux-shared's
+# consumer matrix is what eventually caught it, hours later and in another repo.
+#
+# Cost control (macOS bills at a 10x multiplier): the push trigger runs the
+# LINUX SLICE ONLY. Pull requests and dispatch keep the full platform matrix,
+# and the weekly/bi-weekly platform suites keep their own schedules.
+on:
+  workflow_dispatch:        # Manual trigger via GitHub UI "Run workflow" button
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # The full three-platform matrix, once a week. The nightly was retired at
+    # beta launch (2026-07-12), but the `test` and `build-desktop` matrices
+    # below still collapse to Linux on push — so with no schedule the macOS and
+    # Windows legs only ran on pull requests, and work here lands straight on
+    # `main`. They had not run since July. Restores the coverage at 1/7th of
+    # the old nightly price. Sunday, staggered off the shared 05:00 slot.
+    - cron: '20 5 * * 0'
+
+concurrency:
+  # Keyed by event as well as ref: a nightly must never be cancelled by a
+  # push, and a push must never be cancelled by a nightly.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  # Superseded pushes are cancelled outright. `false` on main was the source
+  # of a whole class of phantom failures: a run still QUEUED when a third
+  # push arrives is cancelled by GitHub regardless, and a run whose jobs were
+  # cancelled reports conclusion=failure — not cancelled. So main never did
+  # verify every commit, it just misreported the ones it skipped. Cancelling
+  # is honest, cheaper, and gates the thing that matters: the tip.
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Dart static analysis — zero warnings policy.
+  # ─────────────────────────────────────────────────────────────────────────
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token: a pull request from a fork
+          # gets no secrets, and the workflow token reads a public crux-shared.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      # Runs before the Flutter install: it is pure Python, so a missing header
+      # fails in seconds rather than after a toolchain download. The script is
+      # shared -- it lives in crux-shared and every repo in the suite calls the
+      # same one, so the header contract cannot drift between repos.
+      - name: SPDX headers (Apache-2.0)
+        run: python3 crux-shared/tool/spdx-headers.py --check .
+
+      # Engine binaries are NOT distributed -- every engine is spawned as a
+      # separate process. That is what keeps Apache-2.0 product code clear of
+      # GHDL's and Icarus's GPL-2.0 terms, and the bundling infrastructure
+      # already exists, so the invariant needs a gate rather than a comment.
+      - name: No bundled engine binaries
+        run: python3 crux-shared/tool/no-bundled-engines.py --check .
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          # Flutter is PINNED, not tracked. `channel: stable` alone re-resolves on
+          # every run, so 3.44.8 -> 3.44.9 on 2026-08-06 turned new analyzer lints
+          # (sort_pub_dependencies, unused_element) into red CI across five repos at
+          # once, including repos with no commits that day. Bumping this is a
+          # deliberate, reviewable commit; keep every workflow in the suite on the
+          # same version, and bump the dev machines to match.
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-ubuntu-latest-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-ubuntu-latest-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Third-party attribution. The narrative sections of NOTICES are
+      # hand-written; this checks only the generated inventory block, which
+      # exists because window_manager shipped for months without an entry
+      # anywhere in the file. Must run AFTER `pub get`: the classifier reads
+      # each package's LICENSE out of the pub cache, and an empty cache would
+      # classify everything as UNKNOWN.
+      - name: NOTICES lists every resolved package
+        run: python3 crux-shared/tool/notices-inventory.py --check .
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      # Enforce the tall-style dart formatter on the repo's own sources only
+      # (never the crux-shared submodule, which has its own format-check job).
+      - name: Check formatting
+        # git ls-files lists only committed sources — excludes gitignored
+        # generated files (*.g.dart, l10n) and the crux-shared submodule.
+        run: git ls-files -z '*.dart' | xargs -0 -r dart format --output=none --set-exit-if-changed
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Flutter tests — Linux, macOS, Windows. SimCrux is desktop only.
+  # ─────────────────────────────────────────────────────────────────────────
+  test:
+    name: Test / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux-only on push (the frequent trigger); all three platforms on
+        # PR / dispatch. macOS is billed at 10x, so putting the full matrix on
+        # every commit to `main` is what turns a push trigger into a four-figure
+        # month. The `A && x || y` form is Actions' ternary: both branches are
+        # non-empty arrays, so the `&&` result is never falsy.
+        os: ${{ github.event_name == 'push' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token: a pull request from a fork
+          # gets no secrets, and the workflow token reads a public crux-shared.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-${{ matrix.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ matrix.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      # The fixture pipeline drives real simulators end to end and skips each
+      # case whose simulator is missing — which, before this step, was every
+      # case on every run on every platform: Icarus pass/fail, Verilator
+      # pass and timing, GHDL pass/fail. Those are the tests that notice a
+      # committed fixture going stale when a simulator moves.
+      #
+      # Icarus and Verilator publish no binaries, so they come from Ubuntu's
+      # archive. GHDL is upstream's release build, checked against a SHA-256
+      # recorded here for that version. cocotb is not installed, so its case
+      # still skips, with that reason.
+      #
+      # Linux only. The macOS and Windows legs run weekly and stay
+      # simulator-less; the skip ceiling below is what notices if this step
+      # ever stops delivering.
+      - name: Install simulators (Linux)
+        if: runner.os == 'Linux'
+        env:
+          GHDL_VERSION: 6.0.0
+          GHDL_SHA256: 30d6a977b8456d140bbafecbbe64b1947a3d92eeae8f5e6d9f528a174f9566e7
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y
+          sudo apt-get install -y iverilog verilator
+          g="$RUNNER_TEMP/ghdl"
+          mkdir -p "$g"
+          curl --fail -sSL "https://github.com/ghdl/ghdl/releases/download/v$GHDL_VERSION/ghdl-mcode-$GHDL_VERSION-ubuntu24.04-x86_64.tar.gz" -o "$g.tgz"
+          echo "$GHDL_SHA256  $g.tgz" | sha256sum -c -
+          tar -xzf "$g.tgz" -C "$g" --strip-components=1
+          echo "$g/bin" >> "$GITHUB_PATH"
+          # Prove each one starts before the suite relies on it.
+          iverilog -V 2>&1 | sed -n 1p
+          verilator --version
+          "$g/bin/ghdl" --version
+
+      - name: Run tests
+        run: flutter test --reporter github --file-reporter json:build/test-results.json
+
+      # A narrowed glob, a lost test directory or a mass skip leaves every
+      # remaining test green, so only the count notices. Parsed from the JSON
+      # report, never from console text: Actions sets CI=true, which colours
+      # the console even into a pipe, and a grep for the summary line then
+      # matches nothing and fails a green suite. A test that prints something
+      # shaped like a summary line fools a grep as well.
+      #
+      # Two numbers, because an engine or service that goes missing does not
+      # shrink the run, it converts runs into skips: MIN_TESTS is the floor on
+      # tests that ran, MAX_SKIPPED the ceiling on tests that skipped.
+      # Raise MIN_TESTS as tests land; lower it only in the commit that
+      # deletes tests on purpose, and say why there.
+      # Linux only: the counts are per platform, and Linux is the leg every
+      # push runs.
+      #
+      # Measured 2026-09-22 on this runner (run 35673429466, commit
+      # adb9c24b739d58618779b0b78bfb5d4f072c2d4e): 3117 ran, 2 skipped. The
+      # floor is the measured count less 0.5%.
+      - name: Test count did not shrink
+        if: runner.os == 'Linux'
+        env:
+          TEST_REPORT: build/test-results.json
+          MIN_TESTS: '3101'
+          MAX_SKIPPED: '4'
+        run: |
+          python3 - "$TEST_REPORT" <<'PY'
+          import json, os, sys
+          floor, ceiling = int(os.environ["MIN_TESTS"]), int(os.environ["MAX_SKIPPED"])
+          names, reasons, skipped, ran, done = {}, {}, [], 0, None
+          try:
+              lines = open(sys.argv[1], encoding="utf-8").read().splitlines()
+          except OSError as err:
+              sys.exit(f"::error::no JSON test report at {sys.argv[1]} ({err})")
+          for line in lines:
+              if not line.startswith("{"):
+                  continue
+              e = json.loads(line)
+              kind = e.get("type")
+              if kind == "testStart":
+                  t = e["test"]
+                  names[t["id"]] = t["name"]
+                  reasons[t["id"]] = t.get("metadata", {}).get("skipReason") or ""
+              elif kind == "print" and e.get("messageType") == "skip":
+                  reasons[e["testID"]] = e["message"]
+              elif kind == "testDone" and not e["hidden"]:
+                  if e["skipped"]:
+                      skipped.append(e["testID"])
+                  else:
+                      ran += 1
+              elif kind == "done":
+                  done = e
+          print(f"{ran} tests ran (floor {floor}), {len(skipped)} skipped (ceiling {ceiling})")
+          for tid in skipped:
+              print(f"  skipped: {names.get(tid, tid)} -- {reasons.get(tid, '')}")
+          if done is None:
+              sys.exit("::error::the JSON report has no 'done' event; the run did not finish")
+          if ran < floor:
+              sys.exit(f"::error::{ran} tests ran, below the floor of {floor}. A narrowed glob, a lost test directory or a mass skip does this. If tests were deleted on purpose, lower MIN_TESTS in the same commit.")
+          if len(skipped) > ceiling:
+              sys.exit(f"::error::{len(skipped)} tests skipped, above the ceiling of {ceiling}. The list above says why; an engine or service that stopped being installed shows up here first.")
+          PY
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # The standalone `simcrux` CLI — the binary cli.md and ci.md tell users to
+  # build with `tool/build_cli.sh` for CI runners that have no display.
+  #
+  # `flutter analyze` and `flutter test` cannot see this break: both run with
+  # Flutter on the path, so a `package:flutter` import (direct, or through a
+  # shared package that imports Flutter) anywhere in `bin/simcrux.dart`'s
+  # import closure is legal to them. Only compiling the entry point without
+  # Flutter proves the closure is clean. That happened: the telemetry catalog
+  # once named `crux_telemetry`'s constants, the closure reached Flutter
+  # through the CI runner, and the documented binary stopped compiling with
+  # every other job green.
+  #
+  # Linux only, every trigger: the build is the same Dart on every platform,
+  # and it is the one job here that notices this at all.
+  # ─────────────────────────────────────────────────────────────────────────
+  build-cli:
+    name: Build / standalone CLI
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded. The build is ~2 min locally.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT when defined, else the workflow token (fork PRs get
+          # no secrets; the workflow token reads a public crux-shared).
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          # Same pin as every other job in the suite — see `analyze`.
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-ubuntu-latest-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-ubuntu-latest-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # The script compiles with `dart build cli` (see its header for why not
+      # `dart compile exe`) and smoke-tests the result with `--help`.
+      - name: Build the standalone CLI
+        run: tool/build_cli.sh build/cli
+
+      # Run from an empty directory, alone: the binary is documented as a
+      # single file that ships standalone, and `--help` is the one invocation
+      # that must succeed without a project file.
+      - name: Standalone binary prints its usage
+        run: |
+          set -euo pipefail
+          alone="$RUNNER_TEMP/simcrux-alone"
+          mkdir -p "$alone"
+          cp build/cli/bundle/bin/simcrux "$alone/"
+          cd "$alone"
+          ./simcrux --help | tee usage.txt
+          grep -q -- '--allow-project-tooling' usage.txt
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Desktop release builds — informational; surfaces build breakage early.
+  # Artifacts retained for 7 days for manual smoke-testing.
+  # ─────────────────────────────────────────────────────────────────────────
+  build-desktop:
+    name: Build / ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    needs: [analyze, test]
+    strategy:
+      fail-fast: false
+      matrix:
+        # Same push-vs-everything-else split as `test` above: a release build
+        # per platform on every commit to `main` is the single most expensive
+        # thing this workflow could do. Linux still proves the build compiles.
+        include: ${{ github.event_name == 'push' && fromJSON('[{"os":"ubuntu-latest","target":"linux"}]') || fromJSON('[{"os":"ubuntu-latest","target":"linux"},{"os":"macos-latest","target":"macos"},{"os":"windows-latest","target":"windows"}]') }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token: a pull request from a fork
+          # gets no secrets, and the workflow token reads a public crux-shared.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-${{ matrix.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ matrix.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Build ${{ matrix.target }} (release)
+        run: flutter build ${{ matrix.target }} --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: simcrux-${{ matrix.target }}
+          path: build/${{ matrix.target }}/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Web release build — the read-only web dashboard viewer. Deployment is
+  # web-deploy.yml's job; this one builds on every change so any
+  # web-incompatible code lands as a CI failure on the same PR that
+  # introduced it, not as a surprise at deploy time.
+  # ─────────────────────────────────────────────────────────────────────────
+  build-web:
+    name: Build / web
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded (max observed suite-wide is 29 min).
+    timeout-minutes: 45
+    needs: [analyze, test]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT (a read-only Contents token) when the repository
+          # defines one, else the workflow token: a pull request from a fork
+          # gets no secrets, and the workflow token reads a public crux-shared.
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+          key: pub-ubuntu-latest-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-ubuntu-latest-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Build web (release)
+        run: flutter build web --release
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: simcrux-web
+          path: build/web/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Supply chain — SBOM, licence gate, advisory sweep.
+  #
+  # Runs on the same triggers as `analyze` rather than on a schedule, because
+  # the failure it prevents arrives *with a pubspec change*: somebody adds a
+  # dependency, it resolves a copyleft transitive, and nothing says so until
+  # the repository is already public. Catching that in the PR that introduces
+  # it is the whole point.
+  #
+  # The SBOM is uploaded as an artifact rather than committed. It changes on
+  # every dependency bump and nobody reviews it in a diff; what people
+  # actually want is "what shipped in the build I have", which is what an
+  # artifact attached to the run answers.
+  # ─────────────────────────────────────────────────────────────────────────────
+  supply-chain:
+    name: Supply chain
+    runs-on: ubuntu-latest
+    # Cost guardrail: no job may run unbounded.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          submodules: recursive
+          # SUBMODULE_PAT when defined, else the workflow token (fork PRs get
+          # no secrets; the workflow token reads a public crux-shared).
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          # Same pin as every other job in the suite — see `analyze`.
+          flutter-version: '3.47.3'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Licence gate
+        # Fails the build on copyleft, or on a licence the classifier cannot
+        # identify. Dev dependencies are reported and not gated: they never
+        # ship, so they carry no obligation on the artifact.
+        run: python3 crux-shared/tool/supply-chain.py --check-licences --tier open-core
+
+      - name: SBOM (CycloneDX)
+        run: python3 crux-shared/tool/supply-chain.py --sbom build/sbom.json
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sbom-simcrux
+          path: build/sbom.json
+          retention-days: 90
+
+      - name: Advisories (osv.dev)
+        # Deliberately not `continue-on-error`. The script itself returns zero
+        # when osv.dev is unreachable — a gate that goes red because somebody
+        # else's service is down teaches people to ignore it — so a red here
+        # means a real advisory against a package that ships.
+        run: python3 crux-shared/tool/supply-chain.py --check-advisories

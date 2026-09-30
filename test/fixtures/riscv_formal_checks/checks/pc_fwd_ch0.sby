@@ -1,0 +1,18 @@
+# Generated-shaped riscv-formal job file. See ../README.md — the sources
+# named below do not exist and are never read.
+[options]
+mode bmc
+depth 10
+append 0
+
+[engines]
+smtbmc boolector
+
+[script]
+read_verilog -sv demo_core.v
+read_verilog -sv rvfi_pc_fwd_check.sv
+prep -top rvfi_testbench -nordff
+
+[files]
+demo_core.v
+rvfi_pc_fwd_check.sv

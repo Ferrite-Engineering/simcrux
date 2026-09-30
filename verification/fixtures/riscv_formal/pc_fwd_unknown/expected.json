@@ -1,0 +1,12 @@
+{
+  "description": "The engine could not decide. Nothing was proved and nothing was refuted, so this must report fail — never pass, never vacuous, never unknown.",
+  "check": "pc_fwd_ch0",
+  "group": "pc_fwd",
+  "verdict": "UNKNOWN",
+  "status": "fail",
+  "return_code": 4,
+  "depth_reached": 12,
+  "engine": "abc pdr",
+  "elapsed_seconds": 6,
+  "traces": []
+}

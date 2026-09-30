@@ -1,0 +1,10 @@
+{
+  "description": "Yosys could not read a source, so the proof never ran. The failure message is SymbiYosys's own ERROR line, not a generic exit-code sentence.",
+  "check": "causal_ch0",
+  "group": "causal",
+  "proof_mode": "bmc",
+  "depth": 20,
+  "log": "sby.log",
+  "traces": [],
+  "exit_code": 16
+}

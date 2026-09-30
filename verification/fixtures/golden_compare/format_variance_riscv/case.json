@@ -1,0 +1,6 @@
+{
+  "description": "Same words as the golden, re-spelled: CRLF line endings, blank and whitespace-only lines, uppercase hex, 0X prefixes. The riscv_signature profile folds all of it and reports a match.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

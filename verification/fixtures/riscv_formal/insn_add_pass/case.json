@@ -1,0 +1,10 @@
+{
+  "description": "A clean bounded proof over the configured depth. The only case besides cover_multi_trace that may report pass.",
+  "check": "insn_add_ch0",
+  "group": "insn",
+  "proof_mode": "bmc",
+  "depth": 20,
+  "log": "sby.log",
+  "traces": [],
+  "exit_code": 0
+}

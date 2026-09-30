@@ -1,0 +1,12 @@
+{
+  "description": "THE TRAP. The log ends with no DONE (...) line at all and the process exits 0. Classifying from the exit code would report a proof that never happened as a pass.",
+  "check": "liveness_ch0",
+  "group": "liveness",
+  "verdict": "NO_OUTCOME",
+  "status": "fail",
+  "return_code": null,
+  "depth_reached": null,
+  "engine": "aiger suprove",
+  "elapsed_seconds": null,
+  "traces": []
+}

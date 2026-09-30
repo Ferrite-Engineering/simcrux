@@ -1,0 +1,7 @@
+# Tab walk: 6 stops, cycles
+1. uart button expanded
+2. tx_basic, Pass button
+3. rx_parity, Fail button
+4. spi button expanded
+5. loopback, Pass button
+6. cs_glitch, not run button

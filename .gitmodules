@@ -1,0 +1,3 @@
+[submodule "crux-shared"]
+	path = crux-shared
+	url = https://github.com/Ferrite-Engineering/crux-shared.git

@@ -1,0 +1,23 @@
+{
+  "description": "Byte-identical inputs to format_variance_riscv, read under the generic profile: whitespace is still insignificant, but case and the 0X prefix are NOT folded, so it diverges at offset 0. This pair is what makes the profile observable.",
+  "profile": "generic",
+  "dut": "dut.sig",
+  "dut_present": true,
+  "reference": "golden.sig",
+  "status": "fail",
+  "comparison": {
+    "matched": false,
+    "mismatch_offset": 0,
+    "dut_value": "0XDEADBEEF",
+    "ref_value": "deadbeef",
+    "dut_words": 8,
+    "ref_words": 8
+  },
+  "metrics": {
+    "golden.dut_words": "8",
+    "golden.ref_words": "8",
+    "golden.mismatch_offset": "0",
+    "golden.dut_value": "0XDEADBEEF",
+    "golden.ref_value": "deadbeef"
+  }
+}

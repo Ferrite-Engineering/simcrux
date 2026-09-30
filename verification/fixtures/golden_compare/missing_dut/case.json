@@ -1,0 +1,6 @@
+{
+  "description": "DUT dump was never written \u2014 the run exited without producing it. Must fail; an exit-0 run with no output is the trap that unknown would turn into a pass.",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

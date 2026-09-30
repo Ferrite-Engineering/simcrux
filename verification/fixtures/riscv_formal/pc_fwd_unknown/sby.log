@@ -1,0 +1,17 @@
+SBY 11:06:31 [pc_fwd_ch0] Removing directory 'pc_fwd_ch0'.
+SBY 11:06:31 [pc_fwd_ch0] Copy 'rvfi_pc_fwd_check.sv' to 'pc_fwd_ch0/src/rvfi_pc_fwd_check.sv'.
+SBY 11:06:31 [pc_fwd_ch0] engine_0: abc pdr
+SBY 11:06:31 [pc_fwd_ch0] base: starting process "cd pc_fwd_ch0/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 11:06:33 [pc_fwd_ch0] base: finished (returncode=0)
+SBY 11:06:33 [pc_fwd_ch0] engine_0.basecase: starting process "cd pc_fwd_ch0; yosys-abc -c 'pdr'"
+SBY 11:06:34 [pc_fwd_ch0] engine_0.basecase: ##   0:00:01  Checking assertions in step 0..
+SBY 11:06:35 [pc_fwd_ch0] engine_0.basecase: ##   0:00:02  Checking assertions in step 12..
+SBY 11:06:35 [pc_fwd_ch0] engine_0.basecase: ##   0:00:02  Status: passed
+SBY 11:06:36 [pc_fwd_ch0] engine_0.induction: ##   0:00:03  Trying induction in step 12..
+SBY 11:06:37 [pc_fwd_ch0] engine_0.induction: ##   0:00:04  Trying induction in step 11..
+SBY 11:06:37 [pc_fwd_ch0] engine_0.induction: ##   0:00:04  Engine gave up: proof-engine resource limit reached.
+SBY 11:06:37 [pc_fwd_ch0] engine_0: finished (returncode=0)
+SBY 11:06:37 [pc_fwd_ch0] engine_0: Status returned by engine: UNKNOWN
+SBY 11:06:37 [pc_fwd_ch0] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:06 (6)
+SBY 11:06:37 [pc_fwd_ch0] summary: engine_0 (abc pdr) returned UNKNOWN
+SBY 11:06:37 [pc_fwd_ch0] DONE (UNKNOWN, rc=4)

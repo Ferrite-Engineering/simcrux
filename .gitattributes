@@ -1,0 +1,86 @@
+# Line endings: LF in the repository, LF in every working tree.
+#
+# Git on Windows defaults to core.autocrlf=true, which hands the working tree
+# CRLF. Any test that asserts on a `\n`-anchored line of a file it read from
+# disk then fails on Windows and nowhere else. That class of failure reached
+# CI repeatedly and was only visible in the weekly cross-platform sweep, up to
+# a week after the commit that caused it.
+#
+# The index already stores LF, so this governs checkout only: no
+# re-normalisation, no diff churn.
+* text=auto eol=lf
+
+# Batch files are the one text format that requires CRLF to be correct.
+*.bat text eol=crlf
+
+# Byte-exact, never normalised. Git's content heuristic gets most of these
+# right on its own, but not all of them — a PDF whose streams are uncompressed
+# carries no early NUL and is detected as text — so the intent is stated here
+# rather than left to the heuristic.
+*.a     -text
+*.bin   -text
+*.dll   -text
+*.dmg   -text
+*.docx  -text
+*.dylib -text
+*.exe   -text
+*.fst   -text
+*.ghw   -text
+*.gif   -text
+*.gz    -text
+*.icns  -text
+*.ico   -text
+*.jar   -text
+*.jpeg  -text
+*.jpg   -text
+*.lxt   -text
+*.lxt2  -text
+*.mov   -text
+*.mp4   -text
+*.otf   -text
+*.pdf   -text
+*.png   -text
+*.pyc   -text
+*.riv   -text
+*.so    -text
+*.ttf   -text
+*.vvp   -text
+*.wasm  -text
+*.webm  -text
+*.webp  -text
+*.woff  -text
+*.woff2 -text
+*.zip   -text
+
+# ---------------------------------------------------------------------------
+# Rules below predate the blanket rule above and remain authoritative: within
+# a .gitattributes the last matching pattern wins, so the exception at the
+# foot of this file still governs the files it names.
+# ---------------------------------------------------------------------------
+
+# Fixture corpora are replayed byte-for-byte by the demo-mode drivers and
+# re-derived into committed goldens. Git for Windows defaults to
+# `core.autocrlf=true`, so without this the windows-latest CI job would
+# check the corpora out with different bytes than the ubuntu and macos
+# jobs parse. Pin them to LF so a fixture is the same file on every runner.
+#
+# `SbyLogReader` is CRLF-tolerant regardless (it splits with `LineSplitter`
+# and trims each line), and that tolerance is tested — this is belt to that
+# braces, and it keeps the goldens honest.
+test/fixtures/**    text eol=lf
+verification/**     text eol=lf
+
+# Exception to the rule above, and for the same reason it exists. The two
+# `format_variance_*` DUTs encode line-ending variance as *test data*: their
+# `case.json` states they are the golden's words "re-spelled: CRLF line
+# endings, blank and whitespace-only lines, uppercase hex, 0X prefixes", and
+# the `riscv_signature` profile is asserted to fold all four. `eol=lf` would
+# rewrite the very bytes under test — silently, since the suite would still
+# pass with one of the four variances gone. Pin them to verbatim instead,
+# which delivers the same "identical on every runner" guarantee more strongly
+# than `eol=lf` does: no conversion on any platform, in either direction.
+#
+# Left as `text eol=lf` these are also permanently dirty in every clone: git
+# normalises on the way in but never strips CR on checkout, so the worktree
+# never matches the CRLF blob. That is what kept the submodule detached.
+verification/fixtures/golden_compare/format_variance_*/dut.sig    -text

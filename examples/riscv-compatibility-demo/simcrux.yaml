@@ -1,0 +1,142 @@
+# SimCrux — RISC-V compatibility demo (no toolchain required)
+#
+# Open this file with File → Open Config…, then Tools → Run Regression.
+#
+# Every test below runs the `riscv_arch` driver in `mode: demo`: the driver
+# replays the committed
+# signature pairs under `verification/fixtures/golden_compare/` through the
+# *same* code path a real run takes — the same signature reading, the same
+# shared `GoldenComparator` call, the same metric emission, the same event
+# construction. Only the spawn steps (cross-compile, DUT run, reference-model
+# run) are skipped. Nothing is spawned, so you need no RISC-V cross-compiler,
+# no Spike or Sail, no riscv-arch-test checkout and no network.
+#
+# Demo mode is declared HERE, in config — never in the environment. That is
+# deliberate: an env-gated *separate* driver would make this demo exercise a
+# different code path than production, and then it would be evidence about
+# nothing.
+#
+# The corpus is deliberately NOT all-green. Eight cases report three passes
+# and five failures, which is what makes the dashboard worth looking at:
+#
+#   pass  I     / clean_pass               identical signatures
+#   fail  I     / first_word_mismatch      diverges at word 0 (the boundary
+#                                          an off-by-one hides)
+#   fail  M     / mid_file_mismatch        diverges mid-file
+#   fail  M     / length_mismatch          DUT signature is a prefix
+#   fail  C     / empty_dut                empty DUT dump → fail, never
+#                                          `vacuous`
+#   fail  C     / missing_dut              no DUT dump at all → fail, never
+#                                          `unknown`
+#   pass  Zicsr / format_variance_riscv    read under `profile: riscv_signature`
+#   pass  Zicsr / format_variance_generic  the SAME bytes; they only report
+#                                          `fail` under `profile: generic`,
+#                                          and this driver is ISA-coupled by
+#                                          construction, so it always compares
+#                                          under `riscv_signature`
+#
+# The `extension:` tag on each test is what the Pro compatibility dashboard's
+# per-extension rollup groups on, so the four suites below produce one mixed
+# group (I), two all-failing groups (M, C) and one all-passing group (Zicsr).
+#
+# To point this at a real core instead, do not hand-write any of it — run
+# the importer over your checkout:
+#
+#   simcrux import-riscv-arch-test ~/src/riscv-arch-test \
+#     --isa rv32imc_zicsr_zifencei \
+#     --toolchain-prefix riscv64-unknown-elf- \
+#     --reference-model spike \
+#     --target-command './my_core --elf {elf} --signature {signature}'
+#
+# (or File → Import RISC-V Architectural Tests… in the app). It emits
+# `mode: normal`, `riscv.arch_test.suite_path`, the reference model and the
+# toolchain once under `defaults:`, and one test per architectural test with
+# its own `test:` path and `extension:` tag in place of the `demo_case:`
+# entries below. `--target-command` is the one input it cannot derive — it
+# is how YOUR core runs one test — and `mode: normal` will not load without
+# it. The `riscv:` block is never tier-gated — a compatibility verdict is
+# correctness, and correctness is free.
+
+version: '1'
+
+defaults:
+  simulator: riscv_arch
+  timeout: 30s
+
+  # The detector's config is self-contained and never sees the `riscv:`
+  # block. With `profile: riscv_signature` and no explicit paths this
+  # resolves to `signature.dut.sig` / `signature.ref.sig` — exactly the
+  # conventional names the driver stages the corpus dumps into the per-test
+  # working directory under. That shared convention is what keeps the two
+  # halves agreeing.
+  pass_fail:
+    type: golden_compare
+    profile: riscv_signature
+
+  riscv:
+    isa: rv32imc_zicsr_zifencei
+    mode: demo
+    # Relative to THIS file. The loader resolves it against the config's own
+    # directory, so the example works from wherever the repo is checked out.
+    demo_signatures: ../../verification/fixtures/golden_compare
+    signature:
+      # Bytes per signature word. It is what turns the comparison's word
+      # offset into the byte offset the divergent instruction decodes at.
+      word_size: 4
+
+suites:
+  I:
+    description: Base integer instructions — one clean pass, one divergence at word 0.
+    tests:
+      - name: clean_pass
+        top: clean_pass
+        riscv:
+          extension: I
+          demo_case: clean_pass
+      - name: first_word_mismatch
+        top: first_word_mismatch
+        riscv:
+          extension: I
+          demo_case: first_word_mismatch
+
+  M:
+    description: Multiply/divide — a mid-file divergence and a truncated signature.
+    tests:
+      - name: mid_file_mismatch
+        top: mid_file_mismatch
+        riscv:
+          extension: M
+          demo_case: mid_file_mismatch
+      - name: length_mismatch
+        top: length_mismatch
+        riscv:
+          extension: M
+          demo_case: length_mismatch
+
+  C:
+    description: Compressed — the two signature traps that must never report pass.
+    tests:
+      - name: empty_dut
+        top: empty_dut
+        riscv:
+          extension: C
+          demo_case: empty_dut
+      - name: missing_dut
+        top: missing_dut
+        riscv:
+          extension: C
+          demo_case: missing_dut
+
+  Zicsr:
+    description: CSR access — the format-variance pair, which makes the comparison profile observable.
+    tests:
+      - name: format_variance_riscv
+        top: format_variance_riscv
+        riscv:
+          extension: Zicsr
+          demo_case: format_variance_riscv
+      - name: format_variance_generic
+        top: format_variance_generic
+        riscv:
+          extension: Zicsr
+          demo_case: format_variance_generic

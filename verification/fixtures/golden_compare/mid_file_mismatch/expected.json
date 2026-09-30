@@ -1,0 +1,23 @@
+{
+  "description": "Divergence in the middle of the dump (offset 3).",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "dut_present": true,
+  "reference": "golden.sig",
+  "status": "fail",
+  "comparison": {
+    "matched": false,
+    "mismatch_offset": 3,
+    "dut_value": "cafeba00",
+    "ref_value": "cafebabe",
+    "dut_words": 8,
+    "ref_words": 8
+  },
+  "metrics": {
+    "golden.dut_words": "8",
+    "golden.ref_words": "8",
+    "golden.mismatch_offset": "3",
+    "golden.dut_value": "cafeba00",
+    "golden.ref_value": "cafebabe"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Divergence in the middle of the dump (offset 3).",
+  "profile": "riscv_signature",
+  "dut": "dut.sig",
+  "reference": "golden.sig"
+}

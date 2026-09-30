@@ -1,0 +1,19 @@
+# Keep blank issues ENABLED. The in-app issue reporter (Help -> Submit Issue)
+# opens a pre-filled new-issue URL with ?title=&body=&labels= rather than a
+# template; disabling blank issues would break that flow. Do not set
+# blank_issues_enabled to false.
+#
+# The Issues tab is a work queue: bugs and fixture submissions only. Everything
+# conversational -- questions, feature ideas, announcements -- lives in GitHub
+# Discussions, the single community hub (no Discord/Slack).
+blank_issues_enabled: true
+contact_links:
+  - name: 💡 Request a feature / share an idea
+    url: https://github.com/Ferrite-Engineering/simcrux/discussions/categories/ideas
+    about: Feature ideas live in Discussions → Ideas, where they can be discussed and upvoted before we turn accepted ones into tracked issues.
+  - name: 🙋 Questions & help
+    url: https://github.com/Ferrite-Engineering/simcrux/discussions/categories/q-a
+    about: "Ask \"how do I…\", share workflow tips, or get help. Keep crashes and defects in Issues so they hit the triage queue."
+  - name: 📘 SimCrux documentation
+    url: https://docs.simcrux.app/
+    about: Guides and reference. Filing from inside the app (Help → Submit Issue) is still the best way to report a bug — it attaches your version, platform and an optional diagnostics snapshot automatically.

@@ -1,0 +1,9 @@
+{
+  "description": "Expected results for the iverilog_fail fixture. Tests load the corresponding simcrux.yaml through ConfigLoader and assert the regression-runner produces one TestResult whose status matches `expected_status`.",
+  "tests": [
+    {
+      "id": "smoke/fail_basic",
+      "expected_status": "fail"
+    }
+  ]
+}
