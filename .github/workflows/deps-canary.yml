@@ -61,8 +61,11 @@ jobs:
       - name: Report in-range drift
         run: |
           # --json always reports transitive dependencies and refuses --no-transitive,
-          # so the direct-only filter is the `kind` check below.
-          flutter pub outdated --no-dev-dependencies --json > outdated.json
+          # so the direct-only filter is the `kind` check below. Dev dependencies
+          # stay in the resolution: without their constraints pub reports upgrades
+          # a real `flutter pub upgrade` cannot make (riverpod 3.4, held behind
+          # analyzer through riverpod_generator, was the first).
+          flutter pub outdated --json > outdated.json
           python3 - <<'PY'
           import json, os, sys
           data = json.load(open('outdated.json'))
