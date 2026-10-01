@@ -136,7 +136,7 @@ held in a commented allowlist. Adding a `services/`→`features/` or a
 SimCrux uses WaveCrux's per-tab and per-pane container architecture (`wavecrux/docs/ARCHITECTURE.md` §6.4). `bootstrap()` in `lib/app.dart` calls `createWorkspaceContainers` (`lib/features/workspace/providers/workspace_containers.dart`), which builds:
 
 - a **root** `ProviderContainer` carrying the bootstrap overrides — CLI args, the theme bridge, the update / issue-reporter / audit / telemetry bindings, and then the Pro overlay's `extraOverrides`, spread last so they win;
-- a **scoped** child container, handed to `runApp` through `UncontrolledProviderScope`;
+- a **scoped** child container, the one the widget tree reads. `runApp` mounts both through `WorkspaceContainersScope`: the root above the scoped container, although nothing reads the root through the tree. Riverpod gives every container its own scheduler, and a scheduler refreshes providers in step with the frame only while its container is mounted; unmounted, the root's providers (every provider nothing overrides) refreshed on a timer, and a frame that came first rebuilt their watchers while they were dirty, which asserts `markNeedsBuild() called during build`. `test/features/workspace/widgets/workspace_containers_scope_test.dart` fails that way when the root is left out;
 - `crux_workspace`'s `TabContainerManager` / `PaneContainerManager`, which parent one child container per workspace tab / pane under the root. Per-tab overrides come from `simcruxTabOverridesFactoryProvider` (default: the `simcruxTabOverrides` list in §10); per-pane overrides from `simcruxPaneOverrides`.
 
 The headless `--ci` and `export-dashboard` paths build a single transient `ProviderContainer` with the same telemetry overrides and `extraOverrides`, so a Pro override reaches them without the widget tree.
@@ -205,8 +205,9 @@ Future<bool> bootstrap({
     scopedOverrides: simcruxIssueReporterScopedOverrides,
   );
   runApp(
-    UncontrolledProviderScope(
-      container: containers.scoped,
+    WorkspaceContainersScope(
+      root: containers.root,
+      scoped: containers.scoped,
       child: const AppExitGuard(child: SimcruxApp()),
     ),
   );

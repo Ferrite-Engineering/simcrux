@@ -10,8 +10,9 @@
 // `pumpAndSettle(Duration)` — the live binding treats the pump duration as a
 // per-pump interval, not a timeout).
 //
-// SimCrux boots into an `UncontrolledProviderScope` (like NetCrux), so
-// `rootContainer` reads the container off the outermost scope widget.
+// SimCrux boots into a `WorkspaceContainersScope` (the root container above
+// the scoped one), so `rootContainer` reads the scoped container, the nearest
+// one above `SimcruxApp`.
 
 import 'dart:ui' as ui;
 
@@ -51,13 +52,14 @@ Future<bool> pumpUntil(
   return condition();
 }
 
-/// The root [ProviderContainer] the live app renders against — read off the
-/// outermost [UncontrolledProviderScope] widget's public `container` field.
+/// The [ProviderContainer] the live app renders against: the scoped
+/// container, the nearest one above [SimcruxApp]. Not the outermost scope —
+/// `WorkspaceContainersScope` mounts the root container above it.
 ProviderContainer rootContainer(WidgetTester tester) {
-  final scope = tester.widget<UncontrolledProviderScope>(
-    find.byType(UncontrolledProviderScope).first,
+  return ProviderScope.containerOf(
+    tester.element(find.byType(SimcruxApp)),
+    listen: false,
   );
-  return scope.container;
 }
 
 /// The live workspace value, or `null` while it is still hydrating.

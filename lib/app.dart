@@ -465,8 +465,9 @@ Future<bool> bootstrap({
   );
 
   runApp(
-    UncontrolledProviderScope(
-      container: scopedContainer,
+    WorkspaceContainersScope(
+      root: containers.root,
+      scoped: scopedContainer,
       // AppExitGuard must sit above the app so the OS-termination hook
       // is installed for the whole session, not per-route.
       child: const AppExitGuard(child: SimcruxApp()),

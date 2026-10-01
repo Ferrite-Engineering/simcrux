@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_workspace/crux_workspace.dart' as crux;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
@@ -100,4 +101,45 @@ WorkspaceContainers createWorkspaceContainers({
     ..addScopeReconciler(managers.tabs)
     ..addScopeReconciler(managers.panes);
   return (root: root, scoped: scoped, managers: managers);
+}
+
+/// Mounts [root] and, beneath it, [scoped] — the pair
+/// [createWorkspaceContainers] builds — above the app.
+///
+/// Both are mounted although the tree only ever reads [scoped], because
+/// Riverpod gives every container its own scheduler, and a scheduler
+/// refreshes providers in step with the frame only while an
+/// `UncontrolledProviderScope` for its container is in the tree. Every
+/// provider nothing overrides lives in [root], so with [scoped] mounted
+/// alone their refreshes ran on a zero-length timer instead. A frame that
+/// landed before the timer rebuilt their watchers while they were still
+/// dirty: the first watcher to read one flushed it mid-build and notified
+/// its siblings, and the framework asserted `markNeedsBuild() called during
+/// build`. Mounted, [root]'s scope builds first, above every watcher, and
+/// refreshes them before any of them builds.
+class WorkspaceContainersScope extends StatelessWidget {
+  /// Creates a scope mounting [root] above [scoped].
+  const WorkspaceContainersScope({
+    required this.root,
+    required this.scoped,
+    required this.child,
+    super.key,
+  });
+
+  /// The root container, parent of [scoped].
+  final ProviderContainer root;
+
+  /// The container the widget tree reads from.
+  final ProviderContainer scoped;
+
+  /// The app.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return UncontrolledProviderScope(
+      container: root,
+      child: UncontrolledProviderScope(container: scoped, child: child),
+    );
+  }
 }
