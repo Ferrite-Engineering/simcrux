@@ -60,12 +60,16 @@ jobs:
 
       - name: Report in-range drift
         run: |
-          flutter pub outdated --no-dev-dependencies --no-transitive --json > outdated.json
+          # --json always reports transitive dependencies and refuses --no-transitive,
+          # so the direct-only filter is the `kind` check below.
+          flutter pub outdated --no-dev-dependencies --json > outdated.json
           python3 - <<'PY'
           import json, os, sys
           data = json.load(open('outdated.json'))
           rows = []
           for p in data.get('packages', []):
+              if p.get('kind') != 'direct':
+                  continue
               cur = (p.get('current') or {}).get('version')
               upg = (p.get('upgradable') or {}).get('version')
               latest = (p.get('latest') or {}).get('version')
