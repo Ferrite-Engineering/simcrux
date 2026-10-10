@@ -231,4 +231,81 @@ void main() {
       expect(pressed(), 0);
     });
   });
+
+  group('a bare Escape binding (Cancel Regression)', () {
+    // The app mounts the manager in MaterialApp's builder, above the
+    // Navigator, so it sees a key before an open popup does. Escape is bound
+    // to Cancel Regression by default; on an open menu it must close the
+    // menu, not cancel. See crux-shared#27.
+    Future<int Function()> pumpAboveNavigator(
+      WidgetTester tester, {
+      bool Function(SimcruxAction action)? isEnabled,
+    }) async {
+      var cancelled = 0;
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            builder: (context, child) => ShortcutManagerWidget(
+              handlers: <SimcruxAction, VoidCallback>{
+                SimcruxAction.cancelRegression: () => cancelled++,
+              },
+              isEnabled: isEnabled,
+              child: child!,
+            ),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  autofocus: true,
+                  onPressed: () => showMenu<int>(
+                    context: context,
+                    position: RelativeRect.fill,
+                    items: const [
+                      PopupMenuItem<int>(value: 1, child: Text('Re-run')),
+                    ],
+                  ),
+                  child: const Text('Menu'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return () => cancelled;
+    }
+
+    testWidgets('Escape on an open menu closes it and does not cancel', (
+      tester,
+    ) async {
+      final cancelled = await pumpAboveNavigator(tester);
+      await tester.tap(find.text('Menu'));
+      await tester.pumpAndSettle();
+      expect(find.text('Re-run'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Re-run'), findsNothing);
+      expect(cancelled(), 0);
+    });
+
+    testWidgets('Escape with no popup open still cancels', (tester) async {
+      final cancelled = await pumpAboveNavigator(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(cancelled(), 1);
+    });
+
+    testWidgets('Escape does not fire Cancel Regression while it is disabled', (
+      tester,
+    ) async {
+      final cancelled = await pumpAboveNavigator(
+        tester,
+        isEnabled: (action) => action != SimcruxAction.cancelRegression,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(cancelled(), 0);
+    });
+  });
 }

@@ -158,7 +158,8 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   SimcruxAction.dispatchPrAnnotations ||
   // Export needs a completed run for the same reason. The dialog itself
   // re-checks and shows `exportEmpty` rather than trusting the grey-out: the
-  // palette drops disabled actions but a keyboard binding does not.
+  // palette and the keyboard drop disabled actions, but the handler is also
+  // reachable from callers that never consult this table.
   SimcruxAction.exportResults => const SimcruxActionDescriptor(
     surfaces: _menuPalette,
     isEnabled: _requiresResults,

@@ -28,6 +28,7 @@ import 'package:simcrux/core/platform/linux_desktop_identity.dart';
 import 'package:simcrux/core/policy/simcrux_policy_keys.dart';
 import 'package:simcrux/core/router/app_router.dart';
 import 'package:simcrux/core/shortcuts/shortcut_manager_widget.dart';
+import 'package:simcrux/core/shortcuts/simcrux_action_descriptors.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action_handlers.dart';
 import 'package:simcrux/core/telemetry/simcrux_telemetry_storage.dart';
 import 'package:simcrux/core/telemetry/simcrux_telemetry_strings.dart';
@@ -53,6 +54,7 @@ import 'package:simcrux/features/telemetry/simcrux_telemetry_overrides.dart';
 import 'package:simcrux/features/update/providers/update_overrides.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/project_workspace_sync.dart';
+import 'package:simcrux/features/workspace/providers/simcrux_action_context_provider.dart';
 import 'package:simcrux/features/workspace/providers/workspace_containers.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
@@ -807,6 +809,13 @@ class _SimcruxAppChrome extends StatelessWidget {
             onAction: (action) => handlers[action]?.call(),
             child: ShortcutManagerWidget(
               handlers: handlers,
+              // The same rule the menu bar greys items by. A disabled action
+              // leaves its key alone: Escape with no regression running used
+              // to cancel nothing.
+              isEnabled: (action) => isActionEnabled(
+                action,
+                innerRef.read(simcruxActionContextProvider),
+              ),
               child: child ?? const SizedBox.shrink(),
             ),
           );
