@@ -588,7 +588,6 @@ const List<String> kSimcruxGatedFeatureTokens = <String>[
   'close_all_projects',
   'pin_project',
   'cross_project_search',
-  'cross_probe',
 ];
 
 /// The tiers a gate may demand: `pro` or `enterprise`, and nothing else.

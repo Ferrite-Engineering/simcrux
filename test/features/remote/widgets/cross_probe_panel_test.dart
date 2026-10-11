@@ -16,7 +16,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_originate_gate_provider.dart';
 import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
 import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/widgets/cross_probe_panel.dart';
@@ -193,13 +192,13 @@ Future<void> hydrate(ProviderContainer container) async {
   await container.read(cxpServerProvider.future);
 }
 
-/// A container in which, absent a tier gate, a send WOULD go through: the
-/// server is running, one foreign peer is discovered, and a test is selected.
-ProviderContainer _gatedContainer({
+/// A container in which a send goes through: the server is running, one
+/// foreign peer is discovered, and a test is selected — at the given beta
+/// state and licence tier, neither of which may matter to the send.
+ProviderContainer _sendContainer({
   required bool beta,
   required LicenseTier tier,
   required _FakeSimServer fake,
-  List<Override> extra = const <Override>[],
 }) {
   final container = ProviderContainer(
     overrides: <Override>[
@@ -215,7 +214,6 @@ ProviderContainer _gatedContainer({
       cxpDialFailuresProvider.overrideWith(
         () => _StaticDialFailuresNotifier(const <CxpDialFailure>[]),
       ),
-      ...extra,
     ],
   );
   container.read(selectedTestIdProvider.notifier).select('cpu_unit/test_alu');
@@ -232,9 +230,6 @@ void _localizedToastTests() {
   }) async {
     final container = ProviderContainer(
       overrides: <Override>[
-        // Sending is a Pro capability, and these are about what the user is
-        // told when a send that was allowed fails, so the seat is Pro.
-        licenseTierProvider.overrideWithValue(LicenseTier.pro),
         cxpServerProvider.overrideWith(() => _RunningCxpServerNotifier(fake)),
         cxpDiscoveryProvider.overrideWith(_NoopDiscoveryNotifier.new),
         cxpPeersProvider.overrideWith(
@@ -298,128 +293,65 @@ void main() {
 
   group('the send-failure toast is in the user language', _localizedToastTests);
 
-  group('the per-peer send button is a route to a Pro capability', () {
-    // Origination is sold as Pro. The Pro overlay gates its own route (the
-    // dashboard row's cross-probe menu); this panel ships in open core and
-    // its send button reaches the same capability, so it has to gate too.
+  group('the per-peer send button is free on every tier', () {
+    // Cross-probing is free across the board, sending as well as receiving.
+    // A licence must never stand between a press and the send, before or
+    // after the beta, and nothing about upgrading is ever shown.
     Future<void> pumpAndSend(
       WidgetTester tester,
-      ProviderContainer container,
-    ) async {
+      ProviderContainer container, {
+      Locale? locale,
+    }) async {
       addTearDown(container.dispose);
       await hydrate(container);
       await tester.pumpWidget(
-        _wrap(const SimCruxCrossProbePanel(), container: container),
+        _wrap(
+          const SimCruxCrossProbePanel(),
+          container: container,
+          locale: locale,
+        ),
       );
       await tester.pump();
       await tester.tap(find.byKey(const Key('cross_probe_send_wavecrux-1')));
       await tester.pumpAndSettle();
     }
 
-    testWidgets('post-beta at Open Core: nothing is sent, and the user is '
-        'told why', (tester) async {
-      final fake = _FakeSimServer();
-      await pumpAndSend(
-        tester,
-        _gatedContainer(beta: false, tier: LicenseTier.openCore, fake: fake),
-      );
-      expect(
-        fake.sent,
-        isEmpty,
-        reason:
-            'the panel is open core and the send button reaches a Pro '
-            'capability; without a gate here the overlay menu gate is a '
-            'paywall with a second door',
-      );
-      expect(
-        find.textContaining('requires SimCrux Pro'),
-        findsOneWidget,
-        reason: 'a denied press is never silent',
-      );
-    });
-
-    testWidgets('post-beta at Pro: the send goes through', (tester) async {
-      final fake = _FakeSimServer();
-      await pumpAndSend(
-        tester,
-        _gatedContainer(beta: false, tier: LicenseTier.pro, fake: fake),
-      );
-      expect(fake.sent, hasLength(1));
-      expect(find.textContaining('requires SimCrux Pro'), findsNothing);
-    });
-
-    testWidgets('EDU is feature-equivalent to Pro', (tester) async {
-      final fake = _FakeSimServer();
-      await pumpAndSend(
-        tester,
-        _gatedContainer(beta: false, tier: LicenseTier.edu, fake: fake),
-      );
-      expect(fake.sent, hasLength(1));
-    });
-
-    testWidgets('during the beta every tier sends', (tester) async {
-      final fake = _FakeSimServer();
-      await pumpAndSend(
-        tester,
-        _gatedContainer(beta: true, tier: LicenseTier.openCore, fake: fake),
-      );
-      expect(fake.sent, hasLength(1));
-      expect(find.textContaining('requires SimCrux Pro'), findsNothing);
-    });
-
-    testWidgets('the panel asks the gate seam, so the Pro overlay can bind '
-        'its own dialog', (tester) async {
-      // The overlay overrides `crossProbeOriginateGateProvider` with its
-      // upgrade dialog. That only guards anything if the panel consults the
-      // seam rather than the tier directly.
-      final fake = _FakeSimServer();
-      var asked = 0;
-      await pumpAndSend(
-        tester,
-        // A tier the default gate would ADMIT, so a send that still gets
-        // through can only mean the seam was bypassed.
-        _gatedContainer(
-          beta: true,
-          tier: LicenseTier.pro,
-          fake: fake,
-          extra: [
-            crossProbeOriginateGateProvider.overrideWith(
-              (ref) => (_) {
-                asked++;
-                return false;
-              },
-            ),
-          ],
-        ),
-      );
-      expect(asked, 1);
-      expect(fake.sent, isEmpty);
-    });
+    for (final beta in <bool>[false, true]) {
+      for (final tier in LicenseTier.values) {
+        final when = beta ? 'during the beta' : 'post-beta';
+        testWidgets('$when at $tier: the send goes through, no upgrade '
+            'prompt', (tester) async {
+          final fake = _FakeSimServer();
+          await pumpAndSend(
+            tester,
+            _sendContainer(beta: beta, tier: tier, fake: fake),
+          );
+          expect(fake.sent, hasLength(1));
+          final (peerId, message) = fake.sent.single;
+          expect(peerId, 'wavecrux-1');
+          expect(
+            (message as RequestHighlight).element.path,
+            'cpu_unit/test_alu',
+          );
+          expect(find.textContaining('SimCrux Pro'), findsNothing);
+          expect(find.byType(SnackBar), findsNothing);
+          expect(find.byType(Dialog), findsNothing);
+        });
+      }
+    }
 
     for (final locale in L10N.supportedLocales) {
-      testWidgets('denial snack renders without exception in $locale', (
+      testWidgets('post-beta Open Core send needs no licence in $locale', (
         tester,
       ) async {
         final fake = _FakeSimServer();
-        final container = _gatedContainer(
-          beta: false,
-          tier: LicenseTier.openCore,
-          fake: fake,
+        await pumpAndSend(
+          tester,
+          _sendContainer(beta: false, tier: LicenseTier.openCore, fake: fake),
+          locale: locale,
         );
-        addTearDown(container.dispose);
-        await hydrate(container);
-        await tester.pumpWidget(
-          _wrap(
-            const SimCruxCrossProbePanel(),
-            container: container,
-            locale: locale,
-          ),
-        );
-        await tester.pump();
-        await tester.tap(find.byKey(const Key('cross_probe_send_wavecrux-1')));
-        await tester.pumpAndSettle();
-        expect(find.byType(SnackBar), findsOneWidget);
-        expect(fake.sent, isEmpty);
+        expect(fake.sent, hasLength(1));
+        expect(find.byType(SnackBar), findsNothing);
         expect(tester.takeException(), isNull);
       });
     }
@@ -520,8 +452,6 @@ void main() {
       );
       final container = ProviderContainer(
         overrides: <Override>[
-          // Sending is Pro; this is about the ack of a send that was allowed.
-          licenseTierProvider.overrideWithValue(LicenseTier.pro),
           cxpServerProvider.overrideWith(() => _RunningCxpServerNotifier(fake)),
           cxpDiscoveryProvider.overrideWith(_NoopDiscoveryNotifier.new),
           cxpPeersProvider.overrideWith(
@@ -575,8 +505,6 @@ void main() {
       );
       final container = ProviderContainer(
         overrides: <Override>[
-          // Sending is Pro; this is about the ack of a send that was allowed.
-          licenseTierProvider.overrideWithValue(LicenseTier.pro),
           cxpServerProvider.overrideWith(() => _RunningCxpServerNotifier(fake)),
           cxpDiscoveryProvider.overrideWith(_NoopDiscoveryNotifier.new),
           cxpPeersProvider.overrideWith(
@@ -616,8 +544,6 @@ void main() {
       final fake = _FakeSimServer();
       final container = ProviderContainer(
         overrides: <Override>[
-          // Sending is Pro; this is about the ack of a send that was allowed.
-          licenseTierProvider.overrideWithValue(LicenseTier.pro),
           cxpServerProvider.overrideWith(() => _RunningCxpServerNotifier(fake)),
           cxpDiscoveryProvider.overrideWith(_NoopDiscoveryNotifier.new),
           cxpPeersProvider.overrideWith(
@@ -655,7 +581,7 @@ void main() {
       WidgetTester tester,
       _FakeSimServer fake,
     ) async {
-      final container = _gatedContainer(
+      final container = _sendContainer(
         beta: true,
         tier: LicenseTier.pro,
         fake: fake,

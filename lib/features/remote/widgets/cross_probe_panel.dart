@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_originate_gate_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
 import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
 import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
@@ -180,14 +179,9 @@ class SimCruxCrossProbePanelController
   /// `notify_selection`; the explicit panel send is directed and wants
   /// confirmation, so it uses the acked form.
   ///
-  /// Origination is a Pro capability, and this button is a route to it that
-  /// ships in open core — so the tier is checked HERE, first, before the
-  /// server or the selection is resolved. A denied press has already been
-  /// explained by the gate; an unselected test after an admitted press is
-  /// the existing quiet no-op, which is a different situation from a
-  /// refusal.
+  /// Sending is free on every tier, like receiving: there is no licence
+  /// check on this path. An unselected test is a quiet no-op.
   Future<void> _sendTo(PeerIdentity peer) async {
-    if (!_ref.read(crossProbeOriginateGateProvider)(_ref.context)) return;
     final server = _ref.read(cxpServerProvider).value;
     if (server == null) return;
     final testId = _ref.read(selectedTestIdProvider);

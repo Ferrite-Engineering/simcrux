@@ -88,9 +88,4 @@ enum SimcruxGatedFeature {
 
   /// Cross-project search (`crossProjectSearchOpenerProvider`).
   crossProjectSearch,
-
-  /// Originating a cross-probe from the cross-probe panel's per-peer send
-  /// button (`crossProbeOriginateGateProvider`) — the one gate site open core
-  /// owns, because the panel ships here and reaches a Pro capability.
-  crossProbe,
 }

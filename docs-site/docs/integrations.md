@@ -10,8 +10,9 @@ workspaces.
 
 CXP — the Cross-Tool eXchange Protocol — is the suite's localhost link between
 WaveCrux, NetCrux, LintCrux and SimCrux. Its specification is public at
-[edacrux.app/cxp](https://edacrux.app/cxp). Receiving cross-probes and
-**Debug in WaveCrux** are open core.
+[edacrux.app/cxp](https://edacrux.app/cxp). Cross-probing is free on every
+tier: receiving, **Debug in WaveCrux**, and from 1.1 sending as well (1.0
+required Pro to send).
 
 ![Two EDACrux apps running side by side with their Cross-Probe panels open: NetCrux showing a schematic with its peer list, and WaveCrux showing waveform lanes with the same connected peers and a live cross-probe event.](img/CrossProbe.png)
 
@@ -77,9 +78,10 @@ Panel**, the **Cross-Probe Panel** toolbar button, or
   outbound, with direction, kind, peer and a one-line summary. **Clear** empties
   it.
 
-With <span class="tier tier-pro">Pro</span>, right-clicking a results row adds
-**Cross-probe to peer…** with a **Send selection to WaveCrux / NetCrux /
-LintCrux** entry for each connected peer.
+Right-clicking a results row adds **Cross-probe to peer…** with a **Send
+selection to WaveCrux / NetCrux / LintCrux** entry for each connected peer.
+From 1.1 the per-peer send button and these row entries work on every tier,
+with no license.
 
 ## Debug in WaveCrux deep-link {#deep-link}
 
