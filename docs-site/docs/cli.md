@@ -18,12 +18,15 @@ want depends on whether a display exists:
 
 - **The desktop app's command line.** Any invocation that is not one of the
   headless flows below opens the GUI. Useful for "open this project and show
-  me", and for `--ci` on a machine that has the app installed.
+  me", and for `--ci` on a machine that has the app installed. It is the only
+  executable that runs the `--fail-on-regression` gate (on macOS,
+  `SimCrux.app/Contents/MacOS/SimCrux`).
 - **The standalone `simcrux` binary.** Built from `bin/simcrux.dart` in the
   open-source tree with `tool/build_cli.sh` (`dart build cli`); the executable
   lands at `build/cli/bundle/bin/simcrux`. No window, no display server, no
   Flutter engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
-  subcommands and `export-dashboard`.
+  subcommands and `export-dashboard`. It does not carry the regression
+  comparison engine, so it refuses `--fail-on-regression` with exit `2`.
 
 !!! tip "It refuses to pretend"
     An invocation of the standalone binary that selects none of the headless
@@ -52,7 +55,7 @@ nothing (see
 | `--baseline <path>` | A `results.ndjson` from an earlier `--ci` run, used by `--fail-on-regression`. |
 | `--allow-project-tooling` | Honour the project file's tooling keys: `simulators.<id>.path` and `.env`; the `riscv` `target` / `riscof` / `compile` / `formal` `command:` lists; and the `riscv` executable paths `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary` and `formal.sby_binary`. Each of them chooses what this run executes or its environment, so without this flag a `command:` fails the load and the others are dropped with an advisory. It also lets `output.results_path` and `output.summary_path` point outside the project directory; without it such a path fails the load, because a `--ci` run creates and truncates those files. Pass it only for project files you trust. The app takes the same decision in **Settings → Simulators → Let project files choose simulator binaries and environment**. See [Projects and simulators](projects-and-simulators.md#schema). |
 | `--license-file <path>` | In `--ci` mode, the SimCrux license file to run under. See [License tier in CI](#license-in-ci). |
-| `--fail-on-regression` <span class="tier tier-pro">Pro</span> | Exit `1` when a test that passed in `--baseline` now fails. Exit `2`, with an `error: regression gate:` line on stderr, when the `--baseline` file is missing, unreadable or holds no results, or when the run's license does not include the gate (see [License tier in CI](#license-in-ci)). **Inert in open core** — it needs the SimCrux download's executable. Without `--baseline` it warns and leaves the exit code unchanged. See [Baseline comparison](baselines-ci-exports.md#baseline). |
+| `--fail-on-regression` <span class="tier tier-pro">Pro</span> | Exit `1` when a test that passed in `--baseline` now fails. Exit `2`, with an `error: regression gate:` line on stderr, when the `--baseline` file is missing, unreadable or holds no results, or when the run's license does not include the gate (see [License tier in CI](#license-in-ci)). Only the desktop app's executable runs the gate, with `--ci` and a Pro, EDU or Enterprise license. The standalone `simcrux` binary and open-source builds refuse it: exit `2` and an `error: regression gate:` line naming the desktop executable. Without `--baseline` it warns and leaves the exit code unchanged. See [Baseline comparison](baselines-ci-exports.md#baseline). |
 | `--import-fusesoc <core>` | Convert a FuseSoC `.core` file to `<name>.simcrux.yaml` next to it, print the output path and any warnings on stdout, and exit `0` (or `2` on failure). See [Importing FuseSoC files](fusesoc-import.md). |
 | `--session <path>` | Opens one extra tab whose config path is the given path. No session document is parsed — this is not a session restore. |
 | `--workspace <path>` | Load a saved workspace before opening positional projects. GUI only. |
@@ -131,7 +134,7 @@ exit `2` and a message naming the detector. Spell detectors out in
 |---|---|
 | `0` | All tests passed, or failures stayed below `--fail-threshold`. |
 | `1` | At least `--fail-threshold` tests failed, timed out or ended `unknown` (plus `vacuous` ones under `--fail-on-vacuous`), or `--fail-on-regression` found a new failure. |
-| `2` | SimCrux could not do what was asked: a usage error, a `simcrux.yaml` that fails to load, an import or export that could not be written, a `--fail-on-regression` baseline that could not be read or a license that does not include the regression gate, a test that was scheduled but never reported a result (stderr names it), or an unexpected error in the runner. |
+| `2` | SimCrux could not do what was asked: a usage error, a `simcrux.yaml` that fails to load, an import or export that could not be written, a `--fail-on-regression` baseline that could not be read, a license that does not include the regression gate, or a build without the regression comparison engine (the standalone binary), a test that was scheduled but never reported a result (stderr names it), or an unexpected error in the runner. |
 
 A test ends `unknown` when SimCrux could not decide its outcome — for example
 when its simulator binary could not be started, or no driver is registered for
@@ -157,7 +160,16 @@ simcrux my_project/simcrux.yaml --ci --filter axi4lite/
 # JSON summary for downstream tooling
 simcrux my_project/simcrux.yaml --json
 # {"totals":{"pass":42,"fail":3}}
+
+# Gate on new failures against a baseline (Pro): the desktop app's executable
+/Applications/SimCrux.app/Contents/MacOS/SimCrux my_project/simcrux.yaml --ci \
+  --license-file "$SIMCRUX_LICENSE" \
+  --baseline baseline/results.ndjson --fail-on-regression
 ```
+
+The regression gate runs only from the desktop app's executable. On Linux that
+executable needs a display; see
+[Which executable runs the gate](baselines-ci-exports.md#gate-executable).
 
 ## Subcommands {#subcommands}
 

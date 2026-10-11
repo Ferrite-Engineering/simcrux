@@ -22,7 +22,10 @@ import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart'
-    show FailOnRegressionDecision, FailOnRegressionPolicy;
+    show
+        FailOnRegressionDecision,
+        FailOnRegressionPolicy,
+        kRegressionGateUnavailableReason;
 import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
@@ -969,16 +972,19 @@ suites:
     });
 
     group('--fail-on-regression', () {
-      test('open-core default (NoopFailOnRegressionPolicy): exit 0 even with '
-          '--fail-on-regression set', () async {
+      test('open-core default (UnavailableFailOnRegressionPolicy) refuses '
+          'the gate: exit 2 and the reason on stderr', () async {
+        final stdoutLines = <String>[];
+        final stderrLines = <String>[];
         final runner = CiRunner(
           configLoader: ConfigLoader(),
           schedulerFactory: (_) => _FakeScheduler((_) => TestStatus.pass),
           exporterRegistry: const ExporterRegistry(),
           fileWriter: (_, _) async {},
-          stdoutWriter: (_) {},
+          stdoutWriter: stdoutLines.add,
+          stderrWriter: stderrLines.add,
           streamingWriterFactory: _testStreamingFactory(),
-          // Defaults to NoopFailOnRegressionPolicy.
+          // Defaults to UnavailableFailOnRegressionPolicy.
         );
         final outcome = await runner.run(
           args: const CliArgs(
@@ -989,8 +995,78 @@ suites:
           ),
           config: _config([_spec('unit', 'a')]),
         );
-        expect(outcome.exitCode, 0);
+        expect(outcome.exitCode, 2);
+        expect(
+          stderrLines,
+          contains('error: regression gate: $kRegressionGateUnavailableReason'),
+        );
+        expect(
+          stdoutLines,
+          isNot(anyElement(contains('regression gate'))),
+          reason: 'stdout carries the verdict only',
+        );
       });
+
+      test('a refused gate with a reason keeps a higher exit code', () async {
+        // Higher exit code wins: a policy-set 2 does not lower a 5.
+        final stderrLines = <String>[];
+        final runner = CiRunner(
+          configLoader: ConfigLoader(),
+          schedulerFactory: (_) => _FakeScheduler((_) => TestStatus.pass),
+          exporterRegistry: const ExporterRegistry(),
+          fileWriter: (_, _) async {},
+          stdoutWriter: (_) {},
+          stderrWriter: stderrLines.add,
+          streamingWriterFactory: _testStreamingFactory(),
+          failOnRegressionPolicy: _ConstantPolicy(
+            decision: const FailOnRegressionDecision(
+              failed: true,
+              exitCode: 1,
+              reason: 'baseline is stale',
+            ),
+          ),
+        );
+        final outcome = await runner.run(
+          args: const CliArgs(
+            projectPaths: ['/p/simcrux.yaml'],
+            ciMode: true,
+            failOnRegression: true,
+            baselineRunPath: '/snapshots/baseline.ndjson',
+          ),
+          config: _config([_spec('unit', 'a')]),
+        );
+        expect(outcome.exitCode, 1);
+        expect(
+          stderrLines,
+          contains('error: regression gate: baseline is stale'),
+        );
+      });
+
+      test(
+        'the default policy is not consulted without --baseline: warn, exit 0',
+        () async {
+          final stderrLines = <String>[];
+          final runner = CiRunner(
+            configLoader: ConfigLoader(),
+            schedulerFactory: (_) => _FakeScheduler((_) => TestStatus.pass),
+            exporterRegistry: const ExporterRegistry(),
+            fileWriter: (_, _) async {},
+            stdoutWriter: (_) {},
+            stderrWriter: stderrLines.add,
+            streamingWriterFactory: _testStreamingFactory(),
+          );
+          final outcome = await runner.run(
+            args: const CliArgs(
+              projectPaths: ['/p/simcrux.yaml'],
+              ciMode: true,
+              failOnRegression: true,
+            ),
+            config: _config([_spec('unit', 'a')]),
+          );
+          expect(outcome.exitCode, 0);
+          expect(stderrLines, isNot(anyElement(contains('regression gate:'))));
+        },
+      );
 
       test(
         '--fail-on-regression without --baseline warns on stderr and exits 0',

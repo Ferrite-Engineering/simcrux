@@ -7,7 +7,7 @@ import 'package:crux_license/crux_license_core.dart';
 import 'package:meta/meta.dart';
 // `package:riverpod` (not `flutter_riverpod`): this file sits inside the
 // headless CLI's import closure (`SimcruxCli` needs the policy interface
-// and its no-op), and the Flutter-bound barrel would fail the
+// and its open-core default), and the Flutter-bound barrel would fail the
 // `dart build cli` link. The provider type is identical — flutter_riverpod
 // re-exports it — so every existing consumer is unaffected.
 import 'package:riverpod/riverpod.dart';
@@ -16,30 +16,46 @@ import 'package:simcrux/domain/models/test_run.dart';
 
 /// Decision returned by [FailOnRegressionPolicy.shouldFailWithExitCode].
 ///
-/// `failed` indicates whether the candidate run regressed relative to
-/// the configured baseline; `exitCode` is the process exit status the
-/// CI runner should use. When `failed` is `false`, `exitCode` is
-/// always `0`. Open-core's [NoopFailOnRegressionPolicy] never sets
-/// `failed: true` (the comparison engine lives in the Pro overlay);
-/// the Pro implementation, when it does, computes `exitCode` from the
-/// `SIMCRUX_REGRESSION_EXIT_CODE` environment variable (default `1`)
-/// — see [FailOnRegressionPolicy]'s doc comment below.
+/// `failed` indicates whether the gate failed the run: the candidate
+/// regressed relative to the configured baseline, or the gate could not
+/// be evaluated at all. `exitCode` is the process exit status the CI
+/// runner should use. When `failed` is `false`, `exitCode` is always `0`.
+/// The Pro implementation computes the regression exit code from the
+/// `SIMCRUX_REGRESSION_EXIT_CODE` environment variable (default `1`) —
+/// see [FailOnRegressionPolicy]'s doc comment below. A gate that could
+/// not be evaluated fails with exit code `2` and says why in [reason].
 @immutable
 class FailOnRegressionDecision {
   /// Creates a [FailOnRegressionDecision].
   const FailOnRegressionDecision({
     required this.failed,
     required this.exitCode,
+    this.reason,
   });
 
-  /// "Did the candidate regress relative to baseline?"
+  /// A gate that was asked for and cannot run in this build: the
+  /// regression comparison engine is not linked into it. Exit code `2`,
+  /// the CLI's "could not do what was asked", with [reason] telling the
+  /// operator which executable does carry the engine.
+  const FailOnRegressionDecision.unavailable(String this.reason)
+    : failed = true,
+      exitCode = 2;
+
+  /// "Did the gate fail the run?" — a regression relative to baseline,
+  /// or a gate that could not be evaluated.
   final bool failed;
 
   /// Process exit code the CI runner should use: 0 when [failed] is
   /// false; non-zero when [failed] is true (the Pro implementation
-  /// defaults to 1, overridable via `SIMCRUX_REGRESSION_EXIT_CODE` —
-  /// see the class doc comment above).
+  /// defaults to 1 for a regression, overridable via
+  /// `SIMCRUX_REGRESSION_EXIT_CODE` — see the class doc comment above).
   final int exitCode;
+
+  /// Why the gate failed, for the operator, or null when there is nothing
+  /// to add beyond the exit code. `CiRunner` writes it to stderr after an
+  /// `error: regression gate: ` prefix, so a policy reports through the
+  /// runner's own writer instead of printing for itself.
+  final String? reason;
 
   /// Convenience: "no regression detected" decision (`failed=false`,
   /// `exitCode=0`).
@@ -53,23 +69,28 @@ class FailOnRegressionDecision {
       identical(this, other) ||
       other is FailOnRegressionDecision &&
           other.failed == failed &&
-          other.exitCode == exitCode;
+          other.exitCode == exitCode &&
+          other.reason == reason;
 
   @override
-  int get hashCode => Object.hash(failed, exitCode);
+  int get hashCode => Object.hash(failed, exitCode, reason);
 
   @override
   String toString() =>
-      'FailOnRegressionDecision(failed: $failed, exitCode: $exitCode)';
+      'FailOnRegressionDecision(failed: $failed, exitCode: $exitCode'
+      '${reason == null ? '' : ', reason: $reason'})';
 }
 
 /// Extension-point interface the Pro overlay implements to gate the
 /// CI exit code on regression detection.
 ///
-/// **Open-core default.** [NoopFailOnRegressionPolicy] returns
-/// [FailOnRegressionDecision.pass] for every call — open-core builds
-/// never fail a CI run on regression because the comparison engine
-/// lives in the Pro overlay.
+/// **Open-core default.** [UnavailableFailOnRegressionPolicy] refuses
+/// every call with [FailOnRegressionDecision.unavailable]: the comparison
+/// engine lives in the Pro overlay, so a build without it (the standalone
+/// headless `simcrux` binary, an open-source desktop build) cannot
+/// evaluate the gate, and a gate the job asked for and did not get must
+/// not report green. The refusal names the executable that does carry
+/// the engine.
 ///
 /// **Pro override.** The Pro overlay registers a concrete
 /// implementation that:
@@ -99,8 +120,8 @@ class FailOnRegressionDecision {
 /// fails the run with exit code 2, the same as a baseline that cannot be
 /// read: a gate the job asked for and did not get must not report green.
 ///
-/// Single-method but a real strategy seam: the open-core default is
-/// always-pass; the Pro implementation runs the comparison engine.
+/// Single-method but a real strategy seam: the open-core default
+/// refuses; the Pro implementation runs the comparison engine.
 /// The abstract class is load-bearing so Pro overrides do not need
 /// to redefine the typedef.
 abstract class FailOnRegressionPolicy {
@@ -115,12 +136,26 @@ abstract class FailOnRegressionPolicy {
   });
 }
 
-/// Open-core default. Always returns [FailOnRegressionDecision.pass]
-/// so the CI exit code is not affected by regression analysis. The
-/// Pro overlay replaces this with `ProFailOnRegressionPolicy`.
-class NoopFailOnRegressionPolicy implements FailOnRegressionPolicy {
+/// The stderr text (after `error: regression gate: `) for a gate that this
+/// build cannot evaluate.
+///
+/// English-only like every other line `--ci` prints: a CI log has no locale.
+const String kRegressionGateUnavailableReason =
+    "this build doesn't include the regression comparison engine. Run --ci "
+    "from the SimCrux desktop app's executable (on macOS, "
+    'SimCrux.app/Contents/MacOS/SimCrux) with a Pro license.';
+
+/// Open-core default: refuses the gate.
+///
+/// Returns [FailOnRegressionDecision.unavailable] with
+/// [kRegressionGateUnavailableReason] for every call, so `--fail-on-regression
+/// --baseline` in a build without the comparison engine fails the run with
+/// exit code `2` and says which executable to use, instead of exiting `0` as
+/// if the gate had run and found nothing. The Pro overlay replaces this with
+/// `ProFailOnRegressionPolicy`.
+class UnavailableFailOnRegressionPolicy implements FailOnRegressionPolicy {
   /// Const default.
-  const NoopFailOnRegressionPolicy();
+  const UnavailableFailOnRegressionPolicy();
 
   @override
   Future<FailOnRegressionDecision> shouldFailWithExitCode({
@@ -128,15 +163,17 @@ class NoopFailOnRegressionPolicy implements FailOnRegressionPolicy {
     required CliArgs args,
     required LicenseTier licenseTier,
   }) async {
-    return FailOnRegressionDecision.pass;
+    return const FailOnRegressionDecision.unavailable(
+      kRegressionGateUnavailableReason,
+    );
   }
 }
 
-/// Extension-point seam. Open-core default is the no-op policy; the
+/// Extension-point seam. Open-core default is the refusing policy; the
 /// Pro overlay overrides with `ProFailOnRegressionPolicy` (which
 /// runs `RegressionComparisonEngine` against the baseline snapshot
 /// referenced by [CliArgs.baselineRunPath]).
 final Provider<FailOnRegressionPolicy> failOnRegressionPolicyProvider =
     Provider<FailOnRegressionPolicy>(
-      (_) => const NoopFailOnRegressionPolicy(),
+      (_) => const UnavailableFailOnRegressionPolicy(),
     );

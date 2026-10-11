@@ -20,6 +20,11 @@ tool/build_cli.sh                     # → build/cli/bundle/bin/simcrux
 Cache it or publish it as an internal artifact, and put it on the
 runner's `PATH`. The recipes below assume that has been done.
 
+The standalone binary does not run the Pro `--fail-on-regression` gate: given
+`--baseline` and `--fail-on-regression` it exits `2`. A job that gates on a
+baseline runs the desktop app's executable instead; see
+[Which executable runs the gate](baselines-ci-exports.md#gate-executable).
+
 ## GitHub Actions
 
 ```yaml

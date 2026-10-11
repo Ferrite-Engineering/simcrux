@@ -132,7 +132,7 @@ class CiRunner {
        streamingWriterFactory =
            streamingWriterFactory ?? _defaultStreamingWriterFactory,
        failOnRegressionPolicy =
-           failOnRegressionPolicy ?? const NoopFailOnRegressionPolicy();
+           failOnRegressionPolicy ?? const UnavailableFailOnRegressionPolicy();
 
   /// Where this run's counters go.
   ///
@@ -174,8 +174,9 @@ class CiRunner {
 
   /// Policy consulted after the run completes to compute the
   /// regression-comparison exit-code override. Open-core builds use
-  /// [NoopFailOnRegressionPolicy] which always returns
-  /// [FailOnRegressionDecision.pass]; the Pro overlay registers a
+  /// [UnavailableFailOnRegressionPolicy], which refuses the gate (exit 2,
+  /// with a reason this runner writes to [stderrWriter]) because the
+  /// comparison engine is not in them; the Pro overlay registers a
   /// concrete policy via [failOnRegressionPolicyProvider].
   final FailOnRegressionPolicy failOnRegressionPolicy;
 
@@ -338,9 +339,12 @@ class CiRunner {
 
     // Regression comparison gate. Only consulted when --ci AND
     // --fail-on-regression are both set. The policy is open-core's
-    // NoopFailOnRegressionPolicy by default (always-pass); the Pro
+    // UnavailableFailOnRegressionPolicy by default, which refuses the
+    // gate (exit 2) because the engine is not in this build; the Pro
     // overlay registers a concrete policy that diffs against the
-    // baseline ndjson referenced by args.baselineRunPath. Layering
+    // baseline ndjson referenced by args.baselineRunPath. A failed
+    // decision that carries a reason is reported here, on stderr, so
+    // a refused gate never fails the job without saying why. Layering
     // semantics: a fail-threshold failure already produced exit=1;
     // a regression detection promotes a clean run to non-zero. The
     // higher exit code wins so users see "regression detected"
@@ -357,8 +361,10 @@ class CiRunner {
           args: args,
           licenseTier: licenseTier,
         );
-        if (decision.failed && decision.exitCode > exitCode) {
-          exitCode = decision.exitCode;
+        if (decision.failed) {
+          final reason = decision.reason;
+          if (reason != null) stderrWriter('error: regression gate: $reason');
+          if (decision.exitCode > exitCode) exitCode = decision.exitCode;
         }
       }
     }

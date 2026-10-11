@@ -488,8 +488,8 @@ Future<void> _runCiInvocation(
   // The FailOnRegressionPolicy is resolved through a transient
   // ProviderContainer so the Pro overlay's override flows into the
   // runner the same way it flows into the rest of the app. In an
-  // open-core build the container returns NoopFailOnRegressionPolicy
-  // and --fail-on-regression has no effect on the exit code.
+  // open-core build the container returns UnavailableFailOnRegressionPolicy,
+  // which refuses --fail-on-regression --baseline with exit code 2.
   // The telemetry overrides are spread first so `extraOverrides` (the Pro
   // overlay, or a test's) can layer on top, exactly as in the GUI container
   // [bootstrap] builds. They are what let `resolveHeadlessTelemetry` read the consent the

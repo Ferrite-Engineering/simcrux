@@ -258,6 +258,46 @@ void main() {
     },
   );
 
+  test(
+    '--ci in a build without the comparison engine refuses '
+    '--fail-on-regression --baseline with exit 2',
+    () async {
+      final configPath = await _writeConfig();
+      final saved = io.exitCode;
+      addTearDown(() => io.exitCode = saved);
+
+      io.exitCode = 0;
+      await bootstrap(
+        args: [
+          '--ci',
+          configPath,
+          '--fail-on-regression',
+          '--baseline',
+          '/ci/baseline.ndjson',
+        ],
+        extraOverrides: [
+          headlessLicenseTierResolverProvider.overrideWithValue(
+            _RecordingResolver(),
+          ),
+          // No policy override: the open-core default.
+          simulatorDriverRegistryProvider.overrideWithValue(
+            SimulatorDriverRegistry({
+              'icarus': _FixedOutcomeDriver(pass: true),
+            }),
+          ),
+        ],
+      );
+
+      expect(
+        io.exitCode,
+        2,
+        reason:
+            'a gate the job asked for and did not get must not report '
+            'green, even when every test passed',
+      );
+    },
+  );
+
   group('headless invocations end the process', () {
     test(
       'an unrecognized argument exits 2 instead of opening the GUI',

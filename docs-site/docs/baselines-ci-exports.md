@@ -35,9 +35,35 @@ mistyped path cannot quietly switch the gate off. The gate is a Pro feature and
 follows the run's [license tier](cli.md#license-in-ci). A run that
 resolves as Open Core refuses it the same way a bad baseline is refused, with an
 `error: regression gate:` line naming the tier and exit `2`, rather than
-passing a gate it did not evaluate. The gate needs the SimCrux
-download's own executable; in an open-core build the flag has no effect. See
+passing a gate it did not evaluate. See
 [Command line & CI](cli.md#arguments).
+
+### Which executable runs the gate {#gate-executable}
+
+The comparison engine is in the SimCrux desktop app, not in the standalone
+`simcrux` binary. Run the gate with the desktop app's own executable and
+`--ci`:
+
+- **macOS:** `SimCrux.app/Contents/MacOS/SimCrux`
+- **Windows and Linux:** the executable the desktop download installs
+
+With `--ci` that executable runs the regression and exits without opening the
+app's window. It needs a Pro, EDU or Enterprise license, given with
+`--license-file`, `SIMCRUX_LICENSE_FILE` or your policy file (see
+[License tier in CI](cli.md#license-in-ci)).
+
+The standalone `simcrux` binary, and any build of the open-source tree, does
+not carry the engine. Given `--fail-on-regression` and `--baseline`, it runs
+the tests, prints the summary, then prints
+`error: regression gate: this build doesn't include the regression comparison engine. …`
+on stderr and exits `2`. It never reports a gate it did not run as passed.
+
+On a macOS CI runner the desktop executable runs as it is: GitHub's hosted
+macOS runners have a GUI session. On Linux, the desktop app is a GTK
+application and needs a display before it reads its arguments, and SimCrux does
+not yet document a way to run it on a runner without one. There, run the gate
+on a runner with a graphical session; the standalone binary covers every other
+`--ci` job.
 
 ## Exports {#exports}
 
@@ -79,14 +105,18 @@ runtime, built from the open-source tree with `tool/build_cli.sh`. It supports
 `--ci` with every export target, the FuseSoC and RISC-V importers, and
 `export-dashboard`. An invocation that would open a window in the desktop app
 exits `2` with the usage text instead, and the standalone binary never transmits
-telemetry.
+telemetry. It does not run the regression gate: see
+[Which executable runs the gate](#gate-executable).
 
 ```bash
 # Minimal CI invocation
 simcrux simcrux.yaml --ci --export junit=report.xml
 
-# Cap concurrency and gate only on regressions against a baseline (Pro)
-simcrux simcrux.yaml --ci --max-parallel 16 \
+# Cap concurrency and gate only on regressions against a baseline (Pro).
+# The gate needs the desktop app's executable, not the standalone binary:
+# see "Which executable runs the gate" above.
+/Applications/SimCrux.app/Contents/MacOS/SimCrux simcrux.yaml --ci \
+  --max-parallel 16 --license-file "$SIMCRUX_LICENSE" \
   --baseline baseline/results.ndjson --fail-on-regression
 
 # Also fail when a result is classified vacuous
@@ -170,7 +200,10 @@ never posted).
    step and archive `results/index.html` as a build artifact — or build a full
    [web dashboard](ci-integration.md) from `results.ndjson`.
 4. **Gate on regressions** <span class="tier tier-pro">Pro</span>. Keep a
-   known-good `results.ndjson` and add `--baseline <file> --fail-on-regression`.
+   known-good `results.ndjson` and add `--baseline <file> --fail-on-regression`,
+   run from the desktop app's executable with a license (see
+   [Which executable runs the gate](#gate-executable)). The standalone
+   `simcrux` binary refuses the gate with exit `2`.
 
 !!! note "Next"
     To share results across a whole team rather than per build, see the

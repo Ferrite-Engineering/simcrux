@@ -29,40 +29,65 @@ void main() {
       expect(decision.exitCode, 0);
     });
 
-    test('value-equal on (failed, exitCode)', () {
+    test('value-equal on (failed, exitCode, reason)', () {
       const a = FailOnRegressionDecision(failed: true, exitCode: 1);
       const b = FailOnRegressionDecision(failed: true, exitCode: 1);
       const c = FailOnRegressionDecision(failed: true, exitCode: 2);
+      const d = FailOnRegressionDecision(
+        failed: true,
+        exitCode: 1,
+        reason: 'why',
+      );
       expect(a, equals(b));
       expect(a.hashCode, b.hashCode);
       expect(a, isNot(equals(c)));
+      expect(a, isNot(equals(d)));
+    });
+
+    test('unavailable is a failed gate with exit 2 and its reason', () {
+      const decision = FailOnRegressionDecision.unavailable('no engine');
+      expect(decision.failed, isTrue);
+      expect(decision.exitCode, 2);
+      expect(decision.reason, 'no engine');
     });
   });
 
-  group('NoopFailOnRegressionPolicy', () {
-    test('always returns pass regardless of args / candidate', () async {
-      const policy = NoopFailOnRegressionPolicy();
+  group('UnavailableFailOnRegressionPolicy', () {
+    test('refuses the gate at every tier: exit 2, names the desktop '
+        'executable', () async {
+      const policy = UnavailableFailOnRegressionPolicy();
       final run = TestRun(
         id: 'r1',
         startedAt: DateTime.utc(2026, 5),
         testIds: const ['unit/alu'],
       );
-      const args = CliArgs(failOnRegression: true);
-      final decision = await policy.shouldFailWithExitCode(
-        candidate: run,
-        args: args,
-        licenseTier: LicenseTier.enterprise,
+      const args = CliArgs(
+        failOnRegression: true,
+        baselineRunPath: '/b/baseline.ndjson',
       );
-      expect(decision, FailOnRegressionDecision.pass);
+      for (final tier in LicenseTier.values) {
+        final decision = await policy.shouldFailWithExitCode(
+          candidate: run,
+          args: args,
+          licenseTier: tier,
+        );
+        expect(decision.failed, isTrue, reason: '$tier');
+        expect(decision.exitCode, 2, reason: '$tier');
+        expect(decision.reason, kRegressionGateUnavailableReason);
+      }
+      expect(
+        kRegressionGateUnavailableReason,
+        contains('SimCrux.app/Contents/MacOS/SimCrux'),
+      );
     });
   });
 
   group('failOnRegressionPolicyProvider', () {
-    test('open-core default is NoopFailOnRegressionPolicy', () {
+    test('open-core default is UnavailableFailOnRegressionPolicy', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       final policy = container.read(failOnRegressionPolicyProvider);
-      expect(policy, isA<NoopFailOnRegressionPolicy>());
+      expect(policy, isA<UnavailableFailOnRegressionPolicy>());
     });
 
     test('override surfaces the supplied policy', () async {

@@ -157,10 +157,12 @@ class CliArgs {
   /// process exits non-zero if the completed run regressed relative
   /// to the baseline referenced by [baselineRunPath]. The comparison
   /// is performed by the
-  /// `failOnRegressionPolicyProvider`-registered policy — open-core
-  /// builds always return "no regression" (the engine lives in the
-  /// Pro overlay); the Pro overlay runs the regression-comparison
-  /// engine against the supplied baseline snapshot.
+  /// `failOnRegressionPolicyProvider`-registered policy. Builds without
+  /// the engine (the standalone `simcrux` binary, open-core desktop
+  /// builds) refuse the gate: exit code `2` and a stderr line naming the
+  /// SimCrux desktop app's executable, because a gate the job asked for
+  /// and did not get must not report green. The Pro overlay runs the
+  /// regression-comparison engine against the supplied baseline snapshot.
   ///
   /// When set without [baselineRunPath] the CI runner emits a
   /// warning and proceeds with `exitCode = 0` (no regression

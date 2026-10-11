@@ -316,6 +316,49 @@ targets:
         },
       );
 
+      // The standalone binary does not carry the comparison engine. A gate
+      // the job asked for and did not get must not report green, so it
+      // refuses with exit 2 and names the executable that does run it.
+      test(
+        '--fail-on-regression --baseline exits 2 and names the desktop '
+        'executable on stderr',
+        () async {
+          final config = writeConfig();
+          final baseline = File(p.join(tmp.path, 'baseline.ndjson'))
+            ..writeAsStringSync('');
+          final code = await run(
+            <String>[
+              '--ci',
+              config,
+              '--baseline',
+              baseline.path,
+              '--fail-on-regression',
+              // A threshold no run reaches: only the gate can fail this job.
+              '--fail-threshold',
+              '999',
+            ],
+            cli: SimcruxCli(
+              driverRegistry: SimulatorDriverRegistry(
+                <String, SimulatorDriver>{
+                  _ScriptedDriver.kId: _ScriptedDriver(),
+                },
+              ),
+            ),
+          );
+          expect(code, 2);
+          expect(out.join('\n'), contains('1 passed'));
+          expect(
+            err,
+            anyElement(
+              allOf(
+                startsWith('error: regression gate: '),
+                contains('SimCrux.app/Contents/MacOS/SimCrux'),
+              ),
+            ),
+          );
+        },
+      );
+
       test(
         'an unknown --export format is a usage error before any run',
         () async {
@@ -366,7 +409,8 @@ suites:
       SimcruxCli licensedCli({
         required Map<String, LicenseValidation> outcomes,
         required List<LicenseTier> tiersSeen,
-        FailOnRegressionPolicy policy = const NoopFailOnRegressionPolicy(),
+        FailOnRegressionPolicy policy =
+            const UnavailableFailOnRegressionPolicy(),
       }) => SimcruxCli(
         driverRegistry: SimulatorDriverRegistry(<String, SimulatorDriver>{
           _ScriptedDriver.kId: _ScriptedDriver(),

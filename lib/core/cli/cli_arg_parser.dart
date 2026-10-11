@@ -109,9 +109,12 @@ class CliArgParser {
         help:
             'In --ci mode, exit non-zero when the completed run '
             'regresses relative to the baseline supplied via '
-            '--baseline. Open-core builds always succeed (the '
-            'regression comparison engine is a Pro feature). The Pro '
-            'build runs the engine and exits with code 1 by default '
+            '--baseline. The regression comparison engine is a Pro '
+            "feature: it runs from the SimCrux desktop app's executable "
+            'with --ci and a Pro license. Builds without it, including '
+            'the standalone simcrux binary, refuse the gate with exit '
+            'code 2. The desktop app runs the engine and exits with '
+            'code 1 by default '
             'on regression — override via SIMCRUX_REGRESSION_EXIT_CODE '
             'env var when your CI system requires a specific code — '
             'and exits 2 when the --baseline file is missing, unreadable '

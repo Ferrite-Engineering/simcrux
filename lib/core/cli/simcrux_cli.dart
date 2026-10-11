@@ -63,10 +63,12 @@ import 'package:simcrux/services/simulator/verilator_driver.dart';
 ///   telemetry (LintCrux's `HeadlessTelemetry` shape) can replace the
 ///   default later without touching this class's callers.
 /// * **Open-core policy objects by default.** A `--fail-on-regression`
-///   engine arrives via [failOnRegressionPolicy]; this binary passes the
-///   no-op, so the flag is inert here, as it is in an open-core desktop
-///   `--ci` run. The regression gate runs only from the SimCrux Pro desktop
-///   app's `--ci`.
+///   engine arrives via [failOnRegressionPolicy]; this binary passes
+///   [UnavailableFailOnRegressionPolicy], so `--fail-on-regression
+///   --baseline` here fails the run with exit code 2 and a stderr line
+///   naming the desktop app's executable, as it does in an open-core
+///   desktop `--ci` run. The regression gate runs only from the SimCrux
+///   desktop app's `--ci`.
 ///
 /// The license tier is shared with the desktop `--ci`: both resolve it with
 /// [HeadlessLicenseTierResolver] (`--license-file`, then
@@ -87,7 +89,7 @@ class SimcruxCli {
   /// beta period off.
   SimcruxCli({
     SimulatorDriverRegistry? driverRegistry,
-    this.failOnRegressionPolicy = const NoopFailOnRegressionPolicy(),
+    this.failOnRegressionPolicy = const UnavailableFailOnRegressionPolicy(),
     this.telemetry = const NoopTelemetryService(),
     HeadlessLicenseTierResolver? licenseTierResolver,
     ConfigLoader Function(LicenseTier tier, {required bool allowTooling})?
@@ -101,8 +103,9 @@ class SimcruxCli {
   final SimulatorDriverRegistry driverRegistry;
 
   /// The `--fail-on-regression` decision engine. Open-core default is
-  /// the no-op (the comparison engine is a Pro feature); the flag is
-  /// then inert, exactly as it is in a desktop open-core `--ci` run.
+  /// [UnavailableFailOnRegressionPolicy] (the comparison engine is a Pro
+  /// feature): the gate is refused with exit code 2, exactly as it is in
+  /// a desktop open-core `--ci` run.
   final FailOnRegressionPolicy failOnRegressionPolicy;
 
   /// Where run counters go. Defaults to the no-op service — this
