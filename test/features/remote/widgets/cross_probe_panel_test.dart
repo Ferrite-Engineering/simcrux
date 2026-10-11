@@ -265,7 +265,7 @@ void _localizedToastTests() {
         fake: _FakeSimServer(delivered: false),
       );
       expect(
-        find.text(lookupL10N(locale).crossProbeSendFailed('wavecrux')),
+        find.text(lookupL10N(locale).crossProbeSendFailed('WaveCrux')),
         findsOneWidget,
       );
     });
@@ -278,7 +278,7 @@ void _localizedToastTests() {
         fake: _FakeSimServer(ackHonored: false, ackReason: reason),
       );
       expect(
-        find.text(lookupL10N(locale).crossProbeSendRefused('wavecrux', reason)),
+        find.text(lookupL10N(locale).crossProbeSendRefused('WaveCrux', reason)),
         findsOneWidget,
         reason: 'the frame is translated; the reason is the peer words',
       );

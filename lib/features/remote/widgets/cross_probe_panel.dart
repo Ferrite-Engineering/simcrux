@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/remote/cxp_peer_display_name.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
 import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
@@ -200,7 +201,9 @@ class SimCruxCrossProbePanelController
     // The panel closed while the ack was pending: there is no one left to
     // tell, and the host's `ref` throws once its widget is gone.
     if (_disposed) return;
-    final peerLabel = peer.productName.isEmpty ? peer.peerId : peer.productName;
+    final peerLabel = peer.productName.isEmpty
+        ? peer.peerId
+        : cxpPeerDisplayName(peer.productName);
     if (!result.delivered) {
       // The peer went away between the panel listing it and the send. The
       // user pressed a button; saying nothing would look like it worked.
