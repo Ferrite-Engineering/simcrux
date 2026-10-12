@@ -26,6 +26,11 @@ With <span class="tier tier-pro">Pro</span>, a chip at the right end of the row
 marks tests classified **FLAKY**, **HIGHLY FLAKY** or **BROKEN** — see
 [Flaky-test detection](trends-and-flaky.md#flaky).
 
+From 1.1, drag the divider at the right edge of a column header to widen that
+column at the expense of the next; double-click a divider to restore the
+default widths. The widths are remembered across tabs and launches. Hover a
+cell to see its full text when the column is too narrow to show it.
+
 ## Sorting {#sorting}
 
 Click any column header to sort by it; click again to reverse. Sort by

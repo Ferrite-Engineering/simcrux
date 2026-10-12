@@ -137,6 +137,7 @@ These keys are fixed and not remappable.
 |---|---|
 | Click a results-table row | Select the test and show it in the Details panel. |
 | Click a column header | Sort by that column; click again to reverse. |
+| Drag a column header's right-edge divider | Resize that column against the next (from 1.1). Double-click the divider to restore the default widths. |
 | Click a heatmap cell | Select that test. |
 | Right-click (or long-press) a results-table row | Open the row menu: **Send selection to WaveCrux / NetCrux / LintCrux** under **Cross-probe to peer…** (every tier from 1.1; Pro in 1.0), then <span class="tier tier-pro">Pro</span> **Re-run with seed N** (rows with a recorded seed), **Re-run all in this parameter group** (rows from a sweep) and **Show Trend Chart**. A build from the open-source repository alone has no row menu; use the Cross-Probe panel's send button there. |
 | Drag a tab onto another pane | Move the tab to that pane. |
