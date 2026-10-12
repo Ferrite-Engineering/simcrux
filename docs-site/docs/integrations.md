@@ -198,6 +198,13 @@ Configure it in **Settings → Editors**: pick **VS Code**, **Sublime Text**,
 | Vim | `vim +{line} {file}` |
 | Emacs | `emacsclient -n +{line}:{column} {file}` |
 
+The command's first word must be on your `PATH`, or be a full path such as
+`/usr/local/bin/code`. For VS Code, run **Shell Command: Install 'code' command
+in PATH** from its Command Palette once. From 1.1, SimCrux on macOS also looks
+in `/opt/homebrew/bin` and `/usr/local/bin`, so an app opened from Finder or the
+Dock finds `code` there too, and if the editor can't be started a message names
+the command to check.
+
 ## Multi-project workspaces <span class="tier tier-pro">Pro</span> {#workspaces}
 
 Pro lets one window hold several projects at once and remembers them.

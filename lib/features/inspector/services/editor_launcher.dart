@@ -46,6 +46,13 @@ import 'package:simcrux/domain/models/app_settings.dart';
 ///   before `PATH`, so a `code.exe` committed to the repository the user
 ///   `cd`'d into would run instead of the editor. An editor that is not on
 ///   `PATH` is reported as a failed launch, with nothing spawned.
+/// - **On macOS the search includes Homebrew's directories**
+///   ([engineSearchDirs]), as the simulator spawns' does. A Finder or Dock
+///   launch inherits `launchd`'s truncated `PATH`, which omits
+///   `/usr/local/bin` — where VS Code's "Install 'code' command in PATH"
+///   puts `code` — so "Open testbench source" did nothing at all. The name
+///   is resolved to an absolute path here rather than left to
+///   `Process.start`, which searches only this process's own `PATH`.
 ///
 /// What this deliberately does **not** do is quote or escape: the
 /// executable and arguments go to `Process.start` as a real argv, with
@@ -70,11 +77,15 @@ class EditorLauncher {
     required this.template,
     Future<Process> Function(String, List<String>)? processStarter,
     SpawnHost? spawnHost,
+    List<String>? extraSearchDirs,
   }) : _processStarter = processStarter ?? _defaultStart,
        // Private, so test doubles that implement this class need not; a
        // named parameter cannot be an initializing formal for it.
        // ignore: prefer_initializing_formals
-       _spawnHost = spawnHost;
+       _spawnHost = spawnHost,
+       // Private for the same reason as `_spawnHost`.
+       // ignore: prefer_initializing_formals
+       _extraSearchDirs = extraSearchDirs;
 
   /// The active command template (e.g.
   /// `'code --goto {file}:{line}:{column}'`).
@@ -85,6 +96,10 @@ class EditorLauncher {
   /// The host facts the executable is resolved against. Null means the
   /// live process, read at launch time.
   final SpawnHost? _spawnHost;
+
+  /// Directories searched after `PATH` for a bare executable name off
+  /// Windows. Null means [engineSearchDirs]; tests pass their own.
+  final List<String>? _extraSearchDirs;
 
   static Future<Process> _defaultStart(
     String executable,
@@ -145,13 +160,31 @@ class EditorLauncher {
       // Throws the same ProcessException a missing binary does, which the
       // catch below reports as a failed launch. Never retried with the bare
       // name: that is the search this exists to prevent.
-      final executable = (_spawnHost ?? SpawnHost.current()).requireExecutable(
-        cmd.executable,
-      );
+      final host = _spawnHost ?? SpawnHost.current();
+      var executable = host.requireExecutable(cmd.executable);
+      if (!host.windows) executable = _resolveOnPosix(executable, host);
       await _processStarter(executable, cmd.args);
       return true;
     } on Object {
       return false;
     }
+  }
+
+  /// [executable] as an absolute path when it is a bare name found in
+  /// `PATH` or the extra search directories, else unchanged (and the spawn
+  /// then fails as a missing binary would).
+  String _resolveOnPosix(String executable, SpawnHost host) {
+    if (executable.isEmpty || executable.contains('/')) return executable;
+    final exists = host.exists ?? (String path) => File(path).existsSync();
+    final dirs = <String>[
+      ...(host.environment['PATH'] ?? '').split(':'),
+      ...(_extraSearchDirs ?? engineSearchDirs()),
+    ].where((d) => d.isNotEmpty);
+    for (final dir in dirs) {
+      final base = dir.endsWith('/') ? dir.substring(0, dir.length - 1) : dir;
+      final candidate = '$base/$executable';
+      if (exists(candidate)) return candidate;
+    }
+    return executable;
   }
 }

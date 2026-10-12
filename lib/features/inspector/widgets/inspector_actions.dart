@@ -189,6 +189,16 @@ class InspectorActions extends ConsumerWidget {
     // ElementKind.source event. Stays a no-op when CXP is disabled.
     ref.read(explicitSourceSelectionProvider.notifier).select(sourcePath);
     final ok = await launcher.openSource(filePath: sourcePath);
+    if (!ok && context.mounted) {
+      // A failed hand-off used to be silent, so a wrong or missing editor
+      // command looked like a button that did nothing. Name the command the
+      // user can fix, not the path.
+      final command = launcher.template.trim().split(RegExp(r'\s+')).first;
+      showCruxErrorSnack(
+        context,
+        L10N.of(context).inspectorOpenSourceFailed(command),
+      );
+    }
     // `ok` is the whole signal: the editor command template is user-authored
     // free text, so the template, the executable it names and the path it
     // opened all stay on the machine. What ships is one bit — did the

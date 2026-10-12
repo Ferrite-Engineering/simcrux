@@ -744,6 +744,15 @@
   "@inspectorActionOpenSource": {
     "description": "Button label that opens the test's top-module testbench source in the configured editor."
   },
+  "inspectorOpenSourceFailed": "无法启动编辑器“{command}”。请检查 设置 > 编辑器 > 编辑器命令。",
+  "@inspectorOpenSourceFailed": {
+    "description": "Snackbar when Open testbench source could not start the configured editor. {command} is the first word of the editor command template (e.g. code).",
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
   "inspectorLogPreviewLineCount": "最后 {n} 行",
   "@inspectorLogPreviewLineCount": {
     "description": "Caption above the log preview indicating how many tail lines are shown.",

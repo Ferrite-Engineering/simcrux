@@ -1,6 +1,9 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:io';
+
+import 'package:crux_io/crux_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +22,8 @@ import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
 import 'package:simcrux/features/inspector/dialogs/log_viewer_dialog.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/inspector/services/editor_launcher.dart';
+import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_actions.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -149,6 +154,38 @@ void main() {
       expect(
         _buttonWithLabel(tester, l10n.inspectorActionOpenSource).onPressed,
         isNotNull,
+      );
+    });
+
+    testWidgets('a failed Open Source names the editor command to fix', (
+      tester,
+    ) async {
+      // It used to fail silently, which looked like a dead button.
+      await _pump(
+        tester,
+        _selection(spec: _spec()),
+        overrides: [
+          editorLauncherProvider.overrideWithValue(
+            EditorLauncher(
+              template: 'emacsclient -n +{line}:{column} {file}',
+              processStarter: (executable, args) => throw ProcessException(
+                executable,
+                args,
+                'not found',
+                2,
+              ),
+              spawnHost: const SpawnHost(windows: false, exists: _noFile),
+              extraSearchDirs: const <String>[],
+            ),
+          ),
+        ],
+      );
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      await tester.tap(find.text(l10n.inspectorActionOpenSource));
+      await tester.pump();
+      expect(
+        find.text(l10n.inspectorOpenSourceFailed('emacsclient')),
+        findsOneWidget,
       );
     });
 
@@ -298,3 +335,5 @@ class _RecordingRunner extends RegressionRunner {
     concurrencies.add(concurrency);
   }
 }
+
+bool _noFile(String _) => false;

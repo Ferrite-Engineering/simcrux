@@ -279,8 +279,63 @@ void main() {
       expect(recorder.calls.single.executable, r'C:\Editors\subl.exe');
     });
   });
+
+  group('EditorLauncher executable resolution (macOS Finder launch)', () {
+    // A Finder or Dock launch inherits launchd's PATH, which omits
+    // /usr/local/bin, where VS Code installs `code`. Open testbench source
+    // then did nothing at all.
+    SpawnHost finderHost(Set<String> files) => SpawnHost(
+      windows: false,
+      environment: const <String, String>{'PATH': '/usr/bin:/bin'},
+      exists: files.contains,
+    );
+    const homebrewDirs = <String>['/opt/homebrew/bin', '/usr/local/bin'];
+
+    test(
+      'a bare name missing from PATH is found in the Homebrew dirs',
+      () async {
+        final recorder = _RecordingStarter();
+        final launcher = EditorLauncher(
+          template: 'code --goto {file}:{line}:{column}',
+          processStarter: recorder.start,
+          spawnHost: finderHost({'/usr/local/bin/code'}),
+          extraSearchDirs: homebrewDirs,
+        );
+        expect(await launcher.openSource(filePath: '/w/tb.v'), isTrue);
+        expect(recorder.calls.single.executable, '/usr/local/bin/code');
+      },
+    );
+
+    test('PATH wins over the Homebrew dirs', () async {
+      final recorder = _RecordingStarter();
+      final launcher = EditorLauncher(
+        template: 'code {file}',
+        processStarter: recorder.start,
+        spawnHost: finderHost({'/bin/code', '/usr/local/bin/code'}),
+        extraSearchDirs: homebrewDirs,
+      );
+      expect(await launcher.openSource(filePath: '/w/tb.v'), isTrue);
+      expect(recorder.calls.single.executable, '/bin/code');
+    });
+
+    test('an editor found nowhere is passed through, and fails as a missing '
+        'binary does', () async {
+      final recorder = _RecordingStarter()..throwOnStart = true;
+      final launcher = EditorLauncher(
+        template: 'emacsclient -n +{line}:{column} {file}',
+        processStarter: recorder.start,
+        spawnHost: finderHost(const <String>{}),
+        extraSearchDirs: homebrewDirs,
+      );
+      expect(await launcher.openSource(filePath: '/w/tb.v'), isFalse);
+      expect(recorder.calls.single.executable, 'emacsclient');
+    });
+  });
 }
 
-/// A POSIX host, so the tests above mean the same thing on every runner:
-/// resolution is the identity off Windows.
-const SpawnHost _posix = SpawnHost(windows: false);
+/// A POSIX host on which no file exists, so the tests above mean the same
+/// thing on every runner: a bare name finds nothing to resolve to and is
+/// passed through as written.
+const SpawnHost _posix = SpawnHost(windows: false, exists: _noFile);
+
+bool _noFile(String _) => false;
