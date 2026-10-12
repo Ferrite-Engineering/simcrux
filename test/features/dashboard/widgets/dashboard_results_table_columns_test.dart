@@ -4,6 +4,7 @@
 import 'package:crux_settings/crux_settings.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +31,7 @@ void main() {
   Future<ProviderContainer> pumpTable(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    double width = 1400,
   }) async {
     await tester.binding.setSurfaceSize(const Size(1400, 600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -73,7 +75,15 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: L10N.supportedLocales,
-          home: const Scaffold(body: DashboardResultsTable()),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: width,
+                child: const DashboardResultsTable(),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -149,6 +159,37 @@ void main() {
         column == DashboardColumnLayout.columns.last
             ? findsNothing
             : findsOneWidget,
+        reason: column.name,
+      );
+    }
+  });
+
+  testWidgets('a header label may use its whole cell, not half of it', (
+    tester,
+  ) async {
+    // The label and the sort-arrow slot were both Flexible, which split the
+    // cell between them and showed "Simul…" in a column with room for
+    // "Simulator". The label's room is the cell less its 16 px padding and
+    // the 18 px arrow slot. (The test font is about twice as wide as the
+    // real one, so whether a label fits is not something to assert here.)
+    await pumpTable(tester, width: 1060);
+    for (final column in DashboardColumnLayout.columns) {
+      final cell = tester.getSize(
+        find.byKey(ValueKey('dashboardHeader-${column.name}')),
+      );
+      // The label is the first RichText; the active column's sort glyph is
+      // a second one.
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find
+            .descendant(
+              of: find.byKey(ValueKey('dashboardHeader-${column.name}')),
+              matching: find.byType(RichText),
+            )
+            .first,
+      );
+      expect(
+        paragraph.constraints.maxWidth,
+        closeTo(cell.width - 16 - 18, 0.5),
         reason: column.name,
       );
     }

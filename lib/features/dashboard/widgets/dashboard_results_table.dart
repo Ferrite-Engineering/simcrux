@@ -17,12 +17,16 @@ import 'package:simcrux/features/inspector/providers/selected_test_provider.dart
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 /// Column widths (logical pixels) used by both the header row and
-/// each body row so the columns line up. The status icon and
-/// checkbox columns are fixed; the others share the rest by the weights
-/// in [dashboardColumnLayoutProvider], which the header's dividers drag.
-const double _kCheckboxColumnWidth = 44;
-const double _kStatusColumnWidth = 56;
-const double _kRowHeight = 36;
+/// each body row so the columns line up. The checkbox column is fixed; the
+/// others share the rest by the weights in [dashboardColumnLayoutProvider],
+/// which the header's dividers drag.
+const double _kCheckboxColumnWidth = 32;
+
+/// Header and row height — LintCrux's violation-table density.
+const double _kRowHeight = 28;
+
+/// The status glyph's size in a [_kRowHeight] row.
+const double _kStatusIconSize = 16;
 
 /// Fixed width reserved at the trailing edge of every row for the
 /// optional widget produced by [dashboardRowTrailingBuilderProvider]
@@ -33,11 +37,11 @@ const double _kTrailingColumnWidth = 120;
 /// Narrowest width the table lays its columns out at; below this it scrolls
 /// horizontally instead of squeezing further.
 ///
-/// The three fixed columns take 220 px, leaving 460 for the resizable
+/// The two fixed columns take 152 px, leaving 528 for the resizable
 /// columns — about 50 px per default weight unit, which is the point where
-/// "Simulator" still reads as a word. Without a floor the proportional columns kept shrinking with the
-/// pane until the headers were single letters and the sort arrow, being a
-/// fixed 18 px, overflowed a 17.6 px cell.
+/// "Simulator" still reads as a word. Without a floor the proportional
+/// columns kept shrinking with the pane until the headers were single
+/// letters and the sort arrow, being a fixed 18 px, overflowed its cell.
 const double _kMinTableWidth = 680;
 
 /// The dashboard's centerpiece results table.
@@ -103,6 +107,7 @@ class _DashboardHeaderRow extends ConsumerWidget {
     final theme = Theme.of(context);
     final layout = ref.watch(dashboardColumnLayoutProvider);
     final labels = <DashboardSortColumn, String>{
+      DashboardSortColumn.status: l10n.dashboardColumnStatus,
       DashboardSortColumn.suite: l10n.dashboardColumnSuite,
       DashboardSortColumn.testName: l10n.dashboardColumnTest,
       DashboardSortColumn.simulator: l10n.dashboardColumnSimulator,
@@ -120,13 +125,6 @@ class _DashboardHeaderRow extends ConsumerWidget {
       child: Row(
         children: [
           const SizedBox(width: _kCheckboxColumnWidth),
-          SizedBox(
-            width: _kStatusColumnWidth,
-            child: _SortableHeaderCell(
-              label: l10n.dashboardColumnStatus,
-              column: DashboardSortColumn.status,
-            ),
-          ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -214,9 +212,11 @@ class _SortableHeaderCell extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // Flexible so the 18-dp sort glyph crops instead of
-              // overflowing when a column is dragged narrower than it.
-              Flexible(child: indicator),
+              // A fixed slot, not Flexible: two Flexibles split the cell
+              // and capped the label at half of it ("Simul…" in a column
+              // with room for "Simulator"). The 40 px minimum column width
+              // always leaves the 16 px padding and this 18 px slot room.
+              indicator,
             ],
           ),
         ),
@@ -384,6 +384,7 @@ class _DashboardResultRow extends ConsumerWidget {
                     },
                     child: Checkbox(
                       value: selected,
+                      visualDensity: VisualDensity.compact,
                       semanticLabel: spoken,
                       onChanged: (_) => ref
                           .read(dashboardSelectionProvider.notifier)
@@ -392,19 +393,20 @@ class _DashboardResultRow extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                width: _kStatusColumnWidth,
-                child: Center(
-                  child: ExcludeSemantics(
-                    child: DashboardStatusIcon(status: row.result.status),
-                  ),
-                ),
-              ),
               Expanded(
                 child: ExcludeSemantics(
                   // Widths follow the header's, from the shared layout.
                   child: Row(
                     children: [
+                      Expanded(
+                        flex: layout.flexOf(DashboardSortColumn.status),
+                        child: Center(
+                          child: DashboardStatusIcon(
+                            status: row.result.status,
+                            size: _kStatusIconSize,
+                          ),
+                        ),
+                      ),
                       _BodyCell(
                         text: row.suiteName,
                         flex: layout.flexOf(DashboardSortColumn.suite),
@@ -529,7 +531,7 @@ class _BodyCell extends StatelessWidget {
             child: Text(
               text,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
         ),

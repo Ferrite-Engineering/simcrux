@@ -12,8 +12,8 @@ void main() {
 
   group('DashboardColumnLayout', () {
     final defaults = DashboardColumnLayout.defaults;
-    // 100 px per unit of weight: the default weights total 9.2.
-    const tableWidth = 920.0;
+    // 100 px per unit of weight: the default weights total 10.4.
+    const tableWidth = 1040.0;
 
     test('a missing or invalid weight takes its default', () {
       final layout = DashboardColumnLayout(const {
@@ -32,11 +32,20 @@ void main() {
       );
     });
 
-    test('the fixed status column has no weight', () {
-      expect(defaults.weights.containsKey(DashboardSortColumn.status), isFalse);
+    test('the status column resizes against Suite', () {
+      final after = defaults.resize(DashboardSortColumn.status, 50, tableWidth);
       expect(
-        defaults.resize(DashboardSortColumn.status, 50, tableWidth),
-        same(defaults),
+        after.weights[DashboardSortColumn.status]! +
+            after.weights[DashboardSortColumn.suite]!,
+        closeTo(
+          defaults.weights[DashboardSortColumn.status]! +
+              defaults.weights[DashboardSortColumn.suite]!,
+          1e-9,
+        ),
+      );
+      expect(
+        after.weights[DashboardSortColumn.status],
+        greaterThan(defaults.weights[DashboardSortColumn.status]!),
       );
     });
 
@@ -59,6 +68,7 @@ void main() {
       );
       expect(after.totalWeight, closeTo(defaults.totalWeight, 1e-9));
       for (final c in [
+        DashboardSortColumn.status,
         DashboardSortColumn.simulator,
         DashboardSortColumn.duration,
         DashboardSortColumn.startedAt,

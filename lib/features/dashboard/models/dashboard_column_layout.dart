@@ -4,7 +4,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 
-/// The results table's text-column widths, as relative weights.
+/// The results table's column widths, as relative weights.
 ///
 /// Weights rather than pixels: the resizable columns always share the
 /// width the fixed columns leave exactly, so a narrow pane never opens a
@@ -12,8 +12,7 @@ import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 /// neighbouring columns ([resize]), which keeps the total, and so every
 /// other column, unchanged.
 ///
-/// The check box and status-icon columns are fixed-width and not part of
-/// the layout.
+/// The check box column is fixed-width and not part of the layout.
 @immutable
 class DashboardColumnLayout {
   /// Creates a layout from [weights]. A column missing from [weights], or
@@ -27,6 +26,7 @@ class DashboardColumnLayout {
 
   /// The resizable columns, left to right.
   static const List<DashboardSortColumn> columns = [
+    DashboardSortColumn.status,
     DashboardSortColumn.suite,
     DashboardSortColumn.testName,
     DashboardSortColumn.simulator,
@@ -34,9 +34,11 @@ class DashboardColumnLayout {
     DashboardSortColumn.startedAt,
   ];
 
-  /// The layout every table starts with. Simulator is wide enough for its
-  /// header to read as a word at the default pane width.
+  /// The layout every table starts with. Status, Simulator and Duration
+  /// are wide enough for their headers to read in full at the default pane
+  /// width.
   static const Map<DashboardSortColumn, double> defaultWeights = {
+    DashboardSortColumn.status: 1.2,
     DashboardSortColumn.suite: 2,
     DashboardSortColumn.testName: 3,
     DashboardSortColumn.simulator: 1.4,
