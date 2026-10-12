@@ -86,6 +86,7 @@ nav:
       - From FuseSoC: fusesoc-import.md
   - Administration:
       - Org-wide configuration: administration.md
+      - Local database safety: data-safety.md
       - Policy file reference: https://edacrux.app/policy-reference
       - Audit log: https://edacrux.app/audit-log
       - Deployment: https://edacrux.app/deployment
