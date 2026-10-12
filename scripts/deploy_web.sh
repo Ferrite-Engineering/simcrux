@@ -27,6 +27,11 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Refuse a release whose version disagrees with the beta flag compiled from
+# the pinned crux-shared (a 1.x build with the beta still on ships every paid
+# feature free). See scripts/check_beta_period.sh.
+"$REPO_ROOT/scripts/check_beta_period.sh"
+
 echo "=== pub get ==="
 flutter pub get
 

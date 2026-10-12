@@ -39,6 +39,12 @@ jobs:
           # defines one, else the workflow token, as in ci.yml.
           token: ${{ secrets.SUBMODULE_PAT || github.token }}
 
+      # Refuse a deploy whose version disagrees with the beta flag compiled
+      # from the pinned crux-shared. See scripts/check_beta_period.sh.
+      - name: Beta flag matches the version
+        timeout-minutes: 2
+        run: ./scripts/check_beta_period.sh
+
       - name: Install Flutter (pinned)
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
