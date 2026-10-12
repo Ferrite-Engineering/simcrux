@@ -40,6 +40,7 @@ import 'package:simcrux/domain/enums/riscv_import_kind.dart';
 import 'package:simcrux/domain/models/riscv_import_result.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_gate.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_metrics.dart';
+import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/widgets/cli_regression_bootstrapper.dart';
 import 'package:simcrux/features/eula/simcrux_eula_overrides.dart';
 import 'package:simcrux/features/issue_reporter/providers/issue_reporter_overrides.dart';
@@ -327,6 +328,10 @@ Future<bool> bootstrap({
   // id to a registered descriptor.
   registerSimcruxThemeTokens();
 
+  // The results table's column widths, so a restored tab draws its first
+  // frame at the saved widths. See [launchDashboardColumnLayoutProvider].
+  final dashboardColumnLayout = await loadDashboardColumnLayout();
+
   // Two-phase init: build the root container first so the per-tab and
   // per-pane container managers can be parented to it; expose the
   // managers (and the cli args) via overrides so widgets resolve them
@@ -353,6 +358,9 @@ Future<bool> bootstrap({
       // so the Pro overlay can layer its own override on top per the
       // open-core conflict semantics.
       simcruxCruxColorThemeOverride,
+      launchDashboardColumnLayoutProvider.overrideWithValue(
+        dashboardColumnLayout,
+      ),
       // Beta-release infrastructure. Both spread before
       // `extraOverrides` so the Pro overlay can layer its own
       // bindings on top (open-core first, Pro last, later overrides win) —

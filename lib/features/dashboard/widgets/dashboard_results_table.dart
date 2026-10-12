@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
+import 'package:simcrux/features/dashboard/models/dashboard_column_layout.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
+import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
@@ -15,8 +18,8 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 /// Column widths (logical pixels) used by both the header row and
 /// each body row so the columns line up. The status icon and
-/// checkbox columns are fixed; the others use `Expanded` with
-/// proportional flex weights — see [_DashboardResultRow] below.
+/// checkbox columns are fixed; the others share the rest by the weights
+/// in [dashboardColumnLayoutProvider], which the header's dividers drag.
 const double _kCheckboxColumnWidth = 44;
 const double _kStatusColumnWidth = 56;
 const double _kRowHeight = 36;
@@ -30,9 +33,9 @@ const double _kTrailingColumnWidth = 120;
 /// Narrowest width the table lays its columns out at; below this it scrolls
 /// horizontally instead of squeezing further.
 ///
-/// The three fixed columns take 220 px, leaving 460 for the nine flex units —
-/// about 50 px each, which is the point where "Simulator" still reads as a
-/// word. Without a floor the proportional columns kept shrinking with the
+/// The three fixed columns take 220 px, leaving 460 for the resizable
+/// columns — about 50 px per default weight unit, which is the point where
+/// "Simulator" still reads as a word. Without a floor the proportional columns kept shrinking with the
 /// pane until the headers were single letters and the sort arrow, being a
 /// fixed 18 px, overflowed a 17.6 px cell.
 const double _kMinTableWidth = 680;
@@ -42,8 +45,10 @@ const double _kMinTableWidth = 680;
 /// Virtualized `ListView.builder` so a 10,000-row regression stays
 /// scroll-smooth; results stream into the table as soon as
 /// [dashboardRowsProvider] emits them. Column headers are clickable
-/// to flip the active sort; the leftmost checkbox column lets the
-/// user multi-select rows (bulk actions land in a follow-on batch).
+/// to flip the active sort, and the divider on a header's right edge drags
+/// that column's width against its neighbour (double-click restores the
+/// defaults); the leftmost checkbox column lets the user multi-select rows
+/// (bulk actions land in a follow-on batch).
 class DashboardResultsTable extends ConsumerWidget {
   /// Creates a [DashboardResultsTable].
   const DashboardResultsTable({super.key});
@@ -96,6 +101,14 @@ class _DashboardHeaderRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = L10N.of(context);
     final theme = Theme.of(context);
+    final layout = ref.watch(dashboardColumnLayoutProvider);
+    final labels = <DashboardSortColumn, String>{
+      DashboardSortColumn.suite: l10n.dashboardColumnSuite,
+      DashboardSortColumn.testName: l10n.dashboardColumnTest,
+      DashboardSortColumn.simulator: l10n.dashboardColumnSimulator,
+      DashboardSortColumn.duration: l10n.dashboardColumnDuration,
+      DashboardSortColumn.startedAt: l10n.dashboardColumnStartedAt,
+    };
     return Container(
       height: _kRowHeight,
       decoration: BoxDecoration(
@@ -107,35 +120,42 @@ class _DashboardHeaderRow extends ConsumerWidget {
       child: Row(
         children: [
           const SizedBox(width: _kCheckboxColumnWidth),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnStatus,
-            column: DashboardSortColumn.status,
-            fixedWidth: _kStatusColumnWidth,
+          SizedBox(
+            width: _kStatusColumnWidth,
+            child: _SortableHeaderCell(
+              label: l10n.dashboardColumnStatus,
+              column: DashboardSortColumn.status,
+            ),
           ),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnSuite,
-            column: DashboardSortColumn.suite,
-            flex: 2,
-          ),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnTest,
-            column: DashboardSortColumn.testName,
-            flex: 3,
-          ),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnSimulator,
-            column: DashboardSortColumn.simulator,
-            flex: 1,
-          ),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnDuration,
-            column: DashboardSortColumn.duration,
-            flex: 1,
-          ),
-          _SortableHeaderCell(
-            label: l10n.dashboardColumnStartedAt,
-            column: DashboardSortColumn.startedAt,
-            flex: 2,
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final tableWidth = constraints.maxWidth;
+                return Row(
+                  children: [
+                    for (final column in DashboardColumnLayout.columns)
+                      Expanded(
+                        flex: layout.flexOf(column),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _SortableHeaderCell(
+                                label: labels[column]!,
+                                column: column,
+                              ),
+                            ),
+                            if (column != DashboardColumnLayout.columns.last)
+                              _ResizeHandle(
+                                column: column,
+                                tableWidth: tableWidth,
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
           // Trailing slot reserved for the optional widget produced by
           // [dashboardRowTrailingBuilderProvider]. The header reserves
@@ -149,21 +169,15 @@ class _DashboardHeaderRow extends ConsumerWidget {
 }
 
 class _SortableHeaderCell extends ConsumerWidget {
-  const _SortableHeaderCell({
-    required this.label,
-    required this.column,
-    this.flex,
-    this.fixedWidth,
-  });
+  const _SortableHeaderCell({required this.label, required this.column});
 
   final String label;
   final DashboardSortColumn column;
-  final int? flex;
-  final double? fixedWidth;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final color = theme.colorScheme.onSurfaceVariant;
     final sort = ref.watch(dashboardSortProvider);
     final isActive = sort.column == column;
     final indicator = isActive
@@ -172,15 +186,17 @@ class _SortableHeaderCell extends ConsumerWidget {
                 ? Icons.arrow_drop_up
                 : Icons.arrow_drop_down,
             size: 18,
+            color: color,
           )
         : const SizedBox(width: 18);
 
     // A button, not "text": the header sorts when activated, and a screen
     // reader only says so when the node carries the button role.
-    final child = Semantics(
+    return Semantics(
       button: true,
       container: true,
       child: InkWell(
+        key: ValueKey('dashboardHeader-${column.name}'),
         onTap: () =>
             ref.read(dashboardSortProvider.notifier).toggleColumn(column),
         child: Padding(
@@ -188,22 +204,73 @@ class _SortableHeaderCell extends ConsumerWidget {
           child: Row(
             children: [
               Flexible(
+                // The same header typography as LintCrux's violation table.
                 child: Text(
                   label,
-                  style: theme.textTheme.labelLarge,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              indicator,
+              // Flexible so the 18-dp sort glyph crops instead of
+              // overflowing when a column is dragged narrower than it.
+              Flexible(child: indicator),
             ],
           ),
         ),
       ),
     );
-    if (fixedWidth != null) {
-      return SizedBox(width: fixedWidth, child: child);
-    }
-    return Expanded(flex: flex ?? 1, child: child);
+  }
+}
+
+/// The divider on a header cell's right edge: drag it to move width between
+/// this column and the next, double-click it to restore the default widths.
+///
+/// Pointer-only and excluded from semantics. It is not a Tab stop, so the
+/// table's keyboard order and what a screen reader announces are unchanged;
+/// the default widths keep every column readable without it.
+class _ResizeHandle extends ConsumerWidget {
+  const _ResizeHandle({required this.column, required this.tableWidth});
+
+  final DashboardSortColumn column;
+
+  /// The width the resizable columns share, which turns a drag's pixels
+  /// into weight.
+  final double tableWidth;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(dashboardColumnLayoutProvider.notifier);
+    final color = Theme.of(context).colorScheme.outlineVariant;
+    return ExcludeSemantics(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.resizeColumn,
+        child: GestureDetector(
+          key: ValueKey('dashboardResize-${column.name}'),
+          behavior: HitTestBehavior.opaque,
+          // Count movement from pointer-down, so the divider stays under
+          // the cursor instead of lagging by the drag threshold.
+          dragStartBehavior: DragStartBehavior.down,
+          onHorizontalDragUpdate: (d) =>
+              notifier.resize(column, d.delta.dx, tableWidth),
+          onHorizontalDragEnd: (_) => notifier.commit(),
+          onDoubleTap: notifier.reset,
+          child: SizedBox(
+            width: 8,
+            height: _kRowHeight,
+            child: Center(
+              child: SizedBox(
+                width: 1,
+                height: 16,
+                child: ColoredBox(color: color),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -215,6 +282,7 @@ class _DashboardResultRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final layout = ref.watch(dashboardColumnLayoutProvider);
     final selection = ref.watch(dashboardSelectionProvider);
     final selected = selection.contains(row.testId);
     final focused = ref.watch(selectedTestIdProvider) == row.testId;
@@ -334,18 +402,28 @@ class _DashboardResultRow extends ConsumerWidget {
               ),
               Expanded(
                 child: ExcludeSemantics(
+                  // Widths follow the header's, from the shared layout.
                   child: Row(
                     children: [
-                      _BodyCell(text: row.suiteName, flex: 2),
-                      _BodyCell(text: row.testName, flex: 3),
-                      _BodyCell(text: row.simulatorId, flex: 1),
+                      _BodyCell(
+                        text: row.suiteName,
+                        flex: layout.flexOf(DashboardSortColumn.suite),
+                      ),
+                      _BodyCell(
+                        text: row.testName,
+                        flex: layout.flexOf(DashboardSortColumn.testName),
+                      ),
+                      _BodyCell(
+                        text: row.simulatorId,
+                        flex: layout.flexOf(DashboardSortColumn.simulator),
+                      ),
                       _BodyCell(
                         text: _formatDuration(row.result.runtime),
-                        flex: 1,
+                        flex: layout.flexOf(DashboardSortColumn.duration),
                       ),
                       _BodyCell(
                         text: _formatTimestamp(row.result.startedAt),
-                        flex: 2,
+                        flex: layout.flexOf(DashboardSortColumn.startedAt),
                       ),
                     ],
                   ),
@@ -436,16 +514,23 @@ class _BodyCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The full value on hover, so a cell dragged narrow is still readable.
+    // Hover only: a tooltip's default long-press trigger would claim the
+    // long-press the row uses for its context menu on touch hosts.
     return Expanded(
       flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium,
+      child: Tooltip(
+        message: text,
+        triggerMode: TooltipTriggerMode.manual,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
         ),
       ),
