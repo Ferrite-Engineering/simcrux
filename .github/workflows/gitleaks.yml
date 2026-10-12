@@ -81,7 +81,7 @@ jobs:
       # Pinned to a commit, not a tag: a job whose whole purpose is to say
       # what is in this repository should not itself run code that a movable
       # tag can change under it.
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # `gitleaks git` scans what it can reach. A shallow checkout would
           # scan one commit and report success, which is worse than not
