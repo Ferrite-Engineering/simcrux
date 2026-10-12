@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_license/crux_license.dart';
 import 'package:crux_workspace/crux_workspace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,6 +130,31 @@ class _RegressionTabContentState extends ConsumerState<RegressionTabContent> {
     final l10n = L10N.of(context);
     final config = ref.watch(activeConfigProvider);
     final loadError = ref.watch(configLoadErrorProvider);
+    // The loader gates `seeds:` / `parameters:` sweeps on the licence tier,
+    // and a Pro build learns its tier from an asynchronous licence check. A
+    // tab restored at launch is parsed before that check lands, as Open
+    // Core: the sweep is dropped, a "requires SimCrux Pro" warning shows
+    // beside the PRO badge, and nothing parsed the file again. So when the
+    // tier changes while the tab is armed and has not run, parse it again.
+    // A tab with a run is left alone: reloading would clear its results.
+    ref.listen<LicenseTier>(licenseTierProvider, (previous, next) {
+      if (previous == null || previous == next) return;
+      final path = widget.tab.payload.configPath;
+      if (path.isEmpty || ref.read(activeConfigProvider) == null) return;
+      final runState = ref.read(regressionRunnerProvider);
+      if (runState is! AsyncData || runState.value != null) return;
+      // Deferred until the tier update has finished propagating: inside the
+      // listener the loader has not yet been invalidated, so a synchronous
+      // reload read the Open Core loader again and changed nothing.
+      scheduleMicrotask(() {
+        if (!mounted) return;
+        unawaited(
+          ref
+              .read(regressionRunnerProvider.notifier)
+              .startFromConfigPath(path, autoStart: false),
+        );
+      });
+    });
     // Make sure the file watcher is armed whenever the per-tab config
     // is loaded. autoReloadNotifierProvider lives in the per-tab scope
     // because it ref.listens activeConfigProvider; each tab's watcher

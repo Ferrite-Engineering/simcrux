@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_a11y/crux_a11y_testing.dart';
+import 'package:crux_license/crux_license.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -194,5 +195,102 @@ void main() {
         }
       },
     );
+
+    testWidgets('a tab restored before the licence check is re-parsed when '
+        'the tier turns Pro, so its seed sweep expands', (tester) async {
+      // A Pro build learns its tier asynchronously. The restored tab used to
+      // parse as Open Core, drop the sweep, warn "requires SimCrux Pro"
+      // beside the PRO badge, and never parse again.
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      const yaml = """
+version: '1'
+defaults:
+  simulator: icarus
+suites:
+  cdc:
+    tests:
+      - name: capture
+        top: tb
+        sources: [tb.v]
+        seeds: ['1..3']
+""";
+      final tabId = crux.TabId.generate();
+      const path = '/kit/simcrux.yaml';
+      final tab = crux.WorkspaceTab<SimcruxTabPayload>(
+        id: tabId,
+        displayName: 'simcrux.yaml',
+        paneId: crux.PaneId.generate(),
+        payload: SimcruxTabPayload(configPath: path),
+      );
+      final root = ProviderContainer(
+        retry: (_, _) => null,
+        overrides: [
+          licenseTierProvider.overrideWith((ref) => ref.watch(_tier)),
+          configLoaderProvider.overrideWith(
+            (ref) => ConfigLoader(
+              readFile: (_) async => yaml,
+              licenseTier: ref.watch(licenseTierProvider),
+            ),
+          ),
+        ],
+      );
+      addTearDown(root.dispose);
+      final tabContainer = ProviderContainer(
+        parent: root,
+        overrides: simcruxTabOverrides(tabId),
+      );
+      addTearDown(tabContainer.dispose);
+
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: root,
+          child: MaterialApp(
+            localizationsDelegates: const [
+              L10N.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: L10N.supportedLocales,
+            home: UncontrolledProviderScope(
+              container: tabContainer,
+              child: RegressionTabContent(tab: tab),
+            ),
+          ),
+        ),
+      );
+      int testCount() =>
+          tabContainer
+              .read(activeConfigProvider)
+              ?.suites
+              .expand((s) => s.tests)
+              .length ??
+          0;
+      for (var i = 0; i < 5 && testCount() == 0; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(testCount(), 1, reason: 'Open Core runs the sweep once');
+
+      root.read(_tier.notifier).tier = LicenseTier.pro;
+      for (var i = 0; i < 5 && testCount() == 1; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(testCount(), 3, reason: 'Pro expands seeds 1..3');
+      expect(tester.takeException(), isNull);
+    });
   });
+}
+
+final NotifierProvider<_TierNotifier, LicenseTier> _tier =
+    NotifierProvider<_TierNotifier, LicenseTier>(_TierNotifier.new);
+
+class _TierNotifier extends Notifier<LicenseTier> {
+  @override
+  LicenseTier build() => LicenseTier.openCore;
+
+  LicenseTier get tier => state;
+
+  set tier(LicenseTier value) => state = value;
 }

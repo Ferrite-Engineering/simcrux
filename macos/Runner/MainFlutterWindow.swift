@@ -10,6 +10,11 @@ class MainFlutterWindow: NSWindow {
     self.contentViewController = flutterViewController
     self.setFrame(windowFrame, display: true)
     self.minSize = NSSize(width: 800, height: 500)
+    // Reopen where the user left it. AppKit saves the frame under this name
+    // on every move and resize, and restores it here; a first launch keeps
+    // the XIB's 800x600. Without it every launch opened at 800x600.
+    _ = self.setFrameUsingName("MainWindow")
+    self.setFrameAutosaveName("MainWindow")
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     // The native side of the portable CXP request-attention primitive (dock
