@@ -14,6 +14,8 @@ import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_column_layout.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
+import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
+import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
 import 'package:simcrux/features/dashboard/services/dashboard_column_layout_codec.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_results_table.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -32,6 +34,7 @@ void main() {
     WidgetTester tester, {
     Locale locale = const Locale('en'),
     double width = 1400,
+    DashboardRowTrailingBuilder? trailing,
   }) async {
     await tester.binding.setSurfaceSize(const Size(1400, 600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -59,6 +62,8 @@ void main() {
           resultStoreProvider.overrideWith(
             () => _ImmediateResultStoreNotifier(store),
           ),
+          if (trailing != null)
+            dashboardRowTrailingBuilderProvider.overrideWithValue(trailing),
           dashboardColumnLayoutSettingsServiceProvider.overrideWithValue(
             SettingsService<DashboardColumnLayout>(
               const DashboardColumnLayoutCodec(),
@@ -170,9 +175,11 @@ void main() {
     // The label and the sort-arrow slot were both Flexible, which split the
     // cell between them and showed "Simul…" in a column with room for
     // "Simulator". The label's room is the cell less its 16 px padding and
-    // the 18 px arrow slot. (The test font is about twice as wide as the
-    // real one, so whether a label fits is not something to assert here.)
-    await pumpTable(tester, width: 1060);
+    // the sorted column's 18 px arrow. (The test font is about twice as
+    // wide as the real one, so whether a label fits is not something to
+    // assert here.)
+    final container = await pumpTable(tester, width: 1060);
+    final sorted = container.read(dashboardSortProvider).column;
     for (final column in DashboardColumnLayout.columns) {
       final cell = tester.getSize(
         find.byKey(ValueKey('dashboardHeader-${column.name}')),
@@ -189,10 +196,64 @@ void main() {
       );
       expect(
         paragraph.constraints.maxWidth,
-        closeTo(cell.width - 16 - 18, 0.5),
+        closeTo(cell.width - 16 - (column == sorted ? 18 : 0), 0.5),
         reason: column.name,
       );
     }
+  });
+
+  testWidgets('the last column ends at the right edge of the table', (
+    tester,
+  ) async {
+    // A fixed slot for the Pro row annotation used to sit after Started, so
+    // no drag could take the last column to the pane's edge.
+    await pumpTable(tester, width: 1060);
+    final last = DashboardColumnLayout.columns.last;
+    final header = tester.getRect(
+      find.byKey(ValueKey('dashboardHeader-${last.name}')),
+    );
+    final table = tester.getRect(find.byType(DashboardResultsTable));
+    expect(header.right, closeTo(table.right, 0.5));
+  });
+
+  testWidgets('a row annotation sits in the Test cell, after the name', (
+    tester,
+  ) async {
+    const chipKey = ValueKey('annotation');
+    await pumpTable(
+      tester,
+      width: 1060,
+      trailing: (_, _) => const SizedBox(key: chipKey, width: 60, height: 16),
+    );
+    final chip = tester.getRect(find.byKey(chipKey));
+    final testHeader = tester.getRect(
+      find.byKey(const ValueKey('dashboardHeader-testName')),
+    );
+    final simulatorHeader = tester.getRect(
+      find.byKey(const ValueKey('dashboardHeader-simulator')),
+    );
+    expect(chip.left, greaterThan(testHeader.left));
+    expect(chip.right, lessThanOrEqualTo(simulatorHeader.left));
+    expect(
+      chip.left,
+      greaterThan(tester.getRect(find.text('alu_carry_chain')).left),
+    );
+  });
+
+  testWidgets('a row annotation scales down in a Test column dragged to its '
+      'minimum, without overflowing', (tester) async {
+    await pumpTable(
+      tester,
+      width: 1060,
+      trailing: (_, _) => const SizedBox(width: 120, height: 16),
+    );
+    await tester.drag(
+      find.byKey(const ValueKey('dashboardResize-testName')),
+      const Offset(-2000, 0),
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a text cell carries its full value as a tooltip', (

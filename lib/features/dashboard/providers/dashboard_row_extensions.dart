@@ -21,6 +21,11 @@ typedef DashboardRowTrailingBuilder =
 /// rows with feature-specific trailing widgets (e.g. the flaky-test
 /// classification chip the Pro overlay's flaky detection renders).
 ///
+/// **Where it renders.** In the Test cell, right-aligned after the test
+/// name, at its natural width; the name ellipsizes before it, and in a
+/// column too narrow for both it scales down. There is no reserved column
+/// for it, so the table's last column always reaches the pane's edge.
+///
 /// **Open-core default.** Returns a builder that always returns
 /// `null` — open-core surfaces never render a trailing widget. The
 /// Pro overlay overrides this provider in `proOverrides` with a

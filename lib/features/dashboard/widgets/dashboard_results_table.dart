@@ -28,17 +28,11 @@ const double _kRowHeight = 28;
 /// The status glyph's size in a [_kRowHeight] row.
 const double _kStatusIconSize = 16;
 
-/// Fixed width reserved at the trailing edge of every row for the
-/// optional widget produced by [dashboardRowTrailingBuilderProvider]
-/// (Pro flaky-detection chip, future trend-tracking sparks, etc.).
-/// The header row reserves the same width so columns stay aligned.
-const double _kTrailingColumnWidth = 120;
-
 /// Narrowest width the table lays its columns out at; below this it scrolls
 /// horizontally instead of squeezing further.
 ///
-/// The two fixed columns take 152 px, leaving 528 for the resizable
-/// columns — about 50 px per default weight unit, which is the point where
+/// The check box takes 32 px, leaving 648 for the resizable columns —
+/// about 60 px per default weight unit, which is the point where
 /// "Simulator" still reads as a word. Without a floor the proportional
 /// columns kept shrinking with the pane until the headers were single
 /// letters and the sort arrow, being a fixed 18 px, overflowed its cell.
@@ -155,11 +149,6 @@ class _DashboardHeaderRow extends ConsumerWidget {
               },
             ),
           ),
-          // Trailing slot reserved for the optional widget produced by
-          // [dashboardRowTrailingBuilderProvider]. The header reserves
-          // the slot (empty) so the body rows' trailing widgets align
-          // beneath a stable column edge regardless of overlay.
-          const SizedBox(width: _kTrailingColumnWidth),
         ],
       ),
     );
@@ -178,15 +167,6 @@ class _SortableHeaderCell extends ConsumerWidget {
     final color = theme.colorScheme.onSurfaceVariant;
     final sort = ref.watch(dashboardSortProvider);
     final isActive = sort.column == column;
-    final indicator = isActive
-        ? Icon(
-            sort.direction == DashboardSortDirection.ascending
-                ? Icons.arrow_drop_up
-                : Icons.arrow_drop_down,
-            size: 18,
-            color: color,
-          )
-        : const SizedBox(width: 18);
 
     // A button, not "text": the header sorts when activated, and a screen
     // reader only says so when the node carries the button role.
@@ -212,11 +192,18 @@ class _SortableHeaderCell extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // A fixed slot, not Flexible: two Flexibles split the cell
-              // and capped the label at half of it ("Simul…" in a column
-              // with room for "Simulator"). The 40 px minimum column width
-              // always leaves the 16 px padding and this 18 px slot room.
-              indicator,
+              // Fixed-width, not Flexible: two Flexibles split the cell and
+              // capped the label at half of it ("Simul…" in a column with
+              // room for "Simulator"). Only the sorted column carries it, so
+              // the others keep those 18 px for their label.
+              if (isActive)
+                Icon(
+                  sort.direction == DashboardSortDirection.ascending
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
+                  size: 18,
+                  color: color,
+                ),
             ],
           ),
         ),
@@ -292,9 +279,12 @@ class _DashboardResultRow extends ConsumerWidget {
         ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
         : null;
 
-    // Optional trailing widget produced by the Pro-overlay-overridable
-    // [dashboardRowTrailingBuilderProvider]. Open-core default returns
-    // null and no chrome is drawn beyond the reserved column width.
+    // Optional annotation produced by the Pro-overlay-overridable
+    // [dashboardRowTrailingBuilderProvider] (the flaky-classification
+    // chip). It marks the test, so it sits in the Test cell after the name
+    // rather than in a reserved column at the row's end: a fixed slot there
+    // stopped the last column short of the pane edge. Open-core default
+    // returns null.
     final trailingBuilder = ref.watch(dashboardRowTrailingBuilderProvider);
     final trailing = trailingBuilder(ref, row);
 
@@ -394,54 +384,46 @@ class _DashboardResultRow extends ConsumerWidget {
                 ),
               ),
               Expanded(
-                child: ExcludeSemantics(
-                  // Widths follow the header's, from the shared layout.
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: layout.flexOf(DashboardSortColumn.status),
-                        child: Center(
+                // Widths follow the header's, from the shared layout. Each
+                // cell's own content is excluded from semantics (the check
+                // box speaks for the row); the annotation is not, so its
+                // tooltip stays readable.
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: layout.flexOf(DashboardSortColumn.status),
+                      child: Center(
+                        child: ExcludeSemantics(
                           child: DashboardStatusIcon(
                             status: row.result.status,
                             size: _kStatusIconSize,
                           ),
                         ),
                       ),
-                      _BodyCell(
-                        text: row.suiteName,
-                        flex: layout.flexOf(DashboardSortColumn.suite),
-                      ),
-                      _BodyCell(
-                        text: row.testName,
-                        flex: layout.flexOf(DashboardSortColumn.testName),
-                      ),
-                      _BodyCell(
-                        text: row.simulatorId,
-                        flex: layout.flexOf(DashboardSortColumn.simulator),
-                      ),
-                      _BodyCell(
-                        text: _formatDuration(row.result.runtime),
-                        flex: layout.flexOf(DashboardSortColumn.duration),
-                      ),
-                      _BodyCell(
-                        text: _formatTimestamp(row.result.startedAt),
-                        flex: layout.flexOf(DashboardSortColumn.startedAt),
-                      ),
-                    ],
-                  ),
+                    ),
+                    _BodyCell(
+                      text: row.suiteName,
+                      flex: layout.flexOf(DashboardSortColumn.suite),
+                    ),
+                    _BodyCell(
+                      text: row.testName,
+                      flex: layout.flexOf(DashboardSortColumn.testName),
+                      annotation: trailing,
+                    ),
+                    _BodyCell(
+                      text: row.simulatorId,
+                      flex: layout.flexOf(DashboardSortColumn.simulator),
+                    ),
+                    _BodyCell(
+                      text: _formatDuration(row.result.runtime),
+                      flex: layout.flexOf(DashboardSortColumn.duration),
+                    ),
+                    _BodyCell(
+                      text: _formatTimestamp(row.result.startedAt),
+                      flex: layout.flexOf(DashboardSortColumn.startedAt),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(
-                width: _kTrailingColumnWidth,
-                child: trailing == null
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: trailing,
-                        ),
-                      ),
               ),
             ],
           ),
@@ -509,32 +491,64 @@ class _InspectRowIntent extends Intent {
 }
 
 class _BodyCell extends StatelessWidget {
-  const _BodyCell({required this.text, required this.flex});
+  const _BodyCell({required this.text, required this.flex, this.annotation});
 
   final String text;
   final int flex;
+
+  /// Drawn after [text], right-aligned (the Pro flaky chip in the Test
+  /// cell). It takes its natural width and the text ellipsizes before it;
+  /// in a cell too narrow for both it scales down rather than overflowing.
+  final Widget? annotation;
+
+  /// The text keeps at least this much of the cell beside an annotation.
+  static const double _minTextWidth = 24;
+  static const double _gap = 6;
 
   @override
   Widget build(BuildContext context) {
     // The full value on hover, so a cell dragged narrow is still readable.
     // Hover only: a tooltip's default long-press trigger would claim the
     // long-press the row uses for its context menu on touch hosts.
-    return Expanded(
-      flex: flex,
+    final label = ExcludeSemantics(
       child: Tooltip(
         message: text,
         triggerMode: TooltipTriggerMode.manual,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              text,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
+        child: Text(
+          text,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
+      ),
+    );
+    final annotation = this.annotation;
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: annotation == null
+            ? Align(alignment: Alignment.centerLeft, child: label)
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final room = constraints.maxWidth - _gap - _minTextWidth;
+                  return Row(
+                    children: [
+                      Expanded(child: label),
+                      if (room > 0) ...[
+                        const SizedBox(width: _gap),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: room),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: annotation,
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
       ),
     );
   }

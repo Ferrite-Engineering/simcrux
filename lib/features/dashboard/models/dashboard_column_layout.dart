@@ -51,8 +51,10 @@ class DashboardColumnLayout {
     defaultWeights,
   );
 
-  /// The narrowest a column may be dragged, in logical pixels.
-  static const double minColumnWidth = 40;
+  /// The narrowest a column may be dragged, in logical pixels: the header's
+  /// 16 px padding and the sorted column's 18 px arrow still leave a few
+  /// characters of label.
+  static const double minColumnWidth = 56;
 
   /// Each resizable column's weight.
   final Map<DashboardSortColumn, double> weights;
