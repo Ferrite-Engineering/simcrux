@@ -8,6 +8,7 @@ import 'package:simcrux/domain/models/panel_layout_state.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget_provider.dart';
 import 'package:simcrux/services/settings/simcrux_settings_codec.dart';
 
 /// Service instance shared by every consumer of [appSettingsProvider].

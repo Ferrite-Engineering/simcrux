@@ -11,7 +11,7 @@ import 'package:simcrux/services/driver_plugin/simulator_driver_plugin_registry_
 import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper_provider.dart';
-import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget_provider.dart';
 import 'package:simcrux/services/job_scheduler/waveform_archive_provider.dart';
 import 'package:simcrux/services/retry_policy/retry_policy_provider.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';

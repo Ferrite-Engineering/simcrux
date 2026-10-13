@@ -14,7 +14,7 @@ import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/widgets/settings_simulators_section.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
-import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget_provider.dart';
 
 Widget _wrap({
   required ProviderContainer container,

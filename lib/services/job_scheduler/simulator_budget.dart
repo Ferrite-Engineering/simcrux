@@ -4,7 +4,8 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// No Flutter or Riverpod here: the headless CLI reaches this file through
+// `LocalJobScheduler`. The app's provider is in simulator_budget_provider.dart.
 
 /// The process-wide simulator budget a fresh installation starts with: the
 /// same number of slots one run has always had, so a single tab behaves
@@ -81,17 +82,3 @@ class SimulatorBudget {
     }
   }
 }
-
-/// The one [SimulatorBudget] every interactive run draws from.
-///
-/// Lives in the root container (nothing overrides it per tab), which is what
-/// makes it shared. The limit starts at [kDefaultSimulatorBudget]; the
-/// settings layer, which owns the user's value, sets `limit` when settings
-/// load and whenever the user edits it (see `AppSettingsNotifier`). The
-/// headless runner has one run per process and does not use it: there
-/// `--max-parallel` is the total.
-final Provider<SimulatorBudget> simulatorBudgetProvider =
-    Provider<SimulatorBudget>(
-      (_) => SimulatorBudget(),
-      name: 'simulatorBudgetProvider',
-    );
