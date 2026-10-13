@@ -8,6 +8,7 @@ import 'package:crux_license/crux_license_core.dart';
 import 'package:crux_policy/crux_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
@@ -151,6 +152,14 @@ suites:
       expect(await run(const ['--help']), 0);
       expect(out.join('\n'), contains('--ci'));
       expect(out.join('\n'), contains('--import-fusesoc'));
+    });
+
+    test('--version prints `simcrux <version>` and exits 0', () async {
+      // The suite's headless convention, and the line the Homebrew formula's
+      // test block runs against the published binary.
+      expect(await run(const ['--version']), 0);
+      expect(out, ['simcrux ${SimCruxBuildInfo.productVersion}']);
+      expect(err, isEmpty);
     });
 
     test('an unknown flag exits 2 with the usage block on stderr', () async {

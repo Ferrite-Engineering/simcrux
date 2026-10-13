@@ -19,6 +19,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path/path.dart' as p;
+import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/cli_args_provider.dart';
@@ -190,6 +191,12 @@ Future<bool> bootstrap({
       // runs, so their usage lines are appended here instead.
       // ignore: avoid_print
       print('${CliArgParser().usage}\n${launch_cli.cliHelpText()}');
+      return true;
+    }
+    if (parsed is VersionCliArgs) {
+      // The same line the headless binary prints: `simcrux <version>`.
+      // ignore: avoid_print
+      print('simcrux ${SimCruxBuildInfo.productVersion}');
       return true;
     }
     parsedArgs = parsed;

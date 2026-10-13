@@ -39,5 +39,8 @@ fi
 
 echo "==> smoke test"
 "${BIN}" --help > /dev/null
+# A binary that cannot print its own version is not worth signing; this is
+# also the line the Homebrew formula's test block runs.
+"${BIN}" --version
 
 echo "==> built ${BIN}"

@@ -21,10 +21,15 @@ want depends on whether a display exists:
   me", and for `--ci` on a machine that has the app installed. It is the only
   executable that runs the `--fail-on-regression` gate (on macOS,
   `SimCrux.app/Contents/MacOS/SimCrux`).
-- **The standalone `simcrux` binary.** Built from `bin/simcrux.dart` in the
-  open-source tree with `tool/build_cli.sh` (`dart build cli`); the executable
-  lands at `build/cli/bundle/bin/simcrux`. No window, no display server, no
-  Flutter engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
+- **The standalone `simcrux` binary.** From 1.1 it ships with every release:
+  `brew install ferrite-engineering/tap/simcrux-cli` on macOS (Apple silicon)
+  and Linux, or the `simcrux-cli-<version>-<platform>` archive (`.zip` on
+  macOS and Windows, `.tar.gz` on Linux) from the release's download prefix,
+  one executable plus the licence; `simcrux --version` prints the version it
+  is. It can also be built from `bin/simcrux.dart` in the open-source tree
+  with `tool/build_cli.sh` (`dart build cli`), landing at
+  `build/cli/bundle/bin/simcrux`. No window, no display server, no Flutter
+  engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
   subcommands and `export-dashboard`. It does not carry the regression
   comparison engine, so it refuses `--fail-on-regression` with exit `2`.
 
@@ -64,6 +69,7 @@ nothing (see
 | `--reset-telemetry-consent` | Testing aid: forget this installation's usage-statistics answer so the first-launch question appears again. The desktop app acts on it at startup whatever else is on the command line, `--ci` included; the standalone `simcrux` binary accepts it and does nothing. |
 | `--reset-eula` | Testing aid: forget this installation's acceptance of the license agreement so it is presented again at launch. The desktop app acts on it at startup whatever else is on the command line, `--ci` included; the standalone `simcrux` binary accepts it and does nothing. Given together with `--reset-telemetry-consent`, the agreement appears first, then the usage-statistics question. |
 | `--help` / `-h` | Print the full usage block and exit. |
+| `--version` | Print `simcrux <version>` and exit `0`, before anything else runs. |
 
 An unrecognized argument prints the error and the usage block on stderr and
 exits `2` from either executable — the desktop app does not open a window for

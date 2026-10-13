@@ -108,6 +108,11 @@ void main() {
       expect(args, isA<HelpCliArgs>());
     });
 
+    test('--version returns its own sentinel', () {
+      expect(parser.parse(<String>['--version']), isA<VersionCliArgs>());
+      expect(parser.usage, contains('--version'));
+    });
+
     test('usage string is non-empty and mentions each option', () {
       final usage = parser.usage;
       expect(usage, contains('--filter'));

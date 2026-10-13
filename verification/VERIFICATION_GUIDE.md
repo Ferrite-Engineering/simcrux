@@ -903,6 +903,7 @@ configs + `--session` + `--workspace`).
 - `--ci` and `--json` continue to act on the first positional
   config only (CI is single-project by design).
 - `--help` lists `--workspace` alongside the other options.
+- `simcrux --version` (the standalone binary and the desktop executable alike) prints `simcrux <version>` on stdout and exits `0` before anything else runs; the version is `SimCruxBuildInfo.productVersion`, and the release workflow's smoke test fails the build when it disagrees with `pubspec.yaml`. `Coverage: AUTOMATED — test/core/cli/simcrux_cli_test.dart ('--version prints …'), test/core/cli/cli_arg_parser_test.dart`.
 - **The desktop executable exits after headless work.** `SimCrux --ci proj.yaml`,
   `--help`, the imports and `export-dashboard` end the process with their exit
   code (`runSimcrux` flushes and exits: a desktop runner otherwise keeps its

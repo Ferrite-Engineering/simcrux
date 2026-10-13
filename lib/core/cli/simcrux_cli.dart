@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:crux_license/crux_license_core.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
@@ -175,6 +176,11 @@ class SimcruxCli {
       final parsed = CliArgParser().parse(launchArgs);
       if (parsed is HelpCliArgs) {
         stdoutSink(CliArgParser().usage);
+        return 0;
+      }
+      if (parsed is VersionCliArgs) {
+        // `<tool> <semver>`, as every headless tool in the suite prints it.
+        stdoutSink('simcrux ${SimCruxBuildInfo.productVersion}');
         return 0;
       }
       parsedArgs = parsed;

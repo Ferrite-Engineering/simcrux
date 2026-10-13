@@ -194,6 +194,11 @@ class CliArgParser {
         abbr: 'h',
         help: 'Show this usage and exit.',
         negatable: false,
+      )
+      ..addFlag(
+        'version',
+        help: 'Print `simcrux <version>` and exit.',
+        negatable: false,
       );
   }
 
@@ -248,6 +253,9 @@ class CliArgParser {
 
     if (results.flag('help')) {
       return const _HelpCliArgs();
+    }
+    if (results.flag('version')) {
+      return const _VersionCliArgs();
     }
 
     final positional = results.rest;
@@ -342,3 +350,14 @@ class _HelpCliArgs extends CliArgs implements HelpCliArgs {
 
 /// Marker interface that the bootstrap checks via `args is HelpCliArgs`.
 abstract class HelpCliArgs implements CliArgs {}
+
+/// Sentinel returned by [CliArgParser.parse] for `--version`. The headless
+/// binary and the app both print `simcrux <version>` on stdout and exit 0
+/// before any project state is touched: the suite's convention for every
+/// headless tool, and what the Homebrew formula's test block runs.
+class _VersionCliArgs extends CliArgs implements VersionCliArgs {
+  const _VersionCliArgs();
+}
+
+/// Marker interface that the bootstrap checks via `args is VersionCliArgs`.
+abstract class VersionCliArgs implements CliArgs {}
