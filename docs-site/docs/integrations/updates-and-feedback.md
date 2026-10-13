@@ -51,7 +51,9 @@ on, except where the machine's regional settings place it in the EEA, the
 UK, Switzerland or South Korea, where it starts off. Change your answer at
 any time in `Settings → Privacy`, which also shows the random
 **Installation ID** — the only identifier attached to what is sent — so you
-can ask support to delete that installation's data.
+can ask support to delete that installation's data. The ID appears only
+after usage statistics have been turned on; until then the row says that
+no ID exists yet.
 
 **What is sent.** Feature and error counters, app and OS version, form
 factor, language and license tier. An error the app did not handle is

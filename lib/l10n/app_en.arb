@@ -2663,5 +2663,9 @@
   "settingsTelemetryInstallationIdCopied": "Installation ID copied.",
   "@settingsTelemetryInstallationIdCopied": {
     "description": "Confirmation shown after the installation id is copied."
+  },
+  "settingsTelemetryInstallationIdNone": "No installation ID. One is created only when usage statistics are turned on.",
+  "@settingsTelemetryInstallationIdNone": {
+    "description": "Shown in place of the installation id in Settings > Privacy while usage statistics have never been turned on, so no id exists yet."
   }
 }

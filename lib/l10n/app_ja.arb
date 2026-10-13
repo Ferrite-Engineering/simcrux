@@ -2374,5 +2374,6 @@
   "settingsTelemetryInstallationIdLabel": "インストール ID",
   "settingsTelemetryInstallationIdDescription": "収集されるデータに付与される唯一の識別子です。ランダムな値で、あなた個人とは結び付いていません。このインストールのデータ削除をご希望の場合は、サポートまでお送りください。",
   "settingsTelemetryInstallationIdCopy": "コピー",
-  "settingsTelemetryInstallationIdCopied": "インストール ID をコピーしました。"
+  "settingsTelemetryInstallationIdCopied": "インストール ID をコピーしました。",
+  "settingsTelemetryInstallationIdNone": "インストール ID はありません。使用統計をオンにしたときにのみ作成されます。"
 }

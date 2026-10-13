@@ -68,4 +68,8 @@ class SimcruxTelemetryStrings extends CruxTelemetryStrings {
   @override
   String get settingsInstallationIdCopied =>
       _l10n.settingsTelemetryInstallationIdCopied;
+
+  @override
+  String get settingsInstallationIdNone =>
+      _l10n.settingsTelemetryInstallationIdNone;
 }

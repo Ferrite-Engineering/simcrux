@@ -146,9 +146,18 @@ void main() {
           strings.settingsToggleDescription,
           strings.settingsDocsLabel,
           strings.settingsDocsDescription,
+          strings.settingsInstallationIdNone,
         ];
         for (final value in resolved) {
           expect(value.trim(), isNotEmpty, reason: 'empty string in $locale');
+        }
+        // The getter has an English default in the package; the adapter must
+        // override it, so a translated build never shows the English copy.
+        if (locale.languageCode != 'en') {
+          expect(
+            strings.settingsInstallationIdNone,
+            isNot(startsWith('No installation ID')),
+          );
         }
         // The English copy must not leak into a translated build. `Continue`
         // and `Privacy` are the two strings most likely to be left untouched
