@@ -89,17 +89,18 @@ final StreamProvider<int> trendStoreChangeTickProvider = StreamProvider<int>((
   ref,
 ) async* {
   yield 0;
-  final TrendStore store;
-  try {
-    store = await ref.watch(trendStoreProvider.future);
-  } on Object {
-    return;
-  }
+  // The open's fault, when there is one, propagates into this provider's
+  // error state instead of ending the stream quietly. A tick source that had
+  // just stopped looked exactly like a store with nothing new to say, and
+  // the dependents that watch this provider do so for invalidation only, so
+  // nothing renders the error through it. What it carries, typed, is what
+  // App Diagnostics reads (G5b).
+  final store = await ref.watch(trendStoreProvider.future);
   var tick = 0;
   await for (final _ in coalesceTrendTicks(store.dataChanged)) {
     yield ++tick;
   }
-});
+}, retry: trendStoreRetry);
 
 /// The last ten terminal statuses for a single test (the
 /// [TrendStore.recentTrend] default), most recent first. Backed by the
@@ -112,18 +113,19 @@ final FutureProviderFamily<List<TestStatus>, String> testTrendProvider =
     FutureProvider.family<List<TestStatus>, String>(
       (ref, testId) async {
         ref.watch(trendStoreChangeTickProvider);
-        final TrendStore store;
-        try {
-          store = await ref.watch(trendStoreProvider.future);
-        } on Object {
-          return const <TestStatus>[];
-        }
+        // A store that could not be opened used to come back as an empty
+        // history, so a version skew or a failed migration rendered as a
+        // test that had never run. The fault propagates instead: the
+        // sparkline's error arm shows the same empty text, and the provider
+        // holds the typed fault for App Diagnostics (G5b).
+        final store = await ref.watch(trendStoreProvider.future);
         final out = <TestStatus>[];
         await for (final point in store.recentTrend(testId)) {
           out.add(point.status);
         }
         return out;
       },
+      retry: trendStoreRetry,
     );
 
 /// Run-over-run status deltas across the most recent runs. Reads the
@@ -138,12 +140,10 @@ final FutureProvider<List<TrendDelta>> recentTrendDeltasProvider =
     FutureProvider<List<TrendDelta>>(
       (ref) async {
         ref.watch(trendStoreChangeTickProvider);
-        final TrendStore store;
-        try {
-          store = await ref.watch(trendStoreProvider.future);
-        } on Object {
-          return const <TrendDelta>[];
-        }
+        // As in [testTrendProvider]: "no changes" and "could not look" are
+        // different answers. The delta strip renders nothing on either, and
+        // App Diagnostics can tell them apart (G5b).
+        final store = await ref.watch(trendStoreProvider.future);
         final deltas = <TrendDelta>[];
         // Linter wants forEach + tear-off, but the body is an async-for
         // over a Stream — tear-off doesn't compose with `await for`, so

@@ -326,16 +326,11 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
       RegressionRunState(run: run, isFinished: false),
     );
 
-    // Resolve the trend store best-effort; the regression keeps
-    // running even if SQLite fails to open (e.g. permission denied
-    // in a sandboxed test) — trend persistence is a degraded but
-    // non-fatal feature.
-    TrendStore? trendStore;
-    try {
-      trendStore = await ref.read(trendStoreProvider.future);
-    } on Object {
-      trendStore = null;
-    }
+    // Trend persistence is a degraded but non-fatal feature: the regression
+    // runs without it when the store cannot be opened, and the typed fault
+    // stays in `trendStoreProvider` for App Diagnostics. See
+    // [trendStoreForRun] for which faults that answers for.
+    final trendStore = await trendStoreForRun(ref);
     if (_superseded(generation)) return;
 
     final scheduler = ref
@@ -819,12 +814,7 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
       RegressionRunState(run: run, isFinished: false),
     );
 
-    TrendStore? trendStore;
-    try {
-      trendStore = await ref.read(trendStoreProvider.future);
-    } on Object {
-      trendStore = null;
-    }
+    final trendStore = await trendStoreForRun(ref);
     if (_superseded(generation)) return;
 
     final scheduler = ref

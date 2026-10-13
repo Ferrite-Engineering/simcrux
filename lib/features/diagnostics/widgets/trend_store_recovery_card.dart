@@ -1,14 +1,17 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_sqlite/crux_sqlite.dart' show CruxSqliteException;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/domain/interfaces/trend_store.dart';
 import 'package:simcrux/domain/models/trend_store_rebuild_report.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/trend_store/trend_store_corruption_provider.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
 import 'package:simcrux/services/trend_store/trend_store_rebuild.dart';
+import 'package:sqflite_common/sqlite_api.dart' show DatabaseException;
 
 /// The App Diagnostics dialog's trend-database recovery card.
 ///
@@ -199,8 +202,21 @@ class _TrendStoreRecoveryCardState
       _failure = null;
       _report = null;
     });
+    // The open is caught by fault, as G5b asks: the store's own (a version
+    // skew, a failed migration, a failed pre-upgrade backup) and SQLite's on
+    // a file that is fine (busy, locked, read-only). Each has a message worth
+    // showing under the card; anything else is a bug and propagates.
+    final TrendStore store;
     try {
-      final store = await container.read(trendStoreProvider.future);
+      store = await container.read(trendStoreProvider.future);
+    } on CruxSqliteException catch (error) {
+      _failRebuild(error);
+      return;
+    } on DatabaseException catch (error) {
+      _failRebuild(error);
+      return;
+    }
+    try {
       final report = await const TrendStoreRebuilder().rebuild(
         store: store,
         archivePaths: paths,
@@ -215,11 +231,16 @@ class _TrendStoreRecoveryCardState
         _report = report;
       });
     } on Object catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _rebuilding = false;
-        _failure = '$error';
-      });
+      // The archives: unreadable, not ndjson, a row the store refused.
+      _failRebuild(error);
     }
+  }
+
+  void _failRebuild(Object error) {
+    if (!mounted) return;
+    setState(() {
+      _rebuilding = false;
+      _failure = '$error';
+    });
   }
 }

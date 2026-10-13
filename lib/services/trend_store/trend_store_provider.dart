@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_sqlite/crux_sqlite.dart' show CruxSqliteException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -9,6 +10,7 @@ import 'package:simcrux/domain/models/trend_schema_info.dart';
 import 'package:simcrux/domain/models/trend_storage_stats.dart';
 import 'package:simcrux/services/trend_store/sql_trend_store.dart';
 import 'package:simcrux/services/trend_store/trend_store_corruption_provider.dart';
+import 'package:sqflite_common/sqlite_api.dart' show DatabaseException;
 
 /// Overridable directory hint for tests. When null (the default) the
 /// trend store opens at `<applicationSupportDirectory>/trends.db`.
@@ -89,6 +91,28 @@ final FutureProvider<TrendStore> trendStoreProvider =
       // policy quarantines and reopens, so the open succeeds.
       retry: trendStoreRetry,
     );
+
+/// The open [TrendStore] for a regression about to run, or null when it
+/// cannot be opened: the run goes ahead without trend persistence, a
+/// degraded but non-fatal feature.
+///
+/// Two faults are answered for that way, each by name, which is what G5b
+/// asks of a catch at a database open: the store's own, a
+/// [CruxSqliteException] (a version skew, a failed migration, a failed
+/// pre-upgrade backup; [trendStoreProvider] holds it, typed, for App
+/// Diagnostics), and SQLite's on a file that is fine, a [DatabaseException]
+/// (busy, locked, read-only, cannot open). Anything else is a bug of ours
+/// and propagates. The catch-all this replaces turned every one of those
+/// into a run with no trends and no diagnostic anywhere.
+Future<TrendStore?> trendStoreForRun(Ref ref) async {
+  try {
+    return await ref.read(trendStoreProvider.future);
+  } on CruxSqliteException {
+    return null;
+  } on DatabaseException {
+    return null;
+  }
+}
 
 /// Storage snapshot of the active [TrendStore] — data-point / run
 /// counts, oldest/newest timestamps, approximate on-disk size.
