@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_ide_layout/crux_ide_layout.dart';
-import 'package:flutter/gestures.dart' show DragStartBehavior;
+import 'package:crux_table/crux_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
-import 'package:simcrux/features/dashboard/models/dashboard_column_layout.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
@@ -19,13 +18,15 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 /// Column widths (logical pixels) used by both the header row and
 /// each body row so the columns line up. The checkbox column is fixed; the
 /// others share the rest by the weights in [dashboardColumnLayoutProvider],
-/// which the header's dividers drag.
+/// which the header's dividers drag. Header and row height is crux_table's
+/// [kCruxTableRowHeight], the suite's table density.
 const double _kCheckboxColumnWidth = 32;
 
-/// Header and row height — LintCrux's violation-table density.
-const double _kRowHeight = 28;
+/// The id under which crux_table keys the header cells and dividers:
+/// `dashboardHeader-<column>` and `dashboardResize-<column>`.
+const String _kTableId = 'dashboard';
 
-/// The status glyph's size in a [_kRowHeight] row.
+/// The status glyph's size in a [kCruxTableRowHeight] row.
 const double _kStatusIconSize = 16;
 
 /// Narrowest width the table lays its columns out at; below this it scrolls
@@ -68,7 +69,7 @@ class DashboardResultsTable extends ConsumerWidget {
               }
               return ListView.builder(
                 itemCount: rows.length,
-                itemExtent: _kRowHeight,
+                itemExtent: kCruxTableRowHeight,
                 itemBuilder: (context, index) {
                   return _DashboardResultRow(row: rows[index]);
                 },
@@ -92,14 +93,18 @@ class DashboardResultsTable extends ConsumerWidget {
   }
 }
 
+/// The header: crux_table's, with a sortable cell per column and a drag
+/// divider between neighbours (double-click restores the default widths).
+/// The dividers are pointer-only and out of semantics, so the table's
+/// keyboard order and what a screen reader announces are unchanged.
 class _DashboardHeaderRow extends ConsumerWidget {
   const _DashboardHeaderRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = L10N.of(context);
-    final theme = Theme.of(context);
     final layout = ref.watch(dashboardColumnLayoutProvider);
+    final sort = ref.watch(dashboardSortProvider);
     final labels = <DashboardSortColumn, String>{
       DashboardSortColumn.status: l10n.dashboardColumnStatus,
       DashboardSortColumn.suite: l10n.dashboardColumnSuite,
@@ -108,154 +113,22 @@ class _DashboardHeaderRow extends ConsumerWidget {
       DashboardSortColumn.duration: l10n.dashboardColumnDuration,
       DashboardSortColumn.startedAt: l10n.dashboardColumnStartedAt,
     };
-    return Container(
-      height: _kRowHeight,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: _kCheckboxColumnWidth),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final tableWidth = constraints.maxWidth;
-                return Row(
-                  children: [
-                    for (final column in DashboardColumnLayout.columns)
-                      Expanded(
-                        flex: layout.flexOf(column),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _SortableHeaderCell(
-                                label: labels[column]!,
-                                column: column,
-                              ),
-                            ),
-                            if (column != DashboardColumnLayout.columns.last)
-                              _ResizeHandle(
-                                column: column,
-                                tableWidth: tableWidth,
-                              ),
-                          ],
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SortableHeaderCell extends ConsumerWidget {
-  const _SortableHeaderCell({required this.label, required this.column});
-
-  final String label;
-  final DashboardSortColumn column;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.onSurfaceVariant;
-    final sort = ref.watch(dashboardSortProvider);
-    final isActive = sort.column == column;
-
-    // A button, not "text": the header sorts when activated, and a screen
-    // reader only says so when the node carries the button role.
-    return Semantics(
-      button: true,
-      container: true,
-      child: InkWell(
-        key: ValueKey('dashboardHeader-${column.name}'),
+    return CruxTableHeader<DashboardSortColumn>(
+      tableId: _kTableId,
+      layout: layout,
+      controller: ref.read(dashboardColumnLayoutProvider.notifier),
+      leading: const [SizedBox(width: _kCheckboxColumnWidth)],
+      // A button, not "text": the header sorts when activated, and a screen
+      // reader only says so when the node carries the button role. Only the
+      // sorted column carries the arrow, so the others keep its 18 px for
+      // their label.
+      cellBuilder: (context, column) => CruxSortableHeaderCell(
+        key: cruxTableHeaderKey(_kTableId, column),
+        label: labels[column]!,
+        sorted: sort.column == column,
+        ascending: sort.direction == DashboardSortDirection.ascending,
         onTap: () =>
             ref.read(dashboardSortProvider.notifier).toggleColumn(column),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              Flexible(
-                // The same header typography as LintCrux's violation table.
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              // Fixed-width, not Flexible: two Flexibles split the cell and
-              // capped the label at half of it ("Simul…" in a column with
-              // room for "Simulator"). Only the sorted column carries it, so
-              // the others keep those 18 px for their label.
-              if (isActive)
-                Icon(
-                  sort.direction == DashboardSortDirection.ascending
-                      ? Icons.arrow_drop_up
-                      : Icons.arrow_drop_down,
-                  size: 18,
-                  color: color,
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The divider on a header cell's right edge: drag it to move width between
-/// this column and the next, double-click it to restore the default widths.
-///
-/// Pointer-only and excluded from semantics. It is not a Tab stop, so the
-/// table's keyboard order and what a screen reader announces are unchanged;
-/// the default widths keep every column readable without it.
-class _ResizeHandle extends ConsumerWidget {
-  const _ResizeHandle({required this.column, required this.tableWidth});
-
-  final DashboardSortColumn column;
-
-  /// The width the resizable columns share, which turns a drag's pixels
-  /// into weight.
-  final double tableWidth;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(dashboardColumnLayoutProvider.notifier);
-    final color = Theme.of(context).colorScheme.outlineVariant;
-    return ExcludeSemantics(
-      child: MouseRegion(
-        cursor: SystemMouseCursors.resizeColumn,
-        child: GestureDetector(
-          key: ValueKey('dashboardResize-${column.name}'),
-          behavior: HitTestBehavior.opaque,
-          // Count movement from pointer-down, so the divider stays under
-          // the cursor instead of lagging by the drag threshold.
-          dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragUpdate: (d) =>
-              notifier.resize(column, d.delta.dx, tableWidth),
-          onHorizontalDragEnd: (_) => notifier.commit(),
-          onDoubleTap: notifier.reset,
-          child: SizedBox(
-            width: 8,
-            height: _kRowHeight,
-            child: Center(
-              child: SizedBox(
-                width: 1,
-                height: 16,
-                child: ColoredBox(color: color),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -401,24 +274,29 @@ class _DashboardResultRow extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    _BodyCell(
+                    // crux_table's text cell: the full value as a hover-only
+                    // tooltip (a long-press trigger would claim the row's
+                    // context-menu gesture on touch hosts), and the Pro
+                    // annotation after the name, scaling down before it
+                    // overflows a cell dragged narrow.
+                    CruxTableCell(
                       text: row.suiteName,
                       flex: layout.flexOf(DashboardSortColumn.suite),
                     ),
-                    _BodyCell(
+                    CruxTableCell(
                       text: row.testName,
                       flex: layout.flexOf(DashboardSortColumn.testName),
                       annotation: trailing,
                     ),
-                    _BodyCell(
+                    CruxTableCell(
                       text: row.simulatorId,
                       flex: layout.flexOf(DashboardSortColumn.simulator),
                     ),
-                    _BodyCell(
+                    CruxTableCell(
                       text: _formatDuration(row.result.runtime),
                       flex: layout.flexOf(DashboardSortColumn.duration),
                     ),
-                    _BodyCell(
+                    CruxTableCell(
                       text: _formatTimestamp(row.result.startedAt),
                       flex: layout.flexOf(DashboardSortColumn.startedAt),
                     ),
@@ -488,68 +366,4 @@ class _DashboardResultRow extends ConsumerWidget {
 /// box, the keyboard form of clicking the row.
 class _InspectRowIntent extends Intent {
   const _InspectRowIntent();
-}
-
-class _BodyCell extends StatelessWidget {
-  const _BodyCell({required this.text, required this.flex, this.annotation});
-
-  final String text;
-  final int flex;
-
-  /// Drawn after [text], right-aligned (the Pro flaky chip in the Test
-  /// cell). It takes its natural width and the text ellipsizes before it;
-  /// in a cell too narrow for both it scales down rather than overflowing.
-  final Widget? annotation;
-
-  /// The text keeps at least this much of the cell beside an annotation.
-  static const double _minTextWidth = 24;
-  static const double _gap = 6;
-
-  @override
-  Widget build(BuildContext context) {
-    // The full value on hover, so a cell dragged narrow is still readable.
-    // Hover only: a tooltip's default long-press trigger would claim the
-    // long-press the row uses for its context menu on touch hosts.
-    final label = ExcludeSemantics(
-      child: Tooltip(
-        message: text,
-        triggerMode: TooltipTriggerMode.manual,
-        child: Text(
-          text,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
-    );
-    final annotation = this.annotation;
-    return Expanded(
-      flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: annotation == null
-            ? Align(alignment: Alignment.centerLeft, child: label)
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  final room = constraints.maxWidth - _gap - _minTextWidth;
-                  return Row(
-                    children: [
-                      Expanded(child: label),
-                      if (room > 0) ...[
-                        const SizedBox(width: _gap),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: room),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerRight,
-                            child: annotation,
-                          ),
-                        ),
-                      ],
-                    ],
-                  );
-                },
-              ),
-      ),
-    );
-  }
 }

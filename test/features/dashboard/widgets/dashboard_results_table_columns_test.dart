@@ -16,7 +16,6 @@ import 'package:simcrux/features/dashboard/models/dashboard_column_layout.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
-import 'package:simcrux/features/dashboard/services/dashboard_column_layout_codec.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_results_table.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
@@ -66,7 +65,7 @@ void main() {
             dashboardRowTrailingBuilderProvider.overrideWithValue(trailing),
           dashboardColumnLayoutSettingsServiceProvider.overrideWithValue(
             SettingsService<DashboardColumnLayout>(
-              const DashboardColumnLayoutCodec(),
+              dashboardColumnLayoutProviders.codec,
               prefsOverride: prefs,
             ),
           ),
@@ -123,8 +122,8 @@ void main() {
     expect(rowAfter - rowBefore, closeTo(80, 2));
 
     expect(
-      await const DashboardColumnLayoutCodec().load(prefs),
-      isNot(DashboardColumnLayout.defaults),
+      await dashboardColumnLayoutProviders.codec.load(prefs),
+      isNot(dashboardColumns.defaults),
     );
   });
 
@@ -140,7 +139,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       container.read(dashboardColumnLayoutProvider),
-      isNot(DashboardColumnLayout.defaults),
+      isNot(dashboardColumns.defaults),
     );
 
     final handle = find.byKey(const ValueKey('dashboardResize-simulator'));
@@ -150,7 +149,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       container.read(dashboardColumnLayoutProvider),
-      DashboardColumnLayout.defaults,
+      dashboardColumns.defaults,
     );
   });
 
@@ -158,12 +157,10 @@ void main() {
     tester,
   ) async {
     await pumpTable(tester);
-    for (final column in DashboardColumnLayout.columns) {
+    for (final column in dashboardColumns.columns) {
       expect(
         find.byKey(ValueKey('dashboardResize-${column.name}')),
-        column == DashboardColumnLayout.columns.last
-            ? findsNothing
-            : findsOneWidget,
+        column == dashboardColumns.columns.last ? findsNothing : findsOneWidget,
         reason: column.name,
       );
     }
@@ -180,7 +177,7 @@ void main() {
     // assert here.)
     final container = await pumpTable(tester, width: 1060);
     final sorted = container.read(dashboardSortProvider).column;
-    for (final column in DashboardColumnLayout.columns) {
+    for (final column in dashboardColumns.columns) {
       final cell = tester.getSize(
         find.byKey(ValueKey('dashboardHeader-${column.name}')),
       );
@@ -208,7 +205,7 @@ void main() {
     // A fixed slot for the Pro row annotation used to sit after Started, so
     // no drag could take the last column to the pane's edge.
     await pumpTable(tester, width: 1060);
-    final last = DashboardColumnLayout.columns.last;
+    final last = dashboardColumns.columns.last;
     final header = tester.getRect(
       find.byKey(ValueKey('dashboardHeader-${last.name}')),
     );
@@ -278,16 +275,16 @@ void main() {
     );
     expect(label.style?.color, scheme.onSurfaceVariant);
     expect(label.style?.fontWeight, FontWeight.w600);
-    final header = tester.widget<Container>(
+    final header = tester.widget<DecoratedBox>(
       find
           .ancestor(
             of: find.byKey(const ValueKey('dashboardHeader-testName')),
-            matching: find.byType(Container),
+            matching: find.byType(DecoratedBox),
           )
-          .last,
+          .first,
     );
     expect(
-      (header.decoration! as BoxDecoration).color,
+      (header.decoration as BoxDecoration).color,
       scheme.surfaceContainerHighest,
     );
   });

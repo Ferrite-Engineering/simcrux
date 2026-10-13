@@ -115,6 +115,11 @@ dependencies:
   # persistence adapter, the `form_factor` derivation and — the one part that
   # is genuinely per-product — the event catalog in
   # `lib/services/telemetry/telemetry_event_catalog.dart`.
+  # Cross-suite resizable, sortable table: the column layout model and its
+  # persistence, the header with its drag dividers, and the text cell. The
+  # results table supplies its columns, default weights and preference key.
+  crux_table:
+    path: ./crux-shared/packages/crux_table
   crux_telemetry:
     path: ./crux-shared/packages/crux_telemetry
   crux_theme:
@@ -222,6 +227,11 @@ dev_dependencies:
   # `CruxAuditRecorder`, so the runtime dependency stays where the binding is.
   crux_audit:
     path: ./crux-shared/packages/crux_audit
+  # The suite's static-guard scanners (outline-token text colour, unused
+  # localisation keys, a widget's `ref` after an await), run from the thin
+  # tests under `test/static/` with this repository's own exemptions.
+  crux_guards:
+    path: ./crux-shared/packages/crux_guards
   fake_async: ^1.3.0
   flutter_test:
     sdk: flutter

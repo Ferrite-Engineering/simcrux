@@ -166,6 +166,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  crux_guards:
+    dependency: "direct dev"
+    description:
+      path: "crux-shared/packages/crux_guards"
+      relative: true
+    source: path
+    version: "0.1.0"
   crux_ide_layout:
     dependency: "direct main"
     description:
@@ -282,6 +289,13 @@ packages:
     dependency: "direct main"
     description:
       path: "crux-shared/packages/crux_status_bar"
+      relative: true
+    source: path
+    version: "0.1.0"
+  crux_table:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_table"
       relative: true
     source: path
     version: "0.1.0"
