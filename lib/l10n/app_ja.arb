@@ -886,14 +886,6 @@
       }
     }
   },
-  "watcherAutoReloadPromptTitle": "ソースに変更があります",
-  "@watcherAutoReloadPromptTitle": {
-    "description": "Snackbar title shown when a watched source file changed and AutoReloadMode is prompt."
-  },
-  "watcherAutoReloadPromptMessage": "最新の変更を取り込むためにスイートを再実行しますか？",
-  "@watcherAutoReloadPromptMessage": {
-    "description": "Snackbar body shown when a watched source file changed."
-  },
   "watcherAutoReloadActionRerun": "今すぐ再実行",
   "@watcherAutoReloadActionRerun": {
     "description": "Snackbar action label that re-runs the suite immediately."

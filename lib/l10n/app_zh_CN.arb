@@ -886,14 +886,6 @@
       }
     }
   },
-  "watcherAutoReloadPromptTitle": "源代码已更改",
-  "@watcherAutoReloadPromptTitle": {
-    "description": "Snackbar title shown when a watched source file changed and AutoReloadMode is prompt."
-  },
-  "watcherAutoReloadPromptMessage": "是否重新运行套件以采纳最新更改？",
-  "@watcherAutoReloadPromptMessage": {
-    "description": "Snackbar body shown when a watched source file changed."
-  },
   "watcherAutoReloadActionRerun": "立即重新运行",
   "@watcherAutoReloadActionRerun": {
     "description": "Snackbar action label that re-runs the suite immediately."

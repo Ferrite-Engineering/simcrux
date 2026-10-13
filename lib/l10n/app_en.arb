@@ -897,14 +897,6 @@
       }
     }
   },
-  "watcherAutoReloadPromptTitle": "Sources changed",
-  "@watcherAutoReloadPromptTitle": {
-    "description": "Snackbar title shown when a watched source file changed and AutoReloadMode is prompt."
-  },
-  "watcherAutoReloadPromptMessage": "Re-run the suite to pick up the latest changes?",
-  "@watcherAutoReloadPromptMessage": {
-    "description": "Snackbar body shown when a watched source file changed."
-  },
   "watcherAutoReloadActionRerun": "Re-run now",
   "@watcherAutoReloadActionRerun": {
     "description": "Snackbar action label that re-runs the suite immediately."
