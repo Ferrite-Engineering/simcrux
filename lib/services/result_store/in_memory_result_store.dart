@@ -188,6 +188,14 @@ class InMemoryResultStore implements ResultStore {
     }
     _results.add(result);
     _indexResult(result);
+    // A failure's log is the one the user comes back for, so the log store
+    // keeps it past every passing test's log. `unknown` counts: a test that
+    // could not be classified needs its log read as much as a failing one.
+    if (result.status == TestStatus.fail ||
+        result.status == TestStatus.timeout ||
+        result.status == TestStatus.unknown) {
+      logBufferStore.markFailed(result.testId);
+    }
     // Suite and simulator are looked up by indexing the corresponding
     // `TestSpec` upstream of this store; the `TestResult`
     // does not carry them, so we cache them through the public

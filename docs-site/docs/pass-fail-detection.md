@@ -43,6 +43,14 @@ pass_fail:
 
 Exit code 0 → pass; any other code → fail.
 
+One exception, for Icarus Verilog. `vvp` exits 0 when a test calls `$error`
+and then `$finish` (upstream treats that as intended and points at `$fatal`
+or `$finish_and_return`), but it prints the failure as an `ERROR:` line, and
+`$fatal` as a `FATAL:` line. SimCrux reads those from the simulator's own
+output, so under `exit_code` such a test is a **fail**, with the first
+`ERROR:` line as its failure message. A detector you configure yourself is
+not second-guessed this way: its verdict stands on its own.
+
 ### `string_match` {#string-match}
 
 ```yaml

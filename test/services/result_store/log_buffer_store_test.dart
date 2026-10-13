@@ -182,6 +182,98 @@ void main() {
       expect(reopened.droppedCount, 4);
     });
 
+    group('failures outrank passes', () {
+      test('an early failure survives a long tail of passes', () {
+        // The headline case: the first red test's log is what the user
+        // comes back for twenty minutes later, and pure LRU had discarded it
+        // to keep the logs of passes nobody will open.
+        final store = LogBufferStore(maxBufferedTests: 3, maxLinesPerTest: 10);
+        final early = store.bufferFor('early_failure')
+          ..append(line: 'assertion failed', fromStderr: true);
+        store.markFailed('early_failure');
+        for (var t = 0; t < 50; t++) {
+          store.bufferFor('pass$t').append(line: 'ok', fromStderr: false);
+        }
+        expect(store.tryGet('early_failure'), same(early));
+        expect(early.snapshot.single.line, 'assertion failed');
+        expect(store.testIds.length, lessThanOrEqualTo(3));
+      });
+
+      test('a mark made after the buffer exists still protects it', () {
+        // The result lands after the log streamed, which is the real order:
+        // TestLog lines first, TestFinished last.
+        final store = LogBufferStore(maxBufferedTests: 2, maxLinesPerTest: 10);
+        store.bufferFor('a').append(line: 'x', fromStderr: false);
+        store.bufferFor('b').append(line: 'x', fromStderr: false);
+        store.markFailed('a');
+        store.bufferFor('c').append(line: 'x', fromStderr: false);
+        expect(store.testIds, containsAll(<String>['a', 'c']));
+        expect(store.tryGet('b'), isNull);
+      });
+
+      test('a suite that is mostly failures is still bounded, oldest '
+          'failure first', () {
+        // A broken build fails everything. "Never evict a failure" would
+        // reintroduce the unbounded growth the bounds exist for.
+        final store = LogBufferStore(maxBufferedTests: 4, maxLinesPerTest: 10);
+        for (var t = 0; t < 40; t++) {
+          store.bufferFor('f$t').append(line: 'boom', fromStderr: true);
+          store.markFailed('f$t');
+        }
+        expect(store.testIds.length, lessThanOrEqualTo(4));
+        expect(store.testIds, containsAll(<String>['f37', 'f38', 'f39']));
+        expect(store.tryGet('f0'), isNull);
+        expect(store.evictedBufferCount, 36);
+      });
+
+      test('the line bound binds on failures too', () {
+        final store = LogBufferStore(
+          maxBufferedTests: 100,
+          maxLinesPerTest: 10,
+          maxTotalLines: 30,
+        );
+        for (var t = 0; t < 20; t++) {
+          final b = store.bufferFor('f$t');
+          for (var l = 0; l < 10; l++) {
+            b.append(line: 'l$l', fromStderr: true);
+          }
+          store.markFailed('f$t');
+        }
+        expect(store.totalLineCount, lessThanOrEqualTo(30 + 10));
+      });
+
+      test('an evicted failure still reports its lost lines', () {
+        final store = LogBufferStore(maxBufferedTests: 1, maxLinesPerTest: 10);
+        store.bufferFor('f0').append(line: 'x', fromStderr: true);
+        store.markFailed('f0');
+        store.bufferFor('f1').append(line: 'x', fromStderr: true);
+        store.markFailed('f1');
+        store.bufferFor('f2').append(line: 'x', fromStderr: true);
+        expect(store.evictedLinesFor('f0'), 1);
+        expect(store.isMarkedFailed('f0'), isTrue);
+      });
+
+      test(
+        'a streamed failure is never evicted, even by another failure',
+        () async {
+          final store = LogBufferStore(
+            maxBufferedTests: 1,
+            maxLinesPerTest: 10,
+          );
+          final watched = store.bufferFor('watched')
+            ..append(line: 'x', fromStderr: true);
+          store.markFailed('watched');
+          final sub = watched.stream.listen((_) {});
+          addTearDown(sub.cancel);
+          for (var t = 0; t < 5; t++) {
+            store.bufferFor('f$t').append(line: 'x', fromStderr: true);
+            store.markFailed('f$t');
+          }
+          expect(store.tryGet('watched'), same(watched));
+        },
+      );
+    });
+
     test('closeAll closes every per-test buffer', () async {
       final store = LogBufferStore();
       store.bufferFor('a').append(line: 'x', fromStderr: false);

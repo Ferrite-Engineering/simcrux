@@ -40,7 +40,7 @@ class AppSettings {
     this.broadcastSelectionOnCrossProbe = true,
     this.autoCheckForUpdates = true,
     this.autoRunOnOpen = false,
-    this.retentionPolicy = RetentionPolicy.defaultPolicy,
+    this.retentionPolicy,
   });
 
   /// The cross-suite shared subset of settings (theme, locale,
@@ -181,14 +181,25 @@ class AppSettings {
   /// already-explicit opt-in about a run that is already the user's.
   final bool autoRunOnOpen;
 
-  /// Trend-store and waveform retention rules.
+  /// Trend-store and waveform retention rules the user chose, or `null`
+  /// when they never did.
   ///
   /// Persisted so the policy survives a restart. It used to live only in
   /// `retentionPolicyProvider`'s in-memory notifier, so a user who dialled
   /// retention down to keep their disk under control got the 30-day /
   /// 50 000-point / 10-waveform defaults back the next time they launched
   /// — and the sweep they had asked for silently stopped happening.
-  final RetentionPolicy retentionPolicy;
+  ///
+  /// **Nullable, so "nobody chose" is representable.** It used to default to
+  /// [RetentionPolicy.defaultPolicy], which made an untouched installation
+  /// indistinguishable from an engineer who deliberately picked the default
+  /// values. The Pro overlay layers an organization's *unlocked* policy
+  /// underneath the user's own choice, and with the default filled in it
+  /// never applied once settings had loaded. Readers that want a policy to
+  /// sweep with take `retentionPolicy ?? RetentionPolicy.defaultPolicy`
+  /// (`retentionPolicyProvider` does); readers that want to know whether
+  /// the user chose one test for `null`.
+  final RetentionPolicy? retentionPolicy;
 
   // ─── Forwarder getters into [core] ────────────────────────────────────
   // Preserve a flat read API so consumers don't have to traverse

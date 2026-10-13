@@ -131,21 +131,22 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
     }
   }
 
-  /// Reads the persisted retention policy, falling back to the built-in
-  /// default. A corrupt or hand-edited value falls back too rather than
-  /// throwing: an unparseable preference must not stop the app from
-  /// starting, and the default is a safe policy rather than an absent one.
-  RetentionPolicy _readRetentionPolicy(SharedPreferences prefs) {
+  /// Reads the persisted retention policy, or `null` when the user never
+  /// chose one. A corrupt or hand-edited value reads as absent too rather
+  /// than throwing: an unparseable preference must not stop the app from
+  /// starting, and every reader that sweeps falls back to
+  /// `RetentionPolicy.defaultPolicy` for an absent one. See
+  /// `AppSettings.retentionPolicy` for why absent is kept distinct from the
+  /// default.
+  RetentionPolicy? _readRetentionPolicy(SharedPreferences prefs) {
     final raw = prefs.getString(_kRetentionPolicy);
-    if (raw == null || raw.isEmpty) return RetentionPolicy.defaultPolicy;
+    if (raw == null || raw.isEmpty) return null;
     try {
       final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, Object?>) {
-        return RetentionPolicy.defaultPolicy;
-      }
+      if (decoded is! Map<String, Object?>) return null;
       return RetentionPolicy.fromJson(decoded);
     } on Object {
-      return RetentionPolicy.defaultPolicy;
+      return null;
     }
   }
 
@@ -199,10 +200,14 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
     );
     await prefs.setBool(_kAutoCheckForUpdates, settings.autoCheckForUpdates);
     await prefs.setBool(_kAutoRunOnOpen, settings.autoRunOnOpen);
-    await prefs.setString(
-      _kRetentionPolicy,
-      jsonEncode(settings.retentionPolicy.toJson()),
-    );
+    final retention = settings.retentionPolicy;
+    if (retention == null) {
+      // Absent stays absent: writing the default here would turn "nobody
+      // chose" into "the user chose the default" on the next load.
+      await prefs.remove(_kRetentionPolicy);
+    } else {
+      await prefs.setString(_kRetentionPolicy, jsonEncode(retention.toJson()));
+    }
     await _writePanelLayout(prefs, settings.panelLayout);
   }
 

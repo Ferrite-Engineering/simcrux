@@ -124,6 +124,16 @@ class LogLine {
 /// test later the fresh buffer reports those lines through
 /// [LogBuffer.droppedCount] and the pane says "(N earlier lines elided)"
 /// rather than showing a silently empty log.
+///
+/// **Failures outrank passes.** Pure LRU in a long regression dropped the
+/// log of the first thing that went red to keep the logs of the passes
+/// that followed, which is backwards for how the store is used: nobody
+/// opens the log of a test that passed, and the one a user comes back for
+/// twenty minutes later is that early failure. So a buffer the result store
+/// has marked failed ([markFailed]) is evicted only after every unmarked
+/// buffer that can be evicted is gone. The failure pool is bounded by the
+/// same two limits, so a suite that is mostly failures (a broken build) is
+/// still bounded: once only failures remain, the oldest failure goes first.
 class LogBufferStore {
   /// Creates an empty [LogBufferStore].
   LogBufferStore({
@@ -152,8 +162,22 @@ class LogBufferStore {
   /// the result store's own per-test index already carries.
   final Map<String, int> _evictedLines = <String, int>{};
 
+  /// Tests whose result was a failure, kept past every passing buffer.
+  final Set<String> _failed = <String>{};
+
   int _liveLines = 0;
   int _evictedBuffers = 0;
+
+  /// Marks [testId]'s log as a failure's, so it is kept while any
+  /// unmarked buffer could be evicted instead.
+  ///
+  /// Called by the result store when a `fail`, `timeout` or `unknown`
+  /// result lands. Idempotent, and cheap to call for a test whose buffer
+  /// was already evicted: a later buffer for it is a failure's too.
+  void markFailed(String testId) => _failed.add(testId);
+
+  /// Whether [testId] has been marked by [markFailed].
+  bool isMarkedFailed(String testId) => _failed.contains(testId);
 
   /// Returns the buffer for [testId], creating an empty one on
   /// first access and promoting it to the most-recently-used end.
@@ -202,20 +226,30 @@ class LogBufferStore {
   /// Drops least-recently-used buffers until both bounds hold. Runs only
   /// when a *new* test id arrives, so the fold is paid once per test, not
   /// once per log line.
+  ///
+  /// Two passes, oldest first in each: buffers not marked failed, then,
+  /// only if the bounds still do not hold, the failures. See the class doc.
   void _pruneToBounds() {
     _liveLines = totalLineCount;
-    if (_buffers.length <= maxBufferedTests && _liveLines <= maxTotalLines) {
-      return;
-    }
+    if (_withinBounds) return;
     // The buffer that was just inserted — the test that is starting now.
     // It is never the victim, however chatty the run.
     final newest = _buffers.keys.last;
+    _evictWhere((id) => !_failed.contains(id), spare: newest);
+    if (_withinBounds) return;
+    _evictWhere(_failed.contains, spare: newest);
+  }
+
+  bool get _withinBounds =>
+      _buffers.length <= maxBufferedTests && _liveLines <= maxTotalLines;
+
+  /// Evicts, least-recently-used first, the buffers [eligible] admits until
+  /// the bounds hold, skipping [spare] and any buffer being streamed.
+  void _evictWhere(bool Function(String id) eligible, {required String spare}) {
     // `toList` because eviction mutates the map while we walk it.
     for (final id in _buffers.keys.toList()) {
-      if (_buffers.length <= maxBufferedTests && _liveLines <= maxTotalLines) {
-        return;
-      }
-      if (id == newest) continue;
+      if (_withinBounds) return;
+      if (id == spare || !eligible(id)) continue;
       final candidate = _buffers[id]!;
       // Never evict a buffer the UI is streaming.
       if (candidate.hasListener) continue;

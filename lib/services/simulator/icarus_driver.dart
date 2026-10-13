@@ -36,6 +36,16 @@ import 'package:simcrux/services/simulator/simulator_not_available_exception.dar
 /// log stream verbatim. The scheduler re-classifies through the
 /// configured `PassFailDetector` after the run completes.
 ///
+/// **One thing the exit code cannot say.** `vvp` exits 0 when a test calls
+/// `$error` and then `$finish`; upstream treats that as intended and points
+/// at `$fatal` / `$finish_and_return`. It does print the failure, as an
+/// `ERROR: <file>:<line>: <message>` line (and `FATAL:` for `$fatal`), so
+/// the driver watches its own output for those and reports `fail` with the
+/// first such line as the failure message even when the exit code is 0.
+/// The default `exit_code` detector defers to that (see
+/// `resolveFinalStatus` in the scheduler): a test that printed `ERROR:` and
+/// exited 0 is a failing test, not a passing one.
+///
 /// Cancellation: `cancel(testId)` kills whichever subprocess is live
 /// for that test — compile or execute. SIGTERM is sent first; the
 /// scheduler is responsible for the SIGKILL escalation after a grace
@@ -184,6 +194,11 @@ class IcarusDriver extends ProcessBackedSimulatorDriver {
       '+seed=$effectiveSeed',
     ];
 
+    // The first `ERROR:` / `FATAL:` line vvp printed, if any. See the class
+    // doc: with `$error` + `$finish` the exit code is 0 and this is the
+    // only sign the test failed.
+    String? firstErrorLine;
+
     await runProcessStreaming(
       request: request,
       executable: vvp,
@@ -193,21 +208,41 @@ class IcarusDriver extends ProcessBackedSimulatorDriver {
       controller: controller,
       unavailableBinaryLabel: vvp,
       unavailableMessage: '$vvp not available (${request.binaryConfig.source})',
+      onLine: (line, {required fromStderr}) {
+        if (firstErrorLine == null && isIcarusErrorLine(line)) {
+          firstErrorLine = line.trim();
+        }
+      },
       buildFinished: (exitCode, process) async {
         final waveform = await _locateWaveform(request);
-        final status = exitCode == 0 ? TestStatus.pass : TestStatus.fail;
+        final errorLine = firstErrorLine;
+        final status = exitCode == 0 && errorLine == null
+            ? TestStatus.pass
+            : TestStatus.fail;
         return TestExecutionFinished(
           status: status,
           exitCode: exitCode,
           startedAt: startedAt,
           finishedAt: DateTime.now().toUtc(),
           waveformPath: waveform,
+          failureMessage: errorLine,
           killSignal: process.killSignal,
           effectiveSeed: effectiveSeed,
         );
       },
     );
   }
+
+  /// Whether [line] is one of the severity lines Icarus prints for
+  /// `$error` and `$fatal`.
+  ///
+  /// Icarus writes `ERROR: <file>:<line>: <message>` and
+  /// `FATAL: <file>:<line>: <message>` at the start of a line (the
+  /// continuation `Time: … Scope: …` line is indented). Anchored to the line
+  /// start so a testbench `$display("no ERROR: here")` is not read as one.
+  static bool isIcarusErrorLine(String line) => _icarusErrorLine.hasMatch(line);
+
+  static final RegExp _icarusErrorLine = RegExp('^(ERROR|FATAL): ');
 
   // ── helpers ────────────────────────────────────────────────────────
 

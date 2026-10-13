@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crux_io/crux_io.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/kill_signal.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -14,6 +15,7 @@ import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/interfaces/retry_policy.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/bounded_log_capture.dart';
+import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/regression_request.dart';
 import 'package:simcrux/domain/models/resource_lock.dart';
@@ -917,11 +919,11 @@ class LocalJobScheduler implements JobScheduler {
       runtime: execStopwatch.elapsed,
       workingDirectory: workDir,
     );
-    // If the detector reports unknown (e.g. it could not derive a
-    // signal), fall back to the driver's best-guess status.
-    final finalStatus = classified == TestStatus.unknown
-        ? driverStatus
-        : classified;
+    final finalStatus = resolveFinalStatus(
+      classified: classified,
+      driverStatus: driverStatus,
+      config: spec.passFail,
+    );
 
     return _ExecOutcome(
       status: finalStatus,
@@ -932,6 +934,34 @@ class LocalJobScheduler implements JobScheduler {
       effectiveSeed: effectiveSeed,
       metrics: driverMetrics,
     );
+  }
+
+  /// Merges the detector's verdict with the driver's.
+  ///
+  /// The detector decides. If it reports `unknown` (it could not derive a
+  /// signal), the driver's best guess stands in.
+  ///
+  /// **One exception, for the default detector only.** `exit_code` is "pass
+  /// iff the process exited 0", and a driver can know its simulator lies
+  /// about that: Icarus exits 0 when a test calls `$error` and then
+  /// `$finish`, and prints `ERROR:` instead. A driver that saw the failure
+  /// in its own output reports `fail` with a message, and that outranks a
+  /// `pass` the exit code alone produced. A configured detector (a regex, a
+  /// string match, cocotb's summary) still decides on its own: the user
+  /// named it because the exit code was not the signal they wanted.
+  @visibleForTesting
+  static TestStatus resolveFinalStatus({
+    required TestStatus classified,
+    required TestStatus driverStatus,
+    required PassFailConfig config,
+  }) {
+    if (classified == TestStatus.unknown) return driverStatus;
+    if (config is ExitCodePassFailConfig &&
+        classified == TestStatus.pass &&
+        driverStatus == TestStatus.fail) {
+      return TestStatus.fail;
+    }
+    return classified;
   }
 
   String _allocateWorkDir(String runId, String testId) {

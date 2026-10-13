@@ -320,6 +320,81 @@ void main() {
       },
     );
 
+    test(r'$error then $finish: exit 0 with an ERROR: line is a fail, and '
+        'the line is the failure message', () async {
+      // Icarus 13: `module t; initial begin $error("check failed"); $finish;
+      // end endmodule` prints the lines below and exits 0. Upstream treats
+      // that as intended (steveicarus/iverilog#547), so the driver reads
+      // its own output.
+      final rec = _RecordingLauncher({
+        'vvp': () => _FakeProcess(
+          stdoutLines: const [
+            'ERROR: t.sv:1: check failed',
+            '       Time: 0  Scope: t',
+            r't.sv:1: $finish called at 0 (1s)',
+          ],
+        ),
+      });
+      final driver = IcarusDriver(launcher: rec.launch);
+      final events = await driver
+          .execute(
+            ExecuteRequest(
+              test: _spec(),
+              workingDirectory: tmp.path,
+              compileResult: const CompileResult(
+                success: true,
+                artifactPath: 'sim.vvp',
+                stdout: '',
+                stderr: '',
+              ),
+              binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+            ),
+          )
+          .toList();
+      final finished = events.whereType<TestExecutionFinished>().single;
+      expect(finished.status, TestStatus.fail);
+      expect(finished.exitCode, 0);
+      expect(finished.failureMessage, 'ERROR: t.sv:1: check failed');
+    });
+
+    test(r'$fatal is read the same way, from stderr too', () async {
+      final rec = _RecordingLauncher({
+        'vvp': () => _FakeProcess(
+          stderrLines: const ['FATAL: t.sv:3: bus hung'],
+        ),
+      });
+      final driver = IcarusDriver(launcher: rec.launch);
+      final events = await driver
+          .execute(
+            ExecuteRequest(
+              test: _spec(),
+              workingDirectory: tmp.path,
+              compileResult: const CompileResult(
+                success: true,
+                artifactPath: 'sim.vvp',
+                stdout: '',
+                stderr: '',
+              ),
+              binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+            ),
+          )
+          .toList();
+      final finished = events.whereType<TestExecutionFinished>().single;
+      expect(finished.status, TestStatus.fail);
+      expect(finished.failureMessage, 'FATAL: t.sv:3: bus hung');
+    });
+
+    test('ERROR: inside a line a testbench displays is not a verdict', () {
+      expect(IcarusDriver.isIcarusErrorLine('ERROR: t.sv:1: x'), isTrue);
+      expect(IcarusDriver.isIcarusErrorLine('FATAL: t.sv:1: x'), isTrue);
+      expect(IcarusDriver.isIcarusErrorLine('no ERROR: here'), isFalse);
+      expect(IcarusDriver.isIcarusErrorLine('ERROR:no space'), isFalse);
+      expect(
+        IcarusDriver.isIcarusErrorLine('       Time: 0  Scope: t'),
+        isFalse,
+      );
+    });
+
     test('finishes with fail on nonzero exit code', () async {
       final rec = _RecordingLauncher({
         'vvp': () => _FakeProcess(exit: 2),

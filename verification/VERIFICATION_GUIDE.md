@@ -168,6 +168,7 @@ Fixture families:
 2. Two tests declaring a shared resource lock run strictly serially.
 3. A hung test is cancelled at its timeout and reported as `timeout`.
 4. Exit codes classify pass / fail.
+5. An Icarus test that calls `$error` and then `$finish` (`vvp` exits 0, prints `ERROR: <file>:<line>: <message>`) is reported **fail** under the default `exit_code` detector, with that line as its failure message. `Coverage: AUTOMATED — test/services/simulator/icarus_driver_test.dart ('$error then $finish …'), test/services/job_scheduler/local_job_scheduler_status_merge_test.dart`.
 
 **Diagnostics-assisted verification.** The dashboard's running/passing/failing counts track live parallelism; the log panel streams per-test lines.
 

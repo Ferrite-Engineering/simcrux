@@ -42,6 +42,21 @@ void main() {
   }
 
   group('InMemoryResultStore — basic recording', () {
+    test("a failing result marks its log as a failure's, so the log store "
+        'keeps it past the passes', () async {
+      final store = InMemoryResultStore.forRun(makeRun());
+      await store.recordResult(makeResult(testId: 'suite_a/t1'));
+      await store.recordResult(
+        makeResult(testId: 'suite_a/t2', status: TestStatus.fail),
+      );
+      await store.recordResult(
+        makeResult(testId: 'suite_b/t3', status: TestStatus.timeout),
+      );
+      expect(store.logBufferStore.isMarkedFailed('suite_a/t1'), isFalse);
+      expect(store.logBufferStore.isMarkedFailed('suite_a/t2'), isTrue);
+      expect(store.logBufferStore.isMarkedFailed('suite_b/t3'), isTrue);
+    });
+
     test('currentRun emits the initial run on subscribe', () async {
       final store = InMemoryResultStore.forRun(makeRun());
       final first = await store.currentRun.first;
