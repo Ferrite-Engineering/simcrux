@@ -433,12 +433,25 @@ void main() {
       }
     });
 
-    test('kSubcommands covers export-dashboard and both RISC-V imports', () {
+    test('kSubcommands covers export-dashboard, both RISC-V imports and '
+        'license', () {
       expect(CliArgParser.kSubcommands, [
         'export-dashboard',
         'import-riscv-arch-test',
         'import-riscv-formal',
+        'license',
       ]);
+    });
+
+    test('license forwards its words verbatim', () {
+      final args = parser.parse(<String>[
+        'license',
+        'request',
+        '--out',
+        'agent.json',
+      ]);
+      expect(args.subcommand, 'license');
+      expect(args.subcommandArgs, ['request', '--out', 'agent.json']);
     });
 
     test('startsWithSubcommand only fires on the leading word', () {

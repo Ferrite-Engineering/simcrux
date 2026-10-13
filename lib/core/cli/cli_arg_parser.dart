@@ -211,15 +211,21 @@ class CliArgParser {
   /// Stable id of the `export-dashboard` sub-command.
   static const String kExportDashboardSubcommand = 'export-dashboard';
 
+  /// Stable id of the `license` sub-command (`license fingerprint`,
+  /// `license request --out <file>`).
+  static const String kLicenseSubcommand = 'license';
+
   /// Every sub-command word this parser recognizes.
   ///
   /// A sub-command owns its own `ArgParser` (`DashboardBundleWriter` for
-  /// `export-dashboard`, `RiscvImportCli` for the two RISC-V imports), so
-  /// the words are matched *before* the primary option parser runs and
-  /// everything after one is forwarded verbatim.
+  /// `export-dashboard`, `RiscvImportCli` for the two RISC-V imports,
+  /// `LicenseCli` for `license`), so the words are matched *before* the
+  /// primary option parser runs and everything after one is forwarded
+  /// verbatim.
   static List<String> get kSubcommands => <String>[
     kExportDashboardSubcommand,
     ...RiscvImportKind.subcommands,
+    kLicenseSubcommand,
   ];
 
   /// Whether [args] opens with a sub-command word.

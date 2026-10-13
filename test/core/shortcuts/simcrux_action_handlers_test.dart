@@ -77,9 +77,8 @@ enum _Dispatch {
   // activate. Its only two entries (the PR-annotation pair) became
   // Pro-reachable, leaving the kind with no members — and a test that
   // loops over zero entries passes while asserting nothing, which is
-  // worse than no test. Removed with its production helper. The
-  // `snackActionNotAvailableYet` ARB key survives in all five locales
-  // for a future genuine deferral.
+  // worse than no test. Removed with its production helper, which never had
+  // an ARB key of its own.
 
   // An `unimplementedSnack` kind lived here for the two focus actions, whose
   // handlers did nothing but show "not yet implemented". Hiding them from

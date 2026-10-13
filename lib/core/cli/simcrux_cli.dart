@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
+import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
 import 'package:simcrux/domain/enums/riscv_import_kind.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
@@ -93,11 +94,13 @@ class SimcruxCli {
     this.failOnRegressionPolicy = const UnavailableFailOnRegressionPolicy(),
     this.telemetry = const NoopTelemetryService(),
     HeadlessLicenseTierResolver? licenseTierResolver,
+    LicenseCli? licenseCli,
     ConfigLoader Function(LicenseTier tier, {required bool allowTooling})?
     configLoaderFactory,
   }) : driverRegistry = driverRegistry ?? defaultDriverRegistry(),
        licenseTierResolver =
            licenseTierResolver ?? HeadlessLicenseTierResolver(),
+       licenseCli = licenseCli ?? LicenseCli(),
        configLoaderFactory = configLoaderFactory ?? _defaultConfigLoader;
 
   /// Simulator drivers available to `--ci` runs.
@@ -115,6 +118,11 @@ class SimcruxCli {
 
   /// Resolves the license tier a `--ci` run loads its project at.
   final HeadlessLicenseTierResolver licenseTierResolver;
+
+  /// Handles the `license` sub-command: the install fingerprint and the
+  /// offline activation request a dedicated build agent needs to be issued
+  /// a machine file without the desktop app.
+  final LicenseCli licenseCli;
 
   /// Builds the project loader for the license tier a `--ci` run resolved.
   final ConfigLoader Function(LicenseTier tier, {required bool allowTooling})
@@ -212,6 +220,14 @@ class SimcruxCli {
       );
     }
 
+    if (parsedArgs.subcommand == CliArgParser.kLicenseSubcommand) {
+      return await _runLicense(
+        parsedArgs.subcommandArgs,
+        stdoutSink,
+        stderrSink,
+      );
+    }
+
     if (parsedArgs.ciMode && parsedArgs.hasProject) {
       return await _runCi(parsedArgs, stdoutSink, stderrSink);
     }
@@ -223,8 +239,8 @@ class SimcruxCli {
     stderrSink(
       'simcrux: nothing to do headless — pass --ci <config>, '
       '--import-fusesoc, import-riscv-arch-test, import-riscv-formal, '
-      'or export-dashboard. The graphical workflows need the SimCrux '
-      'desktop app.',
+      'export-dashboard, or license. The graphical workflows need the '
+      'SimCrux desktop app.',
     );
     stderrSink('');
     stderrSink(CliArgParser().usage);
@@ -297,6 +313,23 @@ class SimcruxCli {
       return 2;
     } on Object catch (e) {
       stderrSink('simcrux export-dashboard: $e');
+      return 2;
+    }
+  }
+
+  Future<int> _runLicense(
+    List<String> subcommandArgs,
+    void Function(String line) stdoutSink,
+    void Function(String line) stderrSink,
+  ) async {
+    try {
+      await licenseCli.run(subcommandArgs, stdoutWriter: stdoutSink);
+      return 0;
+    } on LicenseCliException catch (e) {
+      stderrSink('$e');
+      return 2;
+    } on Object catch (e) {
+      stderrSink('simcrux license: $e');
       return 2;
     }
   }

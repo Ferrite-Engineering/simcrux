@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
+import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -599,6 +600,84 @@ suites:
         );
         expect(code, 0);
         expect(seen, [true]);
+      });
+    });
+
+    group('license', () {
+      // The shared fingerprint file lives under the account's data
+      // directory; rooted in the temp dir so no test touches the real one.
+      Map<String, String> env() => <String, String>{
+        'HOME': tmp.path,
+        'APPDATA': tmp.path,
+        'LOCALAPPDATA': tmp.path,
+        'XDG_DATA_HOME': tmp.path,
+      };
+      SimcruxCli licenseCli() => SimcruxCli(
+        licenseCli: LicenseCli(
+          environment: env(),
+          machineName: () => 'agent-7',
+          platform: 'linux',
+        ),
+      );
+
+      test('fingerprint prints the shared install fingerprint, minting it '
+          'once', () async {
+        expect(await run(['license', 'fingerprint'], cli: licenseCli()), 0);
+        expect(err, isEmpty);
+        final first = out.single;
+        expect(first, matches(RegExp(r'^[A-Za-z0-9_-]{16,256}$')));
+
+        out.clear();
+        expect(await run(['license', 'fingerprint'], cli: licenseCli()), 0);
+        expect(
+          out.single,
+          first,
+          reason: 'recorded in the shared file, so a second run reads it back',
+        );
+        // The same value `--ci` presents when it validates a machine file.
+        expect(
+          await SharedInstallFingerprint(environment: env()).readOrCreate(),
+          first,
+        );
+      });
+
+      test('request --out writes the offline activation request', () async {
+        final outPath = p.join(tmp.path, 'agent.json');
+        expect(
+          await run([
+            'license',
+            'request',
+            '--out',
+            outPath,
+          ], cli: licenseCli()),
+          0,
+        );
+        expect(out, ['simcrux: wrote $outPath']);
+        final doc =
+            jsonDecode(File(outPath).readAsStringSync())
+                as Map<String, Object?>;
+        expect(doc['kind'], 'crux.offline-activation-request/v1');
+        expect(doc['product'], CruxProduct.simCrux.entitlementCode);
+        expect(doc['machine'], 'agent-7');
+        expect(doc['platform'], 'linux');
+
+        out.clear();
+        expect(await run(['license', 'fingerprint'], cli: licenseCli()), 0);
+        expect(doc['fingerprint'], out.single);
+      });
+
+      test('a usage error exits 2 with the usage block', () async {
+        expect(await run(['license'], cli: licenseCli()), 2);
+        expect(err.join('\n'), contains('Usage: simcrux license'));
+
+        err.clear();
+        expect(await run(['license', 'request'], cli: licenseCli()), 2);
+        expect(err.join('\n'), contains('--out'));
+
+        err.clear();
+        expect(await run(['license', 'revoke'], cli: licenseCli()), 2);
+        expect(err.join('\n'), contains('unknown command'));
+        expect(out, isEmpty);
       });
     });
 

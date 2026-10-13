@@ -953,9 +953,10 @@ class SimcruxActionHandlers {
   // an unimplemented action *look* dispatched is how those survived a UI
   // consistency pass: hiding them from the menu and palette left the chords
   // bound, so the notice was all the user ever got. An action that cannot do
-  // its job should not ship, bound or otherwise. Like
-  // `snackActionNotAvailableYet`, the `snackActionNotYetImplemented` ARB key
-  // is retained in all five locales against a future genuine stub.
+  // its job should not ship, bound or otherwise. The
+  // `snackActionNotYetImplemented` ARB key is retained in all five locales
+  // against a future genuine stub; the Pro overlay's unused-l10n-key guard
+  // carries that retention, since only it sees both tiers' readers.
 
   /// Snackbar shown when an action's extension-point opener provider is
   /// null — the overlay that supplies the screen is not installed.
@@ -980,10 +981,9 @@ class SimcruxActionHandlers {
 
   // There is deliberately no "not available yet" snack helper: every
   // action is reachable in some tier, and an unused not-available-yet
-  // snack is an invitation to ship an unreachable action. The
-  // `snackActionNotAvailableYet` ARB key is retained in all five locales —
-  // it costs nothing and a future genuine deferral should not have to
-  // re-translate it.
+  // snack is an invitation to ship an unreachable action. It never had an
+  // ARB key of its own; a future genuine deferral reuses
+  // `snackActionNotYetImplemented` above.
 
   /// Drains in-flight regressions through [appExitCoordinatorProvider]
   /// and then terminates via [processExitProvider].

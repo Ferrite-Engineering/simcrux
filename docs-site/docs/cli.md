@@ -30,8 +30,9 @@ want depends on whether a display exists:
   with `tool/build_cli.sh` (`dart build cli`), landing at
   `build/cli/bundle/bin/simcrux`. No window, no display server, no Flutter
   engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
-  subcommands and `export-dashboard`. It does not carry the regression
-  comparison engine, so it refuses `--fail-on-regression` with exit `2`.
+  subcommands, `export-dashboard` and `license`. It does not carry the
+  regression comparison engine, so it refuses `--fail-on-regression` with
+  exit `2`.
 
 !!! tip "It refuses to pretend"
     An invocation of the standalone binary that selects none of the headless
@@ -120,9 +121,12 @@ imported under **Settings → License** therefore also licenses `--ci` runs by
 the same user. Earlier SimCrux releases kept the fingerprint in
 `crux/license/simcrux.fingerprint` (under `%APPDATA%` on Windows); the first
 run that finds no shared file adopts that value, so a machine file issued for
-it keeps working. No command yet prints a build agent's fingerprint or exports
-an offline activation request without the app, so license a dedicated build
-agent with a license key or a license file.
+it keeps working. From 1.1, `simcrux license fingerprint` prints that
+fingerprint and `simcrux license request --out <file>` writes the offline
+activation request for it, both without the app and from either executable,
+so a dedicated build agent can be issued a machine file too (see
+[Subcommands](#subcommands)). A license key or a license file is still the
+simpler choice for an agent, since neither names a machine.
 
 ```bash
 # Store the license file as a CI secret file, then:
@@ -188,11 +192,13 @@ own `--help`.
 | `simcrux export-dashboard <out-dir>` | Write a self-contained static results dashboard you can serve from any static host. |
 | `simcrux import-riscv-arch-test <suite-path>` | Import a RISC-V architectural-test suite into a SimCrux project. |
 | `simcrux import-riscv-formal <checks-path>` | Import a `riscv-formal` check set. |
+| `simcrux license fingerprint` | Print this install's machine fingerprint, the value a machine file is issued for. From 1.1. |
+| `simcrux license request --out <file>` | Write an offline activation request for this install to `<file>`, as **Settings → License** would, without the app. From 1.1. |
 
 !!! note "There is no `run` subcommand"
     The project path is a positional argument, not something you run a verb
     against — `simcrux simcrux.yaml --ci`, not `simcrux run --ci`. A word that is
-    not one of the three subcommands above is treated as a config path.
+    not one of the subcommands above is treated as a config path.
 
 ### `simcrux export-dashboard <out-dir>` {#export-dashboard}
 
