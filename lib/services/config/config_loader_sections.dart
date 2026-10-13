@@ -234,9 +234,25 @@ Map<String, SimulatorBinaryConfig> _readSimulatorBinaries(
         source = SimulatorBinarySource.system;
       }
     }
-    final options =
+    var options =
         _readStringMap(valueNode, ['options'], path, errors) ??
         const <String, String>{};
+    // `options` configures a binary the user already chose, which is why
+    // it is not gated whole the way `path` and `env` are. Two of its values
+    // still reach something that executes text: every cocotb option becomes
+    // a `make` variable (`SIM=…`), where `$(shell …)` runs a command; and
+    // `verilator.options.args` is split like a shell line into Verilator
+    // flags, some of which name the compiler, the linker and make itself.
+    // Those are dropped, with an advisory, until a human trusts the file.
+    if (!allowTooling) {
+      options = _dropToolingOptions(
+        simulatorId,
+        options,
+        valueNode,
+        path,
+        errors,
+      );
+    }
     if (simulatorId == 'cocotb' &&
         !_isCocotbMaxFailures(options['max_failures'])) {
       errors.add(
@@ -276,6 +292,105 @@ Map<String, SimulatorBinaryConfig> _readSimulatorBinaries(
     );
   }
   return out;
+}
+
+/// Verilator flags that choose or drive a build tool rather than configure
+/// the simulation: the compiler and its flags, the linker's, make's, where
+/// the build writes. Refused in `simulators.verilator.options.args` while
+/// project tooling is denied. A deny-list rather than an allow-list of the
+/// several hundred Verilator flags: the ones that escalate are few and
+/// stable, and a list of the rest would refuse a harmless `-Wno-WIDTH`
+/// nobody thought to add.
+const Set<String> kVerilatorToolingFlags = <String>{
+  '-CFLAGS',
+  '-LDFLAGS',
+  '-MAKEFLAGS',
+  '--compiler',
+  '--make',
+  '--Mdir',
+  '--prefix',
+  '-o',
+  '-f',
+  '-F',
+};
+
+/// Why [value] may not reach `make` or a shell-split argv while project
+/// tooling is denied, or null when it is plain text.
+String? _toolingExpansionProblem(String value) {
+  if (value.contains(r'$(') || value.contains(r'${')) {
+    return r'contains `$(` or `${`, which make expands, and `$(shell …)` '
+        'runs a command';
+  }
+  if (value.contains('`')) {
+    return 'contains a backtick, which a shell runs as a command';
+  }
+  if (value.contains('\n') || value.contains('\r')) {
+    return 'contains a line break';
+  }
+  return null;
+}
+
+/// Drops the `options` values a denied project file may not pass through,
+/// each with a `warning`-severity advisory naming the key and the remedy.
+Map<String, String> _dropToolingOptions(
+  String simulatorId,
+  Map<String, String> options,
+  YamlMap simulatorNode,
+  String path,
+  List<ConfigLoaderError> errors,
+) {
+  if (options.isEmpty) return options;
+  final optionsNode = simulatorNode.nodes['options'];
+  Object? nodeFor(String key) =>
+      (optionsNode is YamlMap ? optionsNode.nodes[key] : null) ??
+      optionsNode ??
+      simulatorNode;
+  final kept = Map<String, String>.of(options);
+  for (final entry in options.entries) {
+    final problem = _toolingExpansionProblem(entry.value);
+    if (problem != null) {
+      kept.remove(entry.key);
+      errors.add(
+        _error(
+          path: path,
+          node: nodeFor(entry.key),
+          severity: ConfigLoaderErrorSeverity.warning,
+          message:
+              'Ignored `options.${entry.key}` on simulator `$simulatorId`: '
+              'its value $problem. $kProjectToolingRemedy',
+        ),
+      );
+      continue;
+    }
+    if (simulatorId == 'verilator' && entry.key == 'args') {
+      final flagged = <String>[
+        for (final token in entry.value.split(RegExp(r'\s+')))
+          if (kVerilatorToolingFlags.contains(
+            token.replaceFirst(RegExp('''^["']'''), '').split('=').first,
+          ))
+            token,
+      ];
+      if (flagged.isNotEmpty) {
+        kept.remove(entry.key);
+        errors.add(
+          _error(
+            path: path,
+            node: nodeFor(entry.key),
+            severity: ConfigLoaderErrorSeverity.warning,
+            message:
+                'Ignored `options.args` on simulator `verilator`: '
+                '${flagged.map((f) => '`$f`').join(', ')} '
+                '${flagged.length == 1 ? 'chooses' : 'choose'} a build tool '
+                'or where the build writes, which a project file may not do. '
+                '$kProjectToolingRemedy',
+          ),
+        );
+      }
+    }
+  }
+  return kept.length == options.length
+      ? options
+      : Map<String, String>.unmodifiable(kept);
 }
 
 WaveformPolicy? _readWaveformPolicy(

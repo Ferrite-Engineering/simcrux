@@ -514,16 +514,72 @@ RiscvFormalConfig? _readRiscvFormal(
       errors,
     ),
     check: _readRiscvCheckName(node, '$label.formal', filePath, errors),
-    sbyFile: _readRiscvString(
-      node,
-      'sby_file',
-      '$label.formal',
-      filePath,
-      errors,
-    ),
-    task: _readRiscvString(node, 'task', '$label.formal', filePath, errors),
+    sbyFile: _readRiscvSbyFile(node, '$label.formal', filePath, errors),
+    task: _readRiscvTaskName(node, '$label.formal', filePath, errors),
     group: _readRiscvString(node, 'group', '$label.formal', filePath, errors),
   );
+}
+
+/// Reads `formal.sby_file`, refusing a value SymbiYosys would read as a
+/// flag.
+///
+/// The derived line is `sby -f -d <task_dir> <sby_file> [task]`, so a value
+/// beginning with `-` is an option to `sby` chosen by the project file, not
+/// a job file. A job file whose name really starts with `-` is written
+/// `./-name.sby`. Like `check`, this names no program, so it is refused
+/// whether or not project tooling is allowed.
+String? _readRiscvSbyFile(
+  YamlMap node,
+  String label,
+  String filePath,
+  List<ConfigLoaderError> errors,
+) {
+  final value = _readRiscvString(node, 'sby_file', label, filePath, errors);
+  if (value == null) return null;
+  if (!value.startsWith('-') &&
+      !value.contains('\n') &&
+      !value.contains('\r')) {
+    return value;
+  }
+  errors.add(
+    _error(
+      path: filePath,
+      node: node.nodes['sby_file'],
+      message:
+          '`$label.sby_file` "${value.replaceAll('\n', r'\n')}" would reach '
+          'SymbiYosys as a flag rather than a job file. Write it as '
+          '`./$value` if that really is its name.',
+    ),
+  );
+  return null;
+}
+
+/// Reads `formal.task`, refusing anything but a SymbiYosys task name.
+///
+/// The task is the last argument of `sby -f -d <task_dir> <sby_file> [task]`
+/// and selects a `[tasks]` entry in the job file, so it is an identifier:
+/// letters, digits, `_`, `.` and `-`, not beginning with `-`. Anything else
+/// is either a flag to `sby` or several arguments, neither of which a task
+/// name can be.
+String? _readRiscvTaskName(
+  YamlMap node,
+  String label,
+  String filePath,
+  List<ConfigLoaderError> errors,
+) {
+  final value = _readRiscvString(node, 'task', label, filePath, errors);
+  if (value == null) return null;
+  if (RegExp(r'^[A-Za-z0-9_.][A-Za-z0-9_.-]*$').hasMatch(value)) return value;
+  errors.add(
+    _error(
+      path: filePath,
+      node: node.nodes['task'],
+      message:
+          '`$label.task` "$value" is not a SymbiYosys task name: use '
+          'letters, digits, `_`, `.` and `-`, not beginning with `-`.',
+    ),
+  );
+  return null;
 }
 
 /// Reads `formal.check`, refusing any value that is not one plain path

@@ -167,7 +167,7 @@ the backend is parsed.
 | Variable | What it expands to | Available in |
 |---|---|---|
 | `{runId}` | The regression run's id, stable for the whole run. | submit, status, cancel, test command, log path |
-| `{testId}` | The test's id, unique within the run. In the log path it is the id as one file name, the same one `{workDir}` ends in: every character other than a letter, digit, `.`, `_`, `+` or `-` becomes `_`, so a test name cannot move the log out of the directory the pattern names. | submit, status, cancel, test command, log path |
+| `{testId}` | The test's id, unique within the run. In the log path it is the id as one file name, the same one `{workDir}` ends in: every character other than a letter, digit, `.`, `_`, `+` or `-` becomes `_`, so a test name cannot move the log out of the directory the pattern names. In the test command it is used verbatim, and the node runs that command through a shell (or, on AWS Batch, inside JSON), so it is held to letters, digits and `.`, `_`, `+`, `/`, `=`, `-`. Every id SimCrux builds (`suite/test`, `+KEY=value`, `+seed=N`) is in that set; a test whose suite, name or parameter value carries anything else (a space, a quote, `$`, `;`) is reported as **not submitted**, with the reason, rather than handed to the shell unquoted. | submit, status, cancel, test command, log path |
 | `{command}` | The test command (`testCommand`, expanded). | submit |
 | `{workDir}` | The per-test working directory under `workRoot`. | submit, log path |
 | `{logPath}` | The log path, from `logPathPattern`. | submit |

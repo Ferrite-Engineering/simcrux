@@ -61,6 +61,7 @@ _SourcesParsed? _readSourceEntries(
         );
         continue;
       }
+      if (_rejectSourceReadAsFlag(raw, entry, filePath, errors)) continue;
       paths.add(raw);
     } else if (entry is YamlMap) {
       final entryPath = entry['path'];
@@ -72,6 +73,14 @@ _SourcesParsed? _readSourceEntries(
             message: 'Source entry must include a non-empty `path:` field.',
           ),
         );
+        continue;
+      }
+      if (_rejectSourceReadAsFlag(
+        entryPath,
+        entry.nodes['path'] ?? entry,
+        filePath,
+        errors,
+      )) {
         continue;
       }
       paths.add(entryPath);
@@ -116,6 +125,35 @@ _SourcesParsed? _readSourceEntries(
     }
   }
   return _SourcesParsed(paths: paths, languages: languages);
+}
+
+/// Refuses a source path that a simulator would read as a flag.
+///
+/// Every driver appends `sources` to its compile argv after its own flags,
+/// so an entry beginning with `-` is not a file to `iverilog`, `verilator`
+/// or `ghdl` but an option — `-CFLAGS`, `--Mdir`, `-o` — chosen by whoever
+/// wrote the project file. A file whose name really starts with `-` is
+/// written `./-name.v`, which no simulator reads as a flag. Not behind the
+/// project-tooling gate: a path is never a flag on purpose. Returns whether
+/// the entry was refused.
+bool _rejectSourceReadAsFlag(
+  String source,
+  Object? node,
+  String filePath,
+  List<ConfigLoaderError> errors,
+) {
+  if (!source.startsWith('-')) return false;
+  errors.add(
+    _error(
+      path: filePath,
+      node: node,
+      message:
+          'Source `$source` begins with `-`, which the simulator would read '
+          'as a command-line flag rather than a file. Write it as '
+          '`./$source` if that really is its name.',
+    ),
+  );
+  return true;
 }
 
 /// Private return type of [_readSourceEntries]: the unmodifiable

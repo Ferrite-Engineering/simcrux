@@ -267,11 +267,14 @@ suites:
       // Sweep dropped → test runs exactly once with no pinned seed.
       expect(config.suites.single.tests, hasLength(1));
       expect(config.suites.single.tests.single.seed, isNull);
-      // Warning surfaced on the loaded config.
+      // Advisory surfaced on the loaded config, at the one severity the
+      // Pro overlay's Parameterization switch may hide. `warning` is
+      // reserved for a dropped capability (the project-tooling gate), which
+      // that switch must not be able to silence.
       expect(config.loadWarnings, hasLength(1));
       expect(
         config.loadWarnings.single.severity,
-        ConfigLoaderErrorSeverity.warning,
+        ConfigLoaderErrorSeverity.info,
       );
       expect(
         config.loadWarnings.single.message,

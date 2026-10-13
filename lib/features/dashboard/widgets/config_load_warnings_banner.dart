@@ -19,8 +19,12 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 /// copied), is announced politely when a project loads with any, and can be
 /// dismissed until a load brings different advisories.
 ///
-/// Renders nothing when there are no advisories or when
-/// [showConfigLoadWarningsProvider] is false.
+/// Renders nothing when there are no advisories to show. With
+/// [showConfigLoadWarningsProvider] false the `info` advisories (a sweep the
+/// licence tier did not expand) are hidden; a `warning` (the project-tooling
+/// gate dropped a binary, an environment or an option the file asked for)
+/// is shown regardless, because silence there reads as a broken simulator
+/// configuration rather than as a restriction in force.
 class ConfigLoadWarningsBanner extends ConsumerStatefulWidget {
   /// Creates a [ConfigLoadWarningsBanner].
   const ConfigLoadWarningsBanner({super.key});
@@ -36,6 +40,18 @@ class _ConfigLoadWarningsBannerState
   /// advisories publishes a new config, which brings the banner back.
   List<ConfigLoaderError>? _dismissed;
 
+  /// The advisories the banner shows out of [all]: every one while the
+  /// seam is on; only the `warning`-severity ones (a dropped capability)
+  /// while it is off. Severity decides, not the message's origin.
+  static List<ConfigLoaderError> visibleAdvisories(
+    List<ConfigLoaderError> all, {
+    required bool showInfo,
+  }) => showInfo
+      ? all
+      : all
+            .where((e) => e.severity == ConfigLoaderErrorSeverity.warning)
+            .toList(growable: false);
+
   @override
   void initState() {
     super.initState();
@@ -47,12 +63,16 @@ class _ConfigLoadWarningsBannerState
       if (warnings.isEmpty || identical(previous?.loadWarnings, warnings)) {
         return;
       }
-      if (!ref.read(showConfigLoadWarningsProvider)) return;
+      final visible = visibleAdvisories(
+        warnings,
+        showInfo: ref.read(showConfigLoadWarningsProvider),
+      );
+      if (visible.isEmpty) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         announceCrux(
           context,
-          L10N.of(context).configLoadWarningsTitle(warnings.length),
+          L10N.of(context).configLoadWarningsTitle(visible.length),
         );
       });
     }, fireImmediately: true);
@@ -60,12 +80,14 @@ class _ConfigLoadWarningsBannerState
 
   @override
   Widget build(BuildContext context) {
-    final warnings =
+    final all =
         ref.watch(activeConfigProvider)?.loadWarnings ??
         const <ConfigLoaderError>[];
-    if (warnings.isEmpty ||
-        !ref.watch(showConfigLoadWarningsProvider) ||
-        identical(_dismissed, warnings)) {
+    final warnings = visibleAdvisories(
+      all,
+      showInfo: ref.watch(showConfigLoadWarningsProvider),
+    );
+    if (warnings.isEmpty || identical(_dismissed, all)) {
       return const SizedBox.shrink();
     }
     final l10n = L10N.of(context);
@@ -110,7 +132,9 @@ class _ConfigLoadWarningsBannerState
               ),
             ),
             TextButton(
-              onPressed: () => setState(() => _dismissed = warnings),
+              // The config's own list, so a load that brings different
+              // advisories (a new instance) brings the banner back.
+              onPressed: () => setState(() => _dismissed = all),
               child: Text(l10n.configLoadWarningsDismiss),
             ),
           ],

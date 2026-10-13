@@ -32,6 +32,25 @@ ${[for (var i = 0; i < sweeps; i++) '      - name: sweep$i\n        top: tb\n   
 ''',
 ).load('/p/simcrux.yaml');
 
+/// A config the real loader produced with the project-tooling gate closed: a
+/// `simulators.icarus.path` the file asked for was dropped, with a
+/// `warning`-severity advisory saying so.
+Future<RegressionConfig> _toolingConfig() => ConfigLoader(
+  readFile: (_) async => '''
+version: "1"
+simulators:
+  icarus:
+    source: custom
+    path: /tmp/pwn
+suites:
+  unit:
+    simulator: icarus
+    tests:
+      - name: t
+        top: tb
+''',
+).load('/p/simcrux.yaml');
+
 Future<ProviderContainer> _pump(
   WidgetTester tester, {
   required RegressionConfig? config,
@@ -107,10 +126,55 @@ void main() {
     expect(find.text(l10n.configLoadWarningsTitle(2)), findsOneWidget);
   });
 
-  testWidgets('renders nothing when the seam hides warnings', (tester) async {
+  testWidgets('renders nothing when the seam hides the info advisories', (
+    tester,
+  ) async {
+    expect(gated.loadWarnings.single.severity, ConfigLoaderErrorSeverity.info);
     await _pump(tester, config: gated, show: false);
     expect(find.byType(SelectableText), findsNothing);
     expect(find.byType(TextButton), findsNothing);
+  });
+
+  testWidgets('the seam cannot hide a dropped-capability warning', (
+    tester,
+  ) async {
+    // The Pro overlay binds the seam to its Parameterization warnings
+    // switch. A user who turned that off to quiet sweep notices must still
+    // see that the loader refused the binary their project file named,
+    // or they conclude their simulator configuration is simply broken.
+    final tooling = await tester.runAsync(_toolingConfig);
+    expect(tooling, isNotNull);
+    expect(
+      tooling!.loadWarnings.single.severity,
+      ConfigLoaderErrorSeverity.warning,
+    );
+    final recorder = AnnouncementRecorder.attach(tester);
+    await _pump(tester, config: tooling, show: false);
+    await tester.pump();
+    final l10n = L10N.of(tester.element(find.byType(ConfigLoadWarningsBanner)));
+    expect(find.text(l10n.configLoadWarningsTitle(1)), findsOneWidget);
+    expect(find.textContaining('may not choose which binary'), findsOneWidget);
+    expect(recorder.messages, [l10n.configLoadWarningsTitle(1)]);
+  });
+
+  testWidgets('with the seam off, a mixed load shows only the warnings', (
+    tester,
+  ) async {
+    final mixed = gated.copyWith(
+      loadWarnings: <ConfigLoaderError>[
+        ...gated.loadWarnings,
+        const ConfigLoaderError.generic(
+          path: '/p/simcrux.yaml',
+          message: 'Ignored `path` on simulator `icarus`',
+          severity: ConfigLoaderErrorSeverity.warning,
+        ),
+      ],
+    );
+    await _pump(tester, config: mixed, show: false);
+    final l10n = L10N.of(tester.element(find.byType(ConfigLoadWarningsBanner)));
+    expect(find.text(l10n.configLoadWarningsTitle(1)), findsOneWidget);
+    expect(find.textContaining('Ignored `path`'), findsOneWidget);
+    expect(find.textContaining('requires SimCrux Pro'), findsNothing);
   });
 
   testWidgets('renders nothing for a clean project', (tester) async {

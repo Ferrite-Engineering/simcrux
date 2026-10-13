@@ -780,12 +780,10 @@ class ConfigLoader {
       }
     }
 
-    final fatal = errors
-        .where((e) => e.severity == ConfigLoaderErrorSeverity.error)
-        .toList(growable: false);
-    final warnings = errors
-        .where((e) => e.severity == ConfigLoaderErrorSeverity.warning)
-        .toList(growable: false);
+    final fatal = errors.where((e) => e.isFatal).toList(growable: false);
+    // Every non-fatal entry, `warning` and `info` alike: the dashboard
+    // decides which of them a switch may hide, by severity.
+    final warnings = errors.where((e) => !e.isFatal).toList(growable: false);
     if (fatal.isNotEmpty) throw ConfigLoaderException(fatal);
 
     return RegressionConfig(
@@ -988,6 +986,40 @@ class ConfigLoader {
       );
       final testBoundParameters = paramShape.bound;
       final rawParameterSweeps = paramShape.sweeps;
+      // cocotb hands `top` and every parameter to `make` as `KEY=value`, so
+      // a `$(shell …)` in any of them runs on the machine that opens the
+      // file. Refused unless a human trusts the file; `top` cannot be
+      // dropped the way an option can, so the test is refused as a whole.
+      if (testSimulatorId == 'cocotb' && !_allowProjectDefinedTooling) {
+        final makeBound = <String, String>{
+          'top': top,
+          for (final e in testBoundParameters.entries)
+            'parameters.${e.key}': e.value,
+          for (final e in rawParameterSweeps.entries)
+            for (final v in e.value) 'parameters.${e.key}': v,
+        };
+        var refused = false;
+        for (final e in makeBound.entries) {
+          final problem = _toolingExpansionProblem(e.value);
+          if (problem == null) continue;
+          refused = true;
+          errors.add(
+            _error(
+              path: path,
+              node: e.key == 'top'
+                  ? testNode.nodes['top']
+                  : (testNode.nodes['parameters'] as YamlMap?)?.nodes[e.key
+                            .substring('parameters.'.length)] ??
+                        testNode,
+              message:
+                  'Test `$suiteName/$testName`: `${e.key}` becomes a make '
+                  'variable for cocotb, and its value $problem. '
+                  '$kProjectToolingRemedy',
+            ),
+          );
+        }
+        if (refused) continue;
+      }
       if (testSimulatorId == 'cocotb') {
         for (final value in <String?>[
           testBoundParameters['max_failures'],
@@ -1034,6 +1066,9 @@ class ConfigLoader {
       // ignore: omit_local_variable_types
       List<int>? effectiveSeeds = rawSeeds;
       Map<String, List<String>>? effectiveSweeps = rawParameterSweeps;
+      // `info`, not `warning`: this is the one advisory the Pro overlay's
+      // Parameterization switch may hide. The tooling gate's advisories
+      // stay `warning` so that switch cannot silence them.
       if (!_parameterizationUnlocked) {
         if (rawSeeds != null && rawSeeds.length > 1) {
           errors.add(
@@ -1041,7 +1076,7 @@ class ConfigLoader {
               path: path,
               node: testNode.nodes['seeds'],
               message: parameterizationGateMessage('seeds'),
-              severity: ConfigLoaderErrorSeverity.warning,
+              severity: ConfigLoaderErrorSeverity.info,
             ),
           );
           effectiveSeeds = null;
@@ -1052,7 +1087,7 @@ class ConfigLoader {
               path: path,
               node: testNode.nodes['parameters'],
               message: parameterizationGateMessage('parameters'),
-              severity: ConfigLoaderErrorSeverity.warning,
+              severity: ConfigLoaderErrorSeverity.info,
             ),
           );
           effectiveSweeps = null;

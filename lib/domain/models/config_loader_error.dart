@@ -5,22 +5,39 @@ import 'package:meta/meta.dart';
 
 /// Severity of a [ConfigLoaderError] entry.
 ///
-/// The loader collects both fatal errors and non-fatal advisory
-/// warnings into the same error list, then routes them at the throw
-/// site: any [error] entry triggers a [ConfigLoaderException]; pure
-/// [warning] entries pass through to the caller via the loaded
-/// [RegressionConfig.loadWarnings] surface so the dashboard can render
-/// them inline without aborting the load.
+/// The loader collects fatal errors and non-fatal advisories into the same
+/// error list, then routes them at the throw site: any [error] entry
+/// triggers a [ConfigLoaderException]; [warning] and [info] entries pass
+/// through to the caller via the loaded [RegressionConfig.loadWarnings]
+/// surface so the dashboard can render them inline without aborting the
+/// load.
+///
+/// **Two non-fatal levels, because one switch used to hide both.** The Pro
+/// overlay lets the user turn off the parameterization advisories, and
+/// while every advisory was a [warning] that switch also hid the
+/// project-tooling one: a project file asked to run a binary, the loader
+/// stopped it, and the user saw nothing where they should have seen why
+/// their simulator config was ignored. Severity decides what a switch may
+/// hide, not the category a message happens to come from.
 enum ConfigLoaderErrorSeverity {
   /// A configuration problem severe enough to prevent loading. The
   /// loader throws a [ConfigLoaderException] when at least one error
   /// of this severity is present.
   error,
 
-  /// An advisory entry that does not prevent loading. Used by the
-  /// parameterization tier-gate to tell the user a sweep block was
-  /// silently dropped because the active license does not unlock it.
+  /// A capability the loader dropped from the file, and the user needs to
+  /// know it did: the project-tooling gate ignoring `simulators.<id>.path`,
+  /// a riscv executable path, a simulator option. Shown whether or not the
+  /// advisory switch is on, because hiding it leaves a user concluding
+  /// their configuration is simply broken.
   warning,
+
+  /// An advisory the user may hide: the parameterization tier-gate telling
+  /// them a `seeds:` or `parameters:` sweep ran once because the active
+  /// licence does not unlock it. Nothing executes differently for not
+  /// reading it, so the Pro overlay's **Parameterization** warnings switch
+  /// may turn it off.
+  info,
 }
 
 /// Structured error surfaced by the YAML config loader.
@@ -77,11 +94,15 @@ class ConfigLoaderError {
 
   /// Severity of this entry. Defaults to
   /// [ConfigLoaderErrorSeverity.error] so unannotated factory calls
-  /// retain the historical "always fatal" semantics. The
-  /// parameterization tier-gate path emits
-  /// [ConfigLoaderErrorSeverity.warning] entries so the loader can
-  /// surface them as advisories without aborting the load.
+  /// retain the historical "always fatal" semantics. The project-tooling
+  /// gate emits [ConfigLoaderErrorSeverity.warning] entries and the
+  /// parameterization tier-gate [ConfigLoaderErrorSeverity.info] ones, so
+  /// the loader can surface both as advisories without aborting the load
+  /// and the dashboard can tell which a user may hide.
   final ConfigLoaderErrorSeverity severity;
+
+  /// Whether this entry stops the load.
+  bool get isFatal => severity == ConfigLoaderErrorSeverity.error;
 
   /// Pre-formatted `path:line:col: message` string, suitable for
   /// editor-clickable CLI output. Falls back to `path: message` when

@@ -105,6 +105,15 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
     | `riscv` `target.command`, `riscof.command`, `compile.command`, `formal.command` | The project does not load |
     | `riscv` `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary`, `formal.sby_binary` | Ignored, with a load advisory; the conventional name is looked up on `PATH` |
     | `output.results_path`, `output.summary_path` outside the project directory | The project does not load |
+    | `simulators.<id>.options` values containing `$(`, `${`, a backtick or a line break (cocotb hands every option to `make`, where `$(shell …)` runs a command) | Ignored, with a load advisory |
+    | `simulators.verilator.options.args` naming a build tool or where the build writes: `-CFLAGS`, `-LDFLAGS`, `-MAKEFLAGS`, `--compiler`, `--make`, `--Mdir`, `--prefix`, `-o`, `-f`, `-F` | The `args` option is ignored, with a load advisory |
+    | A cocotb test's `top` or `parameters` value containing `$(`, `${`, a backtick or a line break (they become `make` variables) | The test does not load |
+
+    Two neighbours are refused whether or not you allow project tooling,
+    because a path is never a flag on purpose: a `sources:` entry beginning
+    with `-` (write `./-name.v` if that is really its name), and a
+    `riscv.formal.sby_file` beginning with `-` or a `riscv.formal.task` that
+    is not a plain task name, both of which SymbiYosys would read as options.
 
     A project file that sets one is running code decided by whoever wrote the
     file, or, for the `output:` paths, having `--ci` create and truncate a
@@ -117,9 +126,12 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
       names the file and line.
     - Headless, pass `--allow-project-tooling`.
 
-    Nothing else in the file is gated — `source:`, `options:`, `sources:`,
-    detectors, sweeps and the rest load normally. **Settings → Simulators →
-    Binary path** is unaffected too: that value is yours, not the file's.
+    Nothing else in the file is gated — `source:`, the rest of `options:`,
+    `sources:`, detectors, sweeps and the rest load normally. **Settings →
+    Simulators → Binary path** is unaffected too: that value is yours, not
+    the file's. The advisories above are shown even when you have turned off
+    the Parameterization warnings switch in the Pro overlay; that switch
+    hides only the sweep notices.
 
     This does not make an untrusted project safe to *run*. Running tests runs
     the project's own code whatever engine runs it: a cocotb `Makefile` and
