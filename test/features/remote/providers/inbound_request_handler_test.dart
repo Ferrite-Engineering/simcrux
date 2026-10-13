@@ -32,6 +32,7 @@ import 'package:simcrux/features/workspace/providers/container_managers.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_tab_overrides.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
+import 'package:simcrux/services/remote/cxp/cxp_project_open_handle.dart';
 import 'package:simcrux/services/remote/cxp/simcrux_cxp_discovery.dart';
 import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
@@ -990,6 +991,47 @@ void main() {
         wired.launcher.calls.map((c) => c.filePath),
         <String>[insideSource],
       );
+    });
+
+    test('the highlight fallback opens a recorded SimCrux config as a tab, '
+        'not in the editor', () async {
+      // A `source` record can name a project file: a config reached through
+      // a design_id used to go to the external editor like any other source,
+      // so the YAML opened as text instead of as a SimCrux tab.
+      final project = Directory('${inside.path}/design')
+        ..createSync(recursive: true);
+      final config = '${project.path}/simcrux.yaml';
+      File(config).writeAsStringSync('version: "1"\n');
+      await store.upsertArtifact(
+        designId: cxpDesignIdForPath(project.path),
+        kind: kCxpSourceArtifactKind,
+        path: config,
+        producer: 'peer',
+      );
+      final wired = await wireInside();
+      final openedAsTab = <String>[];
+      wired.container.read(cxpProjectOpenHandleProvider).opener = (path) async {
+        openedAsTab.add(path);
+        return true;
+      };
+      final acks = <RequestHighlightAck>[];
+      wired.client.inbound.listen((m) {
+        final message = m.message;
+        if (message is RequestHighlightAck) acks.add(message);
+      });
+
+      wired.client.send(
+        RequestHighlight(
+          element: const ElementId(kind: ElementKind.test, path: 'suite/t'),
+          metadata: <String, Object?>{
+            cxpDesignIdMetadataKey: cxpDesignIdForPath(project.path),
+          },
+        ),
+      );
+      expect(await pollUntil(() => acks.isNotEmpty), isTrue);
+      expect(acks.single.honored, isTrue);
+      expect(openedAsTab, <String>[config]);
+      expect(wired.launcher.calls, isEmpty, reason: 'not the text editor');
     });
   });
 }

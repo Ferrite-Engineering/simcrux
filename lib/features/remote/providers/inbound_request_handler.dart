@@ -341,9 +341,16 @@ class InboundRequestHandler {
 
   /// Shared-workspace fallback: resolves `crux.design_id` from [metadata] against
   /// the shared workspace and, if a `source` artifact is recorded for that
-  /// design, opens it in the editor. Returns whether one was opened. The join
-  /// is one-directional — the consumer trusts the sender's `crux.design_id` and
+  /// design, opens it. Returns whether one was opened. The join is
+  /// one-directional — the consumer trusts the sender's `crux.design_id` and
   /// never re-derives an id from the file it opens.
+  ///
+  /// A recorded SimCrux project (`simcrux.yaml`, `.yml`, `.crux-project`)
+  /// opens as a config tab through the same bridge `request_open_artifact`
+  /// uses; it used to go to the external editor like any other `source`
+  /// record, so the YAML opened as text in the user's editor instead of in
+  /// SimCrux. Everything else still goes to the editor. The containment
+  /// check on the recorded path stays in front of both routes.
   Future<bool> _openDesignSourceFromWorkspace(
     Map<String, Object?> metadata,
   ) async {
@@ -354,6 +361,9 @@ class InboundRequestHandler {
     // CXP §11: the record was selected by the sender's `design_id`, so the
     // path gets the wire rule on the value about to be opened.
     if (!ref.read(cxpPathContainmentProvider).allows(path)) return false;
+    if (isSimcruxProjectPath(path)) {
+      return (await _openProjectForPeer(path)).honored;
+    }
     final launcher = ref.read(editorLauncherProvider);
     return await launcher.openSource(filePath: path);
   }

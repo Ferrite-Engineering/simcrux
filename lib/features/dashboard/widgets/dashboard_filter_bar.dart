@@ -27,6 +27,13 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 ///
 /// Clear drops a keystroke still waiting out the debounce, so it cannot land
 /// after the reset and undo it.
+///
+/// The field's text follows the provider, not only the other way round: a
+/// change made anywhere else (Clear, an inbound cross-probe's
+/// `setTestNameSubstring`, a restored session) shows in the field, and
+/// cancels a keystroke still waiting out the debounce so it cannot land
+/// afterwards and overwrite the external value. The same shape as LintCrux's
+/// violation filter chips.
 class DashboardFilterBar extends ConsumerStatefulWidget {
   /// Creates a [DashboardFilterBar].
   const DashboardFilterBar({super.key});
@@ -37,17 +44,45 @@ class DashboardFilterBar extends ConsumerStatefulWidget {
 
 class _DashboardFilterBarState extends ConsumerState<DashboardFilterBar> {
   final Debouncer _nameDebouncer = Debouncer();
+  late final TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(
+      text: ref.read(dashboardFilterProvider).testNameSubstring,
+    );
+  }
 
   @override
   void dispose() {
     _nameDebouncer.dispose();
+    _nameController.dispose();
     super.dispose();
+  }
+
+  /// Brings the field in line with a provider value set from outside it.
+  ///
+  /// A no-op while the two agree, which is every keystroke the field itself
+  /// made once its debounce has landed. When they differ the pending
+  /// keystroke is dropped, so the external value wins.
+  void _syncNameField(String next) {
+    if (_nameController.text == next) return;
+    _nameDebouncer.cancel();
+    _nameController.value = TextEditingValue(
+      text: next,
+      selection: TextSelection.collapsed(offset: next.length),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final theme = Theme.of(context);
+    ref.listen<String>(
+      dashboardFilterProvider.select((f) => f.testNameSubstring),
+      (_, next) => _syncNameField(next),
+    );
     final filter = ref.watch(dashboardFilterProvider);
     final config = ref.watch(activeConfigProvider);
 
@@ -77,6 +112,7 @@ class _DashboardFilterBarState extends ConsumerState<DashboardFilterBar> {
             children: [
               Expanded(
                 child: TextField(
+                  controller: _nameController,
                   decoration: InputDecoration(
                     isDense: true,
                     prefixIcon: const Icon(Icons.search, size: 18),

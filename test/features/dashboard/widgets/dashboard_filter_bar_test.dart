@@ -286,6 +286,73 @@ void main() {
       expect(container.read(dashboardFilterProvider).isUnset, isTrue);
     });
 
+    // The field follows the provider, not only the other way round.
+    group('the field shows filter changes made elsewhere', () {
+      String fieldText(WidgetTester tester) =>
+          tester.widget<TextField>(find.byType(TextField)).controller!.text;
+
+      testWidgets('Clear empties the field, not only the filter', (
+        tester,
+      ) async {
+        final container = _container();
+        await _pump(tester, container);
+        final l10n = _l10n(tester);
+
+        await tester.enterText(find.byType(TextField), 'soc');
+        await tester.pump(_window * 2);
+        expect(
+          container.read(dashboardFilterProvider).testNameSubstring,
+          'soc',
+        );
+        expect(fieldText(tester), 'soc');
+
+        await tester.tap(
+          find
+              .ancestor(
+                of: find.text(l10n.dashboardFilterClear),
+                matching: find.byType(TextButton),
+              )
+              .first,
+        );
+        await tester.pump();
+        expect(container.read(dashboardFilterProvider).isUnset, isTrue);
+        expect(fieldText(tester), '', reason: 'the typed text used to stay');
+      });
+
+      testWidgets('an external setTestNameSubstring shows in the field', (
+        tester,
+      ) async {
+        // An inbound cross-probe's `setTestNameSubstring` lands here.
+        final container = _container();
+        await _pump(tester, container);
+
+        container
+            .read(dashboardFilterProvider.notifier)
+            .setTestNameSubstring('alu');
+        await tester.pump();
+        expect(fieldText(tester), 'alu');
+      });
+
+      testWidgets('a keystroke still inside the debounce does not overwrite '
+          'an external set', (tester) async {
+        final container = _container();
+        await _pump(tester, container);
+
+        await tester.enterText(find.byType(TextField), 'soc');
+        await tester.pump();
+        // Inside the window: the keystroke has not applied yet.
+        container
+            .read(dashboardFilterProvider.notifier)
+            .setTestNameSubstring('alu');
+        await tester.pump(_window * 2);
+        expect(
+          container.read(dashboardFilterProvider).testNameSubstring,
+          'alu',
+        );
+        expect(fieldText(tester), 'alu');
+      });
+    });
+
     testWidgets('a keystroke pending when the bar goes away never applies', (
       tester,
     ) async {
