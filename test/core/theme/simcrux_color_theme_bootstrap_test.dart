@@ -203,11 +203,10 @@ void main() {
     });
 
     test('high-contrast-dark resolves without throwing', () async {
-      // SimCrux registers no `PresetTokenOverlay`, and this preset's
-      // only tokens were WaveCrux canvas tokens that moved out to a
-      // product-registered overlay — so it composes to an EMPTY token
-      // table here. Known, accepted gap: it must degrade to the default
-      // Material surface, never crash.
+      // SimCrux registers no `PresetTokenOverlay`, so the WaveCrux canvas
+      // tokens this preset once carried are not here. What it does carry is
+      // its own full chrome set (black surfaces, white text and icons,
+      // #FFFF00 active), which is the only category it may compose to.
       final container = await _containerWith(<String, Object>{});
       addTearDown(container.dispose);
       await container
@@ -215,7 +214,11 @@ void main() {
           .setActiveThemeName('high-contrast-dark');
       final theme = container.read(cruxColorThemeProvider);
       expect(theme.id, 'high-contrast-dark');
-      expect(theme.tokens, isEmpty);
+      expect(theme.tokens.keys, <String>[chromeCategoryId]);
+      expect(
+        theme.color(chromeCategoryId, ChromeTokens.toolbarIconActive),
+        const Color(0xFFFFFF00),
+      );
     });
   });
 }

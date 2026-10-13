@@ -4361,6 +4361,37 @@ the organization values is the supplying edition's decision.
 
 ---
 
+## 25. The policy-lock sentence seam (`policyLockMessageProvider`)
+
+### 25.1 What it does
+
+`SimcruxApp` mounts one `CruxPolicyLockScope` in its `MaterialApp.builder`,
+above the root navigator, so every `CruxPolicyLock` in the app (in Settings or
+in a dialog) shows the same sentence when an organization's policy file locks
+a setting. Open core locks nothing from a policy file and leaves the shared
+English sentence; an edition that does supplies its localized sentence through
+`policyLockMessageProvider`.
+
+### 25.2 Expected behavior
+
+1. Open core: the provider is null and the scope carries the shared English
+   sentence.
+2. With an override: a locked control anywhere under the app shows the
+   overriding sentence.
+
+### 25.3 Tier-gate scenarios
+
+Open Core: no lock is ever shown, because nothing locks. The supplying
+edition decides which settings lock.
+
+### 25.4 Automation Assessment
+
+| Test | Coverage | File |
+|---|---|---|
+| Null default, English fallback, override wins | `[Coverage: UNIT]` | `test/plugins/policy_lock_message_provider_test.dart` |
+
+---
+
 ## 9+. Subsequent features
 
 Add a new top-level section in the same commit set that ships the feature.

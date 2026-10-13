@@ -124,9 +124,13 @@ const Set<String> _proOnlyEvents = <String>{
 
 /// Catalog entries recorded by a shared package rather than by a call site in
 /// either repository. `crux_telemetry` records `app.uncaught_error` from the
-/// global error handlers, so no scan of this repository's `lib/` can find it,
-/// and it is excused from the "still recorded" rule.
-const Set<String> _sharedEvents = <String>{'app.uncaught_error'};
+/// global error handlers and `app.unclean_shutdown` from its startup
+/// detector, so no scan of this repository's `lib/` can find them, and they
+/// are excused from the "still recorded" rule.
+const Set<String> _sharedEvents = <String>{
+  'app.uncaught_error',
+  'app.unclean_shutdown',
+};
 
 void main() {
   const catalog = kSimcruxEventCatalog;
@@ -436,6 +440,19 @@ void main() {
       entry.enumeratedValues['library'],
       containsAll(<String>['none', 'other']),
     );
+  });
+
+  test('app.unclean_shutdown is the shared constant, with no properties', () {
+    // A literal in the catalog (headless import closure), so this equality is
+    // what keeps it the package's name.
+    final entry = catalog.firstWhere(
+      (e) => e.name == kTelemetryUncleanShutdownEvent,
+      orElse: () => fail(
+        'the catalog has no entry named kTelemetryUncleanShutdownEvent '
+        '("$kTelemetryUncleanShutdownEvent")',
+      ),
+    );
+    expect(entry.propertyKeys, isEmpty);
   });
 
   group('source scan', () {

@@ -1,22 +1,24 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-// Every built-in preset must paint SimCrux's shared chrome exactly as it
-// always has. The status bar, splitter, document tab bar and active toolbar
-// glyph chrome tokens reach their shared widgets through `applyChromeTokens`;
-// before that they reached nothing, and the widgets painted from the Material
-// theme `app.dart` builds: the status bar `surfaceContainerHighest` behind
-// `onSurface` at 75 %, the pane resizers `outlineVariant` and `primary` on
-// hover, the active document tab `surfaceContainerHighest` under `bodyMedium`
-// titles on an unfilled strip, and a toggled toolbar glyph `primary`.
+// Every built-in preset paints SimCrux's shared chrome from its declared
+// chrome tokens, and from the Material theme `app.dart` builds where it
+// declares none. The status bar, splitter, document tab bar and active
+// toolbar glyph tokens reach their shared widgets through `applyChromeTokens`;
+// a preset that omits one keeps what the widgets always painted: the status
+// bar `surfaceContainerHighest` behind `onSurface` at 75 %, the pane resizers
+// `outlineVariant` and `primary` on hover, the active document tab
+// `surfaceContainerHighest` under `bodyMedium` titles on an unfilled strip,
+// and a toggled toolbar glyph `primary`.
 //
-// This pumps those widgets under every theme `app.dart` can show for each
-// preset (the normal and the high-contrast variant of its brightness), built
-// the same way, and asserts exactly those colours. It holds before and after
-// the widgets read the tokens, which is the point: an unedited preset must not
-// change. Text reaches the engine as 32-bit ARGB, so text colour is compared
-// that way. The one change made on purpose, Solarized Dark's status bar text,
-// is named where it is checked.
+// The branded presets declare their chrome on purpose (Solarized, High
+// Contrast Dark, Oscilloscope and OLED XR complete theirs from their own
+// palettes), so the rule is pinned rather than a fixed colour per widget: a
+// declared token must reach its widget, and an undeclared one must fall back
+// to exactly the Material colour above. This pumps those widgets under every
+// theme `app.dart` can show for each preset (the normal and the high-contrast
+// variant of its brightness), built the same way. Text reaches the engine as
+// 32-bit ARGB, so text colour is compared that way.
 
 import 'dart:io';
 
@@ -181,6 +183,12 @@ void main() {
 
         final theme = Theme.of(tester.element(find.byType(CruxStatusBar)));
         final scheme = theme.colorScheme;
+        // The preset's own declaration; null when it leaves the token to
+        // the Material theme.
+        Color? declared(String tokenId) {
+          final c = preset.color(chromeCategoryId, tokenId);
+          return c == null || c.a == 0 ? null : c;
+        }
 
         // Toolbar: a toggled-on glyph.
         expect(
@@ -192,7 +200,7 @@ void main() {
                 ),
               )
               .color,
-          scheme.primary,
+          declared(ChromeTokens.toolbarIconActive) ?? scheme.primary,
         );
 
         // Document tab bar: no strip fill, the active tab, the titles.
@@ -204,7 +212,10 @@ void main() {
               )
               .first,
         );
-        expect((strip.decoration as BoxDecoration).color, isNull);
+        expect(
+          (strip.decoration as BoxDecoration).color,
+          declared(ChromeTokens.tabBarBackground),
+        );
         Color? chip(String title) =>
             (tester
                         .widget<Container>(
@@ -218,12 +229,19 @@ void main() {
                         .decoration!
                     as BoxDecoration)
                 .color;
-        expect(chip('beta'), scheme.surfaceContainerHighest);
+        expect(
+          chip('beta'),
+          declared(ChromeTokens.tabBarSelected) ??
+              scheme.surfaceContainerHighest,
+        );
         expect(chip('alpha'), isNull);
+        final label = declared(ChromeTokens.tabBarLabel);
         for (final title in ['alpha', 'beta']) {
           expect(
             tester.widget<Text>(find.text(title)).style,
-            theme.textTheme.bodyMedium,
+            label == null
+                ? theme.textTheme.bodyMedium
+                : theme.textTheme.bodyMedium?.copyWith(color: label),
           );
         }
 
@@ -242,13 +260,19 @@ void main() {
             )
             .elementAt(1)
             .color;
-        expect(resizerBar(), scheme.outlineVariant);
+        expect(
+          resizerBar(),
+          declared(ChromeTokens.splitter) ?? scheme.outlineVariant,
+        );
         final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
         await mouse.addPointer(location: Offset.zero);
         addTearDown(mouse.removePointer);
         await mouse.moveTo(tester.getCenter(resizer));
         await tester.pump();
-        expect(resizerBar(), scheme.primary);
+        expect(
+          resizerBar(),
+          declared(ChromeTokens.splitterHover) ?? scheme.primary,
+        );
 
         // Status bar: the surface and the baseline text.
         final bar = tester.widget<DecoratedBox>(
@@ -261,17 +285,17 @@ void main() {
         );
         expect(
           (bar.decoration as BoxDecoration).color,
-          scheme.surfaceContainerHighest,
+          declared(ChromeTokens.statusBarBackground) ??
+              scheme.surfaceContainerHighest,
         );
-        // The one deliberate departure: Solarized Dark's status bar text
-        // blended to 3.76:1 against WCAG AA's 4.5:1, so the shared preset now
-        // paints its declared opaque #93A1A1 (5.61:1) instead of the 75 %
-        // blend. crux_theme's contrast suite is where that ratio is measured.
+        // Solarized Dark declares an opaque #93A1A1 (5.61:1) because the 75 %
+        // blend measured 3.76:1 against WCAG AA's 4.5:1; crux_theme's
+        // contrast suite is where those ratios are measured.
         expect(
           tester.widget<Text>(find.text('status')).style?.color?.toARGB32(),
-          preset.id == 'solarized-dark'
-              ? const Color(0xFF93A1A1).toARGB32()
-              : scheme.onSurface.withValues(alpha: 0.75).toARGB32(),
+          (declared(ChromeTokens.statusBarForeground) ??
+                  scheme.onSurface.withValues(alpha: 0.75))
+              .toARGB32(),
         );
       });
     }

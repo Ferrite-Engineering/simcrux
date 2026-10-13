@@ -1063,6 +1063,12 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 
 ---
 
+## The policy-lock sentence seam (guide §25)
+
+- [ ] One `CruxPolicyLockScope` above the root navigator; open core carries the shared English sentence and an override supplies a localized one — `[Coverage: UNIT]` (`policy_lock_message_provider_test.dart`)
+
+---
+
 ## Subsequent features
 
 ---

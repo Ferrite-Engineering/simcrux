@@ -8,6 +8,8 @@ import 'package:crux_eula/crux_eula.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_linux_integration/crux_linux_integration.dart';
+import 'package:crux_settings_ui/crux_settings_ui.dart'
+    show CruxPolicyLockScope;
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:crux_theme/crux_theme.dart';
 import 'package:crux_updates/crux_updates.dart';
@@ -62,6 +64,7 @@ import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/plugins/extra_localizations_delegates_provider.dart';
+import 'package:simcrux/plugins/policy_lock_message_provider.dart';
 import 'package:simcrux/services/ci/ci_gate_ceiling_provider.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
@@ -752,7 +755,16 @@ class SimcruxApp extends ConsumerWidget {
                     iconSize: kBetaExpiryIconSize,
                   ),
                   child: UpdateBanner(
-                    child: _SimcruxAppChrome(child: child),
+                    // The one mount of the policy-lock sentence, above the
+                    // root navigator so a locked control in a dialog reads
+                    // the same sentence as one in Settings.
+                    child: CruxPolicyLockScope(
+                      message: policyLockMessage(
+                        context,
+                        ref.watch(policyLockMessageProvider),
+                      ),
+                      child: _SimcruxAppChrome(child: child),
+                    ),
                   ),
                 ),
               ),

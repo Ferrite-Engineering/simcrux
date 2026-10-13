@@ -236,6 +236,18 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         boolProperties: <String>['silent'],
       ),
 
+      // `crux_telemetry`'s `TelemetryUncleanShutdownDetector` records this
+      // once at startup when the previous desktop session ended without a
+      // clean exit. No properties: it says that a session was lost, never
+      // why, where or what was open. Shipped dark: the package's single
+      // enable constant is false, so nothing sends it until that flips, and
+      // the entry is here so the day it flips is not a silent drop.
+      //
+      // A literal, not the package's `kTelemetryUncleanShutdownEvent`, for
+      // the headless-closure reason above; the conformance test asserts the
+      // two are equal.
+      TelemetryCatalogEvent('app.unclean_shutdown'),
+
       // ── the commercial group ───────────────────────────────────────────────
       // Every other counter in this file records a feature
       // being *used*, which by construction only ever happens on an
