@@ -967,6 +967,14 @@
     "description": "Editor preset label: user-supplied custom command."
   },
   "settingsSimulatorBinaryLabel": "바이너리 경로",
+  "settingsMaxTotalSimulatorsLabel": "모든 탭에서 동시에 실행하는 시뮬레이터 프로세스 수",
+  "@settingsMaxTotalSimulatorsLabel": {
+    "description": "Label of the numeric field in Settings > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
+  },
+  "settingsMaxTotalSimulatorsDescription": "각 실행은 자체 슬롯을 최대 4개 사용합니다. 이 값은 모든 실행이 공유하는 총량이므로 여러 회귀를 동시에 돌려도 머신이 과부하되지 않습니다. 1에서 64, 기본값 4. 헤드리스 실행은 --max-parallel을 사용합니다.",
+  "@settingsMaxTotalSimulatorsDescription": {
+    "description": "Helper text under settingsMaxTotalSimulatorsLabel. Mentions the per-run limit of 4, the accepted range 1 to 64 with default 4, and that --ci uses --max-parallel instead."
+  },
   "settingsAllowProjectDefinedToolingLabel": "프로젝트 파일이 시뮬레이터 바이너리와 환경 변수를 지정하도록 허용",
   "settingsAllowProjectDefinedToolingDescription": "기본값은 꺼짐입니다. 프로젝트 파일은 SimCrux가 실행할 프로그램과 그 실행 환경을 지정할 수 있으며, 이는 해당 파일을 작성한 사람이 실행할 코드를 고르는 것과 같습니다. 꺼져 있는 동안 이러한 키는 무시되고 위의 바이너리 경로가 사용됩니다. 신뢰할 수 있는 프로젝트 파일에만 켜십시오.",
   "@settingsSimulatorBinaryLabel": {

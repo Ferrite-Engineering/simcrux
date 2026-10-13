@@ -23,8 +23,10 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
+import 'package:simcrux/services/job_scheduler/failure_message.dart';
 import 'package:simcrux/services/job_scheduler/resource_lock_table.dart';
 import 'package:simcrux/services/job_scheduler/semaphore.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 import 'package:simcrux/services/job_scheduler/waveform_archive.dart';
 import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
@@ -133,8 +135,9 @@ class _DartIoTestProcess implements TestProcess {
 ///
 /// For each [TestSpec], the scheduler:
 ///
-/// 1. Acquires the global concurrency semaphore + any declared
-///    resource locks.
+/// 1. Acquires the run's concurrency permit, then one of the process-wide
+///    [SimulatorBudget]'s (when the scheduler was given one), then any
+///    declared resource locks.
 /// 2. Allocates a per-test working directory under
 ///    `{runRoot}/runs/{runId}/{testIdSafe}/`.
 /// 3. Looks up the matching [SimulatorDriver] for the test's
@@ -174,7 +177,17 @@ class LocalJobScheduler implements JobScheduler {
     this.dumpRetentionPolicy = DumpRetentionPolicy.unbounded,
     this.passingWaveformArchive,
     this.passingWaveformRetentionPolicy = DumpRetentionPolicy.unbounded,
+    this.budget,
   }) : runRoot = runRoot ?? Directory.systemTemp.path;
+
+  /// The process-wide cap on simulator processes every run shares, or null
+  /// for a scheduler that is the only one in its process (the `--ci`
+  /// runner, where `--max-parallel` is the total).
+  ///
+  /// Taken after the run's own permit and before the resource locks, so the
+  /// per-run limit stays a sub-cap and a test never holds a share of the
+  /// machine while waiting for its own run's turn.
+  final SimulatorBudget? budget;
 
   /// Scheduler-side hard ceiling on retry attempts per test.
   ///
@@ -442,6 +455,14 @@ class LocalJobScheduler implements JobScheduler {
       state.completedCount++;
       return;
     }
+    // The machine's share, after the run's: see [budget].
+    await budget?.acquire();
+    if (state.cancelled) {
+      budget?.release();
+      state.semaphore.release();
+      state.completedCount++;
+      return;
+    }
 
     final lockHandles = <Future<void>>[];
     for (final lock in spec.resources) {
@@ -450,6 +471,7 @@ class LocalJobScheduler implements JobScheduler {
     await Future.wait(lockHandles);
     if (state.cancelled) {
       state.releaseResourceLocks(spec.resources);
+      budget?.release();
       state.semaphore.release();
       state.completedCount++;
       return;
@@ -507,6 +529,7 @@ class LocalJobScheduler implements JobScheduler {
     state.runningCount--;
     state.completedCount++;
     state.releaseResourceLocks(spec.resources);
+    budget?.release();
     state.semaphore.release();
   }
 
@@ -529,6 +552,8 @@ class LocalJobScheduler implements JobScheduler {
     int? exitCode;
     String? waveformPath;
     String? failureMessage;
+    String? stdoutPath;
+    String? stderrPath;
     KillSignal? killSignal;
     int? effectiveSeed;
     var metrics = const <String, String>{};
@@ -626,9 +651,22 @@ class LocalJobScheduler implements JobScheduler {
             workDir = null;
           } else if (!compileResult.success) {
             status = TestStatus.fail;
-            failureMessage = 'compile failed';
-            await _maybeCleanup(workDir, success: false);
-            workDir = null;
+            // The compiler's own first error line, when it printed one: a
+            // row that says `compile failed: %Error: tb.sv:12: ...` sends the
+            // user to the line; `compile failed` alone sends them to the log.
+            final reason = firstFailingLine(
+              config: spec.passFail,
+              stdout: stdoutBuf.text,
+              stderr: stderrBuf.text,
+            );
+            failureMessage = reason == null
+                ? 'compile failed'
+                : 'compile failed: $reason';
+            // Retained: a failed compile's work dir holds the log a user
+            // reads next, and the result points at it.
+            final logs = await _writeLogFiles(workDir, stdoutBuf, stderrBuf);
+            stdoutPath = logs.stdout;
+            stderrPath = logs.stderr;
           } else if (state.cancelled) {
             // Cancel/AppExit landed after compile succeeded but before the
             // simulator was spawned. Do not dispatch execute — the run is
@@ -740,6 +778,18 @@ class LocalJobScheduler implements JobScheduler {
       );
     }
     if (workDir != null) {
+      final retained =
+          !(success && !keepPassingDump) || retainSuccessfulWorkDirs;
+      // A retained work dir gets the captured output as files beside the
+      // dump, and the result points at them: a script, a CI step or an
+      // assistant reading the export then knows where the log is rather
+      // than being told only that the test failed. A swept (passing) dir
+      // gets none, so the result never names a file that is about to go.
+      if (retained && stdoutPath == null) {
+        final logs = await _writeLogFiles(workDir, stdoutBuf, stderrBuf);
+        stdoutPath = logs.stdout;
+        stderrPath = logs.stderr;
+      }
       await _maybeCleanup(workDir, success: success && !keepPassingDump);
     }
 
@@ -751,6 +801,8 @@ class LocalJobScheduler implements JobScheduler {
       startedAt: startedAt,
       finishedAt: finishedAt,
       exitCode: exitCode,
+      stdoutPath: stdoutPath,
+      stderrPath: stderrPath,
       waveformPath: waveformPath,
       failureMessage: failureMessage,
       metrics: metrics.isEmpty ? null : metrics,
@@ -924,6 +976,20 @@ class LocalJobScheduler implements JobScheduler {
       driverStatus: driverStatus,
       config: spec.passFail,
     );
+    // A failure the driver could not explain gets the first line of its own
+    // output that does (the detector's fail string, or an ERROR/assertion/
+    // Traceback line), so the row, the JUnit message and the PR annotation
+    // say why rather than only that. Never for a pass, and never invented.
+    if (failureMessage == null &&
+        (finalStatus == TestStatus.fail ||
+            finalStatus == TestStatus.timeout ||
+            finalStatus == TestStatus.unknown)) {
+      failureMessage = firstFailingLine(
+        config: spec.passFail,
+        stdout: stdoutBuf.text,
+        stderr: stderrBuf.text,
+      );
+    }
 
     return _ExecOutcome(
       status: finalStatus,
@@ -1035,6 +1101,34 @@ class LocalJobScheduler implements JobScheduler {
       runId: runId,
       testId: testId,
     );
+  }
+
+  /// The file names the captured output is written under in a retained
+  /// work directory. `InspectorDetails` strips the stdout name to show the
+  /// directory, so these are a contract with it.
+  static const String kStdoutLogName = 'sim_stdout.log';
+
+  /// See [kStdoutLogName].
+  static const String kStderrLogName = 'sim_stderr.log';
+
+  /// Writes the two captures into [workDir] and returns their paths, or
+  /// nulls when the directory cannot be written: a log that could not be
+  /// saved is not a path the result should name.
+  Future<({String? stdout, String? stderr})> _writeLogFiles(
+    String workDir,
+    BoundedLogCapture stdoutBuf,
+    BoundedLogCapture stderrBuf,
+  ) async {
+    final out = p.join(workDir, kStdoutLogName);
+    final err = p.join(workDir, kStderrLogName);
+    try {
+      await Directory(workDir).create(recursive: true);
+      await File(out).writeAsString(stdoutBuf.text);
+      await File(err).writeAsString(stderrBuf.text);
+      return (stdout: out, stderr: err);
+    } on Object {
+      return (stdout: null, stderr: null);
+    }
   }
 
   Future<void> _maybeCleanup(

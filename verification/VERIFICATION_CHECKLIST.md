@@ -224,7 +224,7 @@
 - [ ] Inspector → **Open full log** shows the launching tab's buffer (search / jump-to-line / Copy all operate on it), never the "No log output" empty state over a streaming inspector — `[Coverage: AUTOMATED — flutter test (log_viewer_dialog_test.dart, two-container shape, mutation-verified)]` + `[Coverage: STATIC — crux-shared route_mounted_scope_leak_test.dart]` (guide §6.4a)
 - [ ] Cross-suite AutoReloadMode setting applies to every open tab — `[Coverage: MANUAL]`
 - [ ] Each tab has its own `regressionRunnerProvider` notifier instance — `[Coverage: AUTOMATED — flutter test (per_tab_scheduler_isolation_test.dart)]`
-- [ ] Each run executes at most its own concurrency (4 in the app, `--max-parallel` under `--ci`); runs in separate tabs are bounded separately, with no process-wide cap — `[Coverage: MANUAL — see VERIFICATION_GUIDE.md 6.8 known limitation]`
+- [ ] Each run executes at most its own concurrency (4 in the app, `--max-parallel` under `--ci`), and every in-app run draws on the shared budget in Settings → Simulators (default 4, 1 to 64), so two tabs together never exceed it — `[Coverage: AUTOMATED — flutter test (local_job_scheduler_test.dart 'two runs share the process-wide budget', simulator_budget_test.dart, settings_simulators_section_test.dart); see VERIFICATION_GUIDE.md 6.8]`
 
 ### Split-pane SimcruxAction values
 

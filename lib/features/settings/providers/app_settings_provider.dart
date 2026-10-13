@@ -7,6 +7,7 @@ import 'package:simcrux/domain/models/app_settings.dart';
 import 'package:simcrux/domain/models/panel_layout_state.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 import 'package:simcrux/services/settings/simcrux_settings_codec.dart';
 
 /// Service instance shared by every consumer of [appSettingsProvider].
@@ -37,7 +38,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     final service = ref.read(settingsServiceProvider);
-    return await service.load();
+    final loaded = await service.load();
+    // The process-wide simulator budget lives in services/ and cannot read
+    // settings itself (services sit below features); the stored total is
+    // applied to it here, where the value becomes known, and again by
+    // [setMaxTotalSimulators] on every edit.
+    ref.read(simulatorBudgetProvider).limit = loaded.maxTotalSimulators;
+    return loaded;
   }
 
   /// Records [path] at the top of the recent-projects list, removing
@@ -247,6 +254,20 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     if (current == null) return;
     if (current.allowProjectDefinedTooling == enabled) return;
     final updated = current.copyWith(allowProjectDefinedTooling: enabled);
+    state = AsyncData(updated);
+    await ref.read(settingsServiceProvider).save(updated);
+  }
+
+  /// Sets how many simulator processes the app may run at once across every
+  /// tab, clamped to `1..64`, and applies it to the live budget immediately
+  /// so a running regression sees the new total on its next permit.
+  Future<void> setMaxTotalSimulators(int total) async {
+    final current = state.value;
+    if (current == null) return;
+    final clamped = total.clamp(kMinSimulatorBudget, kMaxSimulatorBudget);
+    ref.read(simulatorBudgetProvider).limit = clamped;
+    if (current.maxTotalSimulators == clamped) return;
+    final updated = current.copyWith(maxTotalSimulators: clamped);
     state = AsyncData(updated);
     await ref.read(settingsServiceProvider).save(updated);
   }

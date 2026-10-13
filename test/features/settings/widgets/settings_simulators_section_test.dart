@@ -14,6 +14,7 @@ import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/widgets/settings_simulators_section.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 
 Widget _wrap({
   required ProviderContainer container,
@@ -199,6 +200,79 @@ void main() {
       );
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getBool('simcrux.allowProjectDefinedTooling'), isTrue);
+    });
+  });
+
+  group('simulator processes at once, across all tabs', () {
+    final field = find.byKey(const Key('settings.maxTotalSimulators'));
+    final textField = find.descendant(
+      of: field,
+      matching: find.byType(TextField),
+    );
+
+    testWidgets('shows the stored total', (tester) async {
+      final container = await makeContainer();
+      await tester.pumpWidget(
+        _wrap(
+          container: container,
+          settings: const AppSettings(maxTotalSimulators: 6),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextField>(textField).controller!.text, '6');
+    });
+
+    testWidgets('submitting a total persists it and resizes the live budget', (
+      tester,
+    ) async {
+      final container = await makeContainer();
+      await tester.pumpWidget(
+        _wrap(container: container, settings: const AppSettings()),
+      );
+      await tester.pumpAndSettle();
+      expect(container.read(simulatorBudgetProvider).limit, 4);
+
+      await tester.enterText(field, '8');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(container.read(appSettingsProvider).value!.maxTotalSimulators, 8);
+      expect(container.read(simulatorBudgetProvider).limit, 8);
+    });
+
+    testWidgets('a total outside 1..64 is clamped, never zero', (tester) async {
+      final container = await makeContainer();
+      await tester.pumpWidget(
+        _wrap(container: container, settings: const AppSettings()),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(field, '0');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(container.read(appSettingsProvider).value!.maxTotalSimulators, 1);
+      expect(container.read(simulatorBudgetProvider).limit, 1);
+
+      await tester.enterText(field, '500');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(container.read(appSettingsProvider).value!.maxTotalSimulators, 64);
+    });
+
+    testWidgets('text that is not a number is put back', (tester) async {
+      final container = await makeContainer();
+      await tester.pumpWidget(
+        _wrap(
+          container: container,
+          settings: const AppSettings(maxTotalSimulators: 5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(field, 'many');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextField>(textField).controller!.text, '5');
+      expect(container.read(simulatorBudgetProvider).limit, 4);
     });
   });
 

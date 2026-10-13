@@ -967,6 +967,14 @@
     "description": "Editor preset label: user-supplied custom command."
   },
   "settingsSimulatorBinaryLabel": "二进制路径",
+  "settingsMaxTotalSimulatorsLabel": "所有标签页同时运行的仿真器进程数",
+  "@settingsMaxTotalSimulatorsLabel": {
+    "description": "Label of the numeric field in Settings > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
+  },
+  "settingsMaxTotalSimulatorsDescription": "每次运行最多使用自身的 4 个槽位；此值是所有运行共享的总数，因此同时进行多个回归不会拖垮机器。范围 1 至 64，默认 4。无界面运行改用 --max-parallel。",
+  "@settingsMaxTotalSimulatorsDescription": {
+    "description": "Helper text under settingsMaxTotalSimulatorsLabel. Mentions the per-run limit of 4, the accepted range 1 to 64 with default 4, and that --ci uses --max-parallel instead."
+  },
   "settingsAllowProjectDefinedToolingLabel": "允许项目文件指定仿真器可执行文件与环境变量",
   "settingsAllowProjectDefinedToolingDescription": "默认关闭。项目文件可以指定 SimCrux 运行的程序及其运行环境，这相当于由该文件的作者选择要执行的代码。关闭时这些键会被忽略，改用上方的二进制路径。请仅对你信任的项目文件开启。",
   "@settingsSimulatorBinaryLabel": {

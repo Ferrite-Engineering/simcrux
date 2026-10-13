@@ -967,6 +967,14 @@
     "description": "Editor preset label: user-supplied custom command."
   },
   "settingsSimulatorBinaryLabel": "バイナリパス",
+  "settingsMaxTotalSimulatorsLabel": "全タブで同時に実行するシミュレータープロセス数",
+  "@settingsMaxTotalSimulatorsLabel": {
+    "description": "Label of the numeric field in Settings > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
+  },
+  "settingsMaxTotalSimulatorsDescription": "各実行は自身の最大 4 スロットを使います。この値はすべての実行が共有する合計で、複数のリグレッションを同時に走らせてもマシンが過負荷になりません。1 から 64、既定値 4。ヘッドレス実行では --max-parallel を使います。",
+  "@settingsMaxTotalSimulatorsDescription": {
+    "description": "Helper text under settingsMaxTotalSimulatorsLabel. Mentions the per-run limit of 4, the accepted range 1 to 64 with default 4, and that --ci uses --max-parallel instead."
+  },
   "settingsAllowProjectDefinedToolingLabel": "プロジェクトファイルがシミュレーターのバイナリと環境変数を指定することを許可",
   "settingsAllowProjectDefinedToolingDescription": "既定はオフです。プロジェクトファイルは SimCrux が実行するプログラムとその実行環境を指定でき、これはそのファイルの作成者がコードの実行内容を選ぶことと同じです。オフの間これらのキーは無視され、上のバイナリパスが使われます。信頼できるプロジェクトファイルにのみオンにしてください。",
   "@settingsSimulatorBinaryLabel": {

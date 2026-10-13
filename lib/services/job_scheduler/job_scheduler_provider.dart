@@ -11,6 +11,7 @@ import 'package:simcrux/services/driver_plugin/simulator_driver_plugin_registry_
 import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper_provider.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 import 'package:simcrux/services/job_scheduler/waveform_archive_provider.dart';
 import 'package:simcrux/services/retry_policy/retry_policy_provider.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
@@ -165,9 +166,10 @@ class JobSchedulerCache {
 /// Callers resolve a scheduler with
 /// `ref.read(jobSchedulerProvider).schedulerFor(config)`. The long-lived
 /// global state (driver instances) is provided by
-/// [simulatorDriverRegistryProvider]. Concurrency is per run, not global:
-/// each `RegressionRequest` carries its own `concurrency`, which the
-/// scheduler enforces with a semaphore of its own.
+/// [simulatorDriverRegistryProvider]. Concurrency is bounded twice: each
+/// `RegressionRequest` carries its own `concurrency`, which the scheduler
+/// enforces with a semaphore of its own, and every run draws on the shared
+/// [simulatorBudgetProvider], the process-wide total across tabs.
 final Provider<JobSchedulerCache> jobSchedulerProvider =
     Provider<JobSchedulerCache>((ref) {
       final driverRegistry = ref.watch(simulatorDriverRegistryProvider);
@@ -186,10 +188,15 @@ final Provider<JobSchedulerCache> jobSchedulerProvider =
       final passingWaveformRetentionPolicy = ref.watch(
         passingWaveformRetentionPolicyProvider,
       );
+      // One budget for every scheduler the cache builds: N tabs running
+      // regressions used to mean 4N simulators, each run bounded on its own
+      // and nothing bounding the sum.
+      final budget = ref.watch(simulatorBudgetProvider);
       return JobSchedulerCache(
         (config) => LocalJobScheduler(
           driverRegistry: driverRegistry,
           config: config,
+          budget: budget,
           retryPolicy: retryPolicy,
           dumpRetentionPolicy: dumpRetentionPolicy,
           passingWaveformArchive: waveformArchive,

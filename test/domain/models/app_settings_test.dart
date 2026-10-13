@@ -65,6 +65,21 @@ void main() {
     });
   });
 
+  group('AppSettings.maxTotalSimulators', () {
+    test('defaults to 4, the per-run concurrency, so one tab is unchanged', () {
+      expect(const AppSettings().maxTotalSimulators, 4);
+    });
+
+    test('copyWith replaces it and preserves it when absent', () {
+      const base = AppSettings();
+      final changed = base.copyWith(maxTotalSimulators: 9);
+      expect(changed.maxTotalSimulators, 9);
+      expect(changed.copyWith(autoRunOnOpen: true).maxTotalSimulators, 9);
+      expect(changed, isNot(equals(base)));
+      expect(changed.hashCode, isNot(base.hashCode));
+    });
+  });
+
   group('AppSettings.autoCheckForUpdates', () {
     test('defaults to on', () {
       expect(const AppSettings().autoCheckForUpdates, isTrue);

@@ -11,6 +11,7 @@
 // ignore_for_file: discarded_futures, cascade_invocations
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
@@ -25,6 +26,7 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
+import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
 import '../../support/poll_until.dart';
@@ -202,11 +204,13 @@ RegressionConfig _emptyConfig() => RegressionConfig(
 LocalJobScheduler _scheduler({
   required _FakeDriver driver,
   String? runRoot,
+  SimulatorBudget? budget,
 }) {
   return LocalJobScheduler(
     driverRegistry: SimulatorDriverRegistry({driver.id: driver}),
     config: _emptyConfig(),
     runRoot: runRoot,
+    budget: budget,
   );
 }
 
@@ -369,6 +373,84 @@ void main() {
     });
   });
 
+  group('LocalJobScheduler — what a failed test leaves behind', () {
+    late Directory root;
+    setUp(() {
+      root = Directory.systemTemp.createTempSync('simcrux_sched_logs_');
+    });
+    tearDown(() {
+      if (root.existsSync()) root.deleteSync(recursive: true);
+    });
+
+    test('a failing test keeps its captured output as files and the result '
+        'points at them; a passing test keeps nothing', () async {
+      final driver = _FakeDriver(
+        id: 'fake',
+        scriptFor: (id) => id.endsWith('bad')
+            ? _DriverScript(
+                stdoutLines: const ['starting', 'ERROR: tb.sv:12: bad parity'],
+                stderrLines: const ['vvp: 1 error'],
+                exit: 1,
+              )
+            : _DriverScript(stdoutLines: const ['TEST PASSED']),
+      );
+      final scheduler = _scheduler(driver: driver, runRoot: root.path);
+      final events = await scheduler
+          .submit(
+            RegressionRequest(
+              runId: 'r1',
+              tests: <TestSpec>[spec('s/good'), spec('s/bad')],
+            ),
+          )
+          .toList();
+      final results = {
+        for (final e in events.whereType<TestFinished>())
+          e.result.testId: e.result,
+      };
+
+      final bad = results['s/bad']!;
+      expect(bad.status, TestStatus.fail);
+      expect(bad.stdoutPath, endsWith('sim_stdout.log'));
+      expect(bad.stderrPath, endsWith('sim_stderr.log'));
+      expect(
+        File(bad.stdoutPath!).readAsStringSync(),
+        contains('ERROR: tb.sv:12: bad parity'),
+      );
+      expect(File(bad.stderrPath!).readAsStringSync(), contains('1 error'));
+      // The driver gave no message; the first line that says why is it.
+      expect(bad.failureMessage, 'ERROR: tb.sv:12: bad parity');
+
+      final good = results['s/good']!;
+      expect(good.status, TestStatus.pass);
+      expect(good.stdoutPath, isNull, reason: 'its work dir was swept');
+      expect(good.stderrPath, isNull);
+      expect(good.failureMessage, isNull);
+    });
+
+    test(
+      'a failure with no recognisable reason keeps a null message',
+      () async {
+        final driver = _FakeDriver(
+          id: 'fake',
+          scriptFor: (_) => _DriverScript(
+            stdoutLines: const ['ran 12 cycles', 'done'],
+            exit: 3,
+          ),
+        );
+        final scheduler = _scheduler(driver: driver, runRoot: root.path);
+        final events = await scheduler
+            .submit(
+              RegressionRequest(runId: 'r1', tests: <TestSpec>[spec('s/t')]),
+            )
+            .toList();
+        final result = events.whereType<TestFinished>().single.result;
+        expect(result.status, TestStatus.fail);
+        expect(result.failureMessage, isNull);
+        expect(result.stdoutPath, isNotNull);
+      },
+    );
+  });
+
   group('LocalJobScheduler — concurrency', () {
     test('bounds parallel runs by RegressionRequest.concurrency', () async {
       var inFlight = 0;
@@ -402,6 +484,90 @@ void main() {
           .toList();
       expect(peak, lessThanOrEqualTo(2));
     });
+
+    test('two runs share the process-wide budget, each still under its own '
+        'concurrency', () async {
+      // Two tabs, each a regression with concurrency 4, used to mean eight
+      // simulators at once. With a budget of 3 shared between them the sum
+      // never passes 3, and nothing is lost: every test still runs.
+      var inFlight = 0;
+      var peak = 0;
+      _FakeDriver driverFor(String id) => _FakeDriver(
+        id: id,
+        scriptFor: (_) {
+          inFlight++;
+          if (inFlight > peak) peak = inFlight;
+          final script = _DriverScript(
+            startDelay: const Duration(milliseconds: 10),
+          );
+          script.controller.done.whenComplete(() => inFlight--);
+          return script;
+        },
+      );
+      final budget = SimulatorBudget(limit: 3);
+      final a = _scheduler(driver: driverFor('fake'), budget: budget);
+      final b = _scheduler(driver: driverFor('fake'), budget: budget);
+      final runs = await Future.wait([
+        a
+            .submit(
+              RegressionRequest(
+                runId: 'tab-a',
+                tests: List.generate(8, (i) => spec('a/t$i')),
+                concurrency: 4,
+              ),
+            )
+            .toList(),
+        b
+            .submit(
+              RegressionRequest(
+                runId: 'tab-b',
+                tests: List.generate(8, (i) => spec('b/t$i')),
+                concurrency: 4,
+              ),
+            )
+            .toList(),
+      ]);
+      expect(peak, lessThanOrEqualTo(3));
+      expect(peak, greaterThan(1), reason: 'the budget is shared, not serial');
+      for (final events in runs) {
+        expect(events.whereType<TestFinished>(), hasLength(8));
+      }
+      expect(budget.inUse, 0, reason: 'every permit returned');
+    });
+
+    test(
+      'a run under the budget still cannot exceed its own concurrency',
+      () async {
+        var inFlight = 0;
+        var peak = 0;
+        final driver = _FakeDriver(
+          id: 'fake',
+          scriptFor: (_) {
+            inFlight++;
+            if (inFlight > peak) peak = inFlight;
+            final script = _DriverScript(
+              startDelay: const Duration(milliseconds: 10),
+            );
+            script.controller.done.whenComplete(() => inFlight--);
+            return script;
+          },
+        );
+        final scheduler = _scheduler(
+          driver: driver,
+          budget: SimulatorBudget(limit: 16),
+        );
+        await scheduler
+            .submit(
+              RegressionRequest(
+                runId: 'r1',
+                tests: List.generate(8, (i) => spec('s/t$i')),
+                concurrency: 2,
+              ),
+            )
+            .toList();
+        expect(peak, lessThanOrEqualTo(2));
+      },
+    );
   });
 
   group('LocalJobScheduler — cancel', () {

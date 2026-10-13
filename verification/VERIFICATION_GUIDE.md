@@ -169,6 +169,7 @@ Fixture families:
 3. A hung test is cancelled at its timeout and reported as `timeout`.
 4. Exit codes classify pass / fail.
 5. An Icarus test that calls `$error` and then `$finish` (`vvp` exits 0, prints `ERROR: <file>:<line>: <message>`) is reported **fail** under the default `exit_code` detector, with that line as its failure message. `Coverage: AUTOMATED — test/services/simulator/icarus_driver_test.dart ('$error then $finish …'), test/services/job_scheduler/local_job_scheduler_status_merge_test.dart`.
+6. A failed, timed-out or unclassified test (and a passing one under `capture: always`) keeps its work directory with `sim_stdout.log` and `sim_stderr.log` in it, and its result's `stdoutPath` / `stderrPath` name them, so the JSON / CSV / HTML exports and the streaming `results.ndjson` carry where the log is; a swept passing test carries no paths. A failure the driver did not explain gets the first line of its output that does (the configured detector's fail string or pattern, else `ERROR:` / `%Error` / `UVM_ERROR` / `error:` / assertion / `FAILED` / `Traceback`), bounded to 240 characters, and a failure with no such line keeps a null message. `Coverage: AUTOMATED — test/services/job_scheduler/local_job_scheduler_test.dart ('what a failed test leaves behind'), test/services/job_scheduler/failure_message_test.dart`.
 
 **Diagnostics-assisted verification.** The dashboard's running/passing/failing counts track live parallelism; the log panel streams per-test lines.
 
@@ -989,15 +990,25 @@ the per-run concurrency, and run them at the same time.
 **Expected behavior.**
 - Each run is bounded on its own: an in-app run executes at most 4 tests at
   once, and a `--ci` run at most `--max-parallel` (default 4).
+- Every in-app run also draws on one process-wide budget, **Settings →
+  Simulators → Simulator processes at once, across all tabs** (default 4,
+  1 to 64): with two tabs each running a regression of more than 4 tests, the
+  total number of simulator processes alive at once never exceeds the budget,
+  and each run alone never exceeds its own 4. Raising the budget in Settings
+  lets waiting tests start at once; lowering it lets running tests finish and
+  hands out nothing new until the count is under the new value. `--ci` runs one
+  regression per process and does not use the budget.
 - Each tab has its own `regressionRunnerProvider` notifier and its own run
   state; a run in one tab never surfaces in another.
 
-**Status / known limitation.** There is no process-wide cap. `LocalJobScheduler`
-bounds each run with its own `Semaphore`, so N tabs running at once can spawn
-up to 4N simulators. A cross-tab pool is not built.
-
 **Automation Assessment.** Per-tab runner isolation is unit-tested in
-`test/features/workspace/providers/per_tab_scheduler_isolation_test.dart`.
+`test/features/workspace/providers/per_tab_scheduler_isolation_test.dart`; the
+shared budget in `test/services/job_scheduler/local_job_scheduler_test.dart`
+('two runs share the process-wide budget') and
+`test/services/job_scheduler/simulator_budget_test.dart`; the Settings field
+and its clamp in `test/features/settings/widgets/settings_simulators_section_test.dart`.
+`Coverage: AUTOMATED — flutter test`. Watching the process list while two tabs
+run is the manual confirmation.
 The combined process count across tabs is `[Coverage: MANUAL]`.
 
 ## 7. Cross-Probing & CXP Integration

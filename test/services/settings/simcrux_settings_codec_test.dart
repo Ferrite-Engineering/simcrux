@@ -90,6 +90,25 @@ void main() {
       expect((await codec.load(prefs)).allowProjectDefinedTooling, isFalse);
     });
 
+    test(
+      'maxTotalSimulators defaults to 4, round-trips, and is clamped',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        const codec = SimcruxSettingsCodec();
+        expect((await codec.load(prefs)).maxTotalSimulators, 4);
+
+        await codec.save(prefs, const AppSettings(maxTotalSimulators: 12));
+        expect((await codec.load(prefs)).maxTotalSimulators, 12);
+        expect(prefs.getInt('simcrux.maxTotalSimulators'), 12);
+
+        // A hand-edited 0 would deadlock every run; a huge value is a typo.
+        await prefs.setInt('simcrux.maxTotalSimulators', 0);
+        expect((await codec.load(prefs)).maxTotalSimulators, 1);
+        await prefs.setInt('simcrux.maxTotalSimulators', 100000);
+        expect((await codec.load(prefs)).maxTotalSimulators, 64);
+      },
+    );
+
     test('save then load round-trips autoRunOnOpen = true', () async {
       final prefs = await SharedPreferences.getInstance();
       const codec = SimcruxSettingsCodec();

@@ -40,6 +40,7 @@ class AppSettings {
     this.broadcastSelectionOnCrossProbe = true,
     this.autoCheckForUpdates = true,
     this.autoRunOnOpen = false,
+    this.maxTotalSimulators = 4,
     this.retentionPolicy,
   });
 
@@ -181,6 +182,17 @@ class AppSettings {
   /// already-explicit opt-in about a run that is already the user's.
   final bool autoRunOnOpen;
 
+  /// How many simulator processes the app may run at once, across every
+  /// tab's regression.
+  ///
+  /// Each run has its own concurrency (4 in the app), so two tabs running
+  /// regressions used to spawn eight simulators, and N tabs 4N. This is the
+  /// process-wide total those per-run pools draw from; the per-run limit
+  /// stays a sub-cap. Default 4, so a single tab behaves exactly as before.
+  /// Clamped to 1..64 by the codec. `--ci` runs one regression per process
+  /// and uses `--max-parallel` alone.
+  final int maxTotalSimulators;
+
   /// Trend-store and waveform retention rules the user chose, or `null`
   /// when they never did.
   ///
@@ -238,6 +250,7 @@ class AppSettings {
     bool? broadcastSelectionOnCrossProbe,
     bool? autoCheckForUpdates,
     bool? autoRunOnOpen,
+    int? maxTotalSimulators,
     RetentionPolicy? retentionPolicy,
   }) {
     return AppSettings(
@@ -264,6 +277,7 @@ class AppSettings {
           broadcastSelectionOnCrossProbe ?? this.broadcastSelectionOnCrossProbe,
       autoCheckForUpdates: autoCheckForUpdates ?? this.autoCheckForUpdates,
       autoRunOnOpen: autoRunOnOpen ?? this.autoRunOnOpen,
+      maxTotalSimulators: maxTotalSimulators ?? this.maxTotalSimulators,
       retentionPolicy: retentionPolicy ?? this.retentionPolicy,
     );
   }
@@ -316,6 +330,7 @@ class AppSettings {
     }
     if (autoCheckForUpdates != other.autoCheckForUpdates) return false;
     if (autoRunOnOpen != other.autoRunOnOpen) return false;
+    if (maxTotalSimulators != other.maxTotalSimulators) return false;
     if (retentionPolicy != other.retentionPolicy) return false;
     return true;
   }
@@ -346,6 +361,7 @@ class AppSettings {
     broadcastSelectionOnCrossProbe,
     autoCheckForUpdates,
     autoRunOnOpen,
+    maxTotalSimulators,
     retentionPolicy,
   );
 

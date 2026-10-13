@@ -43,6 +43,7 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       'simcrux.broadcastSelectionOnCrossProbe';
   static const String _kAutoCheckForUpdates = 'simcrux.autoCheckForUpdates';
   static const String _kAutoRunOnOpen = 'simcrux.autoRunOnOpen';
+  static const String _kMaxTotalSimulators = 'simcrux.maxTotalSimulators';
   static const String _kRetentionPolicy = 'simcrux.retentionPolicy';
 
   // Panel-layout namespace. Per-field keys (rather than a single JSON
@@ -100,6 +101,12 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       // Absent means off. Opening a config must not start a run for a
       // user who never asked for it, including on first launch.
       autoRunOnOpen: prefs.getBool(_kAutoRunOnOpen) ?? false,
+      // Clamped: a hand-edited 0 would deadlock every run, and a huge value
+      // is a typo rather than a wish for 10 000 simulators.
+      maxTotalSimulators: (prefs.getInt(_kMaxTotalSimulators) ?? 4).clamp(
+        1,
+        64,
+      ),
     );
   }
 
@@ -200,6 +207,7 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
     );
     await prefs.setBool(_kAutoCheckForUpdates, settings.autoCheckForUpdates);
     await prefs.setBool(_kAutoRunOnOpen, settings.autoRunOnOpen);
+    await prefs.setInt(_kMaxTotalSimulators, settings.maxTotalSimulators);
     final retention = settings.retentionPolicy;
     if (retention == null) {
       // Absent stays absent: writing the default here would turn "nobody

@@ -91,6 +91,19 @@ For the full read-only web dashboard instead of a single HTML file, see
     each failing test's failure message. Check both before publishing a report
     for a private design somewhere public.
 
+Every export carries, per test, a `failure_message` and, for a test whose work
+directory was kept (every failed, timed-out or unclassified test, and a passing
+test under `capture: always`), the paths of its captured output, `stdout_path`
+and `stderr_path` (`sim_stdout.log` and `sim_stderr.log` beside the dump in
+`<run root>/runs/<run id>/<test>/`), plus `waveform_path` when one was written.
+When the simulator did not say why it failed, the message is the first line of
+the test's own output that does: the `fail_string` or `fail_pattern` of a
+detector you configured, or an `ERROR:`, `%Error`, `UVM_ERROR`, `error:`,
+assertion, `FAILED` or Python `Traceback` line, bounded to 240 characters. A
+failure with nothing that reads as a reason keeps an empty message rather than
+quoting an arbitrary line. The `--json` document on stdout stays totals only, by
+design (`--json | jq .totals`); the per-test detail is in the export file.
+
 ## CI integration {#ci}
 
 Run a regression headless with `simcrux simcrux.yaml --ci`. The process exit

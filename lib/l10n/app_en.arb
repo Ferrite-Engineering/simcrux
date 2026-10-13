@@ -981,6 +981,14 @@
   "@settingsSimulatorBinaryLabel": {
     "description": "Settings page label for the per-simulator binary path override."
   },
+  "settingsMaxTotalSimulatorsLabel": "Simulator processes at once, across all tabs",
+  "@settingsMaxTotalSimulatorsLabel": {
+    "description": "Label of the numeric field in Settings > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
+  },
+  "settingsMaxTotalSimulatorsDescription": "Each run uses up to 4 slots of its own; this is the total every run shares, so several regressions at once cannot swamp the machine. 1 to 64, default 4. Headless runs use --max-parallel instead.",
+  "@settingsMaxTotalSimulatorsDescription": {
+    "description": "Helper text under settingsMaxTotalSimulatorsLabel. Mentions the per-run limit of 4, the accepted range 1 to 64 with default 4, and that --ci uses --max-parallel instead."
+  },
   "settingsAllowProjectDefinedToolingLabel": "Let project files choose simulator binaries and environment",
   "@settingsAllowProjectDefinedToolingLabel": {
     "description": "Settings \u2192 Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
