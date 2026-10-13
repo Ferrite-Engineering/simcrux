@@ -124,6 +124,39 @@ void main() {
       expect(received.first.event, FileWatchEvent.modified);
     });
 
+    test(
+      'a touch is still reported when the platform watch has gone deaf',
+      () async {
+        // macOS can stop delivering watch events for the rest of the process
+        // (crux-shared#25). Without the polling backstop, Sources changed
+        // never appeared again; here the platform watch stays open and silent,
+        // so only the poll can report the touch.
+        final tempDir = Directory.systemTemp.createTempSync('simcrux_deaf_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final tempFile = File('${tempDir.path}/gray_counter.v')
+          ..writeAsStringSync('module gray_counter; endmodule');
+        final deaf = StreamController<FileSystemEvent>();
+        addTearDown(deaf.close);
+        final watcher = SuiteSourceWatcher(watchFactory: (_) => deaf.stream);
+        addTearDown(watcher.dispose);
+        final received = <SuiteSourceChange>[];
+        watcher.events.listen(received.add);
+        watcher.watch(_configWith([tempFile.path]));
+        // Let the first poll record the file's state before it changes.
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+        // A touch: same bytes, a new modification time.
+        tempFile.setLastModifiedSync(
+          DateTime.now().add(const Duration(seconds: 5)),
+        );
+        await pollUntil(
+          () => received.isNotEmpty,
+        );
+        expect(received, isNotEmpty);
+        expect(received.first.path, tempFile.path);
+        expect(received.first.event, FileWatchEvent.modified);
+      },
+    );
+
     test('dispose closes the broadcast stream and rejects further watches', () {
       final watcher = SuiteSourceWatcher(
         serviceFactory: () =>

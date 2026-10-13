@@ -239,7 +239,8 @@ suites:
         parent: root,
         overrides: simcruxTabOverrides(tabId),
       );
-      addTearDown(tabContainer.dispose);
+      // Disposed by hand at the end, not in a tear-down: the tab arms the
+      // source watcher, whose polling timer has to stop before the test ends.
 
       await tester.binding.setSurfaceSize(const Size(900, 800));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -279,6 +280,8 @@ suites:
       }
       expect(testCount(), 3, reason: 'Pro expands seeds 1..3');
       expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      tabContainer.dispose();
     });
   });
 }

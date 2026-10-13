@@ -66,6 +66,15 @@ autoReloadNotifierProvider =
       AutoReloadNotifier.new,
     );
 
+/// The source watcher's polling backstop interval,
+/// [kSuiteSourcePollInterval]. Widget tests that arm a tab without disposing
+/// it before the test ends override this with null, so no periodic timer
+/// outlives the tree.
+final Provider<Duration?> suiteSourcePollIntervalProvider = Provider<Duration?>(
+  (ref) => kSuiteSourcePollInterval,
+  name: 'suiteSourcePollIntervalProvider',
+);
+
 /// Notifier backing [autoReloadNotifierProvider].
 class AutoReloadNotifier extends Notifier<AutoReloadState> {
   SuiteSourceWatcher? _watcher;
@@ -75,9 +84,9 @@ class AutoReloadNotifier extends Notifier<AutoReloadState> {
   /// the arming coordinator, or null when it has no active config.
   String? _armedKey;
 
-  /// Factory hook for tests. Production wires the default
-  /// `SuiteSourceWatcher` constructor.
-  SuiteSourceWatcher Function() watcherFactory = SuiteSourceWatcher.new;
+  /// Factory hook for tests. Null means a [SuiteSourceWatcher] polling at
+  /// [suiteSourcePollIntervalProvider].
+  SuiteSourceWatcher Function()? watcherFactory;
 
   /// Resolved once in [build]; captured because `ref.read` is illegal
   /// inside the [_release] dispose callback where it is also needed.
@@ -124,7 +133,11 @@ class AutoReloadNotifier extends Notifier<AutoReloadState> {
 
   void _armWatcher(RegressionConfig config) {
     _disposeWatcher();
-    final watcher = watcherFactory();
+    final watcher =
+        watcherFactory?.call() ??
+        SuiteSourceWatcher(
+          pollInterval: ref.read(suiteSourcePollIntervalProvider),
+        );
     _watcher = watcher;
     _subscription = watcher.events.listen(_onChange);
     watcher.watch(config);

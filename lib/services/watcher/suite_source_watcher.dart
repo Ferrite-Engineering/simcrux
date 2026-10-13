@@ -6,6 +6,17 @@ import 'dart:async';
 import 'package:crux_file_watcher/crux_file_watcher.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 
+/// How often each watched source file's size and modification time are also
+/// read, as a backstop for the platform watch.
+///
+/// On macOS, `dart:io`'s directory watch can stop delivering events for the
+/// rest of the process, with no error, and a new watch hears nothing either
+/// (crux-shared#25). Without the backstop a SimCrux that had once watched a
+/// project on a network share never offered "Sources changed" again, even
+/// for a local copy opened afterwards. LintCrux and NetCrux use the same
+/// interval.
+const Duration kSuiteSourcePollInterval = Duration(seconds: 1);
+
 /// Aggregator that watches every source file declared by every test
 /// in a [RegressionConfig] and emits a single debounced event when
 /// any of them changes.
@@ -24,10 +35,21 @@ class SuiteSourceWatcher {
   ///
   /// [serviceFactory] is injectable for tests so the watcher can be
   /// driven against scripted `FileWatcherService` fakes without
-  /// touching the real file system.
+  /// touching the real file system. The default polls each file every
+  /// [pollInterval] (default [kSuiteSourcePollInterval]; null turns the
+  /// backstop off) as well as watching it; [watchFactory] replaces only its
+  /// platform watch, so a test can make that watch deaf and still see a real
+  /// change arrive through the poll.
   SuiteSourceWatcher({
     FileWatcherService Function()? serviceFactory,
-  }) : _serviceFactory = serviceFactory ?? FileWatcherService.new;
+    WatchFactory? watchFactory,
+    Duration? pollInterval = kSuiteSourcePollInterval,
+  }) : _serviceFactory =
+           serviceFactory ??
+           (() => FileWatcherService(
+             watchFactory: watchFactory,
+             pollInterval: pollInterval,
+           ));
 
   final FileWatcherService Function() _serviceFactory;
   final List<FileWatcherService> _services = <FileWatcherService>[];

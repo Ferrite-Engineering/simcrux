@@ -43,6 +43,7 @@ import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
 import 'package:simcrux/features/dashboard/widgets/test_browser_panel.dart';
 import 'package:simcrux/features/inspector/providers/test_trend_provider.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
+import 'package:simcrux/features/watcher/providers/auto_reload_notifier.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_pane_overrides.dart';
@@ -104,6 +105,9 @@ class _Harness {
         testTrendProvider.overrideWith((ref, _) async => const <TestStatus>[]),
         // Opening a config records `project.opened`; nothing here transmits.
         telemetryServiceProvider.overrideWithValue(RecordingTelemetryService()),
+        // The containers are disposed in tear-down, after the pending-timer
+        // check, so the source watcher's polling backstop stays off here.
+        suiteSourcePollIntervalProvider.overrideWithValue(null),
         workspaceContainerManagersProvider.overrideWith((_) => managers),
       ],
     );
