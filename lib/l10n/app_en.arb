@@ -2667,5 +2667,13 @@
   "settingsTelemetryInstallationIdNone": "No installation ID. One is created only when usage statistics are turned on.",
   "@settingsTelemetryInstallationIdNone": {
     "description": "Shown in place of the installation id in Settings > Privacy while usage statistics have never been turned on, so no id exists yet."
+  },
+  "watcherAutoReloadBanner": "Sources changed. Re-run the suite to pick up the latest changes?",
+  "@watcherAutoReloadBanner": {
+    "description": "The source-changed prompt: the title and the question as one sentence pair, shown in the shared reload banner."
+  },
+  "fileWatcherIgnore": "Ignore",
+  "@fileWatcherIgnore": {
+    "description": "Button on the source-changed prompt that dismisses it without re-running. Same key and meaning as WaveCrux."
   }
 }

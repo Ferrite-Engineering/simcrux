@@ -115,7 +115,7 @@ the behaviour follows **Settings → General → Auto-reload**:
 
 | Mode | Behaviour on change |
 |---|---|
-| **Prompt** (default) | A **Sources changed** notice asks whether to re-run the suite; **Re-run now** does. |
+| **Prompt** (default) | A **Sources changed** notice asks whether to re-run the suite; **Re-run now** does. From 1.1 it is a banner across the top with **Ignore** and **Re-run now**, which stays until you choose; **Ignore** dismisses it without re-running. |
 | **Auto** | The regression re-runs immediately, reloading `simcrux.yaml` first. |
 | **Off** | Nothing happens; run by hand. |
 

@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,30 +47,20 @@ Widget _wrap(
   );
 }
 
-/// Drains the snackbar's 8-second display timer plus its exit
-/// animation so no timers stay pending at test teardown.
-Future<void> _drainSnackbar(WidgetTester tester) async {
-  await tester.pump(const Duration(seconds: 9));
-  await tester.pump(const Duration(seconds: 1));
-  await tester.pump();
-}
-
 void main() {
   group('AutoReloadSnackbarHost', () {
-    testWidgets('renders its child and no snackbar while nothing pends', (
+    testWidgets('renders its child and no prompt while nothing pends', (
       tester,
     ) async {
       await tester.pumpWidget(_wrap(_SeedableAutoReloadNotifier.new));
       await tester.pump();
 
       expect(find.byType(SizedBox), findsWidgets);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byKey(kCruxReloadPromptKey), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('shows the localized snackbar when a change pends', (
-      tester,
-    ) async {
+    testWidgets('shows the shared banner when a change pends', (tester) async {
       late _SeedableAutoReloadNotifier notifier;
       await tester.pumpWidget(
         _wrap(() => notifier = _SeedableAutoReloadNotifier()),
@@ -77,65 +68,82 @@ void main() {
       await tester.pump();
 
       notifier.seedPending({'/proj/alu.sv'});
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
 
       final l10n = L10N.of(tester.element(find.byType(Scaffold)));
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(
-        find.text(
-          '${l10n.watcherAutoReloadPromptTitle} — '
-          '${l10n.watcherAutoReloadPromptMessage}',
-        ),
-        findsOneWidget,
-      );
+      expect(find.byKey(kCruxReloadPromptKey), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text(l10n.watcherAutoReloadBanner), findsOneWidget);
       expect(find.text(l10n.watcherAutoReloadActionRerun), findsOneWidget);
-
-      await _drainSnackbar(tester);
+      expect(find.text(l10n.fileWatcherIgnore), findsOneWidget);
     });
 
-    // Note: on this Flutter SDK a SnackBar with an action defaults to
-    // `persist: true`, so the 8-second timeout path never fires; the
-    // snackbar only closes via the action (or an explicit hide). The
-    // close-clears-pending behavior is therefore exercised through the
-    // "Re-run now" action below.
-    testWidgets('re-run action closes the snackbar and clears pending paths', (
+    testWidgets('Ignore closes it and clears the pending paths', (
       tester,
     ) async {
+      // The prompt used to be a snackbar whose only button was Re-run now,
+      // which never timed out and could not be declined.
       late _SeedableAutoReloadNotifier notifier;
       await tester.pumpWidget(
         _wrap(() => notifier = _SeedableAutoReloadNotifier()),
       );
       await tester.pump();
-
       notifier.seedPending({'/proj/alu.sv'});
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(SnackBar), findsOneWidget);
+      await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(kCruxReloadPromptIgnoreKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(kCruxReloadPromptKey), findsNothing);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(AutoReloadSnackbarHost)),
       );
       expect(
         container.read(autoReloadNotifierProvider).pendingPaths,
-        isNotEmpty,
+        isEmpty,
       );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Re-run now closes it and clears the pending paths', (
+      tester,
+    ) async {
+      late _SeedableAutoReloadNotifier notifier;
+      await tester.pumpWidget(
+        _wrap(() => notifier = _SeedableAutoReloadNotifier()),
+      );
+      await tester.pump();
+      notifier.seedPending({'/proj/alu.sv'});
+      await tester.pumpAndSettle();
 
       final l10n = L10N.of(tester.element(find.byType(Scaffold)));
       await tester.tap(find.text(l10n.watcherAutoReloadActionRerun));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump();
-
-      expect(find.byType(SnackBar), findsNothing);
-      // With no active config, rerun() is a no-op; the closed-snackbar
-      // handler treats it as Dismiss and clears the pending set.
+      await tester.pumpAndSettle();
+      expect(find.byKey(kCruxReloadPromptKey), findsNothing);
+      // With no active config rerun() is a no-op, and the pending set is
+      // still cleared: either choice settles the prompt.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(AutoReloadSnackbarHost)),
+      );
       expect(
         container.read(autoReloadNotifierProvider).pendingPaths,
         isEmpty,
       );
       expect(tester.takeException(), isNull);
-      await _drainSnackbar(tester);
+    });
+
+    testWidgets('a second change while it is up does not stack a banner', (
+      tester,
+    ) async {
+      late _SeedableAutoReloadNotifier notifier;
+      await tester.pumpWidget(
+        _wrap(() => notifier = _SeedableAutoReloadNotifier()),
+      );
+      await tester.pump();
+      notifier.seedPending({'/proj/alu.sv'});
+      await tester.pumpAndSettle();
+      notifier.seedPending({'/proj/alu.sv', '/proj/tb.sv'});
+      await tester.pumpAndSettle();
+      expect(find.byKey(kCruxReloadPromptKey), findsOneWidget);
     });
 
     testWidgets('locale sweep renders without exceptions', (tester) async {
@@ -155,10 +163,9 @@ void main() {
         );
         await tester.pump();
         notifier.seedPending({'/proj/alu.sv'});
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpAndSettle();
+        expect(find.byKey(kCruxReloadPromptKey), findsOneWidget);
         expect(tester.takeException(), isNull, reason: '$locale');
-        await _drainSnackbar(tester);
       }
     });
   });
