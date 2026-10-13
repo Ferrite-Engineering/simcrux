@@ -137,7 +137,7 @@ packages:
       path: "crux-shared/packages/crux_cxp"
       relative: true
     source: path
-    version: "0.8.1"
+    version: "0.10.0"
   crux_cxp_ui:
     dependency: "direct main"
     description:
@@ -270,7 +270,7 @@ packages:
       path: "crux-shared/packages/crux_sqlite"
       relative: true
     source: path
-    version: "0.4.1"
+    version: "0.5.0"
   crux_stats_strip:
     dependency: "direct main"
     description:

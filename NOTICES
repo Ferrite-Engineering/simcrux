@@ -569,7 +569,7 @@ of an attribution question.
   crux_async                                   0.1.0            SDK
   crux_audit                                   0.1.0            SDK
   crux_command_palette                         0.0.2            SDK
-  crux_cxp                                     0.8.1            SDK
+  crux_cxp                                     0.10.0           SDK
   crux_cxp_ui                                  0.1.0            SDK
   crux_dock                                    0.1.1            SDK
   crux_eula                                    0.1.0            SDK
@@ -588,7 +588,7 @@ of an attribution question.
   crux_settings_ui                             0.2.0            SDK
   crux_shortcut_action                         0.0.1            SDK
   crux_signing                                 0.1.0            SDK
-  crux_sqlite                                  0.4.1            SDK
+  crux_sqlite                                  0.5.0            SDK
   crux_stats_strip                             0.1.0            SDK
   crux_status_bar                              0.1.0            SDK
   crux_telemetry                               0.5.0            SDK
