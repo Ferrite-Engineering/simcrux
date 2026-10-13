@@ -20,6 +20,7 @@ import 'package:simcrux/domain/models/config_loader_error.dart';
 import 'package:simcrux/domain/models/output_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
+import 'package:simcrux/domain/models/project_identity.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/resource_lock.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
@@ -32,6 +33,10 @@ import 'package:simcrux/services/config/mixed_language_validator.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
 import 'package:simcrux/services/config/test_spec_expander.dart';
 import 'package:yaml/yaml.dart';
+
+// The id rule is domain vocabulary shared with the headless CLI; re-exported
+// so readers of the loader see it beside `readProjectId`.
+export 'package:simcrux/domain/models/project_identity.dart';
 
 // The section parsers live in sibling part files. Each owns one slice
 // of the `simcrux.yaml` schema; the [ConfigLoader] class below is the
@@ -425,6 +430,56 @@ class ConfigLoader {
     return out;
   }
 
+  /// Reads the top-level `project_id:`, or null when the file has none.
+  ///
+  /// A value outside [kProjectIdPattern] is an error: a project id that
+  /// differs from what `push-results --project` would accept would split a
+  /// team's history between the app and its CI, which is the bug the key
+  /// exists to end.
+  String? _readProjectId(
+    YamlMap root,
+    String path,
+    List<ConfigLoaderError> errors,
+  ) {
+    final node = root.nodes['project_id'];
+    if (node == null) return null;
+    final raw = node.value;
+    final value = raw is String ? raw : raw?.toString();
+    if (value != null && kProjectIdPattern.hasMatch(value)) return value;
+    errors.add(
+      _error(
+        path: path,
+        node: node,
+        message:
+            '`project_id` "${value ?? ''}" is not a valid project id. '
+            '$kProjectIdRule',
+      ),
+    );
+    return null;
+  }
+
+  /// The `project_id:` declared at the top of [yamlText], or null when the
+  /// file declares none or declares one that does not pass
+  /// [kProjectIdPattern].
+  ///
+  /// For readers that want the identity without loading the project: the
+  /// shared team database resolves it from the active project's file, and
+  /// a full load there would mean a second validation pass and a second
+  /// place for the file's errors to surface. YAML that does not parse
+  /// reads as "no id", which is what the team database should treat it as.
+  static String? readProjectId(String yamlText) {
+    try {
+      final node = loadYamlNode(yamlText);
+      if (node is! YamlMap) return null;
+      final raw = node['project_id'];
+      final value = raw is String ? raw : raw?.toString();
+      if (value == null || !kProjectIdPattern.hasMatch(value)) return null;
+      return value;
+    } on Object {
+      return null;
+    }
+  }
+
   /// Merges a root config with N include configs.
   ///
   /// - `suites:` are concatenated. Root-file suites win on
@@ -663,6 +718,9 @@ class ConfigLoader {
       );
     }
 
+    // ── project_id ──────────────────────────────────────────────────
+    final projectId = _readProjectId(root, path, errors);
+
     // ── defaults ────────────────────────────────────────────────────
     final defaultsRaw = root['defaults'];
     final defaultSimulatorId =
@@ -792,6 +850,7 @@ class ConfigLoader {
       suites: suites,
       simulatorBinaries: simulatorBinaries,
       defaultSimulatorId: defaultSimulatorId,
+      projectId: projectId,
       defaultPassFail: defaultPassFail,
       defaultWaveform: defaultWaveform,
       defaultRiscv: defaultRiscv,

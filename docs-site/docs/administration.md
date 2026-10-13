@@ -284,7 +284,7 @@ is.
 | `3` | The archive is missing, unreadable, or describes no run. | no |
 | `4` | The database is reachable and its schema cannot serve this build — unprovisioned, an incompatible epoch, or another product's. **An administrator has to act.** | **never** |
 | `5` | The database could not be reached, or the write failed. Network weather, a restart, a firewall. | **yes** |
-| `64` | Bad command line (`EX_USAGE`): an unknown option, a missing `--project`, archive or runner id (`--origin` / `SIMCRUX_ORIGIN_ID`), or no command at all. A human fixes the pipeline definition. | no |
+| `64` | Bad command line (`EX_USAGE`): an unknown option, a missing or malformed `--project` (it must be the project's `project_id`: 1 to 64 letters, digits, `.`, `_` or `-`), archive or runner id (`--origin` / `SIMCRUX_ORIGIN_ID`), or no command at all. A human fixes the pipeline definition. | no |
 
 A pipeline that cannot tell `4` from `5` either retries a misconfiguration
 forever or fails a build over a thirty-second blip. A usage error is `64`, far

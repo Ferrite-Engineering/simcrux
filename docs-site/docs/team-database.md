@@ -19,18 +19,33 @@ behind a server that is down keeps working exactly as before. Enterprise adds a
 second destination: a **PostgreSQL database you own and host**. When one is
 configured, each run finished in the desktop app is also written to it.
 
-**Reading it back is planned for 1.1.** Trend views chart the runs from that
-machine's own store. The app can be pointed at the shared database, but the
-project scope it uses is derived from the local checkout path — so it neither
-shows the runs your CI pushed under a `--project` name, nor shares its own with
-a colleague whose checkout sits at a different path. Making those agree needs a
-project identity both machines can compute, and that value is part of the
-primary key of every pooled row, so it is a 1.1 change rather than one made
-late. Until then the shared database is a CI-fed record: written by the
-pipeline, read with your own SQL or whatever already reads your PostgreSQL.
+Runs are pooled under the project's **`project_id`**, declared at the top of
+`simcrux.yaml` (see [Project identity](#project-identity)). The app writes its
+runs under that id and reads the pooled history under it, so two engineers whose
+checkouts sit at different paths, and the CI job that pushes with
+`push-results --project <id>`, share one history. A project that declares no
+`project_id` keeps its history local: nothing is pushed for it, and **Settings →
+Team Database** says so.
 
 The database holds results and history only. `simcrux.yaml`, sessions and
 workspace metadata are not synced — those stay in git.
+
+## Project identity {#project-identity}
+
+```yaml
+version: "1"
+project_id: soc-top
+```
+
+`project_id` is 1 to 64 letters, digits, `.`, `_` or `-`, and it is the value
+every machine agrees on: it travels with the project and is reviewed like the
+rest of the file, which is why it is not a setting. Before 1.1 the app derived
+a scope from the local checkout path, so no two machines ever shared a run;
+rows written under those path-derived ids stay where they are and are not
+migrated. A run your pipeline pushed with `--project <name>` is already under
+the id the file should now declare: use that name. `push-results` refuses an
+id that does not match the same rule, so CI and the file cannot disagree by a
+stray character.
 
 ## Connecting {#connecting}
 
@@ -118,7 +133,7 @@ simcrux-pro push-results --project soc-top results.ndjson
 
 | Option | Meaning |
 |---|---|
-| `--project <id>` | **Required.** The project the run belongs to — one database pools every project a team has. |
+| `--project <id>` | **Required.** The project the run belongs to: the `project_id` declared in its `simcrux.yaml`, so the GUI reads the runs CI pushed. 1 to 64 letters, digits, `.`, `_` or `-`; anything else is a usage error (exit 64). |
 | `--origin <id>` | A stable id for this runner. Defaults to `SIMCRUX_ORIGIN_ID`; one of the two is required, so two agents starting a run in the same millisecond cannot collide. |
 | `--submitter <name>` | Attribution for the run. Defaults to `SIMCRUX_SUBMITTER`. |
 | `--audit-log <path>` | Append a `results.pushed` event to this JSONL file. |

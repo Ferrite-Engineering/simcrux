@@ -64,6 +64,7 @@ suites:
 
 | Key | Level | Meaning |
 |---|---|---|
+| `project_id:` | top level | Optional. The project's identity across machines, 1 to 64 letters, digits, `.`, `_` or `-`. The shared team database pools runs under it, so two checkouts of one repository and the CI job that pushes with `push-results --project <id>` share one history; a project that declares none keeps its history local. See [Team database](team-database.md#project-identity). |
 | `name:` | test | Required. The test name; the test id is `<suite>/<name>`. |
 | `top:` | test | Required. The top-level module or entity to elaborate and run. |
 | `simulator:` | defaults, suite, test | Required at one of the three levels: `icarus`, `verilator`, `ghdl`, `cocotb`, `riscv_arch` or `riscv_formal`. There is no built-in default, so a test that inherits none does not load. |

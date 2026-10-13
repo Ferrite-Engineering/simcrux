@@ -30,6 +30,7 @@ class RegressionConfig {
     this.defaultWaveform,
     this.defaultRiscv,
     this.output = const OutputConfig(),
+    this.projectId,
     List<ConfigLoaderError>? loadWarnings,
   }) : suites = List<Suite>.unmodifiable(suites),
        simulatorBinaries = Map<String, SimulatorBinaryConfig>.unmodifiable(
@@ -60,6 +61,18 @@ class RegressionConfig {
   /// each `TestSpec.simulatorId` at load time; retained here for the
   /// dashboard.
   final String? defaultSimulatorId;
+
+  /// The project's identity across machines: the top-level `project_id:`
+  /// of the root file, or null when the file declares none.
+  ///
+  /// Letters, digits, `.`, `_` and `-`, 1 to 64 characters. It is what the
+  /// shared team database pools runs under, so two engineers whose checkouts
+  /// sit at different paths, and the CI job that pushes with
+  /// `--project <id>`, land in one scope. It travels with the project and is
+  /// reviewed like the rest of the file, which is why it is here and not in
+  /// Settings. Not derived from anything: a project that declares none has
+  /// no shared history.
+  final String? projectId;
 
   /// Project-level default pass/fail config. Pushed into each
   /// `TestSpec.passFail` at load time; retained here for the
@@ -104,6 +117,7 @@ class RegressionConfig {
     List<Suite>? suites,
     Map<String, SimulatorBinaryConfig>? simulatorBinaries,
     String? defaultSimulatorId,
+    String? projectId,
     PassFailConfig? defaultPassFail,
     WaveformPolicy? defaultWaveform,
     RiscvConfig? defaultRiscv,
@@ -116,6 +130,7 @@ class RegressionConfig {
       suites: suites ?? this.suites,
       simulatorBinaries: simulatorBinaries ?? this.simulatorBinaries,
       defaultSimulatorId: defaultSimulatorId ?? this.defaultSimulatorId,
+      projectId: projectId ?? this.projectId,
       defaultPassFail: defaultPassFail ?? this.defaultPassFail,
       defaultWaveform: defaultWaveform ?? this.defaultWaveform,
       defaultRiscv: defaultRiscv ?? this.defaultRiscv,
@@ -131,6 +146,7 @@ class RegressionConfig {
     if (other.projectFilePath != projectFilePath) return false;
     if (other.schemaVersion != schemaVersion) return false;
     if (other.defaultSimulatorId != defaultSimulatorId) return false;
+    if (other.projectId != projectId) return false;
     if (other.defaultPassFail != defaultPassFail) return false;
     if (other.defaultWaveform != defaultWaveform) return false;
     if (other.defaultRiscv != defaultRiscv) return false;
@@ -161,6 +177,7 @@ class RegressionConfig {
       simulatorBinaries.entries.map((e) => Object.hash(e.key, e.value)),
     ),
     defaultSimulatorId,
+    projectId,
     defaultPassFail,
     defaultWaveform,
     defaultRiscv,
