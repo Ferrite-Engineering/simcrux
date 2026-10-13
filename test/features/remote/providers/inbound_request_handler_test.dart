@@ -942,6 +942,40 @@ void main() {
       );
     });
 
+    test('RequestOpenArtifact skips a source record another product wrote '
+        'for the same design', () async {
+      // The kind `source` is shared: LintCrux records its `.lintcrux` project
+      // under the same design id. Upserted last, it used to win resolution
+      // and go to the editor as though it were ours (crux-shared#14).
+      final lintProject = '${inside.path}/design.lintcrux';
+      await File(lintProject).create(recursive: true);
+      await store.upsertArtifact(
+        designId: cxpDesignIdForPath(inside.path),
+        kind: kCxpSourceArtifactKind,
+        path: lintProject,
+        producer: 'lintcrux',
+      );
+      final wired = await wireInside();
+      final ackFuture = wired.client.inbound.firstWhere(
+        (m) => m.message is RequestOpenArtifactAck,
+      );
+      wired.client.send(
+        RequestOpenArtifact(
+          designId: cxpDesignIdForPath(inside.path),
+          artifactKind: kCxpSourceArtifactKind,
+        ),
+      );
+      final ack =
+          (await ackFuture.timeout(const Duration(seconds: 2))).message
+              as RequestOpenArtifactAck;
+      expect(ack.honored, isTrue);
+      expect(
+        wired.launcher.calls.map((c) => c.filePath),
+        <String>[insideSource],
+        reason: 'the HDL source, not the lint project',
+      );
+    });
+
     test('a RequestOpenArtifact path hint outside the opened directories is '
         'never opened', () async {
       final wired = await wireInside();

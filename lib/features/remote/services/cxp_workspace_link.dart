@@ -204,6 +204,34 @@ bool isSimcruxConfigPath(String path) {
   return lower.endsWith('.yaml') || lower.endsWith('.yml');
 }
 
+/// The HDL source extensions a `source` record may carry for SimCrux to send
+/// it to the editor.
+const Set<String> kSimcruxHdlSourceExtensions = <String>{
+  'v',
+  'vh',
+  'sv',
+  'svh',
+  'vhd',
+  'vhdl',
+};
+
+/// Whether a `source` record names a file SimCrux can open: a regression
+/// config or a suite manifest ([isSimcruxProjectPath], opened as a config
+/// tab) or an HDL source (opened in the editor).
+///
+/// Every product publishes the kind for its own files: `source` names a
+/// simulation config here, an HDL file in WaveCrux and NetCrux and a
+/// `.lintcrux` project in LintCrux, all under the one design id of the
+/// directory they share. Without the filter the store's resolution hands
+/// SimCrux whichever record was upserted last, and a lint project would be
+/// sent to the editor as though it were ours. The receiver-side stop-gap
+/// crux_cxp 0.9.0 added; per-product kinds would be a spec revision.
+bool simcruxAcceptsSourceArtifact(String path) {
+  if (isSimcruxProjectPath(path)) return true;
+  final lower = path.toLowerCase();
+  return kSimcruxHdlSourceExtensions.any((e) => lower.endsWith('.$e'));
+}
+
 /// The shared design→artifact link store.
 ///
 /// A single keep-alive instance rooted at the suite-shared workspace directory
@@ -266,23 +294,27 @@ Future<void> publishWaveformWorkspaceArtifact(
 /// Resolves the shared-workspace `source` artifact for the design named by
 /// [designId], preferring an exact `design_id`+kind
 /// match and falling back to the descriptive [topModule]/[basename] hints.
+/// Only records SimCrux can open are considered
+/// ([simcruxAcceptsSourceArtifact]).
 ///
-/// Returns the absolute path SimCrux should open in its editor, or null when
-/// the design has no source artifact recorded.
-String? resolveSourceArtifactPath(
+/// Returns the absolute path SimCrux should open, or null when the design has
+/// no source artifact recorded. The store's read is asynchronous, so a slow
+/// workspace directory never stalls the inbound handler.
+Future<String?> resolveSourceArtifactPath(
   Ref ref,
   String designId, {
   String? topModule,
   String? basename,
-}) {
+}) async {
   if (designId.isEmpty) return null;
-  final artifact = ref
+  final artifact = await ref
       .read(cxpWorkspaceStoreProvider)
-      .resolveArtifact(
+      .resolveArtifactAsync(
         designId,
         kCxpSourceArtifactKind,
         topModule: topModule,
         basename: basename,
+        accepts: simcruxAcceptsSourceArtifact,
       );
   return artifact?.path;
 }
@@ -300,15 +332,25 @@ String? resolveSourceArtifactPath(
 /// between reads, so a second view of the directory costs nothing.
 ///
 /// Returns the absolute path of the recorded artifact, or null when the
-/// design has no source artifact recorded.
-String? resolveOpenArtifactSourcePath(Ref ref, String designId) {
+/// design has no source artifact SimCrux can open recorded
+/// ([simcruxAcceptsSourceArtifact]).
+Future<String?> resolveOpenArtifactSourcePath(
+  Ref ref,
+  String designId,
+) async {
   if (designId.isEmpty) return null;
   final store = ref.read(cxpWorkspaceStoreProvider);
-  return CxpWorkspaceStore(
-    workspaceDirectory: store.workspaceDirectory,
-    ttl: store.ttl,
-    containment: kCxpOpenArtifactContainment,
-  ).resolveArtifact(designId, kCxpSourceArtifactKind)?.path;
+  final artifact =
+      await CxpWorkspaceStore(
+        workspaceDirectory: store.workspaceDirectory,
+        ttl: store.ttl,
+        containment: kCxpOpenArtifactContainment,
+      ).resolveArtifactAsync(
+        designId,
+        kCxpSourceArtifactKind,
+        accepts: simcruxAcceptsSourceArtifact,
+      );
+  return artifact?.path;
 }
 
 /// Opens the regression config at [configPath] as a workspace tab for a CXP

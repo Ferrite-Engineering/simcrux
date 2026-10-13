@@ -200,7 +200,7 @@ void main() {
       await record('d-never', config.path);
       final app = await boot();
       expect(
-        resolveSourceArtifactPath(app.ref, 'd-never'),
+        await resolveSourceArtifactPath(app.ref, 'd-never'),
         isNull,
         reason: 'the premise: the rooted store drops this record',
       );

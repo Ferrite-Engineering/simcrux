@@ -212,7 +212,8 @@ class InboundRequestHandler {
     // never opened here, the one "Open in SimCrux Desktop" publishes before
     // it sends. It is only a candidate; which rule it then answers to
     // depends on what it names.
-    final path = resolveOpenArtifactSourcePath(ref, msg.designId) ?? msg.path;
+    final path =
+        await resolveOpenArtifactSourcePath(ref, msg.designId) ?? msg.path;
     if (path == null) {
       return RequestOpenArtifactAck(
         inReplyTo: '',
@@ -356,7 +357,7 @@ class InboundRequestHandler {
   ) async {
     final designId = metadata[cxpDesignIdMetadataKey];
     if (designId is! String || designId.isEmpty) return false;
-    final path = resolveSourceArtifactPath(ref, designId);
+    final path = await resolveSourceArtifactPath(ref, designId);
     if (path == null) return false;
     // CXP §11: the record was selected by the sender's `design_id`, so the
     // path gets the wire rule on the value about to be opened.

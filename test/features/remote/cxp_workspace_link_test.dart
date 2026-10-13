@@ -297,6 +297,36 @@ void main() {
     // Nothing should have been written to the workspace directory.
     expect(Directory(workspaceDir).existsSync(), isFalse);
   });
+
+  group('simcruxAcceptsSourceArtifact', () {
+    test('admits a config, a suite manifest and an HDL source', () {
+      for (final path in <String>[
+        '/p/simcrux.yaml',
+        '/p/cpu.yml',
+        '/p/design.crux-project',
+        '/p/rtl/top.v',
+        '/p/rtl/top.sv',
+        '/p/rtl/defs.svh',
+        '/p/rtl/pkg.vh',
+        '/p/rtl/alu.vhd',
+        '/p/rtl/alu.VHDL',
+      ]) {
+        expect(simcruxAcceptsSourceArtifact(path), isTrue, reason: path);
+      }
+    });
+
+    test("refuses another product's file under the same kind", () {
+      for (final path in <String>[
+        '/p/design.lintcrux',
+        '/p/design.netcrux',
+        '/p/sources.f',
+        '/p/wave.vcd',
+        '/p/notes.txt',
+      ]) {
+        expect(simcruxAcceptsSourceArtifact(path), isFalse, reason: path);
+      }
+    });
+  });
 }
 
 /// [posix] as an absolute path on this platform: unchanged on macOS and
