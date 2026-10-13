@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
+import 'package:simcrux/domain/models/bounded_log_capture.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
@@ -206,6 +207,39 @@ abstract class ProcessBackedSimulatorDriver implements SimulatorDriver {
     return controller.stream;
   }
 
+  /// Waits for a compile step's [drains] to reach end-of-file once the
+  /// process exited with [exitCode], then releases them.
+  ///
+  /// The exit code and the last lines of output reach Dart on separate
+  /// channels, and nothing orders them: a compiler that prints one error and
+  /// quits routinely has its exit observed before that line. Reading to
+  /// end-of-file is what keeps the diagnostic in the [CompileResult].
+  ///
+  /// The wait is bounded by crux_io's drain grace. Output that could not be
+  /// vouched for (a pipe a grandchild still holds, a read that failed) is
+  /// noted on [stderrCapture] under [tool]'s name rather than passed off as
+  /// complete; a [process] the reaper terminated is incomplete by definition
+  /// and gets no note. The caller still judges the compile by its exit code
+  /// and artifact, which the output never decides.
+  @protected
+  Future<void> drainCompileOutput({
+    required int exitCode,
+    required List<ProcessStreamDrain<String>> drains,
+    required ReapableProcess process,
+    required BoundedLogCapture stderrCapture,
+    required String tool,
+  }) async {
+    try {
+      await drainProcessOutput(
+        exitCode: exitCode,
+        drains: drains,
+        terminatedByCaller: () => process.killSignal != null,
+      );
+    } on ProcessOutputIncompleteException catch (e) {
+      stderrCapture.addLine('$tool: ${e.message}');
+    }
+  }
+
   /// Per-driver execute body: resolve the binary + build the command
   /// line + seed handling, then delegate to [runProcessStreaming].
   /// Invoked once per [execute] call with a fresh [controller].
@@ -294,60 +328,60 @@ abstract class ProcessBackedSimulatorDriver implements SimulatorDriver {
         return;
       }
       trackProcess(request.test.id, process);
+      // Non-nullable for the closures below, which cannot see the promotion.
+      final live = process;
 
-      final stdoutDone = Completer<void>();
-      final stderrDone = Completer<void>();
-      final stdoutSub = process.stdout.listen(
-        (line) {
-          onLine?.call(line, fromStderr: false);
-          controller.add(
-            TestLogLine(
-              line: line,
-              fromStderr: false,
-              timestamp: DateTime.now().toUtc(),
-            ),
-          );
-        },
-        onDone: () {
-          if (!stdoutDone.isCompleted) stdoutDone.complete();
-        },
-        // A decoder/transform error on the pipe would otherwise never
-        // complete `stdoutDone`, hanging the drain below until the
-        // scheduler's per-test timeout fires. Surface the error as a
-        // stderr log line and release the drain.
-        onError: (Object error) {
-          onLine?.call('stdout stream error: $error', fromStderr: true);
-          if (!stdoutDone.isCompleted) stdoutDone.complete();
-        },
-      );
-      final stderrSub = process.stderr.listen(
-        (line) {
-          onLine?.call(line, fromStderr: true);
-          controller.add(
-            TestLogLine(
-              line: line,
-              fromStderr: true,
-              timestamp: DateTime.now().toUtc(),
-            ),
-          );
-        },
-        onDone: () {
-          if (!stderrDone.isCompleted) stderrDone.complete();
-        },
-        onError: (Object error) {
-          onLine?.call('stderr stream error: $error', fromStderr: true);
-          if (!stderrDone.isCompleted) stderrDone.complete();
-        },
-      );
+      void emit(String line, {required bool fromStderr}) {
+        onLine?.call(line, fromStderr: fromStderr);
+        controller.add(
+          TestLogLine(
+            line: line,
+            fromStderr: fromStderr,
+            timestamp: DateTime.now().toUtc(),
+          ),
+        );
+      }
+
+      // Subscribed before the exit is awaited, so a chatty simulator never
+      // stalls on a full pipe.
+      final drains = <ProcessStreamDrain<String>>[
+        ProcessStreamDrain<String>(
+          process.stdout,
+          (line) => emit(line, fromStderr: false),
+        ),
+        ProcessStreamDrain<String>(
+          process.stderr,
+          (line) => emit(line, fromStderr: true),
+        ),
+      ];
       try {
-        exitCode = await process.exitCode;
-        // Drain stdout / stderr before reporting the terminal event, so
-        // log lines and the TestExecutionFinished event arrive on the
-        // stream in the correct order.
-        await Future.wait<void>([stdoutDone.future, stderrDone.future]);
+        try {
+          exitCode = await process.exitCode;
+        } on Object {
+          for (final drain in drains) {
+            await drain.cancel();
+          }
+          rethrow;
+        }
+        // Both pipes to end-of-file before the terminal event, so log lines
+        // and the TestExecutionFinished arrive on the stream in order. The
+        // wait is bounded by crux_io's grace, so a grandchild that inherited
+        // a pipe cannot hold the run open after the simulator exited, and a
+        // pipe that faulted mid-run releases it at once instead of stalling
+        // the test until the scheduler's timeout. Either way the output may
+        // be short, which is said on stderr rather than passed off as
+        // complete; a process the reaper killed is incomplete by definition
+        // and gets no note.
+        try {
+          await drainProcessOutput(
+            exitCode: exitCode,
+            drains: drains,
+            terminatedByCaller: () => live.killSignal != null,
+          );
+        } on ProcessOutputIncompleteException catch (e) {
+          emit('$executable: ${e.message}', fromStderr: true);
+        }
       } finally {
-        await stdoutSub.cancel();
-        await stderrSub.cancel();
         untrackProcess(request.test.id);
       }
     } on Object catch (e) {

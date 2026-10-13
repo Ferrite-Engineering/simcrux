@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_io/crux_io.dart' show ProcessStreamDrain;
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -223,29 +224,28 @@ class VerilatorDriver extends ProcessBackedSimulatorDriver {
       );
       trackProcess(request.test.id, process);
 
-      final stdoutDone = Completer<void>();
-      final stderrDone = Completer<void>();
-
-      final stdoutSub = process.stdout.listen(
-        (line) {
+      // Both pipes to end-of-file, bounded: a `--build` whose make left a
+      // child holding the pipe used to hold this compile open with it.
+      final drains = <ProcessStreamDrain<String>>[
+        ProcessStreamDrain<String>(process.stdout, (line) {
           stdoutCapture.addLine(line);
           final warning = _parseLintLine(line);
           if (warning != null) lintBuf.add(warning);
-        },
-        onDone: stdoutDone.complete,
-      );
-      final stderrSub = process.stderr.listen(
-        (line) {
+        }),
+        ProcessStreamDrain<String>(process.stderr, (line) {
           stderrCapture.addLine(line);
           final warning = _parseLintLine(line);
           if (warning != null) lintBuf.add(warning);
-        },
-        onDone: stderrDone.complete,
-      );
+        }),
+      ];
       final exit = await process.exitCode;
-      await Future.wait<void>([stdoutDone.future, stderrDone.future]);
-      await stdoutSub.cancel();
-      await stderrSub.cancel();
+      await drainCompileOutput(
+        exitCode: exit,
+        drains: drains,
+        process: process,
+        stderrCapture: stderrCapture,
+        tool: verilator,
+      );
       untrackProcess(request.test.id);
       parsedLintWarnings[request.test.id] = List.unmodifiable(lintBuf);
 

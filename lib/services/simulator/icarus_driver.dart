@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_io/crux_io.dart' show ProcessStreamDrain;
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -146,11 +147,22 @@ class IcarusDriver extends ProcessBackedSimulatorDriver {
       // unbounded buffer before the result string is materialized.
       final stdoutCapture = request.stdoutCapture ?? BoundedLogCapture();
       final stderrCapture = request.stderrCapture ?? BoundedLogCapture();
-      final stdoutSub = process.stdout.listen(stdoutCapture.addLine);
-      final stderrSub = process.stderr.listen(stderrCapture.addLine);
+      // Read to end-of-file, not until the exit code: the two reach Dart on
+      // separate channels, and cancelling the subscriptions on the exit
+      // dropped the one line a failed compile had to say, so the inspector
+      // showed an empty diagnostic for it.
+      final drains = <ProcessStreamDrain<String>>[
+        ProcessStreamDrain<String>(process.stdout, stdoutCapture.addLine),
+        ProcessStreamDrain<String>(process.stderr, stderrCapture.addLine),
+      ];
       final exit = await process.exitCode;
-      await stdoutSub.cancel();
-      await stderrSub.cancel();
+      await drainCompileOutput(
+        exitCode: exit,
+        drains: drains,
+        process: process,
+        stderrCapture: stderrCapture,
+        tool: iverilog,
+      );
       untrackProcess(request.test.id);
       final success = exit == 0 && File(artifact).existsSync();
       return CompileResult(
