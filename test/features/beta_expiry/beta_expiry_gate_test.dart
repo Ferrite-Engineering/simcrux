@@ -7,7 +7,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/update/simcrux_update_config.dart';
-import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_blocking_overlay.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_gate.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/lifecycle/app_exit_provider.dart';
@@ -72,7 +71,7 @@ void main() {
 
       expect(find.text('content'), findsOneWidget);
       expect(find.byType(CruxBetaExpiryBanner), findsNothing);
-      expect(find.byType(BetaExpiryBlockingOverlay), findsNothing);
+      expect(find.byType(CruxBetaExpiredOverlay), findsNothing);
     });
 
     testWidgets('renders the app untouched while still active', (tester) async {
@@ -80,7 +79,7 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CruxBetaExpiryBanner), findsNothing);
-      expect(find.byType(BetaExpiryBlockingOverlay), findsNothing);
+      expect(find.byType(CruxBetaExpiredOverlay), findsNothing);
     });
 
     testWidgets('shows the dismissible warning banner inside the window', (
@@ -163,7 +162,7 @@ void main() {
       await tester.pump();
 
       final l10n = L10N.of(tester.element(find.text('content')));
-      expect(find.byType(BetaExpiryBlockingOverlay), findsOneWidget);
+      expect(find.byType(CruxBetaExpiredOverlay), findsOneWidget);
       expect(find.text(l10n.betaExpiryExpiredTitle), findsOneWidget);
       expect(find.text(l10n.betaExpiryExpiredAction), findsOneWidget);
       expect(find.text(l10n.betaExpiryExpiredQuit), findsOneWidget);

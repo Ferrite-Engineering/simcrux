@@ -25,3 +25,29 @@ class SimcruxBetaExpiryStrings extends CruxBetaExpiryStrings {
   @override
   String get dismissLabel => _l10n.betaExpiryDismissLabel;
 }
+
+/// Binds SimCrux's ARB keys to `crux_license`'s [CruxBetaExpiredStrings]
+/// seam, for the shared [CruxBetaExpiredOverlay].
+///
+/// The blocking modal went the same way as the banner: a hand-copy in every
+/// product, now one widget in `crux_license` that also takes focus and
+/// semantics away from the app behind it. All four keys already existed, so
+/// this is a re-binding, not a translation job.
+class SimcruxBetaExpiredStrings extends CruxBetaExpiredStrings {
+  /// Wraps a resolved [L10N].
+  const SimcruxBetaExpiredStrings(this._l10n);
+
+  final L10N _l10n;
+
+  @override
+  String get title => _l10n.betaExpiryExpiredTitle;
+
+  @override
+  String get body => _l10n.betaExpiryExpiredBody;
+
+  @override
+  String get downloadLabel => _l10n.betaExpiryExpiredAction;
+
+  @override
+  String get quitLabel => _l10n.betaExpiryExpiredQuit;
+}

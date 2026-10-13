@@ -7,7 +7,6 @@ import 'package:crux_license/crux_license.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/update/simcrux_update_config.dart';
-import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_blocking_overlay.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_metrics.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_strings.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -28,7 +27,8 @@ Future<bool> Function(Uri uri) betaExpiryLaunchUrl = launchUrl;
 /// - [BetaExpiryStatus.expiringSoon] → a dismissible [CruxBetaExpiryBanner]
 ///   above [child].
 /// - [BetaExpiryStatus.expired] → the blocking, non-dismissable
-///   [BetaExpiryBlockingOverlay] over [child].
+///   [CruxBetaExpiredOverlay] over [child], which also takes the app behind
+///   it out of focus and semantics.
 /// - [BetaExpiryStatus.active] / [BetaExpiryStatus.notApplicable] → [child]
 ///   unchanged. This is the common case and *every* developer build and
 ///   post-beta production build: the expiry date is injected per beta drop via
@@ -123,9 +123,15 @@ class _BetaExpiryGateState extends ConsumerState<BetaExpiryGate>
 
     switch (status) {
       case BetaExpiryStatus.expired:
-        return BetaExpiryBlockingOverlay(
+        return CruxBetaExpiredOverlay(
           onDownload: _download,
           onQuit: () => unawaited(_quit()),
+          strings: SimcruxBetaExpiredStrings(L10N.of(context)),
+          // The same 13 dp body as the banner below and the telemetry
+          // consent disclosure; see the banner's `sizing` note.
+          sizing: const CruxBetaExpirySizing(
+            bodyTextSize: kBetaExpiryBodyFontSize,
+          ),
           child: widget.child,
         );
       case BetaExpiryStatus.expiringSoon:
