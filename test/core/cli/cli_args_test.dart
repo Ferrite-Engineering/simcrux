@@ -51,5 +51,23 @@ void main() {
       expect(a.hashCode, equals(b.hashCode));
       expect(a, isNot(equals(c)));
     });
+
+    test('failThresholdExplicit defaults false and survives copyWith', () {
+      const base = CliArgs();
+      expect(base.failThresholdExplicit, isFalse);
+      final typed = base.copyWith(
+        failThreshold: 3,
+        failThresholdExplicit: true,
+      );
+      expect(typed.failThresholdExplicit, isTrue);
+      // Replacing the number alone keeps the bit: substituting a policy
+      // value must not make it look typed, nor un-type a typed one.
+      expect(typed.copyWith(failThreshold: 4).failThresholdExplicit, isTrue);
+      expect(base.copyWith(failThreshold: 4).failThresholdExplicit, isFalse);
+      expect(
+        typed,
+        isNot(equals(typed.copyWith(failThresholdExplicit: false))),
+      );
+    });
   });
 }

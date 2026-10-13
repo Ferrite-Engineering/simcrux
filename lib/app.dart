@@ -62,10 +62,12 @@ import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/plugins/extra_localizations_delegates_provider.dart';
+import 'package:simcrux/services/ci/ci_gate_ceiling_provider.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/cli/cli_args.dart' as launch_cli;
 import 'package:simcrux/services/config/config_loader.dart';
+import 'package:simcrux/services/config/simulator_policy_provider.dart';
 import 'package:simcrux/services/export/dashboard_bundle_writer.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
@@ -541,9 +543,20 @@ Future<void> _runCiInvocation(
   // stock four built-in drivers plus the plugin registry (both via
   // `simulatorDriverRegistryProvider`), so a plugin-contributed driver
   // works under `--ci` exactly as it does interactively.
+  // The organization's failure ceiling replaces `--fail-threshold`'s
+  // default, never a value the job typed. None in open core; see
+  // `ciGateCeilingProvider`.
+  final ciArgs = applyCiGateCeiling(
+    parsedArgs,
+    ceiling: ciContainer.read(ciGateCeilingProvider),
+    note: stderr.writeln,
+  );
   final runner = CiRunner(
     configLoader: ConfigLoader(
       licenseTier: ciTier,
+      // The same fallback simulator and allow-list the app's loader applies,
+      // so a test the app refuses is a test the pipeline refuses.
+      simulatorPolicy: ciContainer.read(simulatorPolicyProvider),
       // `--allow-project-tooling`. Off unless the user typed it: a
       // project file may not choose which binary this run spawns, or
       // its environment, on its own. The interactive app takes the
@@ -569,7 +582,7 @@ Future<void> _runCiInvocation(
     telemetry: await resolveHeadlessTelemetry(ciContainer),
   );
   try {
-    final outcome = await runner.run(args: parsedArgs);
+    final outcome = await runner.run(args: ciArgs);
     exitCode = outcome.exitCode;
   } on Object catch (e) {
     // stderr, never stdout: under `--json` stdout is the results document,

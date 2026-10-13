@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/services/config/config_loader.dart';
+import 'package:simcrux/services/config/simulator_policy_provider.dart';
 
 /// The [ConfigLoader] every in-app project load goes through: a tab loads
 /// its `simcrux.yaml` via `RegressionRunner.startFromConfigPath`, which
@@ -42,6 +43,9 @@ final Provider<ConfigLoader> configLoaderProvider = Provider<ConfigLoader>(
       // `AppSettings.allowProjectDefinedTooling`.
       allowProjectDefinedTooling:
           settings.value?.allowProjectDefinedTooling ?? false,
+      // The organization's fallback simulator and allow-list. None in open
+      // core; see `simulatorPolicyProvider`.
+      simulatorPolicy: ref.watch(simulatorPolicyProvider),
     );
   },
 );

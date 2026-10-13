@@ -333,6 +333,24 @@ void main() {
       );
     });
 
+    test('--fail-threshold records whether it was typed', () {
+      // The default and a typed value equal to it read the same number; only
+      // the typed one may outrank an organization's failure ceiling.
+      final omitted = parser.parse(<String>['--ci', 'a.yaml']);
+      expect(omitted.failThreshold, 1);
+      expect(omitted.failThresholdExplicit, isFalse);
+
+      final typed = parser.parse(<String>[
+        '--ci',
+        'a.yaml',
+        '--fail-threshold',
+        '1',
+      ]);
+      expect(typed.failThreshold, 1);
+      expect(typed.failThresholdExplicit, isTrue);
+      expect(typed, isNot(omitted));
+    });
+
     test('--session is captured', () {
       final args = parser.parse(<String>['--session', 'debug.simcrux-session']);
       expect(args.sessionPath, 'debug.simcrux-session');

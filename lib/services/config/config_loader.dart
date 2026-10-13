@@ -25,6 +25,7 @@ import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/resource_lock.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
+import 'package:simcrux/domain/models/simulator_policy.dart';
 import 'package:simcrux/domain/models/suite.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/domain/models/waveform_policy.dart';
@@ -141,6 +142,7 @@ class ConfigLoader {
     bool betaPeriod = kBetaPeriod,
     bool allowProjectDefinedTooling = false,
     this.expander = const TestSpecExpander(),
+    this.simulatorPolicy = SimulatorPolicy.none,
   }) : _readFile = readFile ?? _defaultReadFile,
        _filelistExpander =
            filelistExpander ?? FilelistExpander(readFile: readFile),
@@ -215,6 +217,31 @@ class ConfigLoader {
   /// inject a counting/spy expander without subclassing the loader.
   final TestSpecExpander expander;
 
+  /// The organization's simulator policy: the fallback simulator for a test
+  /// the project file gives none, and the allow-list every test's simulator
+  /// is checked against. [SimulatorPolicy.none] in open core.
+  ///
+  /// The fallback is the last level of the simulator lookup, below the
+  /// test, its suite, and `defaults.simulator` (this file's or an including
+  /// file's), so the project file always wins. The allow-list is checked
+  /// after that lookup, against whichever id won.
+  final SimulatorPolicy simulatorPolicy;
+
+  /// The load error for a test whose simulator the organization's
+  /// allow-list does not include. Exposed so tests can assert a stable
+  /// message.
+  static String simulatorNotAllowedMessage({
+    required String testId,
+    required String simulatorId,
+    required Set<String> allowed,
+  }) {
+    final names = allowed.toList()..sort();
+    final list = names.isEmpty ? 'none' : names.join(', ');
+    return 'Test `$testId` uses simulator `$simulatorId`, which your '
+        "organization's policy (simulatorBinaryPolicy) does not allow on "
+        'this machine. Allowed simulators: $list.';
+  }
+
   /// Returns the user-suggested guidance string when a `seeds:` /
   /// `parameters:` sweep is rejected because the active license tier
   /// does not unlock parameterization. Exposed so tests can assert
@@ -258,11 +285,13 @@ class ConfigLoader {
   /// accept newer versions.
   static const String supportedSchemaVersion = '1';
 
-  // There is deliberately no default simulator id. A test that inherits no
-  // `simulator:` from `defaults:` or its suite is a load error naming the
-  // test, because a silent `icarus` would run a VHDL, cocotb or RISC-V test
-  // under an engine its author never chose and report the failure as the
-  // design's.
+  // There is deliberately no built-in default simulator id. A test that
+  // inherits no `simulator:` from `defaults:` or its suite is a load error
+  // naming the test, because a silent `icarus` would run a VHDL, cocotb or
+  // RISC-V test under an engine its author never chose and report the
+  // failure as the design's. An organization can name one
+  // ([SimulatorPolicy.fallbackSimulatorId]); that is a decision somebody
+  // made, which a compiled-in guess is not.
 
   /// Default per-test timeout when the project file does not specify
   /// one. Mirrors `RegressionRequest.defaultTimeout` so the scheduler
@@ -955,7 +984,9 @@ class ConfigLoader {
       if (testName == null || top == null) continue;
 
       final testSimulatorId =
-          _readString(testNode, ['simulator']) ?? suiteSimulatorId;
+          _readString(testNode, ['simulator']) ??
+          suiteSimulatorId ??
+          simulatorPolicy.fallbackSimulatorId;
       if (testSimulatorId == null) {
         errors.add(
           _error(
@@ -963,6 +994,25 @@ class ConfigLoader {
             node: testNode,
             message:
                 "Test `$suiteName/$testName` has no simulator (set `defaults.simulator`, the suite's `simulator:`, or the test's `simulator:`).",
+          ),
+        );
+        continue;
+      }
+      final allowedSimulators = simulatorPolicy.allowedSimulatorIds;
+      if (allowedSimulators != null &&
+          !allowedSimulators.contains(testSimulatorId)) {
+        // Fatal, not an advisory that drops the test: a dropped test is a
+        // run that reports green on fewer tests than the project declares,
+        // which under `--ci` is the silent-false-clean failure.
+        errors.add(
+          _error(
+            path: path,
+            node: testNode,
+            message: simulatorNotAllowedMessage(
+              testId: '$suiteName/$testName',
+              simulatorId: testSimulatorId,
+              allowed: allowedSimulators,
+            ),
           ),
         );
         continue;

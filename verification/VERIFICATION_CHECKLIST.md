@@ -1055,6 +1055,14 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 
 ---
 
+## Organization simulator policy and failure ceiling seams (guide §24)
+
+- [ ] A simulator outside the allow-list fails the load naming the test, its simulator and the allowed ids; `--ci` exits `2` without running — `[Coverage: UNIT]` (`config_loader_simulator_policy_test.dart`) + `[Coverage: INTEGRATION]` (`app_ci_driver_injection_test.dart`)
+- [ ] The fallback simulator applies only when the project names none at any level — `[Coverage: UNIT]` (`config_loader_simulator_policy_test.dart`)
+- [ ] A failure ceiling replaces the `--fail-threshold` default, never a typed value — `[Coverage: UNIT]` (`ci_gate_ceiling_provider_test.dart`, `cli_arg_parser_test.dart`) + `[Coverage: INTEGRATION]` (`app_ci_driver_injection_test.dart`)
+
+---
+
 ## Subsequent features
 
 ---

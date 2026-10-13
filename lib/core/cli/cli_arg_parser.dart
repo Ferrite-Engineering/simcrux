@@ -335,6 +335,7 @@ class CliArgParser {
       ciMode: ciMode,
       exportTargets: List<CliExportTarget>.unmodifiable(exportTargets),
       failThreshold: threshold,
+      failThresholdExplicit: results.wasParsed('fail-threshold'),
       sessionPath: results.option('session'),
       workspacePath: results.option('workspace'),
       importFusesoc: results.option('import-fusesoc'),

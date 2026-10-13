@@ -21,8 +21,11 @@ import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
+import 'package:simcrux/domain/models/simulator_policy.dart';
 import 'package:simcrux/domain/models/test_run.dart';
+import 'package:simcrux/services/ci/ci_gate_ceiling_provider.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
+import 'package:simcrux/services/config/simulator_policy_provider.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
@@ -297,6 +300,86 @@ void main() {
       );
     },
   );
+
+  group('organization policy seams', () {
+    test('a failure ceiling from the container replaces the default '
+        'threshold', () async {
+      final configPath = await _writeConfig();
+      final saved = io.exitCode;
+      addTearDown(() => io.exitCode = saved);
+
+      io.exitCode = 0;
+      await bootstrap(
+        args: ['--ci', configPath],
+        extraOverrides: [
+          ciGateCeilingProvider.overrideWithValue(1),
+          simulatorDriverRegistryProvider.overrideWithValue(
+            SimulatorDriverRegistry({
+              'icarus': _FixedOutcomeDriver(pass: false),
+            }),
+          ),
+        ],
+      );
+
+      expect(
+        io.exitCode,
+        0,
+        reason: 'one failure is within a ceiling of one',
+      );
+    });
+
+    test('a typed --fail-threshold wins over the ceiling', () async {
+      final configPath = await _writeConfig();
+      final saved = io.exitCode;
+      addTearDown(() => io.exitCode = saved);
+
+      io.exitCode = 0;
+      await bootstrap(
+        args: ['--ci', configPath, '--fail-threshold', '1'],
+        extraOverrides: [
+          ciGateCeilingProvider.overrideWithValue(5),
+          simulatorDriverRegistryProvider.overrideWithValue(
+            SimulatorDriverRegistry({
+              'icarus': _FixedOutcomeDriver(pass: false),
+            }),
+          ),
+        ],
+      );
+
+      expect(io.exitCode, 1, reason: 'the job asked for any failure to fail');
+    });
+
+    test(
+      'a simulator outside the allow-list is refused before running',
+      () async {
+        final configPath = await _writeConfig();
+        final saved = io.exitCode;
+        addTearDown(() => io.exitCode = saved);
+
+        io.exitCode = 0;
+        var executed = false;
+        await bootstrap(
+          args: ['--ci', configPath],
+          extraOverrides: [
+            simulatorPolicyProvider.overrideWithValue(
+              const SimulatorPolicy(allowedSimulatorIds: {'verilator'}),
+            ),
+            simulatorDriverRegistryProvider.overrideWithValue(
+              SimulatorDriverRegistry({
+                'icarus': _FixedOutcomeDriver(
+                  pass: true,
+                  onExecute: () => executed = true,
+                ),
+              }),
+            ),
+          ],
+        );
+
+        expect(io.exitCode, 2, reason: 'the project could not load');
+        expect(executed, isFalse, reason: 'the refused test never ran');
+      },
+    );
+  });
 
   group('headless invocations end the process', () {
     test(

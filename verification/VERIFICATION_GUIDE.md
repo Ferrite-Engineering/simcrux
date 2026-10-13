@@ -4301,6 +4301,66 @@ Open Core — every tier and every build.
 
 ---
 
+## 24. Organization simulator policy and failure ceiling seams
+
+### 24.1 What it does
+
+Three seams an edition that reads organization policy fills in. Open core
+resolves none of them from a policy file and behaves exactly as before.
+
+- `simulatorPolicyProvider` (`SimulatorPolicy`): a **fallback simulator**, used
+  only when a test's simulator is named nowhere in the project file (not on the
+  test, its suite, or `defaults.simulator`, its own file's or an including
+  file's), and an **allow-list** of simulator ids. A test whose simulator is not
+  on the list fails the load with a message naming the test, its simulator and
+  the allowed ids. The in-app `configLoaderProvider` and the desktop `--ci`
+  branch both read it.
+- `ciGateCeilingProvider` (`int?`): the failures a `--ci` run may have and
+  still pass. `applyCiGateCeiling` turns a ceiling of `n` into
+  `--fail-threshold n+1` **only when the flag was not typed**
+  (`CliArgs.failThresholdExplicit`), and prints one stderr line saying so.
+
+The allow-list constrains simulator ids, not which executable runs for an
+allowed id.
+
+### 24.2 Setup
+
+A project whose tests name `icarus` and `ghdl`, and an override of each seam
+(a test container, or an edition that supplies them).
+
+### 24.3 Expected behavior
+
+1. Allow-list `{icarus}`: loading the project in the app fails with the
+   `ghdl` test named; `--ci` exits `2` and runs nothing.
+2. Fallback `icarus`, project with no `defaults.simulator`: tests without a
+   simulator run on `icarus`; a test naming `ghdl` keeps `ghdl`.
+3. Ceiling `1`, one failing test, no `--fail-threshold`: `--ci` exits `0` and
+   stderr names the ceiling. Same run with `--fail-threshold 1`: exits `1`.
+
+### 24.4 Edge cases
+
+- An empty allow-list refuses every test and says `Allowed simulators: none.`
+- The fallback is never written back as the file's `defaultSimulatorId`.
+- The standalone `simcrux` binary has no provider container and applies none
+  of these.
+
+### 24.5 Tier-gate scenarios
+
+Open core: the seams default to no policy at every tier. Which tier unlocks
+the organization values is the supplying edition's decision.
+
+### 24.6 Automation Assessment
+
+| Test | Coverage | File |
+|---|---|---|
+| Fallback precedence (test, suite, defaults, including file) and allow-list refusal, fatal, sorted message | `[Coverage: UNIT]` | `test/services/config/config_loader_simulator_policy_test.dart` |
+| The in-app loader carries the overriding policy | `[Coverage: UNIT]` | `test/services/config/simulator_policy_provider_test.dart` |
+| Ceiling to threshold mapping; a typed flag wins | `[Coverage: UNIT]` | `test/services/ci/ci_gate_ceiling_provider_test.dart` |
+| `--fail-threshold` records whether it was typed | `[Coverage: UNIT]` | `test/core/cli/cli_arg_parser_test.dart` |
+| `--ci` reads both seams from `extraOverrides` | `[Coverage: INTEGRATION]` | `test/app_ci_driver_injection_test.dart` |
+
+---
+
 ## 9+. Subsequent features
 
 Add a new top-level section in the same commit set that ships the feature.

@@ -20,13 +20,17 @@ abstract final class SimCruxPolicyKeys {
   /// The product id this namespace lives under.
   static const String productId = 'simcrux';
 
-  /// `products.simcrux.defaultSimulator` — the simulator a new project starts on.
+  /// `products.simcrux.defaultSimulator` — the simulator a test runs on when
+  /// the project file names none at any level. The project file always wins.
   static const String defaultSimulator = 'defaultSimulator';
 
-  /// `products.simcrux.simulatorBinaryPolicy` — which simulator binaries may be invoked.
+  /// `products.simcrux.simulatorBinaryPolicy` — which simulators a fleet may
+  /// use: an allow-list of simulator ids. It does not pin which executable
+  /// runs for an allowed id.
   static const String simulatorBinaryPolicy = 'simulatorBinaryPolicy';
 
-  /// `products.simcrux.ciGateThreshold` — the failure count a CI run may not exceed.
+  /// `products.simcrux.ciGateThreshold` — the failure count a CI run may not
+  /// exceed, when the job does not pass `--fail-threshold`.
   static const String ciGateThreshold = 'ciGateThreshold';
 
   /// `products.simcrux.retentionPolicy` — how long results are kept, by status.

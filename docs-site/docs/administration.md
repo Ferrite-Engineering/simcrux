@@ -22,26 +22,69 @@ All under `products.simcrux`.
 | `retentionPolicy` | How long local results are kept, by age and by count. [Below.](#retention) | In force |
 | `teamDatabaseSubmitter` | Who runs written by the app are attributed to in the shared results database. [Team results database](team-database.md#submitter). | In force |
 | `distributedExecutionBackend` | The templated job-submission backend for `--ci` runs. [Below.](#distributed) | In force for `--ci` |
-| `defaultSimulator` | Intended as the simulator a new project starts on. | **Reserved** — nothing reads it |
-| `simulatorBinaryPolicy` | Intended to govern which simulator binaries may be invoked. | **Reserved** — **it locks nothing today** |
-| `ciGateThreshold` | Intended as the org-wide ceiling on test failures. | **Reserved** — nothing reads it |
+| `defaultSimulator` | The simulator a test runs on when the project file names none. [Below.](#simulators) | In force |
+| `simulatorBinaryPolicy` | Which simulators a fleet may use, as a list of simulator ids. [Below.](#simulators) | In force when locked |
+| `ciGateThreshold` | The number of failed tests a `--ci` run may have and still pass. [Below.](#ci-ceiling) | In force for `--ci` |
 
-!!! note "What Reserved means, precisely"
-    The schema knows the key, `crux-policy lint` validates it, and SimCrux parses
-    it without complaint. **Nothing consumes it, so writing it changes no
-    behaviour.** A reserved key and a working key look identical in a file that
-    lints clean and deploys without error — which is exactly why they are named
-    here.
+`products.simcrux.ciGateThreshold` is separate from LintCrux's key of the same
+name: they threshold different quantities, test failures against violations.
 
-    `simulatorBinaryPolicy` is the one to read twice. It is spelled like a
-    restriction, and **it restricts nothing**. If you need to constrain which
-    simulator binaries a fleet may invoke, do not deploy this key and assume you
-    have. [Tell us](mailto:support@ferriteengineering.com) instead.
+## Simulators {#simulators}
 
-    `products.simcrux.ciGateThreshold` is separate from LintCrux's key of the
-    same name — they threshold different quantities, test failures against
-    violations.
-    [LintCrux's is the one that is wired.](https://docs.lintcrux.app/administration#ci-gate)
+Two keys decide which simulator a test runs on.
+
+```json
+"products": {
+  "simcrux": {
+    "defaultSimulator": "verilator",
+    "simulatorBinaryPolicy": {
+      "value": ["icarus", "verilator"],
+      "locked": true
+    }
+  }
+}
+```
+
+**`defaultSimulator`** is the simulator for a test that names none anywhere in
+the project file: not on the test, not on its suite, and not in
+`defaults.simulator`, whether in the file itself or in a file that includes it.
+**The project file always wins**, locked or not; the policy value fills a gap
+and never replaces a simulator somebody wrote. Without it, a test with no
+simulator is a load error naming the test, as it always was.
+
+**`simulatorBinaryPolicy` is which simulators a fleet may use.** Its value is a
+list of simulator ids, the same ids a project file's `simulator:` takes
+(`icarus`, `verilator`, `ghdl`, `cocotb`, and any a plugin registers). When it
+is locked, a project with a test whose simulator is not on the list does not
+load, in the app or under `--ci`, and the message names the test, its simulator
+and the allowed ids:
+
+```text
+Test `unit/alu_vhdl` uses simulator `ghdl`, which your organization's policy
+(simulatorBinaryPolicy) does not allow on this machine. Allowed simulators:
+icarus, verilator.
+```
+
+Things worth knowing before you deploy it:
+
+- **Write it locked.** An unlocked list is not enforced: the project file is
+  the engineer's choice and a list that yields to it restricts nothing. SimCrux
+  logs a warning when it meets one.
+- **It does not pin binaries.** It decides which simulator *ids* may run, not
+  which executable runs for an allowed id. That is still the engineer's
+  Settings > Simulators path, or a project file's `simulators:` block when the
+  engineer has allowed project-defined tooling. If you need to fix the
+  executable itself, [tell us](mailto:support@ferriteengineering.com).
+- **A refused test fails the load rather than being skipped.** A skipped test
+  would let a `--ci` run report green on fewer tests than the project declares.
+- **The fallback is checked too.** A `defaultSimulator` that is not on a locked
+  list is refused like any other.
+- **An empty locked list allows nothing.** A list SimCrux cannot read (a string
+  instead of a list, an entry that is not an id) is refused with a logged error
+  and restricts nothing, so check the job log after a rollout.
+- **On a build whose licence does not include these keys**, none of them is
+  applied, and SimCrux logs that rather than silently doing nothing. The same
+  holds for `ciGateThreshold` below.
 
 ## Result retention {#retention}
 
@@ -269,6 +312,29 @@ queries against them:
   inherit that gate.
 - **Events carry the target, never the credential or a file path** — an audit
   log is precisely the file somebody attaches to a support ticket.
+
+## The CI failure ceiling {#ci-ceiling}
+
+```json
+"products": {
+  "simcrux": {
+    "ciGateThreshold": 0
+  }
+}
+```
+
+`ciGateThreshold` is the number of failed tests a `--ci` run of the SimCrux
+desktop app may have and still pass. `0` means any failure fails the run, which
+is also what happens with no key at all.
+
+**A `--fail-threshold` typed on the command line wins**, locked or not. The
+policy value replaces the flag's default for every job that does not pass the
+flag, and SimCrux prints one line on stderr saying the organization's ceiling
+is in force, so a red build the pipeline did not configure explains itself.
+The flag counts differently: `--fail-threshold n` fails at `n` failures, so a
+ceiling of `2` behaves like `--fail-threshold 3`.
+
+The standalone `simcrux` binary does not read this key.
 
 ## CI gating {#ci}
 

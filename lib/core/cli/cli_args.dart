@@ -77,6 +77,7 @@ class CliArgs {
     this.ciMode = false,
     this.exportTargets = const <CliExportTarget>[],
     this.failThreshold = 1,
+    this.failThresholdExplicit = false,
     this.sessionPath,
     this.workspacePath,
     this.subcommand,
@@ -133,6 +134,15 @@ class CliArgs {
   /// failure aborts the build, which matches the default expectation
   /// for a "did the regression pass" CI gate.
   final int failThreshold;
+
+  /// Whether `--fail-threshold` was typed on the command line, as opposed
+  /// to [failThreshold] holding the flag's default.
+  ///
+  /// The two read the same number and mean different things: an
+  /// organization's `ciGateThreshold` replaces the default but never a value
+  /// the pipeline asked for. Without this bit a typed `--fail-threshold 1`
+  /// and no flag at all were indistinguishable.
+  final bool failThresholdExplicit;
 
   /// `--session <path>`. When set, the desktop bootstrap opens one more
   /// tab whose config path is `<path>` (`CliRegressionBootstrapper`). No
@@ -251,6 +261,7 @@ class CliArgs {
     bool? ciMode,
     List<CliExportTarget>? exportTargets,
     int? failThreshold,
+    bool? failThresholdExplicit,
     String? sessionPath,
     String? workspacePath,
     String? subcommand,
@@ -270,6 +281,8 @@ class CliArgs {
       ciMode: ciMode ?? this.ciMode,
       exportTargets: exportTargets ?? this.exportTargets,
       failThreshold: failThreshold ?? this.failThreshold,
+      failThresholdExplicit:
+          failThresholdExplicit ?? this.failThresholdExplicit,
       sessionPath: sessionPath ?? this.sessionPath,
       workspacePath: workspacePath ?? this.workspacePath,
       subcommand: subcommand ?? this.subcommand,
@@ -292,6 +305,7 @@ class CliArgs {
     if (other.jsonOutput != jsonOutput) return false;
     if (other.ciMode != ciMode) return false;
     if (other.failThreshold != failThreshold) return false;
+    if (other.failThresholdExplicit != failThresholdExplicit) return false;
     if (other.sessionPath != sessionPath) return false;
     if (other.workspacePath != workspacePath) return false;
     if (other.subcommand != subcommand) return false;
@@ -325,6 +339,7 @@ class CliArgs {
     ciMode,
     Object.hashAll(exportTargets),
     failThreshold,
+    failThresholdExplicit,
     sessionPath,
     workspacePath,
     subcommand,
