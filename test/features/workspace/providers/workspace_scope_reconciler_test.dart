@@ -89,6 +89,15 @@ void main() {
 
     test('closing a pane disposes its container', () async {
       final notifier = root.read(workspaceProvider.notifier);
+      // Two tabs: the package no-ops a split that would leave a side empty.
+      await notifier.openTab(
+        displayName: 'cpu.yaml',
+        payload: SimcruxTabPayload(configPath: '/p/cpu.yaml'),
+      );
+      await notifier.openTab(
+        displayName: 'mem.yaml',
+        payload: SimcruxTabPayload(configPath: '/p/mem.yaml'),
+      );
       final paneId = await notifier.splitPaneRight();
       panes.containerFor(paneId);
       expect(panes.hasContainerFor(paneId), isTrue);

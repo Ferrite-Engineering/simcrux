@@ -485,6 +485,19 @@ void main() {
       final notifier = container.read(workspaceProvider.notifier);
       await container.read(workspaceProvider.future);
 
+      // With a single tab the package no-ops the split, and the counter must
+      // not tick on the click.
+      await notifier.openTab(
+        displayName: 'a',
+        payload: SimcruxTabPayload(configPath: '/proj/a.yaml'),
+      );
+      await notifier.splitPaneRight();
+      expect(telemetry.named('pane.split'), isEmpty);
+
+      await notifier.openTab(
+        displayName: 'b',
+        payload: SimcruxTabPayload(configPath: '/proj/b.yaml'),
+      );
       final paneId = await notifier.splitPaneRight();
       expect(telemetry.named('pane.split'), hasLength(1));
       expectMatchesCatalog(telemetry.named('pane.split').single);

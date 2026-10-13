@@ -746,11 +746,18 @@ void main() {
       tester,
     ) async {
       final harness = await pumpHarness(tester);
+      // Two tabs: the package no-ops a split that would leave a side empty.
       await harness.scoped
           .read(workspaceProvider.notifier)
           .openTab(
             displayName: 'simcrux.yaml',
             payload: SimcruxTabPayload(configPath: '/proj/simcrux.yaml'),
+          );
+      await harness.scoped
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'mem.yaml',
+            payload: SimcruxTabPayload(configPath: '/proj/mem.yaml'),
           );
       await tester.pumpAndSettle();
 

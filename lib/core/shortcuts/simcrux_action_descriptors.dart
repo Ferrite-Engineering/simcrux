@@ -172,9 +172,13 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   ),
 
   // ── Pane management ───────────────────────────────────────────────
+  // Enabled on the same rule as `Workspace.canSplitPaneRight`: one pane,
+  // and at least two tabs in it, so each side of the split gets one. The
+  // package no-ops a split with a single tab, and an enabled item whose
+  // click does nothing reads as a bug.
   SimcruxAction.splitPaneRight => const SimcruxActionDescriptor(
     surfaces: _menuPalette,
-    isEnabled: _requiresTabSinglePane,
+    isEnabled: _canSplitPaneRight,
   ),
   SimcruxAction.closePane ||
   SimcruxAction.focusOtherPane => const SimcruxActionDescriptor(
@@ -255,7 +259,7 @@ bool _canStartRun(SimcruxActionContext c) => c.hasConfig && !c.runInProgress;
 bool _canReRunSelected(SimcruxActionContext c) =>
     c.hasSelectedTest && !c.runInProgress;
 bool _requiresMultiPane(SimcruxActionContext c) => c.paneCount >= 2;
-bool _requiresTabSinglePane(SimcruxActionContext c) =>
-    c.hasOpenTab && c.paneCount == 1;
+bool _canSplitPaneRight(SimcruxActionContext c) =>
+    c.hasOpenTab && c.paneCount == 1 && c.tabCountInActivePane >= 2;
 bool _requiresTabMultiPane(SimcruxActionContext c) =>
     c.hasOpenTab && c.paneCount >= 2;

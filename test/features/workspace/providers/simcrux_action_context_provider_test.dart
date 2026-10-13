@@ -169,5 +169,34 @@ void main() {
       expect(isActionEnabled(SimcruxAction.runRegression, running), isFalse);
       expect(isActionEnabled(SimcruxAction.cancelRegression, running), isTrue);
     });
+
+    test(
+      'splitPaneRight needs two tabs in the one pane, as the package does',
+      () {
+        // `Workspace.canSplitPaneRight`: a split with a single tab is a no-op in
+        // crux_workspace, so the action is disabled rather than inert.
+        const oneTab = SimcruxActionContext(
+          hasOpenTab: true,
+          tabCountInActivePane: 1,
+        );
+        expect(isActionEnabled(SimcruxAction.splitPaneRight, oneTab), isFalse);
+
+        const twoTabs = SimcruxActionContext(
+          hasOpenTab: true,
+          tabCountInActivePane: 2,
+        );
+        expect(isActionEnabled(SimcruxAction.splitPaneRight, twoTabs), isTrue);
+
+        const alreadySplit = SimcruxActionContext(
+          hasOpenTab: true,
+          paneCount: 2,
+          tabCountInActivePane: 2,
+        );
+        expect(
+          isActionEnabled(SimcruxAction.splitPaneRight, alreadySplit),
+          isFalse,
+        );
+      },
+    );
   });
 }
