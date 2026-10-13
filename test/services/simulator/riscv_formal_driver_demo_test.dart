@@ -684,57 +684,67 @@ void main() {
         .map((f) => f.path)
         .toList();
 
-    test('a trace name that escapes is refused, not staged', () async {
-      // Two escapes and one honest trace. The honest one must still be
-      // staged — refusing everything would be a fix that also removes the
-      // feature.
-      final escapedSource = File(p.join(corpusRoot.path, 'escaped.vcd'))
-        ..writeAsStringSync('outside the case');
-      final absoluteSource = File(p.join(runRoot.path, 'absolute.vcd'))
-        ..writeAsStringSync('outside the task directory');
-      final caseDir = corpusCase('escape', <String, Object?>{
+    /// Runs a case whose `case.json` names [escaping] beside an in-case
+    /// trace, with a passing log, and checks the whole case is refused.
+    Future<void> expectRefused(String caseName, String escaping) async {
+      final caseDir = corpusCase(caseName, <String, Object?>{
         'log': 'sby.log',
-        'traces': <String>[
-          '../escaped.vcd',
-          absoluteSource.path,
-          'engine_0/trace.vcd',
-        ],
+        'traces': <String>['engine_0/trace.vcd', escaping],
         'exit_code': 0,
       });
       File(p.join(caseDir.path, 'engine_0', 'trace.vcd'))
         ..createSync(recursive: true)
-        ..writeAsStringSync('honest');
+        ..writeAsStringSync('in the case');
 
-      final events = await runWithEvents(specFor('escape'));
+      final events = await runWithEvents(specFor(caseName));
       final lines = events.whereType<TestLog>().map((e) => e.line).toList();
+      final result = events.whereType<TestFinished>().single.result;
+
+      expect(
+        result.status,
+        TestStatus.fail,
+        reason: 'a passing log beside an escaping entry must not pass',
+      );
+      expect(result.failureMessage, contains('demo case refused'));
+      expect(result.failureMessage, contains('"$escaping"'));
+      expect(
+        filesNamed(runRoot, 'trace.vcd'),
+        isEmpty,
+        reason: 'a refused case stages nothing, not even its in-case traces',
+      );
+      expect(
+        lines.any((l) => l.contains(SbyLogReader.kPassMarker)),
+        isFalse,
+        reason: 'a refused case does not replay its log',
+      );
+    }
+
+    test('a ../ trace entry refuses the case and copies nothing', () async {
+      final source = File(p.join(corpusRoot.path, 'escaped.vcd'))
+        ..writeAsStringSync('outside the case');
+
+      await expectRefused('escape_up', '../escaped.vcd');
 
       expect(
         filesNamed(runRoot, 'escaped.vcd'),
         isEmpty,
         reason: '`../escaped.vcd` must not be written next to the task dir',
       );
-      expect(
-        absoluteSource.readAsStringSync(),
-        'outside the task directory',
-        reason: 'an absolute trace must not be written back over itself',
-      );
-      expect(escapedSource.readAsStringSync(), 'outside the case');
-      expect(
-        filesNamed(runRoot, 'trace.vcd'),
-        hasLength(1),
-        reason: 'the honest trace inside the case is still staged',
-      );
-      expect(
-        lines.where((l) => l.contains('refused to stage demo trace')),
-        hasLength(2),
-      );
-      expect(
-        lines.any(
-          (l) => l.contains('refused to stage demo trace "../escaped.vcd"'),
-        ),
-        isTrue,
-      );
+      expect(source.readAsStringSync(), 'outside the case');
     });
+
+    test(
+      'an absolute trace entry refuses the case and copies nothing',
+      () async {
+        final source = File(p.join(corpusRoot.path, 'absolute.vcd'))
+          ..writeAsStringSync('outside the task directory');
+
+        await expectRefused('escape_abs', source.path);
+
+        expect(filesNamed(runRoot, 'absolute.vcd'), isEmpty);
+        expect(source.readAsStringSync(), 'outside the task directory');
+      },
+    );
 
     test('a log name that escapes reads nothing', () async {
       // The same string in the `log` slot would have streamed any file on the

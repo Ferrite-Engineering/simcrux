@@ -3404,6 +3404,11 @@ field exists or is needed.**
 14. **A passing run's path is archived or dropped, never left dangling.**
     That is the scheduler's existing rule and the driver does not
     special-case it.
+14a. **A demo case whose `case.json` trace entry escapes is refused.** An
+    entry with a `../` segment or an absolute path would copy a file outside
+    the task directory. The whole case fails before anything is staged or
+    replayed, with a failure message naming the entry, even when a passing
+    `sby.log` sits beside it. (Coverage: automated)
 
 #### Metrics
 
@@ -3489,6 +3494,7 @@ on them.
 | No subprocess is spawned in demo mode | **Yes** | same file (launcher throws if called) |
 | The counterexample VCD reaches `TestResult.waveformPath`, absolute and existing | **Yes** | same file |
 | The VCD survives the scheduler's cleanup on a failing proof | **Yes** | same file |
+| A `../` or absolute `case.json` trace entry refuses the demo case; nothing is copied | **Yes** | same file |
 | A non-`PASS` verdict never reports exit code 0 (default-detector trap) | **Yes** | same file, and `test/services/simulator/riscv_formal_driver_normal_test.dart` |
 | `sby -f -d <task_dir> <sby_file>` argv, including a `task` | **Yes** | `test/services/simulator/riscv_formal_driver_normal_test.dart` |
 | `sby` is spawned in the **checks** directory, not the work directory | **Yes** | same file |

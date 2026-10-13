@@ -445,6 +445,21 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
       );
     } else {
       final manifest = await _demoManifest(caseDir);
+      // Checked before anything is staged or replayed: a manifest that
+      // names a trace outside its directories is refused as a whole, so a
+      // passing log beside it cannot turn the case green.
+      final traceProblem = _demoTraceProblem(manifest, caseDir, taskDir);
+      if (traceProblem != null) {
+        controller.add(
+          TestLogLine(
+            line: traceProblem,
+            fromStderr: true,
+            timestamp: DateTime.now().toUtc(),
+          ),
+        );
+        await _failBeforeRunning(controller, startedAt, traceProblem);
+        return;
+      }
       script = SbyScript(
         proofMode: manifest.proofMode,
         depth: manifest.depth,
@@ -866,13 +881,37 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     return p.isWithin(p.normalize(p.absolute(root)), path) ? path : null;
   }
 
+  /// Why the case must be refused, or null when every trace entry in
+  /// [manifest] reads from inside [caseDir] and writes inside
+  /// [taskDirectory].
+  ///
+  /// The manifest names the files, and the manifest is not trusted to name
+  /// where they go: a `../` entry or an absolute path would copy a file to
+  /// somewhere SimCrux never created. The reason names the first such entry.
+  String? _demoTraceProblem(
+    _DemoCase manifest,
+    String caseDir,
+    String taskDirectory,
+  ) {
+    for (final relative in manifest.traces) {
+      if (_containedPath(caseDir, relative) != null &&
+          _containedPath(taskDirectory, relative) != null) {
+        continue;
+      }
+      return 'riscv_formal: demo case refused: case.json trace entry '
+          '"$relative" resolves outside the case directory $caseDir or the '
+          'task directory $taskDirectory. Trace entries must be relative '
+          'paths inside the case, e.g. `engine_0/trace.vcd`.';
+    }
+    return null;
+  }
+
   /// Copies the case's committed trace files into the task directory, so
   /// the same resolution the real path performs finds the same files.
   ///
-  /// A trace name that would read outside the case directory or write outside
-  /// the task directory is refused and reported on stderr, never staged: the
-  /// manifest names the files, and the manifest is not trusted to name where
-  /// they go.
+  /// [_demoTraceProblem] has already refused any case whose trace entries
+  /// escape; the containment check here is a second layer and skips
+  /// silently.
   Future<void> _stageDemoTraces(
     _DemoCase manifest,
     String caseDir,
@@ -882,18 +921,7 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     for (final relative in manifest.traces) {
       final fromPath = _containedPath(caseDir, relative);
       final toPath = _containedPath(taskDirectory, relative);
-      if (fromPath == null || toPath == null) {
-        controller.add(
-          TestLogLine(
-            line:
-                'riscv_formal: refused to stage demo trace "$relative": the '
-                'name resolves outside the case or task directory.',
-            fromStderr: true,
-            timestamp: DateTime.now().toUtc(),
-          ),
-        );
-        continue;
-      }
+      if (fromPath == null || toPath == null) continue;
       final from = File(fromPath);
       if (!from.existsSync()) continue;
       try {

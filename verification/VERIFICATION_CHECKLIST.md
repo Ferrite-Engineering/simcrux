@@ -747,6 +747,7 @@ Tests: `test/domain/models/sby_outcome_test.dart`,
 - [ ] **The counterexample VCD reaches `TestResult.waveformPath`** — absolute, existing, and on the field the CXP producer already consumes; no new result field — `[Coverage: AUTOMATED]`
 - [ ] **The VCD survives on disk** because the scheduler sweeps only *successful* work dirs — `[Coverage: AUTOMATED]`
 - [ ] An announced trace that is not on disk is reported as unresolved rather than recorded as a dangling path — `[Coverage: AUTOMATED]`
+- [ ] In demo mode, a `case.json` trace entry with `../` or an absolute path **refuses the case** (fail, message names the entry) and copies nothing — `[Coverage: AUTOMATED]`
 - [ ] Per-property metrics reach `TestResult`: verdict, proof mode, depth configured **and** depth reached, wall time with its source, engine, trace count — `[Coverage: AUTOMATED]`
 - [ ] `riscv.formal.group` is what the Pro check-set coverage rollup groups on; an explicit `group:` wins over the derived one — `[Coverage: AUTOMATED]`
 - [ ] `sby` is spawned in the **checks** directory, with `-d` pointed at the work directory — `[Coverage: AUTOMATED]`
