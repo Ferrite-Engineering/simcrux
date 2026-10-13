@@ -665,6 +665,9 @@ class SimcruxActionHandlers {
       confirmLabel: l10n.closeAllTabsConfirmConfirm,
     );
     if (!confirmed) return;
+    // The dialog is modal and the window can close behind it; a dead `ref`
+    // throws on its first read, and there is nothing left to close anyway.
+    if (!context.mounted) return;
 
     final ws = ref.read(workspaceProvider).value;
     if (ws == null) return;
@@ -694,9 +697,12 @@ class SimcruxActionHandlers {
     if (result == null || result.files.isEmpty) return;
     final path = result.files.single.path;
     if (path == null) return;
+    // The picker is modal and the window can close behind it; a dead `ref`
+    // throws on its first read, so there is nothing to open into.
+    if (!context.mounted) return;
     await openConfigAsTab(
       ref: ref,
-      context: context.mounted ? context : null,
+      context: context,
       rawPath: path,
       source: 'yaml',
     );
@@ -709,6 +715,11 @@ class SimcruxActionHandlers {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    // The container, not `ref`, past the awaits below: the picker, the
+    // import and the write outlive a widget the user may have closed, and a
+    // dead `ref` throws on its first read. The container is the one `ref`
+    // reads from, and it outlives the widget.
+    final root = ProviderScope.containerOf(context, listen: false);
     final FilePickerResult? result;
     try {
       result = await FilePicker.pickFiles(
@@ -734,7 +745,7 @@ class SimcruxActionHandlers {
       // Whether this path is already open decides how the tab is
       // refreshed below — check before the write, not after.
       final wasAlreadyOpen =
-          ref
+          root
               .read(workspaceProvider)
               .value
               ?.tabs
@@ -742,14 +753,14 @@ class SimcruxActionHandlers {
           false;
       await File(outPath).writeAsString(imported.simcruxYaml);
       unawaited(
-        ref.read(appSettingsProvider.notifier).addRecentProject(outPath),
+        root.read(appSettingsProvider.notifier).addRecentProject(outPath),
       );
       // Inside the try, after the write: an import that threw produced no
       // project to open, and counting it would answer "how often is the
       // importer reached" rather than "does the FuseSoC importer earn its
       // maintenance".
-      ref.read(telemetryServiceProvider).record(projectOpenedEvent('fusesoc'));
-      await ref
+      root.read(telemetryServiceProvider).record(projectOpenedEvent('fusesoc'));
+      await root
           .read(workspaceProvider.notifier)
           .openTab(
             displayName: p.basename(outPath),
@@ -762,7 +773,7 @@ class SimcruxActionHandlers {
         // `activeConfigProvider` is still null. The file underneath was
         // just rewritten, so re-read it explicitly. Without this, a second
         // import of the same core looks like it did nothing at all.
-        _activeTabContainer(ref)
+        _activeTabContainerIn(root)
             ?.read(regressionRunnerProvider.notifier)
             .startFromConfigPath(outPath)
             .ignore();
@@ -790,11 +801,17 @@ class SimcruxActionHandlers {
   /// providers (`regressionRunnerProvider`, `activeConfigProvider`, …)
   /// are per-tab overrides, so reading them from the root container
   /// would hit a different instance with no loaded config.
-  static ProviderContainer? _activeTabContainer(WidgetRef ref) {
-    final id = ref.read(workspaceProvider).value?.activeTabId;
+  ///
+  /// Takes [root], the container a handler's `ref` reads from, because the
+  /// one caller is past its awaits and holds that rather than the `ref`.
+  static ProviderContainer? _activeTabContainerIn(ProviderContainer root) {
+    final id = root.read(workspaceProvider).value?.activeTabId;
     if (id == null) return null;
     try {
-      return ref.read(workspaceContainerManagersProvider).tabs.containerFor(id);
+      return root
+          .read(workspaceContainerManagersProvider)
+          .tabs
+          .containerFor(id);
     } on Object {
       // Not bound — headless tests, pre-hydration startup.
       return null;
@@ -833,6 +850,9 @@ class SimcruxActionHandlers {
     WidgetRef ref,
     RiscvImportKind kind,
   ) async {
+    // The container, not `ref`, past the pickers: see
+    // [_importFusesocFromPicker].
+    final root = ProviderScope.containerOf(context, listen: false);
     final String? sourceDir;
     try {
       sourceDir = await FilePicker.getDirectoryPath();
@@ -886,14 +906,14 @@ class SimcruxActionHandlers {
     try {
       await File(outPath).writeAsString(imported.simcruxYaml);
       unawaited(
-        ref.read(appSettingsProvider.notifier).addRecentProject(outPath),
+        root.read(appSettingsProvider.notifier).addRecentProject(outPath),
       );
       // One token for both RISC-V importers. Which of the two the user reached
       // for is a question the telemetry does not ask, and splitting it would put
       // two near-identical rows on a dashboard for no decision either would
       // change.
-      ref.read(telemetryServiceProvider).record(projectOpenedEvent('riscv'));
-      await ref
+      root.read(telemetryServiceProvider).record(projectOpenedEvent('riscv'));
+      await root
           .read(workspaceProvider.notifier)
           .openTab(
             displayName: p.basename(outPath),
@@ -973,8 +993,12 @@ class SimcruxActionHandlers {
   /// The reap is best-effort by construction — see
   /// [AppExitCoordinator.kDefaultShutdownGrace].
   static Future<void> _quit(WidgetRef ref) async {
+    // Read before the drain: it waits up to the shutdown grace, and the
+    // widget whose `ref` this is can be dead by then, which would throw here
+    // and never exit.
+    final exit = ref.read(processExitProvider);
     await ref.read(appExitCoordinatorProvider).shutdown();
-    ref.read(processExitProvider)(0);
+    exit(0);
   }
 
   /// Shows a plain informational snackbar (e.g. "No recent projects.").

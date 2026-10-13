@@ -113,8 +113,12 @@ class _BetaExpiryGateState extends ConsumerState<BetaExpiryGate>
   /// injectable seam, so a widget test can assert the quit without killing the
   /// test runner.
   Future<void> _quit() async {
+    // Read before the drain: it waits up to the shutdown grace, and this
+    // widget's `ref` can be dead by then, which would throw here and never
+    // exit.
+    final exit = ref.read(processExitProvider);
     await ref.read(appExitCoordinatorProvider).shutdown();
-    ref.read(processExitProvider)(0);
+    exit(0);
   }
 
   @override

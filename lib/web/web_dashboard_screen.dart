@@ -29,6 +29,9 @@ import 'package:simcrux/web/web_status_chip.dart';
 /// rather than replacing the currently-shown results.
 Future<void> openWebResultsFile(BuildContext context, WidgetRef ref) async {
   final l10n = L10N.of(context);
+  // Read before the picker: it is modal and the screen can be gone when it
+  // returns, and a dead `ref` throws. The notifier outlives the widget.
+  final opened = ref.read(webOpenedDocumentProvider.notifier);
   FilePickerResult? result;
   try {
     result = await FilePicker.pickFiles(
@@ -46,7 +49,7 @@ Future<void> openWebResultsFile(BuildContext context, WidgetRef ref) async {
     // platform (on web there is no filesystem path to stream from).
     final bytes = await result.files.single.readAsBytes();
     final doc = WebResultsDocument.decode(utf8.decode(bytes));
-    ref.read(webOpenedDocumentProvider.notifier).set(doc);
+    opened.set(doc);
   } on Object catch (e) {
     if (!context.mounted) return;
     showCruxErrorSnack(context, l10n.webDashboardOpenFileFailed('$e'));

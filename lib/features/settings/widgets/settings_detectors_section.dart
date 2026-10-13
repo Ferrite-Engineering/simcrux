@@ -86,6 +86,10 @@ class SettingsDetectorsSection extends ConsumerWidget {
     String? initialName,
     DetectorSpec? initial,
   }) {
+    // Read now, not in the commit callback: the dialog outlives this
+    // section's widget when the user leaves the settings page behind it,
+    // and a dead `ref` would throw between the remove and the put.
+    final settings = ref.read(appSettingsProvider.notifier);
     unawaited(
       showDialog<void>(
         context: context,
@@ -109,13 +113,9 @@ class SettingsDetectorsSection extends ConsumerWidget {
           onCommit: (name, spec) async {
             // If renaming, drop the old entry first.
             if (initialName != null && initialName != name) {
-              await ref
-                  .read(appSettingsProvider.notifier)
-                  .removeReusableDetector(initialName);
+              await settings.removeReusableDetector(initialName);
             }
-            await ref
-                .read(appSettingsProvider.notifier)
-                .putReusableDetector(name, spec);
+            await settings.putReusableDetector(name, spec);
           },
         ),
       ),

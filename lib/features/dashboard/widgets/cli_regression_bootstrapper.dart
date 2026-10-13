@@ -170,28 +170,35 @@ class _CliRegressionBootstrapperState
 
   /// Opens a file macOS delivered, by the route its command-line spelling
   /// takes.
-  Future<void> _openIncoming(String path) async {
-    if (!mounted) return;
+  ///
+  /// Not `async`: every `ref` read here happens before the first await, so
+  /// the widget is known to be mounted when it is used.
+  Future<void> _openIncoming(String path) {
+    if (!mounted) return Future<void>.value();
     if (p.extension(path).toLowerCase() == kSimcruxWorkspaceExtension) {
       // `--workspace <path>`.
-      try {
-        await ref.read(workspaceProvider.notifier).loadFrom(path);
-      } on Object catch (error) {
-        // As for `--workspace`: the workspace keeps what it had. Logged
-        // rather than dropped, so an issue report says why nothing opened.
-        _log.warning('Could not open the workspace $path: $error');
-      }
-      return;
+      return _loadWorkspace(path);
     }
     // A positional path: a `simcrux.yaml`, a `.crux-project` manifest or a
     // `.simcrux-session`, told apart by `openConfigAsTab` itself.
-    await openConfigAsTab(
+    return openConfigAsTab(
       ref: ref,
-      context: mounted ? context : null,
+      context: context,
       rawPath: path,
       source: 'cli',
       addToRecents: false,
     );
+  }
+
+  Future<void> _loadWorkspace(String path) async {
+    final workspace = ref.read(workspaceProvider.notifier);
+    try {
+      await workspace.loadFrom(path);
+    } on Object catch (error) {
+      // As for `--workspace`: the workspace keeps what it had. Logged
+      // rather than dropped, so an issue report says why nothing opened.
+      _log.warning('Could not open the workspace $path: $error');
+    }
   }
 
   @override
