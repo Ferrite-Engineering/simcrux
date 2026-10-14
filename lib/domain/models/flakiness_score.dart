@@ -144,14 +144,21 @@ class FlakinessScore {
 /// thresholds the engine uses to map score → classification are
 /// configurable via [FlakinessConfig].
 enum FlakyClassification {
-  /// Either no runs in the window or the entire window passed.
+  /// Either no runs in the window or the entire window passed, or a
+  /// failing stretch that has cleared: exactly one flip, from fail to
+  /// pass, so the newest runs pass.
   ///
-  /// `failRuns == 0` and `statusFlips == 0`.
+  /// `failRuns == 0` and `statusFlips == 0`, or `statusFlips == 1` with
+  /// the newest runs passing.
   stable,
 
-  /// Every run in the window failed. Not flaky — broken.
+  /// Every run in the window failed, or a clean pass-to-fail step:
+  /// exactly one flip, older runs passing and the newest runs failing.
+  /// Not flaky — broken, a regression.
   ///
-  /// `failRuns == passingDenominator` and `statusFlips == 0`.
+  /// `failRuns == passingDenominator` and `statusFlips == 0`, or
+  /// `statusFlips == 1` with the newest runs failing. Two or more flips
+  /// fall back to recency-weighted scoring.
   consistentlyFailing,
 
   /// Score below the flaky threshold but with at least one flip in

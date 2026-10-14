@@ -60,11 +60,16 @@ break.
 
 | Classification | When | Row chip |
 |---|---|---|
-| Stable | No failures in the window | — |
+| Stable | No failures in the window, or a failing stretch that has since cleared and stayed clear | — |
 | Intermittent | Failures and at least one flip, score below 0.05 | — |
 | Flaky | Score 0.05 or higher | **FLAKY** |
 | Highly flaky | Score 0.40 or higher | **HIGHLY FLAKY** |
-| Consistently failing | Every run in the window failed | **BROKEN** |
+| Consistently failing | Every run in the window failed, or a clean step from passing to failing that has stayed failing | **BROKEN** |
+
+A test that passed and then began failing, with a single pass-to-fail step and
+no flipping back, is reported as **BROKEN** (a regression), not as flaky. Only
+pass and fail runs count towards flips; skipped and cancelled runs are ignored.
+With two or more flips the score above decides.
 
 - **Flaky Tests panel** — **Tools → Show Flaky Tests…** lists every scored test,
   highest score first; expand a row for its **Score**, **Pass / Fail** counts,

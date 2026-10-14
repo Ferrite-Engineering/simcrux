@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/flakiness_score.dart';
@@ -107,6 +109,29 @@ void main() {
       expect(TestStatus.skipped.isFlakyFail, isFalse);
       expect(TestStatus.running.isFlakyFail, isFalse);
       expect(TestStatus.unknown.isFlakyFail, isFalse);
+    });
+  });
+
+  // The classification table and the enum doc comments describe the same
+  // rule. Pin the single-flip wording so neither drifts back to the
+  // "statusFlips == 0 only" description.
+  group('flaky classification documentation', () {
+    test('the user guide reports a clean pass-to-fail step as BROKEN', () {
+      final doc = File('docs-site/docs/trends-and-flaky.md').readAsStringSync();
+      final collapsed = doc.replaceAll(RegExp(r'\s+'), ' ');
+      expect(collapsed, contains('pass-to-fail step'));
+      expect(collapsed, contains('**BROKEN** (a regression), not as flaky'));
+      expect(collapsed, contains('two or more flips'));
+    });
+
+    test('the enum doc comments cover the single-flip cases', () {
+      final src = File(
+        'lib/domain/models/flakiness_score.dart',
+      ).readAsStringSync();
+      final enumBody = src.substring(src.indexOf('enum FlakyClassification'));
+      final collapsed = enumBody.replaceAll(RegExp(r'\s+|///'), ' ');
+      expect(collapsed, contains('clean pass-to-fail step'));
+      expect(collapsed, contains('statusFlips == 1'));
     });
   });
 }
