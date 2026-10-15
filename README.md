@@ -13,7 +13,7 @@ core, part of Ferrite Engineering's EDACrux suite.
 
 ## Status
 
-Public beta. Implemented in this repository today:
+Stable since 1.0. Implemented in this repository today:
 
 - Six simulator drivers — Icarus Verilog, Verilator, GHDL, cocotb, and the RISC-V
   `riscv_arch` and `riscv_formal` drivers — each with compile/execute staging,
@@ -29,7 +29,7 @@ Public beta. Implemented in this repository today:
   `--ci`, `--export`, `--fail-threshold` and `--fail-on-vacuous`.
 - FuseSoC `.core` import, an exportable read-only static web dashboard, and CXP
   cross-probe ("Debug in WaveCrux").
-- Update checks, the beta issue reporter, and en/zh_CN/zh/ja/ko localization.
+- Update checks, the in-app issue reporter, and en/zh_CN/zh/ja/ko localization.
 
 ## Pattern reference
 
