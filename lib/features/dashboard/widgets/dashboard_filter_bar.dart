@@ -27,6 +27,8 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 ///
 /// Clear drops a keystroke still waiting out the debounce, so it cannot land
 /// after the reset and undo it.
+/// Clear is available as soon as the field holds text, not only once the
+/// debounce has applied it, so it responds to a click made right after typing.
 ///
 /// The field's text follows the provider, not only the other way round: a
 /// change made anywhere else (Clear, an inbound cross-probe's
@@ -127,15 +129,23 @@ class _DashboardFilterBarState extends ConsumerState<DashboardFilterBar> {
                 ),
               ),
               const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: filter.isUnset
-                    ? null
-                    : () {
-                        _nameDebouncer.cancel();
-                        ref.read(dashboardFilterProvider.notifier).reset();
-                      },
-                icon: const Icon(Icons.clear, size: 18),
-                label: Text(l10n.dashboardFilterClear),
+              // Enabled by what the field shows as well as by the applied
+              // filter: text typed and still waiting out the debounce is a
+              // filter the user has set, and a Clear that ignored it did
+              // nothing when clicked in that window.
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _nameController,
+                builder: (context, field, _) => TextButton.icon(
+                  onPressed: filter.isUnset && field.text.isEmpty
+                      ? null
+                      : () {
+                          _nameDebouncer.cancel();
+                          ref.read(dashboardFilterProvider.notifier).reset();
+                          _syncNameField('');
+                        },
+                  icon: const Icon(Icons.clear, size: 18),
+                  label: Text(l10n.dashboardFilterClear),
+                ),
               ),
             ],
           ),

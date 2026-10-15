@@ -59,7 +59,11 @@ Two ways to find a test:
 - **Filter by test name…** above the table narrows the rows to test ids
   containing the text, ignoring case. It is a plain substring match — no globs
   or regular expressions — and it combines with the chips, so you can look at
-  "failed Verilator tests in the `dma` suite whose id contains `burst`".
+  "failed Verilator tests in the `dma` suite whose id contains `burst`". A run
+  of a seed sweep is also found by the seed its row shows: `seed 21` or just
+  `21` finds `cdc_capture_sweep · seed 21`, and `seed_21` and `seed=21` work too.
+  When the filters leave no rows, the table says so and offers **Clear
+  filters**.
 - **Search Tests** (++cmd+f++ / ++ctrl+f++, or **Search → Search…**) searches the
   loaded project's test names, suite names and simulator ids. Move through the
   hits with ++arrow-up++ / ++arrow-down++ and press ++enter++ to select one.

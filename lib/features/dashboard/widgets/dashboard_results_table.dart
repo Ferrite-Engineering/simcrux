@@ -11,6 +11,7 @@ import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
+import 'package:simcrux/features/dashboard/widgets/dashboard_no_rows.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
 import 'package:simcrux/features/dashboard/widgets/test_display_name.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
@@ -99,7 +100,7 @@ class _DashboardResultsTableState extends ConsumerState<DashboardResultsTable> {
             data: (rows) {
               if (revealId != null) _reveal(rows, revealId);
               if (rows.isEmpty) {
-                return Center(child: Text(l10n.dashboardEmpty));
+                return const DashboardNoRows();
               }
               return ListView.builder(
                 controller: _scroll,

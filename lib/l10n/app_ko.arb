@@ -550,6 +550,10 @@
   "@dashboardEmpty": {
     "description": "Placeholder body text shown in the dashboard when no run is active."
   },
+  "dashboardNoMatches": "필터와 일치하는 결과가 없습니다.",
+  "@dashboardNoMatches": {
+    "description": "Placeholder body text shown in the results table and the heatmap when results exist but the active filters exclude every one of them. A Clear filters button sits beneath it."
+  },
   "dashboardLoading": "결과를 불러오는 중…",
   "@dashboardLoading": {
     "description": "Placeholder shown while the dashboard waits for the first results stream update."

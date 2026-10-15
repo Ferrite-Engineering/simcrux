@@ -7,6 +7,7 @@ import 'package:simcrux/core/theme/simcrux_colors.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
+import 'package:simcrux/features/dashboard/widgets/dashboard_no_rows.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -40,7 +41,7 @@ class DashboardHeatmapView extends ConsumerWidget {
       error: (_, _) => Center(child: Text(l10n.dashboardError)),
       data: (rows) {
         if (rows.isEmpty) {
-          return Center(child: Text(l10n.dashboardEmpty));
+          return const DashboardNoRows();
         }
         return _Grid(rows: rows);
       },

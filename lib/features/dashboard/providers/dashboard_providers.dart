@@ -501,6 +501,22 @@ String _namePartOf(String testId) {
   return testId.substring(slash + 1);
 }
 
+/// What the test-name filter searches for [row], lower-cased.
+///
+/// The id, and, for one run of a seed sweep, the seed as the row shows it
+/// (`name · seed 21`) and in the spellings an id or a command line gives it
+/// (`seed_21`, `seed=21`), so a run can be found by the label it wears or the
+/// id it is known by. The label is the English one: the filter has no locale,
+/// and the seed's number, which a localized label also carries, matches in
+/// every language.
+String _searchText(DashboardRow row) {
+  final seed = row.seed;
+  final id = row.testId.toLowerCase();
+  if (seed == null) return id;
+  final name = row.testName.toLowerCase();
+  return '$id\n$name · seed $seed\nseed $seed\nseed_$seed\nseed=$seed';
+}
+
 bool _matches(DashboardRow row, DashboardFilter filter) {
   if (filter.statuses.isNotEmpty &&
       !filter.statuses.contains(row.result.status)) {
@@ -515,7 +531,7 @@ bool _matches(DashboardRow row, DashboardFilter filter) {
   }
   if (filter.testNameSubstring.isNotEmpty) {
     final needle = filter.testNameSubstring.toLowerCase();
-    if (!row.testId.toLowerCase().contains(needle)) return false;
+    if (!_searchText(row).contains(needle)) return false;
   }
   if (filter.minRuntime != null && row.result.runtime < filter.minRuntime!) {
     return false;
