@@ -135,6 +135,17 @@ class TestSpec {
   /// seed on subsequent attempts (varied flakiness evidence).
   final int? seed;
 
+  /// The [seed] when this spec is one instance of a seed sweep, else null.
+  ///
+  /// The expander writes `+seed=N` into the id of exactly those instances
+  /// (see [id]), so the id is what separates a swept instance, whose seed is
+  /// what tells it apart from its siblings, from a plain test that merely
+  /// pins a scalar `seed:`.
+  int? get sweepSeed {
+    final seed = this.seed;
+    return seed != null && id.endsWith('+seed=$seed') ? seed : null;
+  }
+
   /// Pre-expansion seed sweep declaration (`seeds: [1, 2, 3]` in YAML).
   ///
   /// Populated by the config loader **only on un-expanded "template"

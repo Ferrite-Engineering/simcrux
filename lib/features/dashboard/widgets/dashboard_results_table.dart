@@ -12,6 +12,7 @@ import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_pro
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
+import 'package:simcrux/features/dashboard/widgets/test_display_name.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -190,12 +191,17 @@ class _DashboardResultRow extends ConsumerWidget {
     //
     // The visible cells are unchanged: this alters what is heard, not what is
     // drawn.
+    final displayName = testDisplayName(
+      L10N.of(context),
+      row.testName,
+      row.seed,
+    );
     final spoken = L10N
         .of(context)
         .accessibilityResultRow(
           testStatusLabel(L10N.of(context), row.result.status),
           row.suiteName,
-          row.testName,
+          displayName,
           row.simulatorId,
           _formatDuration(row.result.runtime),
         );
@@ -284,7 +290,7 @@ class _DashboardResultRow extends ConsumerWidget {
                       flex: layout.flexOf(DashboardSortColumn.suite),
                     ),
                     CruxTableCell(
-                      text: row.testName,
+                      text: displayName,
                       flex: layout.flexOf(DashboardSortColumn.testName),
                       annotation: trailing,
                     ),

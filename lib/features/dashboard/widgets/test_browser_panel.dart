@@ -8,6 +8,7 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
+import 'package:simcrux/features/dashboard/widgets/test_display_name.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -78,7 +79,10 @@ class TestBrowserPanel extends ConsumerWidget {
           return _SuiteSection(
             suiteName: suite.name,
             testIds: [for (final t in suite.tests) t.id],
-            testNames: [for (final t in suite.tests) t.name],
+            testNames: [
+              for (final t in suite.tests)
+                testDisplayName(l10n, t.name, t.sweepSeed),
+            ],
             rowsById: rowsById,
             selectedTestId: selectedTestId,
             onTestTap: (testId) =>

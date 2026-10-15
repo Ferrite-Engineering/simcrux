@@ -12,6 +12,7 @@ import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_filter.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
+import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
 /// The active [RegressionConfig], or null when no project is open.
@@ -306,12 +307,21 @@ Stream<List<DashboardRow>> dashboardRows(Ref ref) {
   // config changes, so the spec index is computed once per config —
   // not once per finished test as before.
   final specsById = _buildSpecsById(config);
+  // The tests behind a clicked delta counter. Watched only while a counter is
+  // active, so the trend store is not read for an unfiltered table. A bucket
+  // that has emptied narrows nothing, rather than hiding every row behind a
+  // counter that is no longer drawn.
+  final bucket = filter.deltaBucket;
+  final deltaIds = bucket == null
+      ? null
+      : ref.watch(runDeltaProvider).value?.idsOf(bucket);
   return coalesceLatest(store.currentRun, kDashboardCoalesceWindow).map((run) {
     return _filterAndSortWithSpecs(
       run: run,
       specsById: specsById,
       filter: filter,
       sort: sort,
+      deltaIds: deltaIds,
     );
   });
 }
@@ -385,11 +395,13 @@ List<DashboardRow> filterAndSortDashboardRows({
   required RegressionConfig? config,
   required DashboardFilter filter,
   required DashboardSort sort,
+  Set<String>? deltaIds,
 }) => _filterAndSortWithSpecs(
   run: run,
   specsById: _buildSpecsById(config),
   filter: filter,
   sort: sort,
+  deltaIds: deltaIds,
 );
 
 /// Every row of [run], joined to its specs, with no filter applied.
@@ -419,6 +431,7 @@ List<DashboardRow> _filterAndSortWithSpecs({
   required Map<String, TestSpec> specsById,
   required DashboardFilter filter,
   required DashboardSort sort,
+  Set<String>? deltaIds,
 }) {
   final rows = <DashboardRow>[];
   for (final result in run.results) {
@@ -428,8 +441,14 @@ List<DashboardRow> _filterAndSortWithSpecs({
       suiteName: spec?.suiteName ?? _suitePartOf(result.testId),
       simulatorId: spec?.simulatorId ?? 'unknown',
       testName: spec?.name ?? _namePartOf(result.testId),
+      seed: spec?.sweepSeed,
     );
     if (!_matches(row, filter)) continue;
+    if (deltaIds != null &&
+        deltaIds.isNotEmpty &&
+        !deltaIds.contains(row.testId)) {
+      continue;
+    }
     rows.add(row);
   }
   _sort(rows, sort);
@@ -492,7 +511,13 @@ void _sort(List<DashboardRow> rows, DashboardSort sort) {
     case DashboardSortColumn.suite:
       keyCmp = (a, b) => a.suiteName.compareTo(b.suiteName);
     case DashboardSortColumn.testName:
-      keyCmp = (a, b) => a.testName.compareTo(b.testName);
+      // Instances of a seed sweep share a name; order them by seed so a
+      // sweep reads 1, 2, 3 instead of in arrival order.
+      keyCmp = (a, b) {
+        final byName = a.testName.compareTo(b.testName);
+        if (byName != 0) return byName;
+        return (a.seed ?? 0).compareTo(b.seed ?? 0);
+      };
     case DashboardSortColumn.simulator:
       keyCmp = (a, b) => a.simulatorId.compareTo(b.simulatorId);
     case DashboardSortColumn.duration:

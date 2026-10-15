@@ -3,11 +3,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/domain/enums/run_delta_bucket.dart';
+import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
 
 /// Compact "what changed vs. last run" strip suitable for the
 /// dashboard's bottom or top region. Shows four counters: new
 /// failures, fixed, new tests, other changes.
+///
+/// Each counter is a toggle: clicking it narrows the results table to the
+/// tests it counted, and clicking it again (or Clear in the filter bar)
+/// shows every row again. The active counter is drawn filled.
 ///
 /// Silently renders nothing when no prior history exists (the
 /// underlying provider returns an all-zero [RunDelta] in that case).
@@ -18,6 +24,20 @@ class RunDeltaStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncDelta = ref.watch(runDeltaProvider);
+    final active = ref.watch(dashboardFilterProvider).deltaBucket;
+    void toggle(RunDeltaBucket bucket) {
+      final filter = ref.read(dashboardFilterProvider);
+      // setAll, not a dedicated mutator: it is the one write every filter
+      // notifier honours, including the per-project one.
+      ref
+          .read(dashboardFilterProvider.notifier)
+          .setAll(
+            filter.deltaBucket == bucket
+                ? filter.copyWith(clearDeltaBucket: true)
+                : filter.copyWith(deltaBucket: bucket),
+          );
+    }
+
     return asyncDelta.maybeWhen(
       data: (delta) {
         if (delta.totalChanges == 0) return const SizedBox.shrink();
@@ -31,21 +51,29 @@ class RunDeltaStrip extends ConsumerWidget {
                 _DeltaCounter(
                   label: '↘ ${delta.newFailures} new',
                   color: theme.colorScheme.error,
+                  active: active == RunDeltaBucket.newFailures,
+                  onTap: () => toggle(RunDeltaBucket.newFailures),
                 ),
               if (delta.fixed > 0)
                 _DeltaCounter(
                   label: '↗ ${delta.fixed} fixed',
                   color: Colors.green,
+                  active: active == RunDeltaBucket.fixed,
+                  onTap: () => toggle(RunDeltaBucket.fixed),
                 ),
               if (delta.newTests > 0)
                 _DeltaCounter(
                   label: '+ ${delta.newTests} new',
                   color: theme.colorScheme.primary,
+                  active: active == RunDeltaBucket.newTests,
+                  onTap: () => toggle(RunDeltaBucket.newTests),
                 ),
               if (delta.otherChanges > 0)
                 _DeltaCounter(
                   label: '~ ${delta.otherChanges} changed',
                   color: theme.colorScheme.onSurfaceVariant,
+                  active: active == RunDeltaBucket.otherChanges,
+                  onTap: () => toggle(RunDeltaBucket.otherChanges),
                 ),
             ],
           ),
@@ -57,24 +85,45 @@ class RunDeltaStrip extends ConsumerWidget {
 }
 
 class _DeltaCounter extends StatelessWidget {
-  const _DeltaCounter({required this.label, required this.color});
+  const _DeltaCounter({
+    required this.label,
+    required this.color,
+    required this.active,
+    required this.onTap,
+  });
 
   final String label;
   final Color color;
+  final bool active;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(color: color),
+    final shape = BorderRadius.circular(10);
+    return Semantics(
+      button: true,
+      selected: active,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: shape,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              borderRadius: shape,
+              color: color.withValues(alpha: active ? 0.35 : 0.15),
+              border: Border.all(
+                color: color.withValues(alpha: active ? 0.9 : 0.4),
+              ),
+            ),
+            child: Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(color: color),
+            ),
+          ),
+        ),
       ),
     );
   }

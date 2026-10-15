@@ -21,6 +21,7 @@ class DashboardRow {
     required this.suiteName,
     required this.simulatorId,
     required this.testName,
+    this.seed,
   });
 
   /// The classified, finalized result for this test.
@@ -35,6 +36,14 @@ class DashboardRow {
   /// User-supplied test name (from [TestSpec.name]) — the
   /// human-readable id segment displayed in the table.
   final String testName;
+
+  /// The seed of this run when the test is one instance of a seed sweep
+  /// (`seeds: [1, 2, 3]`), else null.
+  ///
+  /// Every instance of a sweep shares [testName]; the seed is what tells
+  /// them apart. A test with no sweep leaves it null, so its name is shown
+  /// unadorned.
+  final int? seed;
 
   /// Convenience: the stable test id from the underlying result.
   String get testId => result.testId;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:meta/meta.dart';
+import 'package:simcrux/domain/enums/run_delta_bucket.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 
 /// User-driven filter state for the dashboard's results table.
@@ -22,6 +23,7 @@ class DashboardFilter {
     this.testNameSubstring = '',
     this.minRuntime,
     this.maxRuntime,
+    this.deltaBucket,
   }) : statuses = Set<TestStatus>.unmodifiable(
          statuses ?? const <TestStatus>{},
        ),
@@ -50,8 +52,13 @@ class DashboardFilter {
   /// Maximum runtime, inclusive. Null = no upper bound.
   final Duration? maxRuntime;
 
+  /// When set, only the tests the delta strip counted in this bucket for the
+  /// most recent run. Null = no constraint.
+  final RunDeltaBucket? deltaBucket;
+
   /// Returns a copy with the given fields replaced. Pass an empty
-  /// set / empty string / null to clear a specific axis.
+  /// set / empty string to clear a specific axis; [clearDeltaBucket] drops
+  /// [deltaBucket], which a null [deltaBucket] argument leaves unchanged.
   DashboardFilter copyWith({
     Set<TestStatus>? statuses,
     Set<String>? suites,
@@ -59,6 +66,8 @@ class DashboardFilter {
     String? testNameSubstring,
     Duration? minRuntime,
     Duration? maxRuntime,
+    RunDeltaBucket? deltaBucket,
+    bool clearDeltaBucket = false,
   }) {
     return DashboardFilter(
       statuses: statuses ?? this.statuses,
@@ -67,6 +76,7 @@ class DashboardFilter {
       testNameSubstring: testNameSubstring ?? this.testNameSubstring,
       minRuntime: minRuntime ?? this.minRuntime,
       maxRuntime: maxRuntime ?? this.maxRuntime,
+      deltaBucket: clearDeltaBucket ? null : deltaBucket ?? this.deltaBucket,
     );
   }
 
@@ -77,7 +87,8 @@ class DashboardFilter {
       simulators.isEmpty &&
       testNameSubstring.isEmpty &&
       minRuntime == null &&
-      maxRuntime == null;
+      maxRuntime == null &&
+      deltaBucket == null;
 
   @override
   bool operator ==(Object other) {
@@ -86,6 +97,7 @@ class DashboardFilter {
     if (other.testNameSubstring != testNameSubstring) return false;
     if (other.minRuntime != minRuntime) return false;
     if (other.maxRuntime != maxRuntime) return false;
+    if (other.deltaBucket != deltaBucket) return false;
     if (other.statuses.length != statuses.length) return false;
     if (!statuses.containsAll(other.statuses)) return false;
     if (other.suites.length != suites.length) return false;
@@ -103,5 +115,6 @@ class DashboardFilter {
     testNameSubstring,
     minRuntime,
     maxRuntime,
+    deltaBucket,
   );
 }
