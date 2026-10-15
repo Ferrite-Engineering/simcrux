@@ -1,8 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:io';
-
+import 'package:crux_telemetry/crux_telemetry.dart' show cruxExit;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/services/lifecycle/active_run_registry.dart';
 import 'package:simcrux/services/lifecycle/app_exit_coordinator.dart';
@@ -16,9 +15,10 @@ final Provider<ActiveRunRegistry> activeRunRegistryProvider =
     Provider<ActiveRunRegistry>((ref) => ActiveRunRegistry());
 
 /// How the app terminates the host process. Production calls
-/// `dart:io`'s [exit]; tests override this to record the code.
+/// [cruxExit], which records the session as ended cleanly before it exits;
+/// tests override this to record the code.
 final Provider<ProcessExitCallback> processExitProvider =
-    Provider<ProcessExitCallback>((ref) => exit);
+    Provider<ProcessExitCallback>((ref) => cruxExit);
 
 /// App-scoped [AppExitCoordinator] driving the orderly-shutdown path
 /// for the Quit action and for OS-initiated termination.

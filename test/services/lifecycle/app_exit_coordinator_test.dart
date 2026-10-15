@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:crux_telemetry/crux_telemetry.dart'
+    show TelemetryUncleanShutdownDetector;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/services/lifecycle/active_run_registry.dart';
 import 'package:simcrux/services/lifecycle/app_exit_coordinator.dart';
@@ -175,6 +178,42 @@ void main() {
     test('shutdown with nothing running settles immediately', () async {
       final coordinator = AppExitCoordinator(registry: ActiveRunRegistry());
       expect(await coordinator.shutdown(), isTrue);
+    });
+
+    test('the session is marked as ended cleanly before the drain waits on '
+        'a run', () async {
+      // While the drain waits, a second quit request makes macOS terminate
+      // the process at once, before any later exit listener runs. The
+      // unclean-shutdown marker has to be gone by then, or the next launch
+      // counts this quit as a crash.
+      final dir = Directory.systemTemp.createTempSync('simcrux_exit_marker_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final detector = TelemetryUncleanShutdownDetector(
+        directoryFactory: () async => dir,
+        markerHeld: (_) => false,
+        eventEnabled: false,
+        supported: true,
+        inert: true,
+        processId: 4242,
+        installLifecycleListener: false,
+      );
+      await detector.start();
+      final marker = detector.marker!;
+      expect(marker.existsSync(), isTrue);
+
+      final registry = ActiveRunRegistry();
+      final simulator = Completer<void>();
+      registry.register(() => simulator.future);
+      final coordinator = AppExitCoordinator(
+        registry: registry,
+        markCleanExit: detector.markCleanExit,
+      );
+
+      final drained = coordinator.shutdown();
+      expect(marker.existsSync(), isFalse);
+
+      simulator.complete();
+      expect(await drained, isTrue);
     });
   });
 }

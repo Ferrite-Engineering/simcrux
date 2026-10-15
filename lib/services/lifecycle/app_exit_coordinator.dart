@@ -3,6 +3,8 @@
 
 import 'dart:async';
 
+import 'package:crux_telemetry/crux_telemetry.dart'
+    show TelemetryUncleanShutdownDetector;
 import 'package:simcrux/services/lifecycle/active_run_registry.dart';
 
 /// Terminates the host process with [code]. Injected so tests can
@@ -23,12 +25,24 @@ typedef ProcessExitCallback = void Function(int code);
 /// trees (SIGTERM → grace → SIGKILL) — and waiting for that to settle
 /// under a bounded budget. The budget matters: a wedged simulator must
 /// delay the quit, never block it.
+///
+/// The session's exit is marked clean (the unclean-shutdown detector's
+/// marker removed) **before** the drain starts. The quit is already
+/// decided, and during the drain macOS terminates the process outright on
+/// a second quit request, before any later exit listener runs; marking
+/// first is what keeps that quit from being counted as a crash.
 class AppExitCoordinator {
   /// Creates a coordinator over [registry].
+  ///
+  /// [markCleanExit] defaults to the process-wide detector's; tests pass
+  /// their own.
   AppExitCoordinator({
     required this.registry,
     this.grace = kDefaultShutdownGrace,
-  });
+    void Function()? markCleanExit,
+  }) : _markCleanExit =
+           markCleanExit ??
+           TelemetryUncleanShutdownDetector.instance.markCleanExit;
 
   /// Time budget for cancelling in-flight runs during shutdown.
   ///
@@ -43,6 +57,8 @@ class AppExitCoordinator {
 
   /// Budget handed to [ActiveRunRegistry.cancelAll].
   final Duration grace;
+
+  final void Function() _markCleanExit;
 
   Future<bool>? _shutdown;
 
@@ -60,5 +76,8 @@ class AppExitCoordinator {
   /// caller `exit(0)` before the first drain's cancellers had reaped
   /// anything, orphaning in-flight simulators — the exact leak shutdown
   /// exists to prevent.
-  Future<bool> shutdown() => _shutdown ??= registry.cancelAll(grace: grace);
+  Future<bool> shutdown() {
+    _markCleanExit();
+    return _shutdown ??= registry.cancelAll(grace: grace);
+  }
 }

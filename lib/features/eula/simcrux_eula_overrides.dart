@@ -1,9 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:io' show exit;
-
 import 'package:crux_eula/crux_eula.dart';
+import 'package:crux_telemetry/crux_telemetry.dart' show cruxExit;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:simcrux/core/eula/simcrux_eula_storage.dart';
@@ -40,5 +39,5 @@ final List<Override> simcruxEulaOverrides = <Override>[
   // tab is the browser's affordance rather than ours. The package hides the
   // button when this is null, which is the honest surface there: a "quit"
   // that cannot quit is worse than no button.
-  if (!kIsWeb) cruxEulaOnDeclineProvider.overrideWithValue(() => exit(0)),
+  if (!kIsWeb) cruxEulaOnDeclineProvider.overrideWithValue(cruxExit),
 ];

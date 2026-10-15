@@ -108,7 +108,7 @@ Future<void> runSimcrux({
 Future<void> _flushAndExit(int code) async {
   await stdout.flush();
   await stderr.flush();
-  exit(code);
+  cruxExit(code);
 }
 
 /// Starts capturing diagnostics. Idempotent under hot restart.
