@@ -26,6 +26,11 @@ panelLayoutProvider = NotifierProvider<PanelLayoutNotifier, PanelLayoutState>(
 /// Notifier backing [panelLayoutProvider]. Persists mutations via
 /// [SettingsService.save].
 class PanelLayoutNotifier extends Notifier<PanelLayoutState> {
+  /// Whether the log panel has already been offered its one automatic reveal
+  /// this session. Deliberately not reset by [build]: the settings provider
+  /// rebuilding this notifier must not grant a second reveal.
+  bool _autoRevealUsed = false;
+
   @override
   PanelLayoutState build() {
     // Seed from AppSettings the moment they finish loading. Until
@@ -49,16 +54,34 @@ class PanelLayoutNotifier extends Notifier<PanelLayoutState> {
 
   /// Toggles the right run-details / inspector pane.
   Future<void> toggleRunDetails() async {
+    await _update(state.copyWith(runDetailsVisible: !state.runDetailsVisible));
+  }
+
+  /// Toggles the bottom log-stream pane. A user action: records an explicit
+  /// choice, so the panel never opens itself afterwards.
+  Future<void> toggleLogPanel() async {
     await _update(
-      state.copyWith(runDetailsVisible: !state.runDetailsVisible),
+      state.copyWith(
+        logPanelVisible: !state.logPanelVisible,
+        logPanelChoiceMade: true,
+      ),
     );
   }
 
-  /// Toggles the bottom log-stream pane.
-  Future<void> toggleLogPanel() async {
-    await _update(
-      state.copyWith(logPanelVisible: !state.logPanelVisible),
-    );
+  /// Opens the log panel because a test was just selected, unless the user
+  /// has made an explicit choice about it.
+  ///
+  /// Call when the selection goes from none to some test. Acts at most once
+  /// per session. The reveal is not a user choice: it leaves
+  /// [PanelLayoutState.logPanelChoiceMade] `false` and is not restored at
+  /// the next launch, which starts collapsed again. If the user then
+  /// collapses the panel, that collapse is the explicit choice.
+  Future<void> revealLogPanelForSelection() async {
+    if (_autoRevealUsed) return;
+    if (state.logPanelChoiceMade) return;
+    _autoRevealUsed = true;
+    if (state.logPanelVisible) return;
+    await _update(state.copyWith(logPanelVisible: true));
   }
 
   // ── explicit set ────────────────────────────────────────────────────
@@ -75,9 +98,13 @@ class PanelLayoutNotifier extends Notifier<PanelLayoutState> {
     await _update(state.copyWith(runDetailsVisible: visible));
   }
 
-  /// Sets the log panel's visibility explicitly.
+  /// Sets the log panel's visibility explicitly. A user action (restore
+  /// bar, dock collapse, drag-to-collapse, or revealing a tab docked
+  /// there): records an explicit choice.
   Future<void> setLogPanelVisible({required bool visible}) async {
-    await _update(state.copyWith(logPanelVisible: visible));
+    await _update(
+      state.copyWith(logPanelVisible: visible, logPanelChoiceMade: true),
+    );
   }
 
   // ── drag-to-resize ──────────────────────────────────────────────────
@@ -86,23 +113,17 @@ class PanelLayoutNotifier extends Notifier<PanelLayoutState> {
   /// safe (0.05, 0.6) range so the user can't drag the pane to
   /// effective invisibility.
   Future<void> setTestBrowserFraction(double fraction) async {
-    await _update(
-      state.copyWith(testBrowserFraction: _clamp(fraction)),
-    );
+    await _update(state.copyWith(testBrowserFraction: _clamp(fraction)));
   }
 
   /// Updates the run details pane's width fraction.
   Future<void> setRunDetailsFraction(double fraction) async {
-    await _update(
-      state.copyWith(runDetailsFraction: _clamp(fraction)),
-    );
+    await _update(state.copyWith(runDetailsFraction: _clamp(fraction)));
   }
 
   /// Updates the bottom log panel's height fraction.
   Future<void> setLogPanelFraction(double fraction) async {
-    await _update(
-      state.copyWith(logPanelFraction: _clamp(fraction)),
-    );
+    await _update(state.copyWith(logPanelFraction: _clamp(fraction)));
   }
 
   /// Resets every pane to its default visibility and size.

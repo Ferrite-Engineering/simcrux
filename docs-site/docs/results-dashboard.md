@@ -102,7 +102,8 @@ sparkline of the test's last 10 results.
 **Open full log** opens the Log Viewer over the captured output: **Search log…**
 with next / previous match and a match counter, a **Line** field with **Go**,
 and **Copy all to clipboard**. Use it to find the exact line a detector matched.
-The same output streams into the **Log** panel at the bottom while a test runs.
+The same output streams into the **Log** panel at the bottom while a test runs;
+the panel opens when you first select a test (see [the interface](interface.md)).
 
 **Re-run** and **Re-run with waveform** run only the selected test, as
 **Re-run Selected Test** (++cmd+shift+r++ / ++ctrl+shift+r++) does.

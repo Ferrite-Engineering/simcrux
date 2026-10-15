@@ -54,6 +54,10 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
   static const String _kPanelRunDetailsVisible =
       'simcrux.panel.runDetailsVisible';
   static const String _kPanelLogPanelVisible = 'simcrux.panel.logPanelVisible';
+  // Whether the user chose the log panel's visibility. Written on every
+  // save (true or false) so its absence means "written before this key
+  // existed", which is what the migration in `_readPanelLayout` keys on.
+  static const String _kPanelLogPanelChoice = 'simcrux.panel.logPanelChoice';
   static const String _kPanelTestBrowserFraction =
       'simcrux.panel.testBrowserFraction';
   static const String _kPanelRunDetailsFraction =
@@ -270,14 +274,15 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
 
   PanelLayoutState _readPanelLayout(SharedPreferences prefs) {
     const defaults = PanelLayoutState();
+    final logPanel = _readLogPanel(prefs);
     return PanelLayoutState(
       testBrowserVisible:
           prefs.getBool(_kPanelTestBrowserVisible) ??
           defaults.testBrowserVisible,
       runDetailsVisible:
           prefs.getBool(_kPanelRunDetailsVisible) ?? defaults.runDetailsVisible,
-      logPanelVisible:
-          prefs.getBool(_kPanelLogPanelVisible) ?? defaults.logPanelVisible,
+      logPanelVisible: logPanel.visible,
+      logPanelChoiceMade: logPanel.choiceMade,
       testBrowserFraction:
           _readClampedFraction(prefs, _kPanelTestBrowserFraction) ??
           defaults.testBrowserFraction,
@@ -287,6 +292,38 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       logPanelFraction:
           _readClampedFraction(prefs, _kPanelLogPanelFraction) ??
           defaults.logPanelFraction,
+    );
+  }
+
+  /// Resolves the log panel's stored visibility and whether it was a choice.
+  ///
+  /// - New key present: its value says whether the user chose. A choice
+  ///   restores the stored visibility; no choice starts collapsed, whatever
+  ///   the visibility key holds (every save writes it, so a stored `true`
+  ///   can be an automatic reveal rather than a decision).
+  /// - New key absent, old key `false`: the 1.0 default was visible, so the
+  ///   user hid it. An explicit hidden choice.
+  /// - New key absent, old key `true` or missing: no choice.
+  ({bool visible, bool choiceMade}) _readLogPanel(SharedPreferences prefs) {
+    final stored = prefs.getBool(_kPanelLogPanelVisible);
+    final choice = prefs.getBool(_kPanelLogPanelChoice);
+    if (choice == null) {
+      return stored == false
+          ? (visible: false, choiceMade: true)
+          : (
+              visible: const PanelLayoutState().logPanelVisible,
+              choiceMade: false,
+            );
+    }
+    if (!choice) {
+      return (
+        visible: const PanelLayoutState().logPanelVisible,
+        choiceMade: false,
+      );
+    }
+    return (
+      visible: stored ?? const PanelLayoutState().logPanelVisible,
+      choiceMade: true,
     );
   }
 
@@ -306,15 +343,20 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
   ) async {
     await prefs.setBool(_kPanelTestBrowserVisible, layout.testBrowserVisible);
     await prefs.setBool(_kPanelRunDetailsVisible, layout.runDetailsVisible);
-    await prefs.setBool(_kPanelLogPanelVisible, layout.logPanelVisible);
+    // Without a choice the visibility is session-only: store the default so
+    // an automatic reveal is never mistaken for a decision at the next launch.
+    await prefs.setBool(
+      _kPanelLogPanelVisible,
+      layout.logPanelChoiceMade
+          ? layout.logPanelVisible
+          : const PanelLayoutState().logPanelVisible,
+    );
+    await prefs.setBool(_kPanelLogPanelChoice, layout.logPanelChoiceMade);
     await prefs.setDouble(
       _kPanelTestBrowserFraction,
       layout.testBrowserFraction,
     );
-    await prefs.setDouble(
-      _kPanelRunDetailsFraction,
-      layout.runDetailsFraction,
-    );
+    await prefs.setDouble(_kPanelRunDetailsFraction, layout.runDetailsFraction);
     await prefs.setDouble(_kPanelLogPanelFraction, layout.logPanelFraction);
   }
 }

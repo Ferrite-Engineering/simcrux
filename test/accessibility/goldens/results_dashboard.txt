@@ -25,8 +25,8 @@
 24. Pass: uart / tx_basic, icarus, ran in 1.2s check box not checked
 25. Fail: uart / rx_parity, icarus, ran in 350ms check box not checked
 26. Pass: spi / loopback, verilator, ran in 2.4s check box not checked
-27. [Panel dock Log grouping — Select a test to view its log.] Hide Panel button
-28. [Details dock Details grouping — Select a test to inspect.] Hide Panel button
+27. [Details dock Details grouping — Select a test to inspect.] Hide Panel button
+28. [Panel dock grouping] Log button
 29. Statistics button collapsed
 30. [Toolbar grouping] Open Config… (Ctrl+O) button
 31. Close Project (Ctrl+Shift+W) button

@@ -7,6 +7,7 @@ import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/panel_layout_state.dart';
+import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
 import 'package:simcrux/features/workspace/widgets/simcrux_docks.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -24,7 +25,8 @@ typedef PaneContentBuilder = Widget Function(BuildContext context);
 /// - **Left:** test/run browser (signal-tree analogue)
 /// - **Center:** run-results dashboard
 /// - **Right:** run-details inspector
-/// - **Bottom:** log-stream panel
+/// - **Bottom:** log-stream panel (starts collapsed; opens when a test is
+///   first selected)
 ///
 /// SimCrux is the suite's **fraction-sizing** case: it projects the
 /// [panelLayoutProvider]'s `double` fractions onto the shared widget via
@@ -69,6 +71,18 @@ class SimcruxIdeLayout extends ConsumerWidget {
     final state = ref.watch(panelLayoutProvider);
     final notifier = ref.read(panelLayoutProvider.notifier);
     final l10n = L10N.of(context);
+    // The Log panel starts collapsed: it shows only the selected test's
+    // output, and while open it takes a third of the window from the results
+    // table (room for about four rows at 1280x700). It opens itself when a test is first selected,
+    // however that came about (a row click, a delta counter, a CXP handoff).
+    // The notifier ignores the signal once the user has chosen the
+    // panel's visibility, and after the first reveal of the session. This
+    // lives here, not in the tab content, so the layout is self-contained
+    // under whichever scope supplies `selectedTestProvider`.
+    ref.listen<SelectedTest?>(selectedTestProvider, (previous, next) {
+      if (previous != null || next == null) return;
+      unawaited(notifier.revealLogPanelForSelection());
+    });
     // Collapsed regions leave a slim restore bar along their edge
     // (JetBrains tool-window model — the suite panel-reopen canon).
     return SimcruxDockRestoreBars(

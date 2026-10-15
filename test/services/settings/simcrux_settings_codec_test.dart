@@ -213,7 +213,7 @@ void main() {
       const settings = AppSettings(
         panelLayout: PanelLayoutState(
           testBrowserVisible: false,
-          logPanelVisible: false,
+          logPanelChoiceMade: true,
           testBrowserFraction: 0.18,
           runDetailsFraction: 0.32,
           logPanelFraction: 0.4,
@@ -223,6 +223,100 @@ void main() {
 
       final loaded = await codec.load(prefs);
       expect(loaded.panelLayout, equals(settings.panelLayout));
+    });
+
+    group('Log panel choice', () {
+      Future<PanelLayoutState> loadWith(Map<String, Object> stored) async {
+        SharedPreferences.setMockInitialValues(stored);
+        final prefs = await SharedPreferences.getInstance();
+        return (await const SimcruxSettingsCodec().load(prefs)).panelLayout;
+      }
+
+      test('a fresh install starts collapsed with no choice', () async {
+        final layout = await loadWith(<String, Object>{});
+        expect(layout.logPanelVisible, isFalse);
+        expect(layout.logPanelChoiceMade, isFalse);
+      });
+
+      test(
+        'old key false and no new key is an explicit hidden choice',
+        () async {
+          final layout = await loadWith(<String, Object>{
+            'simcrux.panel.logPanelVisible': false,
+          });
+          expect(layout.logPanelVisible, isFalse);
+          expect(layout.logPanelChoiceMade, isTrue);
+        },
+      );
+
+      test('old key true and no new key is no choice', () async {
+        final layout = await loadWith(<String, Object>{
+          'simcrux.panel.logPanelVisible': true,
+        });
+        expect(layout.logPanelVisible, isFalse);
+        expect(layout.logPanelChoiceMade, isFalse);
+      });
+
+      test('an explicit visible choice round-trips', () async {
+        final prefs = await SharedPreferences.getInstance();
+        const codec = SimcruxSettingsCodec();
+        const chosen = PanelLayoutState(
+          logPanelVisible: true,
+          logPanelChoiceMade: true,
+        );
+        await codec.save(prefs, const AppSettings(panelLayout: chosen));
+        expect(prefs.getBool('simcrux.panel.logPanelChoice'), isTrue);
+        expect((await codec.load(prefs)).panelLayout, equals(chosen));
+      });
+
+      test('an explicit hidden choice round-trips', () async {
+        final prefs = await SharedPreferences.getInstance();
+        const codec = SimcruxSettingsCodec();
+        const chosen = PanelLayoutState(logPanelChoiceMade: true);
+        await codec.save(prefs, const AppSettings(panelLayout: chosen));
+        expect((await codec.load(prefs)).panelLayout, equals(chosen));
+      });
+
+      test(
+        'an automatic reveal is not stored as a decision: the next launch '
+        'starts collapsed with no choice',
+        () async {
+          final prefs = await SharedPreferences.getInstance();
+          const codec = SimcruxSettingsCodec();
+          await codec.save(
+            prefs,
+            const AppSettings(
+              panelLayout: PanelLayoutState(logPanelVisible: true),
+            ),
+          );
+          // Saved without a choice, then read back: not the migration path
+          // ("old false, no new key"), because the new key is always written.
+          expect(prefs.getBool('simcrux.panel.logPanelChoice'), isFalse);
+          final layout = (await codec.load(prefs)).panelLayout;
+          expect(layout.logPanelVisible, isFalse);
+          expect(layout.logPanelChoiceMade, isFalse);
+        },
+      );
+
+      test(
+        'a saved default layout does not migrate into a hidden choice',
+        () async {
+          final prefs = await SharedPreferences.getInstance();
+          const codec = SimcruxSettingsCodec();
+          await codec.save(prefs, const AppSettings());
+          final layout = (await codec.load(prefs)).panelLayout;
+          expect(layout.logPanelChoiceMade, isFalse);
+        },
+      );
+
+      test('with no choice stored, a stored visible true is ignored', () async {
+        final layout = await loadWith(<String, Object>{
+          'simcrux.panel.logPanelVisible': true,
+          'simcrux.panel.logPanelChoice': false,
+        });
+        expect(layout.logPanelVisible, isFalse);
+        expect(layout.logPanelChoiceMade, isFalse);
+      });
     });
 
     test('out-of-range panel fractions fall back to defaults', () async {

@@ -24,7 +24,10 @@ individually:
 | **Log** (bottom) | ++cmd+3++ / ++ctrl+3++ | The captured output of the selected test, updating live while it runs. |
 
 A hidden panel leaves a slim strip along its window edge; click it to bring the
-panel back. Resize a panel by dragging its edge, or from the keyboard: with focus
+panel back. The Log panel starts hidden, so the results table has the whole
+height of the window, and it opens by itself the first time you select a test in
+a session. Once you show or hide the Log panel yourself, SimCrux keeps it as you
+left it, at every launch, and no longer opens it automatically. Resize a panel by dragging its edge, or from the keyboard: with focus
 inside the panel, ++cmd+shift+arrow-right++ / ++ctrl+shift+arrow-right++ widens
 the Tests panel, ++cmd+shift+arrow-left++ / ++ctrl+shift+arrow-left++ widens
 Details, and ++cmd+shift+arrow-up++ / ++ctrl+shift+arrow-up++ grows the Log panel

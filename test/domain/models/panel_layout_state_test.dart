@@ -10,7 +10,9 @@ void main() {
       const s = PanelLayoutState();
       expect(s.testBrowserVisible, isTrue);
       expect(s.runDetailsVisible, isTrue);
-      expect(s.logPanelVisible, isTrue);
+      // The Log panel starts collapsed and has no explicit choice recorded.
+      expect(s.logPanelVisible, isFalse);
+      expect(s.logPanelChoiceMade, isFalse);
       expect(
         s.testBrowserFraction,
         equals(PanelLayoutState.defaultLeftFraction),
@@ -35,7 +37,8 @@ void main() {
       expect(updated.runDetailsFraction, equals(0.5));
       // Unchanged fields retain their values.
       expect(updated.runDetailsVisible, isTrue);
-      expect(updated.logPanelVisible, isTrue);
+      expect(updated.logPanelVisible, isFalse);
+      expect(updated.logPanelChoiceMade, isFalse);
       expect(
         updated.testBrowserFraction,
         equals(PanelLayoutState.defaultLeftFraction),
@@ -55,6 +58,23 @@ void main() {
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
       expect(a, isNot(equals(c)));
+    });
+
+    test('the log panel choice takes part in equality and copyWith', () {
+      const base = PanelLayoutState();
+      final chosen = base.copyWith(logPanelChoiceMade: true);
+      expect(chosen.logPanelChoiceMade, isTrue);
+      expect(chosen.logPanelVisible, base.logPanelVisible);
+      expect(chosen, isNot(equals(base)));
+      expect(
+        chosen,
+        equals(const PanelLayoutState(logPanelChoiceMade: true)),
+      );
+      expect(
+        chosen.hashCode,
+        equals(const PanelLayoutState(logPanelChoiceMade: true).hashCode),
+      );
+      expect(chosen.copyWith(logPanelVisible: true).logPanelChoiceMade, isTrue);
     });
   });
 }

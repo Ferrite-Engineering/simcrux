@@ -6,7 +6,8 @@ import 'package:meta/meta.dart';
 /// Visibility + size state for the four IdeLayout panels.
 ///
 /// The four-pane layout: left = test/run browser, center = run results, right = run
-/// details, bottom = log stream. Pane sizes are stored as `double`
+/// details, bottom = log stream. The log stream starts collapsed and opens
+/// itself the first time a test is selected (see [logPanelChoiceMade]). Pane sizes are stored as `double`
 /// fractions in (0, 1) so they survive window-size changes without
 /// drifting; `panes` interprets them as the initial relative weight
 /// when the layout first renders.
@@ -22,7 +23,8 @@ class PanelLayoutState {
   const PanelLayoutState({
     this.testBrowserVisible = true,
     this.runDetailsVisible = true,
-    this.logPanelVisible = true,
+    this.logPanelVisible = false,
+    this.logPanelChoiceMade = false,
     this.testBrowserFraction = defaultLeftFraction,
     this.runDetailsFraction = defaultRightFraction,
     this.logPanelFraction = defaultBottomFraction,
@@ -47,7 +49,22 @@ class PanelLayoutState {
   final bool runDetailsVisible;
 
   /// Whether the bottom log-stream pane is shown.
+  ///
+  /// Starts `false`: the log panel shows only the selected test's output,
+  /// and until a test is selected it is an empty placeholder that costs the
+  /// results table a third of the window. While [logPanelChoiceMade] is
+  /// `false` this value is session-only (the panel may open itself when a
+  /// test is first selected) and is not restored at the next launch.
   final bool logPanelVisible;
+
+  /// Whether the user has made an explicit choice about the log panel's
+  /// visibility (header collapse, restore bar, View menu, shortcut, drag).
+  ///
+  /// With no choice the panel starts collapsed and opens itself, once per
+  /// session, when a test is first selected. With a choice, [logPanelVisible]
+  /// is restored as stored and the panel never opens itself. Resizing the
+  /// panel is not a visibility choice.
+  final bool logPanelChoiceMade;
 
   /// Test browser pane width as a fraction of the IDE layout width.
   final double testBrowserFraction;
@@ -63,6 +80,7 @@ class PanelLayoutState {
     bool? testBrowserVisible,
     bool? runDetailsVisible,
     bool? logPanelVisible,
+    bool? logPanelChoiceMade,
     double? testBrowserFraction,
     double? runDetailsFraction,
     double? logPanelFraction,
@@ -71,6 +89,7 @@ class PanelLayoutState {
       testBrowserVisible: testBrowserVisible ?? this.testBrowserVisible,
       runDetailsVisible: runDetailsVisible ?? this.runDetailsVisible,
       logPanelVisible: logPanelVisible ?? this.logPanelVisible,
+      logPanelChoiceMade: logPanelChoiceMade ?? this.logPanelChoiceMade,
       testBrowserFraction: testBrowserFraction ?? this.testBrowserFraction,
       runDetailsFraction: runDetailsFraction ?? this.runDetailsFraction,
       logPanelFraction: logPanelFraction ?? this.logPanelFraction,
@@ -84,6 +103,7 @@ class PanelLayoutState {
         other.testBrowserVisible == testBrowserVisible &&
         other.runDetailsVisible == runDetailsVisible &&
         other.logPanelVisible == logPanelVisible &&
+        other.logPanelChoiceMade == logPanelChoiceMade &&
         other.testBrowserFraction == testBrowserFraction &&
         other.runDetailsFraction == runDetailsFraction &&
         other.logPanelFraction == logPanelFraction;
@@ -94,6 +114,7 @@ class PanelLayoutState {
     testBrowserVisible,
     runDetailsVisible,
     logPanelVisible,
+    logPanelChoiceMade,
     testBrowserFraction,
     runDetailsFraction,
     logPanelFraction,
