@@ -49,14 +49,46 @@ const double _kMinTableWidth = 680;
 /// that column's width against its neighbour (double-click restores the
 /// defaults); the leftmost checkbox column lets the user multi-select rows
 /// (bulk actions land in a follow-on batch).
-class DashboardResultsTable extends ConsumerWidget {
+class DashboardResultsTable extends ConsumerStatefulWidget {
   /// Creates a [DashboardResultsTable].
   const DashboardResultsTable({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardResultsTable> createState() =>
+      _DashboardResultsTableState();
+}
+
+class _DashboardResultsTableState extends ConsumerState<DashboardResultsTable> {
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Scrolls the row a [dashboardRevealProvider] request names to the top of
+  /// the view, then drops the request. Runs after layout, so the offset is
+  /// clamped against the rows the table is drawing now rather than the ones
+  /// it drew before the filter that brought the row into view applied.
+  void _reveal(List<DashboardRow> rows, String testId) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(dashboardRevealProvider.notifier).clear();
+      final index = rows.indexWhere((r) => r.testId == testId);
+      if (index < 0 || !_scroll.hasClients) return;
+      final position = _scroll.position;
+      position.jumpTo(
+        (index * kCruxTableRowHeight).clamp(0, position.maxScrollExtent),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final rowsAsync = ref.watch(dashboardRowsProvider);
+    final revealId = ref.watch(dashboardRevealProvider);
     final table = Column(
       children: [
         const _DashboardHeaderRow(),
@@ -65,10 +97,12 @@ class DashboardResultsTable extends ConsumerWidget {
             loading: () => Center(child: Text(l10n.dashboardLoading)),
             error: (_, _) => Center(child: Text(l10n.dashboardError)),
             data: (rows) {
+              if (revealId != null) _reveal(rows, revealId);
               if (rows.isEmpty) {
                 return Center(child: Text(l10n.dashboardEmpty));
               }
               return ListView.builder(
+                controller: _scroll,
                 itemCount: rows.length,
                 itemExtent: kCruxTableRowHeight,
                 itemBuilder: (context, index) {

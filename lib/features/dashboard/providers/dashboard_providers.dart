@@ -173,6 +173,29 @@ class DashboardSortNotifier extends Notifier<DashboardSort> {
   void setAll(DashboardSort sort) => state = sort;
 }
 
+/// A request for the results table to scroll a row to the top of its view.
+///
+/// Set by anything that wants the user taken to a test (a delta counter, for
+/// one), consumed by the table once the row is in the rows it draws, and then
+/// cleared. Null when nothing is waiting.
+final NotifierProvider<DashboardRevealNotifier, String?>
+dashboardRevealProvider = NotifierProvider<DashboardRevealNotifier, String?>(
+  DashboardRevealNotifier.new,
+);
+
+/// Notifier backing [dashboardRevealProvider].
+class DashboardRevealNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  /// Ask the table to scroll [testId] into view.
+  // ignore: use_setters_to_change_properties
+  void request(String testId) => state = testId;
+
+  /// Drop the request once the table has acted on it.
+  void clear() => state = null;
+}
+
 /// Multi-selected dashboard row ids (test ids).
 final NotifierProvider<DashboardSelectionNotifier, Set<String>>
 dashboardSelectionProvider =

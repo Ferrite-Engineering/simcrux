@@ -113,6 +113,7 @@ List<Override> simcruxTabOverrides(crux.TabId tabId) {
     dashboardSortProvider.overrideWith(DashboardSortNotifier.new),
     dashboardSelectionProvider.overrideWith(DashboardSelectionNotifier.new),
     dashboardViewModeProvider.overrideWith(DashboardViewModeNotifier.new),
+    dashboardRevealProvider.overrideWith(DashboardRevealNotifier.new),
     selectedTestIdProvider.overrideWith(SelectedTestNotifier.new),
     regressionRunnerProvider.overrideWith(RegressionRunner.new),
     // Per-tab auto-reload notifier. Each tab gets its

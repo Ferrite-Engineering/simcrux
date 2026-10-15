@@ -117,5 +117,24 @@ void main() {
       expect(tabA.read(dashboardSelectionProvider), {'alu/add'});
       expect(tabB.read(dashboardSelectionProvider), isEmpty);
     });
+
+    test('per-tab containers isolate reveal requests', () {
+      final root = ProviderContainer();
+      addTearDown(root.dispose);
+      final tabA = ProviderContainer(
+        parent: root,
+        overrides: simcruxTabOverrides(crux.TabId.generate()),
+      );
+      addTearDown(tabA.dispose);
+      final tabB = ProviderContainer(
+        parent: root,
+        overrides: simcruxTabOverrides(crux.TabId.generate()),
+      );
+      addTearDown(tabB.dispose);
+
+      tabA.read(dashboardRevealProvider.notifier).request('alu/add');
+      expect(tabA.read(dashboardRevealProvider), 'alu/add');
+      expect(tabB.read(dashboardRevealProvider), isNull);
+    });
   });
 }
