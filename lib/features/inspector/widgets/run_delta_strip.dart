@@ -8,7 +8,6 @@ import 'package:simcrux/features/dashboard/models/dashboard_filter.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
-import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 /// Compact "what changed vs. last run" strip suitable for the
 /// dashboard's bottom or top region. Shows four counters: new
@@ -65,7 +64,6 @@ class RunDeltaStrip extends ConsumerWidget {
       data: (delta) {
         if (delta.totalChanges == 0) return const SizedBox.shrink();
         final theme = Theme.of(context);
-        final l10n = L10N.of(context);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Wrap(
@@ -73,28 +71,28 @@ class RunDeltaStrip extends ConsumerWidget {
             children: [
               if (delta.newFailures > 0)
                 _DeltaCounter(
-                  label: l10n.runDeltaNewFailures(delta.newFailures),
+                  label: '↘ ${delta.newFailures} new',
                   color: theme.colorScheme.error,
                   active: active == RunDeltaBucket.newFailures,
                   onTap: () => toggle(RunDeltaBucket.newFailures, delta),
                 ),
               if (delta.fixed > 0)
                 _DeltaCounter(
-                  label: l10n.runDeltaFixed(delta.fixed),
+                  label: '↗ ${delta.fixed} fixed',
                   color: Colors.green,
                   active: active == RunDeltaBucket.fixed,
                   onTap: () => toggle(RunDeltaBucket.fixed, delta),
                 ),
               if (delta.newTests > 0)
                 _DeltaCounter(
-                  label: l10n.runDeltaNewTests(delta.newTests),
+                  label: '+ ${delta.newTests} new',
                   color: theme.colorScheme.primary,
                   active: active == RunDeltaBucket.newTests,
                   onTap: () => toggle(RunDeltaBucket.newTests, delta),
                 ),
               if (delta.otherChanges > 0)
                 _DeltaCounter(
-                  label: l10n.runDeltaChanged(delta.otherChanges),
+                  label: '~ ${delta.otherChanges} changed',
                   color: theme.colorScheme.onSurfaceVariant,
                   active: active == RunDeltaBucket.otherChanges,
                   onTap: () => toggle(RunDeltaBucket.otherChanges, delta),

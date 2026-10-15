@@ -522,42 +522,6 @@
   "@dashboardColumnTest": {
     "description": "Column header for the dashboard table's test name column."
   },
-  "runDeltaNewFailures": "↘ 새 실패 {count}",
-  "@runDeltaNewFailures": {
-    "description": "Delta strip counter under the results table: how many tests started failing in the latest run compared with the one before.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "runDeltaFixed": "↗ 수정됨 {count}",
-  "@runDeltaFixed": {
-    "description": "Delta strip counter: how many failing tests now pass compared with the previous run.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "runDeltaNewTests": "+ 새 테스트 {count}",
-  "@runDeltaNewTests": {
-    "description": "Delta strip counter: how many tests in the latest run had no earlier result.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "runDeltaChanged": "~ 변경됨 {count}",
-  "@runDeltaChanged": {
-    "description": "Delta strip counter: how many tests changed status in some other way compared with the previous run.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "dashboardTestNameWithSeed": "{test} · 시드 {seed}",
   "@dashboardTestNameWithSeed": {
     "description": "Test name shown in the results table and the Tests dock for one run of a seed sweep, so runs of the same test are told apart by their seed. Example: cdc_capture_sweep · seed 21.",

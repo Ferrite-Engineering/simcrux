@@ -323,6 +323,7 @@ The multi-project workspace introduces a small set of extension points the Pro o
   - `dashboardSortProvider`
   - `dashboardSelectionProvider`
   - `dashboardViewModeProvider`
+  - `dashboardRevealProvider`
   - `selectedTestIdProvider`
   - `regressionRunnerProvider`
   - `autoReloadNotifierProvider`

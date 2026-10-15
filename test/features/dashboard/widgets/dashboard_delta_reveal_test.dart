@@ -19,6 +19,9 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
+// LOCALE_SWEEP_EXEMPT: scroll, selection and filter behaviour of the delta
+// counters; the counters' text is not localised.
+//
 // A fresh sweep makes every test in the run new, so the "+ N new" counter
 // covers the whole table. Narrowing the table to that bucket changes nothing,
 // which is how the counter read as dead: clicking it must still visibly take
