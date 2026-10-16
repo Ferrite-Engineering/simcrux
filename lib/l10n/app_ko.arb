@@ -2380,7 +2380,7 @@
     "description": "Description of the telemetry documentation row in Settings > Privacy"
   },
   "settingsTelemetryInstallationIdLabel": "설치 ID",
-  "settingsTelemetryInstallationIdDescription": "수집되는 데이터에 연결된 유일한 식별자입니다. 무작위 값이며 사용자와 연결되지 않습니다. 이 설치의 데이터 삭제를 원하시면 지원팀으로 보내주세요.",
+  "settingsTelemetryInstallationIdDescription": "수집되는 데이터에 연결된 유일한 식별자입니다. 무작위 값이며 사용자와 연결되지 않습니다. 이 설치의 데이터 삭제를 원하시면 privacy@ferriteengineering.com으로 보내주세요. 사용 통계를 끄면 이 ID가 삭제되므로 먼저 복사해 두세요.",
   "settingsTelemetryInstallationIdCopy": "복사",
   "settingsTelemetryInstallationIdCopied": "설치 ID가 복사되었습니다.",
   "settingsTelemetryInstallationIdNone": "설치 ID가 없습니다. 사용 통계 수집을 켤 때만 생성됩니다.",

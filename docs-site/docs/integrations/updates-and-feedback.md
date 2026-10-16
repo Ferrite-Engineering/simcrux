@@ -50,10 +50,18 @@ SimCrux better**, shows a **Send anonymous usage statistics** switch above
 on, except where the machine's regional settings place it in the EEA, the
 UK, Switzerland or South Korea, where it starts off. Change your answer at
 any time in `Settings → Privacy`, which also shows the random
-**Installation ID** — the only identifier attached to what is sent — so you
-can ask support to delete that installation's data. The ID appears only
-after usage statistics have been turned on; until then the row says that
-no ID exists yet.
+**Installation ID** — the only identifier attached to what is sent — with
+a **Copy** button. Send it to
+[privacy@ferriteengineering.com](mailto:privacy@ferriteengineering.com) to
+have that installation's data deleted. The ID appears only after usage
+statistics have been turned on; until then the row says that no ID exists
+yet. From 1.1, turning usage statistics off removes the ID, and turning them on again creates a new one, so copy it first if you want that installation's data deleted.
+
+**Language and region.** From 1.1 the desktop app reads the device's region
+setting as well as its languages; the web edition goes by the browser's
+languages and time zone.
+
+**Sessions that did not end normally.** From 1.1, if the previous session of the desktop app did not end normally, the next launch sends one event saying so. It carries nothing beyond the standard fields and cannot tell a crash from a forced quit, running out of memory or a power cut. To notice this, SimCrux keeps an empty marker file in its own folder while it runs, and only while usage statistics are on.
 
 **What is sent.** Feature and error counters, app and OS version, form
 factor, language and license tier. An error the app did not handle is

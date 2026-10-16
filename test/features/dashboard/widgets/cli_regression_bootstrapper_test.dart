@@ -800,6 +800,12 @@ void main() {
         final container = await pump(tester, locale: locale);
         expect(tester.takeException(), isNull, reason: '$locale');
         await flush(container);
+        // Telemetry keeps a listener on its gate, so the consent store's load
+        // schedules a provider refresh. Unmount inside the test and let that
+        // refresh run, rather than leave it to the framework's teardown.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        await tester.pump();
       }
     });
   });

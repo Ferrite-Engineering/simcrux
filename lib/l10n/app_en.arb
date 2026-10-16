@@ -2660,7 +2660,7 @@
   "@settingsTelemetryInstallationIdLabel": {
     "description": "Title of the Settings > Privacy row showing this installation id."
   },
-  "settingsTelemetryInstallationIdDescription": "The only identifier attached to what is collected. It is random, and not linked to you. Send it to support if you want the data from this installation deleted.",
+  "settingsTelemetryInstallationIdDescription": "The only identifier attached to what is collected. It is random, and not linked to you. To have the data from this installation deleted, send it to privacy@ferriteengineering.com. Turning usage statistics off removes it, so copy it first.",
   "@settingsTelemetryInstallationIdDescription": {
     "description": "Explains what the installation id is for. It is the only handle on this installation data, so the deletion path the privacy policy promises depends on the user being able to read it."
   },

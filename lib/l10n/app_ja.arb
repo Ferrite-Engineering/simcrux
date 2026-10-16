@@ -2380,7 +2380,7 @@
     "description": "Description of the telemetry documentation row in Settings > Privacy"
   },
   "settingsTelemetryInstallationIdLabel": "インストール ID",
-  "settingsTelemetryInstallationIdDescription": "収集されるデータに付与される唯一の識別子です。ランダムな値で、あなた個人とは結び付いていません。このインストールのデータ削除をご希望の場合は、サポートまでお送りください。",
+  "settingsTelemetryInstallationIdDescription": "収集されるデータに付与される唯一の識別子です。ランダムな値で、あなた個人とは結び付いていません。このインストールのデータ削除をご希望の場合は、privacy@ferriteengineering.com までお送りください。使用統計をオフにするとこの ID は削除されるため、先にコピーしてください。",
   "settingsTelemetryInstallationIdCopy": "コピー",
   "settingsTelemetryInstallationIdCopied": "インストール ID をコピーしました。",
   "settingsTelemetryInstallationIdNone": "インストール ID はありません。使用統計をオンにしたときにのみ作成されます。",
