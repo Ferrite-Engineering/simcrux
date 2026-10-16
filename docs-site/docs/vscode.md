@@ -19,4 +19,4 @@ Your VS Code window also joins the suite's cross-probe network as **one** peer, 
 
 ## Commands, settings and telemetry { #reference }
 
-The extension's listing on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.simcrux) has the full list of commands and settings. The extension sends usage statistics only while VS Code's own telemetry setting is on.
+The extension's listing on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.simcrux) has the full list of commands and settings. The extension sends usage statistics only while VS Code's own telemetry setting is on. From 1.1 it sends nothing in the EEA, the United Kingdom, Switzerland or South Korea, whatever that setting says, and it keeps no installation ID while it is not sending.
