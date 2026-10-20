@@ -280,9 +280,9 @@ void main() {
       tester,
     ) async {
       await _pump(tester);
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(Icons.more_horiz), findsNothing);
       await _pump(tester, width: 240);
-      expect(find.byIcon(Icons.more_vert), findsOneWidget);
+      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
     });
 
     group('locale sweep', () {
