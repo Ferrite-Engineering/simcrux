@@ -96,7 +96,7 @@ void main() {
 
     test('copyWith without the field preserves it', () {
       final off = const AppSettings().copyWith(autoCheckForUpdates: false);
-      expect(off.copyWith(cxpServerPort: 54999).autoCheckForUpdates, isFalse);
+      expect(off.copyWith(autoRunOnOpen: true).autoCheckForUpdates, isFalse);
     });
 
     test('participates in equality and hashCode', () {
@@ -108,40 +108,27 @@ void main() {
     });
   });
 
-  group('AppSettings.broadcastSelectionOnCrossProbe', () {
-    test('defaults to on', () {
-      expect(const AppSettings().broadcastSelectionOnCrossProbe, isTrue);
-    });
-
-    test('copyWith replaces it', () {
-      final off = const AppSettings().copyWith(
-        broadcastSelectionOnCrossProbe: false,
-      );
-      expect(off.broadcastSelectionOnCrossProbe, isFalse);
-      expect(
-        off
-            .copyWith(broadcastSelectionOnCrossProbe: true)
-            .broadcastSelectionOnCrossProbe,
-        isTrue,
-      );
-    });
-
-    test('copyWith without the field preserves it', () {
-      final off = const AppSettings().copyWith(
-        broadcastSelectionOnCrossProbe: false,
-      );
-      expect(
-        off.copyWith(cxpServerPort: 54999).broadcastSelectionOnCrossProbe,
-        isFalse,
-      );
-    });
-
+  group('AppSettings.recentProjectPaths', () {
     test('participates in equality and hashCode', () {
-      const on = AppSettings();
-      const off = AppSettings(broadcastSelectionOnCrossProbe: false);
-      expect(on, isNot(off));
-      expect(on.hashCode, isNot(off.hashCode));
-      expect(off, const AppSettings(broadcastSelectionOnCrossProbe: false));
+      const none = AppSettings();
+      const some = AppSettings(recentProjectPaths: ['/proj/a/simcrux.yaml']);
+      expect(none, isNot(some));
+      expect(none.hashCode, isNot(some.hashCode));
+      expect(
+        some,
+        const AppSettings(recentProjectPaths: ['/proj/a/simcrux.yaml']),
+      );
+    });
+
+    test('copyWith replaces it and preserves it when absent', () {
+      final some = const AppSettings().copyWith(
+        recentProjectPaths: ['/proj/a/simcrux.yaml'],
+      );
+      expect(some.recentProjectPaths, ['/proj/a/simcrux.yaml']);
+      expect(
+        some.copyWith(autoRunOnOpen: true).recentProjectPaths,
+        ['/proj/a/simcrux.yaml'],
+      );
     });
   });
 }

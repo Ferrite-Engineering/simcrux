@@ -87,8 +87,8 @@ void main() {
   group('EditorLauncher argv injection (CXP-reachable)', () {
     // `request_open_source` / `request_open_artifact` carry a peer-supplied
     // `filePath` and the inbound handler performs no sender check, so the
-    // substituted value is attacker-controlled on the default
-    // `cxpServerEnabled = true` build. Substituting into the template and
+    // substituted value is attacker-controlled on a default build, where the
+    // CXP server is on. Substituting into the template and
     // *then* splitting on whitespace would let that value manufacture new
     // argv elements; the launcher tokenizes the (user-owned) template first
     // and substitutes into each token, so a hostile path stays one argument.

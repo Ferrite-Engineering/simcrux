@@ -402,9 +402,17 @@
   "@actionMoveTabToOtherPane": {
     "description": "Command palette label for the action that moves the active tab to the other pane."
   },
-  "actionOpenCrossProbePanel": "打开交叉探测面板",
+  "actionOpenCrossProbePanel": "显示交叉探测面板",
   "@actionOpenCrossProbePanel": {
-    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+    "description": "Command palette / menu label that shows or hides the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionCrossProbeSelection": "交叉探测所选内容…",
+  "@actionCrossProbeSelection": {
+    "description": "Command palette / menu label that sends the selected test to a peer product (Cmd/Ctrl+Shift+Enter). Matches the shared cross-probe wording."
+  },
+  "actionClearRecentProjects": "清除最近的项目",
+  "@actionClearRecentProjects": {
+    "description": "Command palette / File menu label that empties the list of recently opened projects."
   },
   "actionOpenSeedFailureHeatmap": "显示种子失败热图",
   "@actionOpenSeedFailureHeatmap": {
@@ -437,62 +445,6 @@
   "actionConfigurePrAnnotationTarget": "配置 PR 批注…",
   "@actionConfigurePrAnnotationTarget": {
     "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog."
-  },
-  "crossProbePanelTitle": "交叉探测",
-  "@crossProbePanelTitle": {
-    "description": "Title of the CXP cross-probe panel."
-  },
-  "crossProbeCloseTooltip": "关闭交叉探针面板",
-  "crossProbeServerOffline": "交叉探针服务器已离线。",
-  "crossProbeSendTooltip": "将选择发送到此对等端",
-  "crossProbeUnreachableTitle": "无法访问的对等端",
-  "settingsRequestAttentionOnCrossProbeLabel": "交叉探针时请求注意",
-  "settingsRequestAttentionOnCrossProbeDescription": "当对等端发来交叉探针时，弹跳 Dock（或闪烁任务栏），绝不抢占焦点。",
-  "settingsBroadcastSelectionOnCrossProbeLabel": "自动广播选择",
-  "settingsBroadcastSelectionOnCrossProbeDescription": "在你进行选择时，实时将选择通告给已连接的对等端（实时交叉探针）。关闭时，仅共享显式发送的内容。",
-  "crossProbeSectionPeers": "已连接的工具",
-  "@crossProbeSectionPeers": {
-    "description": "Section header listing the CXP peers SimCrux is currently connected to."
-  },
-  "crossProbeSectionEvents": "最近活动",
-  "@crossProbeSectionEvents": {
-    "description": "Section header for the rolling buffer of recent cross-probe events."
-  },
-  "crossProbeNoPeers": "尚无已连接的工具。在本机启动 WaveCrux、NetCrux 或 LintCrux 后会在此处显示。",
-  "@crossProbeNoPeers": {
-    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
-  },
-  "crossProbeNoEvents": "暂无交叉探测活动。",
-  "@crossProbeNoEvents": {
-    "description": "Empty-state shown in the cross-probe events section before any events arrive."
-  },
-  "crossProbeClearEvents": "清空",
-  "@crossProbeClearEvents": {
-    "description": "Button label that clears the rolling cross-probe events buffer."
-  },
-  "crossProbeSendFailed": "发送到 {peer} 的交叉探测未能完成",
-  "@crossProbeSendFailed": {
-    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      }
-    }
-  },
-  "crossProbeSendRefused": "发送到 {peer} 的交叉探测：{reason}",
-  "@crossProbeSendRefused": {
-    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      },
-      "reason": {
-        "type": "String",
-        "example": "element not found: top.data"
-      }
-    }
   },
   "panelTestBrowserPlaceholder": "打开项目以浏览其测试。",
   "@panelTestBrowserPlaceholder": {
@@ -1336,30 +1288,6 @@
   "@webInspectorClose": {
     "description": "Close button label in the web inspector dialog."
   },
-  "settingsCxpEnabledLabel": "启用 CXP 服务器",
-  "@settingsCxpEnabledLabel": {
-    "description": "Switch label that turns the SimCrux CXP server on or off."
-  },
-  "settingsCxpEnabledDescription": "允许 WaveCrux、NetCrux、LintCrux 和 SimCrux 在本机交换选择和高亮事件。",
-  "@settingsCxpEnabledDescription": {
-    "description": "Helper text under the CXP enable switch explaining what the toggle does."
-  },
-  "settingsCxpPortLabel": "CXP 端口",
-  "@settingsCxpPortLabel": {
-    "description": "Text field label for the CXP server's listening port."
-  },
-  "settingsCxpPortDescription": "TCP 端口号（1～65535）",
-  "@settingsCxpPortDescription": {
-    "description": "Helper text under the CXP port field describing the valid port range."
-  },
-  "settingsCxpPortError": "请输入 1 到 65535 之间的端口。",
-  "@settingsCxpPortError": {
-    "description": "Error string when the user enters an invalid CXP port number."
-  },
-  "settingsCxpStatus": "CXP 状态",
-  "settingsCxpStatusRunning": "正在端口 {port} 上运行",
-  "settingsCxpStatusStopped": "已停止",
-  "settingsCxpPeersConnected": "已连接 {count} 个对等端",
   "settingsDetectorsSection": "检测器",
   "@settingsDetectorsSection": {
     "description": "Settings screen section header for the reusable pass/fail detector library."
@@ -1632,18 +1560,6 @@
   "emptyCanvasOpenWorkspace": "打开工作区…",
   "@emptyCanvasOpenWorkspace": {
     "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
-  },
-  "emptyCanvasRecentConfigsHeading": "最近的配置",
-  "@emptyCanvasRecentConfigsHeading": {
-    "description": "Section heading above the list of recently-opened simcrux.yaml files."
-  },
-  "emptyCanvasNoRecentConfigs": "尚无最近配置。",
-  "@emptyCanvasNoRecentConfigs": {
-    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
-  },
-  "emptyCanvasRecentSessionsHeading": "最近的会话",
-  "@emptyCanvasRecentSessionsHeading": {
-    "description": "Section heading above the list of recently-opened .simcrux-session export files."
   },
   "emptyCanvasOpenFailed": "无法打开文件选择器：{error}",
   "@emptyCanvasOpenFailed": {

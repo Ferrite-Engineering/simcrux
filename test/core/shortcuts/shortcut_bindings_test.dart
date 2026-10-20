@@ -49,6 +49,9 @@ void main() {
     SimcruxAction.reopenRecentProject,
     SimcruxAction.pinActiveProject,
     SimcruxAction.closeAllProjects,
+    // Clear Recent Projects: File menu / palette only. A destructive list
+    // reset nobody needs on a chord.
+    SimcruxAction.clearRecentProjects,
     // The open-core close-every-tab capability. Destructive and
     // confirmation-guarded; menu + command palette only, no chord.
     SimcruxAction.closeAllTabs,

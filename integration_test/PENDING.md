@@ -43,10 +43,10 @@ flutter test integration_test/workspace/restore_round_trip_test.dart -d macos
       `InMemoryResultStore.currentRun` closed on completion, so any post-run
       provider rebuild (filter/sort change) left the dashboard stuck on
       "Loading results…".
-- [x] CXP server lifecycle — `remote/cxp_server_lifecycle_test.dart` (real
-      `SimCruxCxpServer` on an OS-picked port via the factory seam: starts on
-      boot, TCP-connectable, stops on `cxpServerEnabled` off, restarts on
-      re-enable).
+- [x] CXP server lifecycle — `remote/cxp_server_lifecycle_test.dart` (the
+      shared CXP runtime on an OS-picked port via the launch settings: starts
+      on boot, TCP-connectable, stops when the CXP setting is turned off,
+      restarts on re-enable).
 - [x] Named workspace save / reset / open round-trip —
       `workspace/named_workspace_test.dart` (ported from NetCrux's
       `integration_test/workspace/named_workspace_test.dart`; drives the live

@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_eula/crux_eula.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
@@ -49,10 +50,10 @@ import 'package:simcrux/features/eula/simcrux_eula_overrides.dart';
 import 'package:simcrux/features/issue_reporter/providers/issue_reporter_overrides.dart';
 import 'package:simcrux/features/lifecycle/widgets/app_exit_guard.dart';
 import 'package:simcrux/features/menu_bar/widgets/desktop_menu_bar.dart';
-import 'package:simcrux/features/remote/providers/cxp_attention_bridge.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
 import 'package:simcrux/features/remote/providers/inbound_request_handler.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
+import 'package:simcrux/features/remote/simcrux_cxp_binding.dart';
+import 'package:simcrux/features/remote/simcrux_cxp_overrides.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/telemetry/simcrux_telemetry_overrides.dart';
 import 'package:simcrux/features/update/providers/update_overrides.dart';
@@ -353,9 +354,19 @@ Future<bool> bootstrap({
   // exercise the REAL production wiring (see the run-actions regression
   // pinned in
   // test/features/workspace/providers/simcrux_action_context_provider_test.dart).
+  //
+  // The CXP settings, loaded before the container exists so a launch with CXP
+  // off never starts the server or writes a manifest, even briefly. Desktop
+  // only: CXP never runs in a browser.
+  final cxpLaunch = cruxCxpDesktopHost()
+      ? await loadCruxCxpLaunchSettings(kSimcruxCxpBinding)
+      : null;
   final containers = createWorkspaceContainers(
     rootOverrides: <Override>[
       cliArgsProvider.overrideWithValue(parsedArgs),
+      // The shared CXP lifecycle, bound to SimCrux. Spread before
+      // `extraOverrides` so the Pro overlay can still replace any of it.
+      ...simcruxCxpOverrides(launch: cxpLaunch),
       // `--no-restore` skips this launch's workspace rehydration without
       // deleting anything: the injected restore gate short-circuits
       // `shouldRestoreOnLaunch` so `workspace.json` is never loaded (and
@@ -790,27 +801,19 @@ class _SimcruxAppChrome extends StatelessWidget {
       child: Consumer(
         builder: (context, innerRef, _) {
           // Anchor the CXP-side providers so the notify_selection
-          // emitter, inbound request handler, and rolling-events
-          // buffer stay alive for the app's lifetime regardless of
-          // whether the cross-probe panel is open. Each is a thin
-          // provider that subscribes to the running CXP server.
+          // emitter and the project opener stay alive for the app's
+          // lifetime regardless of whether the cross-probe panel is open.
           innerRef
             ..watch(notifySelectionEmitterProvider)
-            ..watch(inboundRequestHandlerProvider)
-            // Mirror the "request attention on cross-probe" preference
-            // into the global window-attention backend for the app's lifetime.
-            ..watch(cxpAttentionBridgeProvider)
+            ..watch(cxpProjectOpenerPublisherProvider)
             // Start CXP eagerly whenever "Enable cross-probe (CXP)" is on,
-            // decoupled from the Cross-Probe Panel dialog. Watching the
-            // discovery provider transitively builds cxpServerProvider (bind
-            // + listen) and runs the discovery service, which publishes this
-            // peer's manifest under ~/Library/Application Support/crux/cxp/
-            // peers/ and watches for peers — so enabling the setting has an
-            // observable effect without opening any dialog. Mirrors NetCrux's
-            // CxpInboundListener eager-watch. Gated internally on
-            // cxpServerEnabled: a disabled setting resolves to null and binds
-            // nothing.
-            ..watch(cxpDiscoveryProvider)
+            // decoupled from the Cross-Probe Panel. The shared runtime binds
+            // the server, publishes this peer's manifest under the suite's
+            // discovery directory and watches for peers, so enabling the
+            // setting has an observable effect without opening any panel. A
+            // disabled setting (or the organization's policy) resolves to
+            // null and binds nothing.
+            ..watch(cruxCxpRuntimeProvider)
             // Registry↔workspace glue: records every opened config
             // into the project registry (recents / pins / switcher
             // / cross-project search stay true) and follows

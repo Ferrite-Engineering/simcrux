@@ -7,28 +7,22 @@ library;
 import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_tab_overrides.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_discovery.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
-import '../../../support/answered_telemetry.dart';
 import '../../../support/cxp_fake_peer.dart';
-import '../../../support/delete_manifest_dir.dart';
+import '../../../support/cxp_runtime_harness.dart';
 import '../../../support/poll_until.dart';
 
 /// Peer id of the test client. Shared so the subscription-registration
@@ -36,33 +30,17 @@ import '../../../support/poll_until.dart';
 const String kEmitterClientPeerId = 'test-emitter-client';
 
 void main() {
+  late Directory manifests;
+
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    manifests = cxpTestManifestDirectory();
   });
 
-  Future<
-    ({
-      ProviderContainer container,
-      LocalCxpClient client,
-      SimCruxCxpServer server,
-    })
-  >
-  wireClient() async {
-    final container = ProviderContainer(
-      overrides: <Override>[
-        ...answeredTelemetryOverrides(),
-        cxpServerFactoryProvider.overrideWithValue(
-          ({required selfIdentity, required port}) => SimCruxCxpServer(
-            selfIdentity: selfIdentity,
-            port: 0,
-          ),
-        ),
-      ],
-    );
-    await container.read(appSettingsProvider.future);
-    final server = await container.read(cxpServerProvider.future);
-    expect(server, isNotNull);
-
+  Future<LocalCxpClient> connectSubscribedClient(
+    CruxCxpRuntime runtime,
+    CapturedCxpServer captured,
+  ) async {
     final client = LocalCxpClient(
       selfIdentity: const PeerIdentity(
         peerId: kEmitterClientPeerId,
@@ -70,9 +48,10 @@ void main() {
         productVersion: '0.0.0',
       ),
     );
+    addTearDown(client.dispose);
     await client.connect(
       host: '127.0.0.1',
-      port: server!.boundPort!,
+      port: runtime.boundPort!,
       token: cxpProcessAuthToken,
     );
     client.send(
@@ -88,24 +67,35 @@ void main() {
     // itself rather than on a fixed grace period whose adequacy
     // depends on machine speed and concurrent load.
     final subscribed = await pollUntil(
-      () =>
-          server.server!.debugSubscriptionsOf(kEmitterClientPeerId).isNotEmpty,
+      () => captured.server!
+          .debugSubscriptionsOf(kEmitterClientPeerId)
+          .isNotEmpty,
     );
     expect(
       subscribed,
       isTrue,
       reason: 'the subscription must register before any broadcast',
     );
-    return (container: container, client: client, server: server);
+    return client;
+  }
+
+  Future<({ProviderContainer container, LocalCxpClient client})> wireClient({
+    bool broadcastSelection = true,
+  }) async {
+    final captured = CapturedCxpServer();
+    final container = simcruxCxpRuntimeContainer(
+      manifestDirectory: manifests,
+      broadcastSelection: broadcastSelection,
+      capture: captured,
+    );
+    final runtime = await runningCxpRuntime(container);
+    final client = await connectSubscribedClient(runtime, captured);
+    return (container: container, client: client);
   }
 
   group('NotifySelectionEmitter', () {
     test('broadcasts ElementKind.test on test selection change', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       // Anchor the emitter.
       wired.container.read(notifySelectionEmitterProvider);
@@ -127,10 +117,6 @@ void main() {
       'broadcasts ElementKind.source on explicit source selection',
       () async {
         final wired = await wireClient();
-        addTearDown(() async {
-          await wired.client.dispose();
-          wired.container.dispose();
-        });
 
         wired.container.read(notifySelectionEmitterProvider);
 
@@ -147,75 +133,60 @@ void main() {
       },
     );
 
-    test(
-      'records an outbound event in the cross-probe events buffer',
-      () async {
-        final wired = await wireClient();
-        addTearDown(() async {
-          await wired.client.dispose();
-          wired.container.dispose();
-        });
+    test('the runtime records the broadcast in the cross-probe event log, '
+        'so the emitter records nothing itself', () async {
+      final wired = await wireClient();
 
-        wired.container.read(notifySelectionEmitterProvider);
+      wired.container.read(notifySelectionEmitterProvider);
 
-        // Pre-condition: no events yet (the inbound stream listener has
-        // attached but no message has been received).
-        var events = wired.container.read(crossProbeEventsProvider);
-        expect(events, isEmpty);
-
+      // Pre-condition: no selection event yet.
+      expect(
         wired.container
-            .read(selectedTestIdProvider.notifier)
-            .select('alpha/beta');
-        // Wait for the broadcast to fan out and the listener to record.
-        final recorded = await pollUntil(
-          () => wired.container.read(crossProbeEventsProvider).isNotEmpty,
-        );
-        expect(recorded, isTrue, reason: 'expected an outbound event');
-        events = wired.container.read(crossProbeEventsProvider);
-        final outbound = events
-            .where((e) => e.direction == CrossProbeDirection.outbound)
-            .toList();
-        expect(outbound, hasLength(1));
-        expect(outbound.single.kind, CxpMessageKind.notifySelection);
-        expect(outbound.single.summary, 'alpha/beta');
-      },
-    );
+            .read(cruxCxpEventLogProvider)
+            .where((e) => e.kind == CrossProbeEventKind.selectionSent),
+        isEmpty,
+      );
+
+      wired.container
+          .read(selectedTestIdProvider.notifier)
+          .select('alpha/beta');
+      // Wait for the broadcast to fan out and the log to record it.
+      final recorded = await pollUntil(
+        () => wired.container
+            .read(cruxCxpEventLogProvider)
+            .any((e) => e.kind == CrossProbeEventKind.selectionSent),
+      );
+      expect(recorded, isTrue, reason: 'expected an outbound event');
+      final outbound = wired.container
+          .read(cruxCxpEventLogProvider)
+          .where((e) => e.direction == CrossProbeEventDirection.outbound)
+          .where((e) => e.kind == CrossProbeEventKind.selectionSent)
+          .toList();
+      expect(outbound, hasLength(1));
+      expect(outbound.single.messageKind, CxpMessageKind.notifySelection);
+      expect(outbound.single.summary, 'alpha/beta');
+    });
 
     test('does not emit when CXP server is disabled', () async {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
+        enabled: false,
       );
-      addTearDown(container.dispose);
-
-      await container.read(appSettingsProvider.future);
-      await container
-          .read(appSettingsProvider.notifier)
-          .updateCxpServerEnabled(enabled: false);
-      await container.read(cxpServerProvider.future);
+      expect(await container.read(cruxCxpRuntimeProvider.future), isNull);
 
       // Anchor the emitter.
       container.read(notifySelectionEmitterProvider);
 
-      // Change selection — no broadcast happens because there is no
-      // running server.
+      // Change selection: no broadcast happens because there is no running
+      // server.
       container.read(selectedTestIdProvider.notifier).select('alpha/beta');
-      // An absence assertion, and the absence is decided synchronously:
-      // the emitter's broadcast path reads `cxpServerProvider`, finds no
-      // server and returns before recording anything. There is no
-      // observable transition to poll for, so a short settle is the
-      // right shape here — it only has to outlast a microtask drain, not
-      // a socket round trip.
+      // An absence assertion, and the absence is decided synchronously: the
+      // shared broadcast finds no runtime and returns before recording
+      // anything. There is no observable transition to poll for, so a short
+      // settle is the right shape here: it only has to outlast a microtask
+      // drain, not a socket round trip.
       await Future<void>.delayed(const Duration(milliseconds: 100));
-      final events = container.read(crossProbeEventsProvider);
-      expect(events, isEmpty);
+      expect(container.read(cruxCxpEventLogProvider), isEmpty);
     });
 
     test("broadcasts the ACTIVE tab container's selection changes when "
@@ -224,17 +195,13 @@ void main() {
       final tempDir = await Directory.systemTemp.createTemp(
         'simcrux_emitter_ws_',
       );
-      late final ProviderContainer container;
       final managersCreated = <WorkspaceContainerManagers>[];
-      container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
+      final captured = CapturedCxpServer();
+      late final ProviderContainer container;
+      container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
+        capture: captured,
+        extra: <Override>[
           simcruxWorkspaceServiceProvider.overrideWithValue(
             crux.WorkspaceService<SimcruxTabPayload>(
               codec: const SimcruxWorkspaceCodec(),
@@ -259,13 +226,10 @@ void main() {
         for (final m in managersCreated) {
           m.dispose();
         }
-        container.dispose();
         if (tempDir.existsSync()) await tempDir.delete(recursive: true);
       });
 
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
-      expect(server, isNotNull);
+      final runtime = await runningCxpRuntime(container);
 
       // Open one tab (becomes active) BEFORE anchoring the emitter so
       // attach() finds the active tab immediately.
@@ -278,38 +242,9 @@ void main() {
           );
       container.read(notifySelectionEmitterProvider);
 
-      final client = LocalCxpClient(
-        selfIdentity: const PeerIdentity(
-          peerId: kEmitterClientPeerId,
-          productName: 'test',
-          productVersion: '0.0.0',
-        ),
-      );
-      addTearDown(client.dispose);
-      await client.connect(
-        host: '127.0.0.1',
-        port: server!.boundPort!,
-        token: cxpProcessAuthToken,
-      );
-      client.send(
-        const Subscribe(
-          subscriptions: <CxpSubscription>[
-            CxpSubscription(messageKind: CxpMessageKind.notifySelection),
-          ],
-        ),
-      );
-      final subscribed = await pollUntil(
-        () => server.server!
-            .debugSubscriptionsOf(kEmitterClientPeerId)
-            .isNotEmpty,
-      );
-      expect(
-        subscribed,
-        isTrue,
-        reason: 'the subscription must register before any broadcast',
-      );
+      final client = await connectSubscribedClient(runtime, captured);
 
-      // Selecting inside the ACTIVE tab container broadcasts — this is
+      // Selecting inside the ACTIVE tab container broadcasts: this is
       // the real app path (root selectedTestIdProvider stays dormant).
       final received = client.inbound.firstWhere(
         (m) => m.message is NotifySelection,
@@ -326,28 +261,12 @@ void main() {
     });
 
     test(
-      'does not auto-broadcast when broadcastSelectionOnCrossProbe is off',
+      'does not auto-broadcast when "Broadcast selection automatically" is '
+      'off',
       () async {
-        // Persist the setting OFF before anything reads settings, so the
-        // server starts once with the gate already closed. (Toggling the
-        // setting at runtime would rebuild cxpServerProvider — it watches the
-        // whole AppSettings — and restart the server, dropping this client;
-        // that server-restart-on-settings-change is the same pre-existing
-        // behaviour the request-attention toggle triggers, and is not what
-        // this test is about.)
-        SharedPreferences.setMockInitialValues(<String, Object>{
-          'simcrux.broadcastSelectionOnCrossProbe': false,
-        });
-        final wired = await wireClient();
-        addTearDown(() async {
-          await wired.client.dispose();
-          wired.container.dispose();
-        });
+        final wired = await wireClient(broadcastSelection: false);
         expect(
-          wired.container
-              .read(appSettingsProvider)
-              .value!
-              .broadcastSelectionOnCrossProbe,
+          wired.container.read(cruxCxpSettingsProvider).broadcastSelection,
           isFalse,
         );
 
@@ -364,13 +283,18 @@ void main() {
             .read(selectedTestIdProvider.notifier)
             .select('cpu_unit/test_alu_basic');
 
-        // Absence assertion: the emitter's broadcast path reads the setting
-        // and returns before touching the server, so no observable transition
-        // exists to poll for — a short settle outlasting a microtask drain is
+        // Absence assertion: the shared broadcast reads the setting and
+        // returns before touching the runtime, so no observable transition
+        // exists to poll for: a short settle outlasting a microtask drain is
         // the right shape.
         await Future<void>.delayed(const Duration(milliseconds: 100));
         expect(received, isEmpty);
-        expect(wired.container.read(crossProbeEventsProvider), isEmpty);
+        expect(
+          wired.container
+              .read(cruxCxpEventLogProvider)
+              .where((e) => e.kind == CrossProbeEventKind.selectionSent),
+          isEmpty,
+        );
       },
     );
 
@@ -378,10 +302,6 @@ void main() {
       'does not re-emit when the selection toggles to the same value',
       () async {
         final wired = await wireClient();
-        addTearDown(() async {
-          await wired.client.dispose();
-          wired.container.dispose();
-        });
 
         wired.container.read(notifySelectionEmitterProvider);
 
@@ -409,35 +329,12 @@ void main() {
       'manual Subscribe — the connector auto-subscribes every link on '
       'handshake (crux_cxp fb8be19); presence alone proves nothing about this',
       () async {
-        final manifestDir = await Directory.systemTemp.createTemp(
-          'simcrux_emitter_manifest_e2e_',
+        final captured = CapturedCxpServer();
+        final container = simcruxCxpRuntimeContainer(
+          manifestDirectory: manifests,
+          capture: captured,
         );
-        final container = ProviderContainer(
-          overrides: <Override>[
-            ...answeredTelemetryOverrides(),
-            cxpServerFactoryProvider.overrideWithValue(
-              ({required selfIdentity, required port}) => SimCruxCxpServer(
-                selfIdentity: selfIdentity,
-                port: 0,
-              ),
-            ),
-            cxpDiscoveryFactoryProvider.overrideWithValue(
-              () async => SimCruxCxpDiscoveryService(
-                manifestDirectory: manifestDir.path,
-                scanInterval: const Duration(milliseconds: 30),
-              ),
-            ),
-          ],
-        );
-        addTearDown(() {
-          container.dispose();
-          deleteManifestDir(manifestDir);
-        });
-
-        await container.read(appSettingsProvider.future);
-        final server = await container.read(cxpServerProvider.future);
-        expect(server, isNotNull);
-        await container.read(cxpDiscoveryProvider.future);
+        final runtime = await runningCxpRuntime(container);
         container.read(notifySelectionEmitterProvider);
 
         const waveId = PeerIdentity(
@@ -447,14 +344,14 @@ void main() {
         );
         final peer = await CxpFakePeer.start(
           identity: waveId,
-          manifestDirectory: manifestDir.path,
+          manifestDirectory: manifests.path,
         );
         addTearDown(peer.stop);
 
         final mutual = await pollUntil(
           () =>
-              server!.connectedPeers.any((p) => p.peerId == waveId.peerId) &&
-              peer.isConnectedTo(server.selfIdentity.peerId),
+              runtime.peers.any((p) => p.peerId == waveId.peerId) &&
+              peer.isConnectedTo(runtime.selfIdentity.peerId),
         );
         expect(
           mutual,
@@ -473,10 +370,9 @@ void main() {
         // notify_selection is fire-and-forget: a frame dropped in that
         // window is never retried, so a broadcast issued there makes the
         // wait below time out with certainty rather than merely slowly.
-        // Gate on the registration itself — the same rule wireClient
-        // follows for its manual Subscribe.
+        // Gate on the registration itself.
         final subscribed = await pollUntil(
-          () => server!.server!.debugSubscriptionsOf(waveId.peerId).isNotEmpty,
+          () => captured.server!.debugSubscriptionsOf(waveId.peerId).isNotEmpty,
         );
         expect(
           subscribed,

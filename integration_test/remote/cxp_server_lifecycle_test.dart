@@ -3,21 +3,18 @@
 
 // integration_test/remote/cxp_server_lifecycle_test.dart
 //
-// CXP server lifecycle (NetCrux-suite port): the live app's
-// `CxpServerNotifier` starts a REAL `SimCruxCxpServer` (real TCP socket)
-// when `cxpServerEnabled` resolves true, stops it when the setting flips
-// off, and restarts it when it flips back on. The test overrides only the
-// server *factory* so the server binds port 0 (OS-picked) instead of the
-// production 54325 — the notifier lifecycle, the settings watch, and the
-// socket bind are all real.
+// CXP server lifecycle (NetCrux-suite port): the live app's shared
+// `cruxCxpRuntimeProvider` starts a REAL runtime (real TCP socket) when the
+// CXP setting resolves enabled, stops it when the setting flips off, and
+// restarts it when it flips back on. The test overrides only the launch
+// settings (port 0, so an OS-picked port) and the discovery directory (a temp
+// one) — the lifecycle, the settings watch, and the socket bind are all real.
 
 import 'dart:io';
 
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
 import '../helpers/app_driver.dart';
 
@@ -28,15 +25,23 @@ void main() {
   testWidgets(
     'CXP server starts on boot, stops on disable, restarts on re-enable',
     (tester) async {
+      final manifests = Directory.systemTemp.createTempSync('simcrux_cxp_it_');
+      addTearDown(() {
+        if (manifests.existsSync()) manifests.deleteSync(recursive: true);
+      });
       await bootSimcrux(
         tester,
         extraOverrides: [
           // Port 0 → OS-picked free port, so the test never collides with
-          // a real SimCrux (or a prior test run) holding 54325. Everything
-          // else — notifier, settings watch, socket — is production code.
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) =>
-                SimCruxCxpServer(selfIdentity: selfIdentity, port: 0),
+          // a real SimCrux (or a prior test run) holding 54325, and a temp
+          // discovery directory, so it never advertises itself to the
+          // machine's real peers. Everything else — the runtime, the
+          // settings watch, the socket — is production code.
+          cruxCxpLaunchSettingsProvider.overrideWithValue(
+            const CruxCxpSettings(enabled: true, port: 0),
+          ),
+          cruxCxpManifestDirectoryProvider.overrideWith(
+            (_) async => manifests.path,
           ),
         ],
       );
@@ -45,10 +50,10 @@ void main() {
       // ── Boot: enabled-by-default settings start the server ───────────
       final started = await pumpUntil(
         tester,
-        () => root.read(cxpServerProvider).value?.isRunning ?? false,
+        () => root.read(cruxCxpServerStatusProvider).running,
       );
       expect(started, isTrue, reason: 'server must start on boot');
-      final first = root.read(cxpServerProvider).value!;
+      final first = root.read(cruxCxpRuntimeProvider).value!;
       final firstPort = first.boundPort;
       expect(firstPort, isNotNull, reason: 'started server must be bound');
 
@@ -56,13 +61,15 @@ void main() {
       final probe = await Socket.connect('127.0.0.1', firstPort!);
       await probe.close();
 
-      // ── Disable: the notifier stops the server and publishes null ────
+      // ── Disable: the runtime stops and publishes null ────────────────
       await root
-          .read(appSettingsProvider.notifier)
-          .updateCxpServerEnabled(enabled: false);
+          .read(cruxCxpSettingsProvider.notifier)
+          .setEnabled(enabled: false);
       final stopped = await pumpUntil(
         tester,
-        () => root.read(cxpServerProvider).value == null && !first.isRunning,
+        () =>
+            root.read(cruxCxpRuntimeProvider).value == null &&
+            !first.isAvailable,
       );
       expect(
         stopped,
@@ -72,14 +79,14 @@ void main() {
 
       // ── Re-enable: a fresh server starts and binds again ─────────────
       await root
-          .read(appSettingsProvider.notifier)
-          .updateCxpServerEnabled(enabled: true);
+          .read(cruxCxpSettingsProvider.notifier)
+          .setEnabled(enabled: true);
       final restarted = await pumpUntil(tester, () {
-        final s = root.read(cxpServerProvider).value;
-        return s != null && s.isRunning && s.boundPort != null;
+        final s = root.read(cruxCxpRuntimeProvider).value;
+        return s != null && s.isAvailable && s.boundPort != null;
       });
       expect(restarted, isTrue, reason: 're-enable must restart the server');
-      final second = root.read(cxpServerProvider).value!;
+      final second = root.read(cruxCxpRuntimeProvider).value!;
       expect(identical(second, first), isFalse);
       final probe2 = await Socket.connect('127.0.0.1', second.boundPort!);
       await probe2.close();

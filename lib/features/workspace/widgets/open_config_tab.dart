@@ -1,15 +1,13 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:async';
-
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/crux_project_resolution.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -82,9 +80,11 @@ Future<String?> openConfigAsTab({
       return null;
   }
 
-  if (addToRecents) {
-    unawaited(ref.read(appSettingsProvider.notifier).addRecentProject(path));
-  }
+  // Read before the await: opening the tab usually replaces the welcome
+  // screen this `ref` belongs to.
+  final recents = addToRecents
+      ? ref.read(recentProjects.provider.notifier)
+      : null;
   ref.read(telemetryServiceProvider).record(projectOpenedEvent(source));
   await ref
       .read(workspaceProvider.notifier)
@@ -92,5 +92,7 @@ Future<String?> openConfigAsTab({
         displayName: p.basename(path),
         payload: SimcruxTabPayload(configPath: path),
       );
+  // After the open succeeded: a config that never opened is not a recent one.
+  recents?.markOpened(path);
   return path;
 }

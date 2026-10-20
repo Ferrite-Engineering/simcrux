@@ -5,16 +5,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/models/test_result.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
 import 'package:simcrux/services/remote/cxp/riscv_stream_coordinate.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
 /// Product short-name string WaveCrux peers announce in their
 /// [PeerIdentity.productName]. Hardcoded by convention — every
@@ -134,42 +131,26 @@ class DebugInWaveCruxDispatcher {
   /// Constructs a dispatcher bound to [ref].
   DebugInWaveCruxDispatcher({required this.ref});
 
-  /// Riverpod ref used to read the CXP server and the discovered
+  /// Riverpod ref used to read the CXP runtime and the connected
   /// peer list.
   final Ref ref;
 
   /// Look up the first connected WaveCrux peer, or null.
   ///
-  /// "Connected" means present in the discovered peer manifest list
-  /// AND visible in the server's `connectedPeers` snapshot (i.e. the
-  /// peer is running AND we have a live socket to it). The discovery
-  /// surface alone is not enough — WaveCrux might have a stale
-  /// manifest from a previous run.
-  String? _findWaveCruxPeerId() {
-    final serverAsync = ref.read(cxpServerProvider);
-    final server = serverAsync.value;
-    if (server == null) return null;
-    final connected = server.connectedPeers;
-    // Walk the discovered manifests first so we prefer the WaveCrux
-    // peer that is actively advertising itself; if it has not yet
-    // connected back to us, we cannot send to it (sendTo would fail).
-    final manifests = ref.read(cxpPeersProvider);
-    for (final m in manifests) {
-      if (m.identity.productName != wavecruxProductName) continue;
-      final hit = connected.firstWhere(
-        (c) => c.peerId == m.identity.peerId,
-        orElse: () => const PeerIdentity(
-          peerId: '',
-          productName: '',
-          productVersion: '',
-        ),
-      );
-      if (hit.peerId.isNotEmpty) return hit.peerId;
-    }
-    // Fall back to scanning connected peers directly in case discovery
-    // hasn't caught up yet.
-    for (final c in connected) {
-      if (c.productName == wavecruxProductName) return c.peerId;
+  /// "Connected" means [runtime] holds a live link to it: the peer is
+  /// running and we can send to it. A stale manifest from a previous run is
+  /// never in the list.
+  ///
+  /// Read from the runtime rather than the peer-list provider, which is a
+  /// stream that only has a value while something watches it (the toolbar
+  /// badge does, a headless call does not), and screened by the same filter
+  /// every cross-probe surface uses.
+  String? _findWaveCruxPeerId(CruxCxpRuntime runtime) {
+    final allowed = ref.read(cruxCxpPeerFilterProvider);
+    for (final peer in runtime.peers) {
+      if (peer.productName == wavecruxProductName && allowed(peer)) {
+        return peer.peerId;
+      }
     }
     return null;
   }
@@ -272,9 +253,8 @@ class DebugInWaveCruxDispatcher {
         waveformPath: waveformPath,
       );
     }
-    final serverAsync = ref.read(cxpServerProvider);
-    final server = serverAsync.value;
-    if (server == null) {
+    final runtime = ref.read(cruxCxpRuntimeProvider).value;
+    if (runtime == null || !runtime.isAvailable) {
       return DebugInWaveCruxResult(
         outcome: DebugInWaveCruxOutcome.serverDisabled,
         waveformPath: waveformPath,
@@ -295,7 +275,7 @@ class DebugInWaveCruxDispatcher {
         ),
       );
     }
-    final peerId = _findWaveCruxPeerId();
+    final peerId = _findWaveCruxPeerId(runtime);
     if (peerId == null) {
       return DebugInWaveCruxResult(
         outcome: DebugInWaveCruxOutcome.noPeer,
@@ -332,7 +312,7 @@ class DebugInWaveCruxDispatcher {
       cxpDesignIdMetadataKey: ?designId,
     };
     if (metadata.isNotEmpty || coordinate != null) {
-      server.sendTo(
+      runtime.sendTo(
         peerId,
         NotifySelection(
           elements: <ElementId>[element],
@@ -352,22 +332,14 @@ class DebugInWaveCruxDispatcher {
     // receiver can say "I opened your trace but could not land on step 7, and
     // here is why", and a hand-off that throws that away is a hand-off that
     // cannot tell a success from a silent miss.
-    final reply = await server.requestHighlight(
+    //
+    // The runtime records the send in the panel's event log.
+    final reply = await runtime.requestHighlight(
       peerId,
       RequestHighlight(element: element, coordinate: coordinate),
       timeout: ackTimeout,
+      summary: displayName ?? waveformPath,
     );
-    ref
-        .read(crossProbeEventsProvider.notifier)
-        .record(
-          CrossProbeEvent(
-            timestamp: DateTime.now(),
-            direction: CrossProbeDirection.outbound,
-            kind: CxpMessageKind.requestHighlight,
-            peerId: peerId,
-            summary: displayName ?? waveformPath,
-          ),
-        );
     if (!reply.delivered) {
       return DebugInWaveCruxResult(
         outcome: DebugInWaveCruxOutcome.noPeer,

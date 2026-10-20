@@ -26,7 +26,6 @@ class AppSettings {
   const AppSettings({
     this.core = const CoreSettings.defaults(),
     this.recentProjectPaths = const <String>[],
-    this.recentSessionPaths = const <String>[],
     this.panelLayout = const PanelLayoutState(),
     this.inspectorLogPreviewLineCount = 50,
     this.editorCommandTemplate = 'code --goto {file}:{line}:{column}',
@@ -34,10 +33,6 @@ class AppSettings {
     this.allowProjectDefinedTooling = false,
     this.simulatorDefaultOptions = const <String, List<String>>{},
     this.reusableDetectors = const <String, DetectorSpec>{},
-    this.cxpServerEnabled = true,
-    this.cxpServerPort = 54325,
-    this.requestAttentionOnCrossProbe = true,
-    this.broadcastSelectionOnCrossProbe = true,
     this.autoCheckForUpdates = true,
     this.autoRunOnOpen = false,
     this.maxTotalSimulators = 4,
@@ -54,15 +49,14 @@ class AppSettings {
 
   /// Absolute paths of recently opened `simcrux.yaml` project files,
   /// most-recently-opened first. Capped at [recentProjectsMax] entries.
-  /// Surfaced on the Welcome screen and in the future File menu.
+  /// Surfaced on the Welcome screen and in the File menu.
+  ///
+  /// Read and written through the shared Recent list
+  /// (`recentProjects` in `recent_lists.dart`), never directly: the list owns
+  /// opening order, removal and Clear Recent.
   final List<String> recentProjectPaths;
 
-  /// Absolute paths of recently opened `.simcrux-session` files,
-  /// most-recently-opened first. Capped at [recentProjectsMax]
-  /// entries. Surfaced on the Welcome screen and in the File menu.
-  final List<String> recentSessionPaths;
-
-  /// Maximum number of recent project / session paths retained.
+  /// Maximum number of recent project paths retained.
   /// Older entries fall off the end as new files are opened.
   static const int recentProjectsMax = 10;
 
@@ -122,39 +116,6 @@ class AppSettings {
   /// when a `simcrux.yaml` `pass_fail:` block references one via
   /// `{type: use, name: <name>}`.
   final Map<String, DetectorSpec> reusableDetectors;
-
-  /// Whether the SimCrux CXP server starts at app boot. Default: true.
-  ///
-  /// CXP is the cross-product peer cross-probe protocol that lets
-  /// Crux apps (and third-party tools) gossip selection events,
-  /// request highlights, and dispatch the "Debug in WaveCrux" flow.
-  /// Distinct from any external driver protocol — peer cross-probe
-  /// is bidirectional and symmetric (https://edacrux.app/cxp).
-  final bool cxpServerEnabled;
-
-  /// Localhost port the CXP server binds to. Default: 54325 (the
-  /// SimCrux slot in the per-product port assignment;
-  /// WaveCrux=54322, NetCrux=54323, LintCrux=54324, SimCrux=54325).
-  final int cxpServerPort;
-
-  /// Whether an actionable inbound cross-probe requests the user's attention
-  /// (a dock bounce / taskbar flash — never a focus steal). Default: true.
-  ///
-  /// Gated here: the settings→lifecycle bridge
-  /// swaps the global `windowAttentionRequester` between the method-channel
-  /// backend (on) and a no-op (off), so turning this off makes every inbound
-  /// `requestUserAttention()` a silent no-op.
-  final bool requestAttentionOnCrossProbe;
-
-  /// Whether SimCrux auto-broadcasts the local selection to connected CXP
-  /// peers as it changes (live cross-probe). Default: true.
-  ///
-  /// Gates the `notify_selection` outbound emitter: when false the emitter
-  /// stops announcing selection changes, so only explicit sends (e.g. the
-  /// "Debug in WaveCrux" flow) are shared. When true, selecting a test or
-  /// navigating to a source file broadcasts a `notify_selection` to every
-  /// subscribed peer.
-  final bool broadcastSelectionOnCrossProbe;
 
   /// Whether SimCrux checks the release manifest for a newer version
   /// automatically — once at launch, once per
@@ -236,7 +197,6 @@ class AppSettings {
   AppSettings copyWith({
     CoreSettings? core,
     List<String>? recentProjectPaths,
-    List<String>? recentSessionPaths,
     PanelLayoutState? panelLayout,
     int? inspectorLogPreviewLineCount,
     String? editorCommandTemplate,
@@ -244,10 +204,6 @@ class AppSettings {
     bool? allowProjectDefinedTooling,
     Map<String, List<String>>? simulatorDefaultOptions,
     Map<String, DetectorSpec>? reusableDetectors,
-    bool? cxpServerEnabled,
-    int? cxpServerPort,
-    bool? requestAttentionOnCrossProbe,
-    bool? broadcastSelectionOnCrossProbe,
     bool? autoCheckForUpdates,
     bool? autoRunOnOpen,
     int? maxTotalSimulators,
@@ -256,7 +212,6 @@ class AppSettings {
     return AppSettings(
       core: core ?? this.core,
       recentProjectPaths: recentProjectPaths ?? this.recentProjectPaths,
-      recentSessionPaths: recentSessionPaths ?? this.recentSessionPaths,
       panelLayout: panelLayout ?? this.panelLayout,
       inspectorLogPreviewLineCount:
           inspectorLogPreviewLineCount ?? this.inspectorLogPreviewLineCount,
@@ -269,12 +224,6 @@ class AppSettings {
       simulatorDefaultOptions:
           simulatorDefaultOptions ?? this.simulatorDefaultOptions,
       reusableDetectors: reusableDetectors ?? this.reusableDetectors,
-      cxpServerEnabled: cxpServerEnabled ?? this.cxpServerEnabled,
-      cxpServerPort: cxpServerPort ?? this.cxpServerPort,
-      requestAttentionOnCrossProbe:
-          requestAttentionOnCrossProbe ?? this.requestAttentionOnCrossProbe,
-      broadcastSelectionOnCrossProbe:
-          broadcastSelectionOnCrossProbe ?? this.broadcastSelectionOnCrossProbe,
       autoCheckForUpdates: autoCheckForUpdates ?? this.autoCheckForUpdates,
       autoRunOnOpen: autoRunOnOpen ?? this.autoRunOnOpen,
       maxTotalSimulators: maxTotalSimulators ?? this.maxTotalSimulators,
@@ -293,9 +242,6 @@ class AppSettings {
     }
     if (editorCommandTemplate != other.editorCommandTemplate) return false;
     if (!_listEquals(recentProjectPaths, other.recentProjectPaths)) {
-      return false;
-    }
-    if (!_listEquals(recentSessionPaths, other.recentSessionPaths)) {
       return false;
     }
     if (!_mapEquals(simulatorBinaryOverrides, other.simulatorBinaryOverrides)) {
@@ -319,15 +265,6 @@ class AppSettings {
     for (final entry in reusableDetectors.entries) {
       if (other.reusableDetectors[entry.key] != entry.value) return false;
     }
-    if (cxpServerEnabled != other.cxpServerEnabled) return false;
-    if (cxpServerPort != other.cxpServerPort) return false;
-    if (requestAttentionOnCrossProbe != other.requestAttentionOnCrossProbe) {
-      return false;
-    }
-    if (broadcastSelectionOnCrossProbe !=
-        other.broadcastSelectionOnCrossProbe) {
-      return false;
-    }
     if (autoCheckForUpdates != other.autoCheckForUpdates) return false;
     if (autoRunOnOpen != other.autoRunOnOpen) return false;
     if (maxTotalSimulators != other.maxTotalSimulators) return false;
@@ -339,7 +276,6 @@ class AppSettings {
   int get hashCode => Object.hash(
     core,
     Object.hashAll(recentProjectPaths),
-    Object.hashAll(recentSessionPaths),
     panelLayout,
     inspectorLogPreviewLineCount,
     editorCommandTemplate,
@@ -355,10 +291,6 @@ class AppSettings {
     Object.hashAllUnordered(
       reusableDetectors.entries.map((e) => Object.hash(e.key, e.value)),
     ),
-    cxpServerEnabled,
-    cxpServerPort,
-    requestAttentionOnCrossProbe,
-    broadcastSelectionOnCrossProbe,
     autoCheckForUpdates,
     autoRunOnOpen,
     maxTotalSimulators,

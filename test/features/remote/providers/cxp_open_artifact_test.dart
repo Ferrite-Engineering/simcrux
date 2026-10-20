@@ -7,7 +7,7 @@ library;
 import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
-import 'package:crux_window_chrome/crux_window_chrome.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -16,16 +16,14 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/providers/inbound_request_handler.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
-import '../../../support/answered_telemetry.dart';
+import '../../../support/cxp_runtime_harness.dart';
 
 /// `request_open_artifact` from VS Code's "Open in SimCrux Desktop": the
 /// extension publishes the workspace's `simcrux.yaml` as a `source` artifact
@@ -42,9 +40,9 @@ import '../../../support/answered_telemetry.dart';
 /// `crux.design_id` fallback keeps the roots too; its tests are in
 /// `inbound_request_handler_test.dart`.
 ///
-/// Everything runs through the production handler, the production roots
-/// (the recent-projects list) and the production project opener the handler
-/// publishes. Most tests put a server in front of it that admits every path,
+/// Everything runs through the production handler on the shared CXP runtime,
+/// the production roots (the recent-projects list) and the production project
+/// opener the handler publishes. Most tests put a server in front of it that admits every path,
 /// so a refusal is the handler's own; the last group goes through the
 /// production wire screen.
 void main() {
@@ -52,6 +50,7 @@ void main() {
   late Directory never;
   late Directory storeDir;
   late Directory workspaceDir;
+  late Directory manifests;
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -59,13 +58,10 @@ void main() {
     never = Directory.systemTemp.createTempSync('simcrux_artifact_never_');
     storeDir = Directory.systemTemp.createTempSync('simcrux_artifact_store_');
     workspaceDir = Directory.systemTemp.createTempSync('simcrux_artifact_ws_');
-    // An honoured open nudges the window's attention; these binding-less
-    // `dart:test` cases would throw on the platform channel.
-    windowAttentionRequester = const NoopWindowAttentionRequester();
+    manifests = cxpTestManifestDirectory();
   });
 
   tearDown(() {
-    windowAttentionRequester = const MethodChannelWindowAttentionRequester();
     <Directory>[opened, never, storeDir, workspaceDir].forEach(_deleteQuietly);
   });
 
@@ -84,32 +80,20 @@ void main() {
 
   /// The app, with a config in [opened] among the recent projects (the
   /// roots), a connected client, and a stub editor launcher. With
-  /// [productionWire] the server is the one `cxpServerFactoryProvider`
-  /// builds; otherwise it admits every path, so the handler's own checks are
-  /// what is tested.
+  /// [productionWire] the server screens the wire with the binding's own rule;
+  /// otherwise it admits every path, so the handler's own checks are what is
+  /// tested.
   Future<_App> boot({bool productionWire = false}) async {
-    if (productionWire) {
-      // The production factory binds the configured port, so configure a
-      // free one rather than collide with a running SimCrux.
-      final probe = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
-      final port = probe.port;
-      await probe.close();
-      SharedPreferences.setMockInitialValues(<String, Object>{
-        'simcrux.cxpServerPort': port,
-      });
-    }
     final launcher = _StubLauncher();
-    final container = ProviderContainer(
-      overrides: <Override>[
-        ...answeredTelemetryOverrides(),
-        if (!productionWire)
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-              containment: const _AdmitEveryPath(),
-            ),
-          ),
+    final container = simcruxCxpRuntimeContainer(
+      manifestDirectory: manifests,
+      // Production wire: the binding's own floor. Otherwise a rule that
+      // admits every path, so a refusal is the handler's own.
+      serverContainment: productionWire ? null : const _AdmitEveryPath(),
+      extra: <Override>[
+        cruxCxpRequestHandlerProvider.overrideWith(
+          SimcruxCxpRequestHandler.new,
+        ),
         editorLauncherProvider.overrideWithValue(launcher),
         // The production store, pointed at a temp directory and carrying
         // the production rule.
@@ -127,19 +111,16 @@ void main() {
         ),
       ],
     );
-    addTearDown(() async {
-      await container.read(workspaceProvider.notifier).flushPendingSave();
-      container.dispose();
-    });
-    await container.read(appSettingsProvider.future);
-    await container
-        .read(appSettingsProvider.notifier)
-        .addRecentProject(file(opened, 'simcrux.yaml').path);
+    addTearDown(
+      () => container.read(workspaceProvider.notifier).flushPendingSave(),
+    );
+    final recents = container.read(recentProjects.provider.notifier);
+    await recents.restored;
+    recents.markOpened(file(opened, 'simcrux.yaml').path);
     await container.read(workspaceProvider.future);
-    final server = await container.read(cxpServerProvider.future);
-    expect(server, isNotNull);
-    // Anchor the handler, as the app does. It publishes the project opener.
-    container.read(inboundRequestHandlerProvider);
+    final runtime = await runningCxpRuntime(container);
+    // Anchor the opener publisher, as the app does.
+    container.read(cxpProjectOpenerPublisherProvider);
     final client = LocalCxpClient(
       selfIdentity: const PeerIdentity(
         peerId: 'vscode-open-artifact-test',
@@ -149,7 +130,7 @@ void main() {
     );
     await client.connect(
       host: '127.0.0.1',
-      port: server!.boundPort!,
+      port: runtime.boundPort!,
       token: cxpProcessAuthToken,
     );
     addTearDown(client.dispose);
@@ -219,7 +200,7 @@ void main() {
       expect((await app.ask(hint: config.path)).honored, isTrue);
       expect(app.tabs(), <String>[config.path]);
       expect(
-        app.container.read(appSettingsProvider).value?.recentProjectPaths,
+        app.container.read(recentProjects.provider),
         contains(config.path),
       );
     });
@@ -393,8 +374,7 @@ void main() {
     // `LocalCxpServer` screens the hint before the handler sees it, and a
     // rooted screen there strips the hint for a config never opened; no
     // record is written, so the hint is all the handler has. MUTATION:
-    // handing `SimCruxCxpServer` `cxpPathContainmentProvider` in
-    // `cxpServerFactoryProvider` makes this red.
+    // handing the binding `cxpPathContainmentProvider`'s rule makes this red.
     test('a simcrux.yaml never opened crosses the wire and opens as a config '
         'tab', () async {
       final config = file(never, 'simcrux.yaml');

@@ -48,6 +48,7 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
     [
       SimcruxAction.switchProject,
       SimcruxAction.reopenRecentProject,
+      SimcruxAction.clearRecentProjects,
       SimcruxAction.pinActiveProject,
     ],
     // Close Tab (Cmd/Ctrl+W) leads the close group, mirroring WaveCrux
@@ -72,6 +73,7 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.toggleInspector,
       SimcruxAction.toggleLogPanel,
       SimcruxAction.openCrossProbePanel,
+      SimcruxAction.crossProbeSelection,
     ],
     [
       SimcruxAction.splitPaneRight,

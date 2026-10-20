@@ -4,15 +4,15 @@
 import 'dart:async';
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart' show cruxCxpServerStatusProvider;
 import 'package:crux_project/crux_project.dart' show CruxProjectParser;
 import 'package:crux_workspace/crux_workspace.dart' show WorkspaceTab;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/active_tab_container.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 
 /// The shared-workspace artifact kind SimCrux **produces**.
@@ -72,7 +72,7 @@ Iterable<String> cxpOpenDirectories(Ref ref) {
     for (final tab
         in workspace?.tabs ?? const <WorkspaceTab<SimcruxTabPayload>>[])
       tab.payload.configPath,
-    ...?ref.read(appSettingsProvider).value?.recentProjectPaths,
+    ...ref.read(recentProjects.provider),
     ?config?.projectFilePath,
   ];
   final roots = <String>{
@@ -273,7 +273,7 @@ Future<void> publishWaveformWorkspaceArtifact(
   String? topModule,
 }) async {
   if (designId.isEmpty || waveformPath.isEmpty) return;
-  if (ref.read(cxpServerProvider).value == null) return;
+  if (!ref.read(cruxCxpServerStatusProvider).running) return;
   try {
     await ref
         .read(cxpWorkspaceStoreProvider)
@@ -374,15 +374,15 @@ Future<String?> resolveOpenArtifactSourcePath(
 ///   picker.
 Future<bool> openCxpConfigTab(Ref ref, String configPath) async {
   try {
-    unawaited(
-      ref.read(appSettingsProvider.notifier).addRecentProject(configPath),
-    );
+    final recents = ref.read(recentProjects.provider.notifier);
     await ref
         .read(workspaceProvider.notifier)
         .openTab(
           displayName: p.basename(configPath),
           payload: SimcruxTabPayload(configPath: configPath),
         );
+    // After the open succeeded: a config that never opened is not a recent one.
+    recents.markOpened(configPath);
     return true;
   } on Object {
     return false;

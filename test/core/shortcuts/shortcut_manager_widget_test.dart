@@ -70,6 +70,159 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  group('Cross-probe Selection (Cmd/Ctrl+Shift+Enter)', () {
+    Future<void> sendChord(WidgetTester tester) async {
+      final isMac = defaultTargetPlatform == TargetPlatform.macOS;
+      final modifier = isMac
+          ? LogicalKeyboardKey.metaLeft
+          : LogicalKeyboardKey.controlLeft;
+      await tester.sendKeyDownEvent(modifier);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyUpEvent(modifier);
+    }
+
+    /// Mounts the manager with [body] and an observer above it that counts
+    /// the Enter key-downs the manager did NOT handle, which is what a text
+    /// field would see.
+    Future<({int Function() fired, int Function() leftToTheField})> pump(
+      WidgetTester tester,
+      Widget body,
+    ) async {
+      var fired = 0;
+      var leftToTheField = 0;
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter) {
+                  leftToTheField++;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: ShortcutManagerWidget(
+                handlers: <SimcruxAction, VoidCallback>{
+                  SimcruxAction.crossProbeSelection: () => fired++,
+                },
+                child: Scaffold(body: body),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return (fired: () => fired, leftToTheField: () => leftToTheField);
+    }
+
+    testWidgets('fires the command when nothing takes text', (tester) async {
+      final seen = await pump(
+        tester,
+        const Focus(autofocus: true, child: SizedBox.shrink()),
+      );
+
+      await sendChord(tester);
+      await tester.pump();
+
+      expect(seen.fired(), 1);
+      expect(seen.leftToTheField(), 0, reason: 'the command took the key');
+    });
+
+    testWidgets('is ignored in a focused text field: nothing is sent and the '
+        'field is left the key', (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      final seen = await pump(
+        tester,
+        TextField(controller: controller, autofocus: true, maxLines: null),
+      );
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+
+      await sendChord(tester);
+      await tester.pump();
+
+      expect(seen.fired(), 0);
+      expect(
+        seen.leftToTheField(),
+        1,
+        reason: 'the chord ends in Enter, which the field uses',
+      );
+    });
+
+    testWidgets('a remapped chord is ignored in a text field too', (
+      tester,
+    ) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      var fired = 0;
+      var leftToTheField = 0;
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      // The user moved the command to Cmd/Ctrl+Alt+Enter.
+      container
+          .read(shortcutBindingsProvider.notifier)
+          .setBinding(
+            SimcruxAction.crossProbeSelection,
+            SingleActivator(
+              LogicalKeyboardKey.enter,
+              control: defaultTargetPlatform != TargetPlatform.macOS,
+              meta: defaultTargetPlatform == TargetPlatform.macOS,
+              alt: true,
+            ),
+          );
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter) {
+                  leftToTheField++;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: ShortcutManagerWidget(
+                handlers: <SimcruxAction, VoidCallback>{
+                  SimcruxAction.crossProbeSelection: () => fired++,
+                },
+                child: Scaffold(
+                  body: TextField(
+                    controller: controller,
+                    autofocus: true,
+                    maxLines: null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+
+      final isMac = defaultTargetPlatform == TargetPlatform.macOS;
+      final modifier = isMac
+          ? LogicalKeyboardKey.metaLeft
+          : LogicalKeyboardKey.controlLeft;
+      await tester.sendKeyDownEvent(modifier);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyUpEvent(modifier);
+      await tester.pump();
+
+      expect(fired, 0);
+      expect(leftToTheField, 1);
+    });
+  });
+
   testWidgets('passes plain letter through when text field has focus '
       '(no Ctrl/Cmd)', (tester) async {
     var fired = 0;

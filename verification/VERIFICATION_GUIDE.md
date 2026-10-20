@@ -106,13 +106,13 @@ Fixture families:
 
 ### 3.3 Empty-canvas launch surface — theme + locale sweep
 
-**What it does (plain language).** On cold boot with no project loaded, SimCrux shows `EmptyCanvasContent` (`lib/features/workspace/widgets/empty_canvas_content.dart`, backed by `empty_canvas_content_provider.dart`) — the primary actions (Open Config…, Open Session…, Open Workspace…) plus a recent-configs list — localized in all four locales and themed by the active preset. (There is no separate "welcome" screen; the empty canvas is the launch surface.)
+**What it does (plain language).** On cold boot with no project loaded, SimCrux shows `EmptyCanvasContent` (`lib/features/workspace/widgets/empty_canvas_content.dart`, backed by `empty_canvas_content_provider.dart`) — the primary actions (Open Config…, Open Session…, Open Workspace…) plus the Recent projects list (the suite's shared Recent list, §3.4) — localized in all four locales and themed by the active preset. (There is no separate "welcome" screen; the empty canvas is the launch surface.)
 
 **Setup.** Launch with an empty workspace (or clear the persisted workspace first).
 
 **Step-by-step expected behavior.**
 
-1. Cold-boot lands on the empty-canvas state: zero tabs, and "No recent configs yet." when settings carry no recents.
+1. Cold-boot lands on the empty-canvas state: zero tabs, and "No recent projects" under the "Recent projects" heading when settings carry no recents.
 2. Switch locale (`en` / `zh_CN` / `ja` / `ko`) — every label re-renders without overflow.
 3. Switch theme preset (Settings → Appearance) — the chrome brightness flips live.
 
@@ -120,12 +120,28 @@ Fixture families:
 
 **Edge cases.**
 
-- No recent configs → the placeholder text renders; recent configs present → the recent-configs section renders instead.
+- No recent projects → the placeholder text renders and there is no Clear button; recent projects present → the list renders instead.
 - The four primary action labels are asserted in English so a missing ARB key fails the test.
 
 **Tier-gate scenarios.** N/A — Open Core.
 
-**Automation Assessment.** `test/features/workspace/widgets/empty_canvas_content_test.dart` (group `'EmptyCanvasContent — locale sweep'` across `en`/`zh_CN`/`zh`/`ja`/`ko`: overflow, recent-configs, action labels) (`Coverage: AUTOMATED — flutter test`). Theme-preset switch: `integration_test/theme/theme_switch_test.dart` (`'switching presets flips MaterialApp brightness'`); cold-boot: `integration_test/workspace/empty_canvas_boot_test.dart` (`Coverage: AUTOMATED — flutter test --tags integration` / macOS integration run).
+**Automation Assessment.** `test/features/workspace/widgets/empty_canvas_content_test.dart` (group `'EmptyCanvasContent — locale sweep'` across `en`/`zh_CN`/`zh`/`ja`/`ko`: overflow, recent projects, action labels; group `'EmptyCanvasContent — the shared Recent list'`: order, remove, Clear, missing file) (`Coverage: AUTOMATED — flutter test`). Theme-preset switch: `integration_test/theme/theme_switch_test.dart` (`'switching presets flips MaterialApp brightness'`); cold-boot: `integration_test/workspace/empty_canvas_boot_test.dart` (`Coverage: AUTOMATED — flutter test --tags integration` / macOS integration run).
+
+### 3.4 Recent projects: remove, Clear Recent, missing files
+
+**What it does.** The Recent projects list on the empty canvas is the suite's shared Recent list. Each row has a remove button; a Clear Recent Projects button sits under the list; File → Clear Recent Projects and the command palette do the same; a project file that has gone is greyed and marked "Project file not found".
+
+**Setup.** Open three projects (so three rows exist), then quit and relaunch with no tab restored (or close every tab). Delete or rename one project file on disk.
+
+**Steps & expected behavior.**
+1. The welcome screen lists the three projects, most recently opened first, each with its path. The deleted one is greyed and reads "Project file not found" in place of its path.
+2. Click the remove (×) button on a row: that row disappears and the others stay. Relaunch: it stays gone.
+3. Click the greyed row: nothing opens, the row is removed, and an error toast says it could not be opened and was removed from Recent Projects.
+4. Open a project from the list: it opens as a tab and moves to the top of the list on the next welcome screen. Open it by any other route too (Open Config, a file passed on the command line, a peer's request): it is recorded once it has opened, and not recorded when the open failed.
+5. Click Clear Recent Projects (or choose File → Clear Recent Projects, or the command palette entry): the list empties, the toast "Recent projects cleared." is shown and announced, and relaunching shows "No recent projects". The Pro project registry's own recents panel is unaffected.
+6. Upgrade check: launch a build that has an older `simcrux.recentProjectPaths` already saved (stored as a JSON string): the list shows every saved project on first launch, and is still there after the next settings change.
+
+**Automation assessment.** Steps 1 to 5: `test/features/workspace/widgets/empty_canvas_content_test.dart` (rows in order, remove, Clear, missing file greyed, opening a missing file drops it) and `test/core/shortcuts/simcrux_action_handlers_test.dart` ("Clear Recent Projects"). Step 6: `test/features/settings/providers/app_settings_provider_test.dart` and `test/services/settings/simcrux_settings_codec_test.dart` (the list round-trips as the JSON string it has always been). Manual sign-off for the cold relaunch and the file-menu entry.
 
 ## 4. Icarus + Verilator + Dashboard
 
@@ -427,11 +443,10 @@ fetches the JSON next to the served `index.html` (or from a
 - NDJSON-only sites: `WebFetchResultsLoader` automatically falls
   back to `results.ndjson` when `simcrux-results.json` 404s.
 - No CXP in the browser: `lib/main_web.dart`'s import closure reaches
-  neither `crux_cxp` nor SimCrux's CXP providers (whose manifest-directory
-  resolver throws on web), and `cxpDiscoverySupportedProvider` is false on
-  web so the desktop entrypoint run in a browser never resolves it
-  (`test/web/web_entrypoint_import_closure_test.dart`,
-  `cxp_discovery_provider_test.dart`).
+  neither `crux_cxp` nor SimCrux's CXP binding (whose manifest-directory
+  resolver throws on web), and the shared transport is off on web so the
+  desktop entrypoint run in a browser never starts a runtime
+  (`test/web/web_entrypoint_import_closure_test.dart`).
 
 **Automation Assessment.** `Coverage: AUTOMATED — flutter test +
 flutter build web smoke job` (`test/web/` covers the document
@@ -656,9 +671,9 @@ workspace has zero tabs.
 **Expected behavior.**
 - The window opens to the SimCrux empty-canvas card centred in the
   scaffold body — SimCrux headline + subtitle.
-- Recent-configs section either renders the localized
-  "No recent configs yet." placeholder or a list of recent project
-  paths from `AppSettings.recentProjectPaths`.
+- The Recent projects section either renders the localized
+  "No recent projects" placeholder or the list of recent project
+  paths (§3.4).
 - Four primary actions: Open Config… / Open Session… /
   Open Workspace… / New Config.
 - No tab bar, no inspector pane.
@@ -1020,12 +1035,12 @@ CXP is the suite-wide cross-product cross-probe protocol shipped in the `crux_cx
 
 ### 7.1 CXP server lifecycle
 
-**What it does.** On app launch with `cxpServerEnabled = true` (default), SimCrux binds a `LocalCxpServer` on `127.0.0.1:54325` (the SimCrux slot in the per-product port assignment). Toggling the setting off stops the server cleanly; changing the port restarts it.
+**What it does.** On app launch with the CXP setting on (default), SimCrux's shared CXP runtime binds a `LocalCxpServer` on `127.0.0.1:54325` (the SimCrux slot in the per-product port assignment). Toggling the setting off stops the server cleanly; changing the port restarts it at once, with no relaunch.
 
 **Setup.** Fresh launch with default settings. Other Crux apps optional (the lifecycle is verifiable in isolation).
 
 **Steps & expected behavior.**
-1. Open Settings → Remote Control. Confirm "Enable cross-probe (CXP)" is ON and the port reads 54325.
+1. Open Settings → CXP Cross-Probe. Confirm "Enable CXP server" is ON and the port reads 54325, and that the status line reads "Running on port 54325".
 2. Run `lsof -i :54325` (or `netstat -an | grep 54325` on Windows): expect SimCrux listening on `127.0.0.1`.
 3. Confirm `simcrux-<pid>-<startedAtMillis>.json` exists in the **suite-shared** manifest directory — `~/Library/Application Support/crux/cxp/peers/` on macOS, `%APPDATA%\crux\cxp\peers\` on Windows, `${XDG_DATA_HOME:-~/.local/share}/crux/cxp/peers/` on Linux (resolved by `sharedCxpManifestDirectory()`; **not** the per-app container, which peers in other apps cannot see). The file content is a JSON object with `identity.product_name = "simcrux"`, `host = 127.0.0.1`, `port = 54325`. Leave the app running > 1 minute and re-`cat` the file: `started_at` refreshes every ~30 s (manifest heartbeat — keeps peers from stale-pruning us at their 5-minute threshold).
 4. Toggle the switch off. The lsof entry disappears within ~1s; the manifest file disappears.
@@ -1033,27 +1048,45 @@ CXP is the suite-wide cross-product cross-probe protocol shipped in the `crux_cx
 6. Change the port to 12345 (any free port in 1024–65535). Server rebinds; manifest file's `port` updates.
 7. Enter `99999` in the port field → inline error "Enter a port between 1 and 65535." appears; no setting change.
 
-**Automation assessment.** Lifecycle providers unit-tested in `test/features/remote/providers/cxp_server_provider_test.dart`. Discovery covered in `test/services/remote/cxp/simcrux_cxp_discovery_test.dart` and `test/features/remote/providers/cxp_discovery_provider_test.dart`. The socket-level lifecycle (steps 2/4/5: bind on boot, TCP-connectable, stop on disable, restart on re-enable) is end-to-end automated in the live app by `integration_test/remote/cxp_server_lifecycle_test.dart` (macOS; OS-picked port via the `cxpServerFactoryProvider` seam). Manual sign-off remains for the Settings-UI steps (1, 6, 7) and the peer-manifest inspection (3).
+**Automation assessment.** The lifecycle, discovery, settings persistence and port rule are the shared runtime's, tested in `crux-shared/packages/crux_cxp_ui/test/cxp_lifecycle_test.dart` and `cxp_settings_section_test.dart`. SimCrux's binding is pinned by `test/integration/remote/simcrux_cxp_conformance_test.dart` (two products on shared runtimes; the identity and accepted kinds SimCrux announces) and its settings section by `test/features/settings/widgets/settings_remote_control_section_test.dart` (the controls save under the `simcrux.` keys, and an unrelated settings save leaves them alone; `test/services/settings/simcrux_settings_codec_test.dart` pins that the app settings codec never writes them). The socket-level lifecycle (steps 2/4/5: bind on boot, TCP-connectable, stop on disable, restart on re-enable) is end-to-end automated in the live app by `integration_test/remote/cxp_server_lifecycle_test.dart` (macOS; OS-picked port through the launch settings). Manual sign-off remains for the Settings-UI steps (1, 6, 7) and the peer-manifest inspection (3).
 
 ### 7.2 Peer discovery + cross-probe panel
 
-**What it does.** SimCrux watches the suite-shared manifest directory, **dials every discovered peer** (the `CxpPeerConnector`; without it nothing opens a CXP socket, so the peer list gated on `connectedPeers` stays empty forever), and surfaces every connected non-simcrux peer in the cross-probe panel. The panel additionally shows a rolling log of the last ~50 cross-probe events (inbound + outbound) and lets the user manually `sendTo(<peer>, NotifySelection)` for the active test.
+**What it does.** SimCrux's shared CXP runtime watches the suite-shared manifest directory, **dials every discovered peer** (the `CxpPeerConnector`; without it nothing opens a CXP socket, so the peer list stays empty forever), and surfaces every connected peer in the cross-probe panel. The panel additionally shows a rolling log of the last 200 cross-probe events (inbound + outbound) and lets the user send the active test to a peer with its send button.
 
-**Connector-link routing (2026-07-20, crux-shared pin `20b7305`).** Presence (`connectedPeers` showing the peer) is necessary but was not previously sufficient: with two symmetric dialers, a message SimCrux sends via `server.sendTo`/`broadcast` typically travels over the socket the OTHER side's own connector dialed, so the peer only ever observes it arriving on THEIR connector's outbound client link — never on their server's accept loop. `SimCruxCxpDiscoveryService.start()` now passes `server:` to `CxpPeerConnector` so link traffic SimCrux itself dials out on is merged into SimCrux's own `server.inbound`; every other Crux product needs the equivalent wiring on its own side for the round trip to complete (WaveCrux and SimCrux have both landed it as of this pin). Before this fix, `connectedPeers` looked correct while every directed request, ack, and notify_selection gossip arriving over a connector-dialed link was silently dropped — the worst symptom of the 2026-07-19 suite CXP audit (`sendTo`/`dispatch` reporting `true` with nothing actually received on the other end).
+**Connector-link routing.** Presence (the peer showing in the list) is necessary but not sufficient: with two symmetric dialers, a message SimCrux sends typically travels over the socket the OTHER side's own connector dialed, so the peer only ever observes it arriving on THEIR connector's outbound client link, never on their server's accept loop. The shared runtime builds the connector with `server:` so link traffic SimCrux itself dials out on is merged into its own server's inbound; every other Crux product has the same wiring on its own side. Without it the peer list looks correct while every directed request, ack, and notify_selection arriving over a connector-dialed link is silently dropped.
 
-**Setup.** SimCrux running. Launch a second Crux peer on the same machine (WaveCrux at 54322, NetCrux at 54323, or LintCrux at 54324 — any build at or past its 2026-07-18 CXP fix; a pre-fix build publishes into its per-app container and cannot be discovered). Open SimCrux's command palette → "Open Cross-Probe Panel" (or Tools menu).
+**Setup.** SimCrux running. Launch a second Crux peer on the same machine (WaveCrux at 54322, NetCrux at 54323, or LintCrux at 54324). Open SimCrux's command palette → "Show Cross-Probe Panel" (or View menu, or Cmd/Ctrl+Shift+X).
 
 **Steps & expected behavior.**
-1. Panel header shows the green status indicator + "Cross-probe running on port 54325".
-2. Under the Peers section header, the **Discovery directory** line (monospace) names the suite-shared path from §7.1 step 3 — this is the self-debug surface when peers aren't appearing: inspect that directory's manifests directly. SimCrux's own manifest is in that directory but SimCrux must never be listed as its own peer (self-filter).
-3. Connected peers section lists the other Crux peer with its productName + version + host:port + peerId — within ~5 s of both apps running (manifest discovered → symmetric connectors dial → inbound Hello on both servers). Leave both running **> 5 minutes**: the row persists (heartbeat defeats the stale prune).
-3a. **Unreachable-peer indicator.** Simulate a peer whose manifest exists but whose server can't be dialed: while the other peer is discovered, block/close its CXP port (e.g. quit only the peer's server while a stale manifest is still on disk, or hand-write a manifest naming a closed port into the discovery directory). Within ~5 s (one dial retry tick) a persistent warning line — amber warning icon + "Couldn't reach <peer>" (product name, or `host:port` when the manifest is gone) — appears directly under the connected-peers list. It clears once the peer becomes reachable (its dial succeeds) or its manifest is removed. When every peer is reachable the indicator renders nothing (no empty box, no header). Confirm the line is localized in each locale (en, zh_CN, zh, ja, ko).
-4. Click "Send selection to WaveCrux" (or NetCrux/LintCrux) — a `notify_selection` event with direction "→ out" appears in Recent activity.
-5. Trigger an inbound message from the other peer (e.g. tap a signal in WaveCrux to broadcast NotifySelection). Direction "← in" appears in the panel within ~2 scan ticks.
-6. Click "Clear" — events buffer empties. Verify the button disables when the buffer is already empty.
-7. Quit the other peer's process. Within ~2 scan ticks the peer row disappears from the panel and a "← in: goodbye" event (or silent disconnect) is recorded. Kill it with `kill -9` instead (crash, manifest left behind): the row lingers until ~5 minutes after its last heartbeat, then is pruned and the stale manifest deleted.
+1. With the server running, the panel shows no offline banner; with CXP off it shows the offline banner.
+2. Connected peers section lists the other Crux peer, within ~5 s of both apps running (manifest discovered → symmetric connectors dial → inbound Hello on both servers). Leave both running **> 5 minutes**: the row persists (heartbeat defeats the stale prune). SimCrux is never listed as its own peer.
+2a. **Unreachable-peer indicator.** Simulate a peer whose manifest exists but whose server can't be dialed: while the other peer is discovered, block/close its CXP port (e.g. quit only the peer's server while a stale manifest is still on disk, or hand-write a manifest naming a closed port into the discovery directory). Within ~5 s (one dial retry tick) an "Unreachable peers" section appears naming it. It clears once the peer becomes reachable or its manifest is removed. When every peer is reachable the section renders nothing. Confirm the panel is localized in each locale (en, zh_CN, zh, ja, ko).
+3. Select a test, then click the peer row's send button — the other app shows the test (WaveCrux its waveform; NetCrux and LintCrux the test as a scope), a toast reports "Cross-probed to <Product>", and a highlight event with direction "out" appears in Recent events. A refusal shows "Cross-probe to <Product>: <reason>" in the peer's own words.
+4. Trigger an inbound message from the other peer (e.g. tap a signal in WaveCrux to broadcast NotifySelection). An inbound event appears in the panel within ~2 scan ticks.
+5. Click "Clear" — the event log empties.
+6. Quit the other peer's process. Within ~2 scan ticks the peer row disappears from the panel. Kill it with `kill -9` instead (crash, manifest left behind): the row lingers until ~5 minutes after its last heartbeat, then is pruned and the stale manifest deleted.
+7. The toolbar badge counts connected peers, not discovered ones.
 
-**Automation assessment.** Panel widget tests cover empty-state, event rendering, Clear, and the five-locale sweep (`test/features/remote/widgets/cross_probe_panel_test.dart`). The unreachable-peer indicator is pinned in the same file (renders the warning naming the peer product, falls back to `host:port` when the manifest is unknown, hides failures for SimCrux's own product to match the foreign-only peer list, and renders nothing when there are no failures); the provider that feeds it — `cxpDialFailuresProvider` — is covered in `test/features/remote/providers/cxp_discovery_provider_test.dart` (empty when reachable; surfaces a real refused dial to a closed port), and the service getters (`dialFailures` / `lastDialFailures`) in `test/services/remote/cxp/simcrux_cxp_discovery_test.dart` (empty while stopped; records a refused dial). Discovery file-watching covered by integration tests (`simcrux_cxp_discovery_test.dart` injects a foreign manifest into a temp dir and asserts the added/removed event flow). The mutual-connect case — SimCrux + a WaveCrux-style peer sharing one manifest directory ending up mutually CONNECTED — is pinned by `simcrux_cxp_discovery_test.dart` ("SimCrux and a WaveCrux-style peer sharing one … MUTUALLY CONNECTED") and, at the shared-package level, by `crux-shared/packages/crux_cxp/test/conformance/peer_connectivity_test.dart` (shared-dir resolver, heartbeat-vs-stale-prune, two-server mutual connect, retry-until-listening). The connector-link routing fix above is pinned by the same file's "end-to-end product traffic over the connector-dialed link…" test: it stands up a full SimCrux stack alongside a full WaveCrux-style peer stack (server + manifest writer + discovery + connector, not a raw client) and asserts the peer's OWN `server.inbound` receives the request and SimCrux's OWN `server.inbound` receives the ack — presence alone is asserted first and shown insufficient. Manual sign-off needed for the visual presentation and the real multi-process flow (incl. the >5-minute persistence and crash-prune checks).
+**Automation assessment.** The panel, the peer and event lists and the unreachable-peer section are the shared `CruxCrossProbePanel`'s, tested in `crux-shared/packages/crux_cxp_ui/test/cross_probe_panel_test.dart` and `cxp_lifecycle_test.dart`. SimCrux's wiring is pinned by `test/features/remote/widgets/cross_probe_panel_test.dart` (empty and offline states, the send button sends the selected test as a test and a scope, a refusal raises the shared toast with the peer's words, no licence tier or beta state stands between a press and the send, five-locale sweep). The mutual-connect case and connector-link routing are pinned at the shared-package level by `crux-shared/packages/crux_cxp/test/conformance/peer_connectivity_test.dart` and, for SimCrux's own stack, by `test/features/remote/providers/inbound_request_handler_test.dart` ("…over a REAL connector-dialed link…": a full peer product stack, not a raw client, originates the request, the selection lands in the active tab, and the peer's OWN server inbound receives the ack) and `test/features/remote/providers/notify_selection_emitter_test.dart` (a connector-linked peer that never sent a manual `Subscribe` still receives the broadcast). Manual sign-off needed for the visual presentation and the real multi-process flow (incl. the >5-minute persistence and crash-prune checks).
+
+### 7.2a Cross-probe to, and the Cross-probe Selection command
+
+**What it does.** Any result row can be cross-probed to a running peer product without opening the panel, from the row's context menu or from the keyboard.
+
+**Setup.** SimCrux with a project open and one run complete; at least one other Crux app running. Settings → CXP Cross-Probe on.
+
+**Steps & expected behavior.**
+1. Right-click (or long-press) a result row. The menu offers "Cross-probe to". With no peer running the item is greyed and reads "Cross-probe to (no peers running)", and hovering it says to start a Crux app with CXP on.
+2. Choose "Cross-probe to". The menu closes and a second menu opens where the first opened, listing each running product once (WaveCrux, NetCrux, LintCrux, SimCrux, in that order); a product running in several windows shows "WaveCrux 1", "WaveCrux 2" as sub-items.
+3. Choose a product. The row is sent to it: WaveCrux receives the waveform the test captured (when it did; otherwise the test as a scope), NetCrux and LintCrux the test as a scope. A toast reports the outcome.
+4. Select a test and press Cmd/Ctrl+Shift+Enter (or View → Cross-probe Selection…, or the command palette). With one peer running the test is sent at once; with several, the same target menu opens. With nothing selected, the server off, or no peer running, a toast says which; the command never does nothing silently.
+5. With a text field focused (the search box, a settings field), Cmd/Ctrl+Shift+Enter belongs to the field and sends nothing.
+6. "Debug in WaveCrux" in the inspector is unchanged (§7.6).
+
+**Tier-gate scenarios.** Free on every tier and in every beta state: the menu item, the command and the panel's send carry no badge and never show an upgrade dialog.
+
+**Automation assessment.** `test/features/dashboard/providers/dashboard_row_extensions_test.dart` (the row menu offers the item, lists the peers in suite order, sends the waveform to WaveCrux and the scope to NetCrux, and is greyed with no peer), `test/features/dashboard/widgets/dashboard_results_table_test.dart` (the menu opens at the gesture's position), `test/core/shortcuts/simcrux_action_handlers_test.dart` and `shortcut_manager_widget_test.dart` (the command, and the chord left to a focused text field), `test/static/action_reachability_guard_test.dart`, and the shared surfaces in `crux-shared/packages/crux_cxp_ui/test/cross_probe_surfaces_test.dart`. Manual sign-off for the real two-app flow and the menu cascade position.
 
 ### 7.3 notify_selection emit on test + source selection
 
@@ -1111,7 +1144,7 @@ Every mutation targets the ACTIVE tab's provider scope (the handler resolves the
 5. The same rule applies to `request_open_artifact` (the recorded source a peer's `design_id` resolves to, or the path hint when nothing is recorded) and to the `crux.design_id` fallback a `request_highlight` takes when it cannot be honoured locally: a file outside the opened directories is never handed to the editor.
 6. **Peer auth.** A peer must present, in its `hello`, the token SimCrux published in its discovery manifest; a suite app reads it from the manifest automatically. A hand-rolled peer that omits it is refused `unauthorized` before any request is dispatched.
 
-**Automation assessment.** Both paths covered by stub-launcher tests in `inbound_request_handler_test.dart` and `simcrux_cxp_conformance_test.dart`. Containment: the "CXP §11 containment" group in `inbound_request_handler_test.dart` (the handler's own check on open-source, open-artifact record and hint, and the highlight fallback; mutation-verified), the conformance suite's outside-path case (refused at the server, built by the production factory), `simcrux_cxp_server_test.dart` (refused before `inbound`), and `cxp_workspace_link_test.dart` (the roots, and that the store and the server factory carry the one rule). Peer auth: `simcrux_cxp_server_test.dart` and the conformance suite. Manual sign-off recommended for the actual editor handoff (which the stub cannot exercise), and for a real cross-probe into a design SimCrux has never opened (refused).
+**Automation assessment.** Both paths covered by stub-launcher tests in `inbound_request_handler_test.dart` and `simcrux_cxp_conformance_test.dart`. Containment: the "CXP §11 containment" group in `inbound_request_handler_test.dart` (the handler's own check on open-source, open-artifact record and hint, and the highlight fallback; mutation-verified), the conformance suite's outside-path case (the production binding's floor on a real runtime), `cxp_open_artifact_test.dart` (a project open held to the floor, an editor launch to the roots), and `cxp_workspace_link_test.dart` (the roots, and that the store carries the rooted rule while the binding carries the floor). Peer auth: the shared runtime's lifecycle test in `crux-shared/packages/crux_cxp_ui/test/cxp_lifecycle_test.dart` and the conformance suite's token case. Acknowledgement and attention: `inbound_request_handler_test.dart` ("acknowledgement and attention belong to the runtime": exactly one ack per request, one dock bounce per honoured request, none for a refusal or with "Request attention" off). Manual sign-off recommended for the actual editor handoff (which the stub cannot exercise), and for a real cross-probe into a design SimCrux has never opened (refused).
 
 ### 7.6 "Debug in WaveCrux" originator flow
 
@@ -1127,7 +1160,7 @@ Every mutation targets the ACTIVE tab's provider scope (the handler resolves the
 
 **Edge cases.**
 - No WaveCrux connected → snackbar: "WaveCrux is not connected. Launch WaveCrux on this machine and try again." No outbound events recorded.
-- CXP disabled in settings → snackbar: "Cross-probe is disabled. Enable it in Settings → Remote Control to use Debug in WaveCrux." No outbound events.
+- CXP disabled in settings → snackbar: "Cross-probe is disabled. Enable it in Settings > CXP Cross-Probe to use Debug in WaveCrux." No outbound events.
 - Test has no captured waveform → button enabled but click produces snackbar: "This test did not capture a waveform. Re-run with waveform capture enabled."
 
 **Tier-gate scenarios.** Open-core feature; no tier gating applies. Unrestricted regardless of `kBetaPeriod`.
@@ -1136,7 +1169,7 @@ Every mutation targets the ACTIVE tab's provider scope (the handler resolves the
 
 ### 7.7 Error paths
 
-- **Port-in-use.** Set the CXP port to an occupied port (e.g. 22). Settings save succeeds (the validator only checks the range); the lifecycle controller's `server.start()` throws, the AsyncValue surfaces as `AsyncError`, and the cross-probe panel header shows "Cross-probe is disabled." (Future polish: dedicated "port in use" status — open issue.)
+- **Port-in-use.** Set the CXP port to an occupied port (e.g. 22). Settings save succeeds (the validator only checks the range); the runtime's bind fails without throwing, the server reads as not running, and Settings > CXP Cross-Probe shows the bind failure under the status line (the runtime's `unavailableReason`) while the cross-probe panel shows its offline banner.
 - **Malformed inbound messages.** Peers that send unknown `kind` values receive an `ErrorResponse` with `code = unknown_kind` (handled by `LocalCxpServer` before the message reaches SimCrux's handlers).
 - **Non-Hello first message.** Peers that send anything before `Hello` receive `code = handshake_required` (same — `LocalCxpServer` enforces).
 

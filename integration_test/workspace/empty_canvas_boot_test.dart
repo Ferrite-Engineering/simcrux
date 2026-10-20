@@ -24,7 +24,7 @@ void main() {
 
       expect(tabCount(tester), 0, reason: 'fresh boot opens no tabs');
       expect(find.byType(EmptyCanvasContent), findsOneWidget);
-      expect(find.text('No recent configs yet.'), findsOneWidget);
+      expect(find.text('No recent projects'), findsOneWidget);
 
       expect(tester.takeException(), isNull);
     },

@@ -57,6 +57,7 @@ import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 import 'package:simcrux/services/settings/simcrux_settings_codec.dart';
 
+import '../support/cxp_test_overrides.dart';
 import '../support/recording_telemetry_service.dart';
 
 // ── harness ─────────────────────────────────────────────────────────────────
@@ -105,6 +106,10 @@ class _Harness {
         testTrendProvider.overrideWith((ref, _) async => const <TestStatus>[]),
         // Opening a config records `project.opened`; nothing here transmits.
         telemetryServiceProvider.overrideWithValue(RecordingTelemetryService()),
+        // The toolbar's peer badge reads the shared CXP providers, which on
+        // a desktop platform would start a runtime. The binding is SimCrux's
+        // and the transport is off, so nothing binds a socket.
+        ...simcruxCxpTestOverrides(),
         // The containers are disposed in tear-down, after the pending-timer
         // check, so the source watcher's polling backstop stays off here.
         suiteSourcePollIntervalProvider.overrideWithValue(null),

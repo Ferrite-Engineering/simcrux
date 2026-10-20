@@ -80,10 +80,16 @@ Map<SimcruxAction, ShortcutActivator> defaultBindings() {
     // ── tools / help ──────────────────────────────────────────────────────
     SimcruxAction.openSettings: mod(LogicalKeyboardKey.comma),
     // Cross-probe (CXP) panel. ⌘/Ctrl+Shift+X — "X" for cross-probe. The
-    // panel is also reachable from the Tools menu; this gives it a default
+    // panel is also reachable from the View menu; this gives it a default
     // accelerator so it is discoverable without hunting through the menu.
     SimcruxAction.openCrossProbePanel: mod(
       LogicalKeyboardKey.keyX,
+      shift: true,
+    ),
+    // Cross-probe the selected test. ⌘/Ctrl+Shift+Enter: the panel's chord
+    // with Enter ("send") in place of X. A text field keeps the key.
+    SimcruxAction.crossProbeSelection: mod(
+      LogicalKeyboardKey.enter,
       shift: true,
     ),
     SimcruxAction.openAbout: const SingleActivator(LogicalKeyboardKey.f1),

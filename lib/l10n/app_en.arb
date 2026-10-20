@@ -405,9 +405,17 @@
   "@actionMoveTabToOtherPane": {
     "description": "Command palette label for the action that moves the active tab to the other pane."
   },
-  "actionOpenCrossProbePanel": "Open Cross-Probe Panel",
+  "actionOpenCrossProbePanel": "Show Cross-Probe Panel",
   "@actionOpenCrossProbePanel": {
-    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+    "description": "Command palette / menu label that shows or hides the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionCrossProbeSelection": "Cross-probe Selection…",
+  "@actionCrossProbeSelection": {
+    "description": "Command palette / menu label that sends the selected test to a peer product (Cmd/Ctrl+Shift+Enter). Matches the shared cross-probe wording."
+  },
+  "actionClearRecentProjects": "Clear Recent Projects",
+  "@actionClearRecentProjects": {
+    "description": "Command palette / File menu label that empties the list of recently opened projects."
   },
   "actionOpenSeedFailureHeatmap": "Show Seed Failure Heatmap",
   "@actionOpenSeedFailureHeatmap": {
@@ -440,70 +448,6 @@
   "actionConfigurePrAnnotationTarget": "Configure PR Annotations…",
   "@actionConfigurePrAnnotationTarget": {
     "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog (platform selector, repo / MR number, auth token, test connection)."
-  },
-  "crossProbePanelTitle": "Cross-probe",
-  "@crossProbePanelTitle": {
-    "description": "Title of the CXP cross-probe panel."
-  },
-  "crossProbeCloseTooltip": "Close cross-probe panel",
-  "@crossProbeCloseTooltip": {
-    "description": "Tooltip on the docked cross-probe panel's header close chevron."
-  },
-  "crossProbeServerOffline": "Cross-probe server is offline.",
-  "@crossProbeServerOffline": {
-    "description": "Banner shown at the top of the docked cross-probe panel when the CXP server is not running."
-  },
-  "crossProbeSendTooltip": "Send selection to this peer",
-  "@crossProbeSendTooltip": {
-    "description": "Tooltip on each connected-peer row's direct-send button in the docked cross-probe panel."
-  },
-  "crossProbeUnreachableTitle": "Unreachable peers",
-  "@crossProbeUnreachableTitle": {
-    "description": "Section header above the list of discovered CXP peers the connector cannot open a socket to."
-  },
-  "crossProbeSectionPeers": "Connected peers",
-  "@crossProbeSectionPeers": {
-    "description": "Section header listing the CXP peers SimCrux is currently connected to."
-  },
-  "crossProbeSectionEvents": "Recent activity",
-  "@crossProbeSectionEvents": {
-    "description": "Section header for the rolling buffer of recent cross-probe events."
-  },
-  "crossProbeNoPeers": "No peers connected yet. Launch WaveCrux, NetCrux, or LintCrux on this machine to see them here.",
-  "@crossProbeNoPeers": {
-    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
-  },
-  "crossProbeNoEvents": "No cross-probe activity yet.",
-  "@crossProbeNoEvents": {
-    "description": "Empty-state shown in the cross-probe events section before any events arrive."
-  },
-  "crossProbeClearEvents": "Clear",
-  "@crossProbeClearEvents": {
-    "description": "Button label that clears the rolling cross-probe events buffer."
-  },
-  "crossProbeSendFailed": "The cross-probe to {peer} did not go through",
-  "@crossProbeSendFailed": {
-    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      }
-    }
-  },
-  "crossProbeSendRefused": "Cross-probe to {peer}: {reason}",
-  "@crossProbeSendRefused": {
-    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      },
-      "reason": {
-        "type": "String",
-        "example": "element not found: top.data"
-      }
-    }
   },
   "panelTestBrowserPlaceholder": "Open a project to browse its tests.",
   "@panelTestBrowserPlaceholder": {
@@ -1353,70 +1297,6 @@
   "@webInspectorClose": {
     "description": "Close button label in the web inspector dialog."
   },
-  "settingsCxpEnabledLabel": "Enable CXP server",
-  "@settingsCxpEnabledLabel": {
-    "description": "Switch label that turns the SimCrux CXP server on or off."
-  },
-  "settingsCxpEnabledDescription": "Lets WaveCrux, NetCrux, LintCrux, and SimCrux exchange selection and highlight events on this machine.",
-  "@settingsCxpEnabledDescription": {
-    "description": "Helper text under the CXP enable switch explaining what the toggle does."
-  },
-  "settingsCxpPortLabel": "CXP port",
-  "@settingsCxpPortLabel": {
-    "description": "Text field label for the CXP server's listening port."
-  },
-  "settingsCxpPortDescription": "TCP port number (1–65535)",
-  "@settingsCxpPortDescription": {
-    "description": "Helper text under the CXP port field describing the valid port range."
-  },
-  "settingsCxpPortError": "Enter a port between 1 and 65535.",
-  "@settingsCxpPortError": {
-    "description": "Error string when the user enters an invalid CXP port number."
-  },
-  "settingsRequestAttentionOnCrossProbeLabel": "Request attention on cross-probe",
-  "@settingsRequestAttentionOnCrossProbeLabel": {
-    "description": "Switch label controlling whether an actionable inbound cross-probe bounces the dock / flashes the taskbar."
-  },
-  "settingsRequestAttentionOnCrossProbeDescription": "Bounce the dock (or flash the taskbar) when a peer sends a cross-probe. Never steals focus.",
-  "@settingsRequestAttentionOnCrossProbeDescription": {
-    "description": "Helper text under the request-attention switch explaining the dock-bounce behaviour and that it never steals focus."
-  },
-  "settingsBroadcastSelectionOnCrossProbeLabel": "Broadcast selection automatically",
-  "@settingsBroadcastSelectionOnCrossProbeLabel": {
-    "description": "Switch label controlling whether the local selection is announced to connected CXP peers as it changes (live cross-probe)."
-  },
-  "settingsBroadcastSelectionOnCrossProbeDescription": "Announce your selection to connected peers as you select it (live cross-probe). When off, only explicit sends are shared.",
-  "@settingsBroadcastSelectionOnCrossProbeDescription": {
-    "description": "Helper text under the broadcast-selection switch explaining live cross-probe and that only explicit sends are shared when off."
-  },
-  "settingsCxpStatus": "CXP Status",
-  "@settingsCxpStatus": {
-    "description": "Label for the CXP server status line in Settings."
-  },
-  "settingsCxpStatusRunning": "Running on port {port}",
-  "@settingsCxpStatusRunning": {
-    "description": "Status text shown when the CXP server is running on a given port.",
-    "placeholders": {
-      "port": {
-        "type": "int",
-        "example": "54325"
-      }
-    }
-  },
-  "settingsCxpStatusStopped": "Stopped",
-  "@settingsCxpStatusStopped": {
-    "description": "Status text shown when the CXP server is not running."
-  },
-  "settingsCxpPeersConnected": "{count} peer(s) connected",
-  "@settingsCxpPeersConnected": {
-    "description": "Status subtitle showing how many CXP peers are currently connected.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "2"
-      }
-    }
-  },
   "settingsDetectorsSection": "Detectors",
   "@settingsDetectorsSection": {
     "description": "Settings screen section header for the reusable pass/fail detector library."
@@ -1689,18 +1569,6 @@
   "emptyCanvasOpenWorkspace": "Open Workspace…",
   "@emptyCanvasOpenWorkspace": {
     "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
-  },
-  "emptyCanvasRecentConfigsHeading": "Recent configs",
-  "@emptyCanvasRecentConfigsHeading": {
-    "description": "Section heading above the list of recently-opened simcrux.yaml files."
-  },
-  "emptyCanvasNoRecentConfigs": "No recent configs yet.",
-  "@emptyCanvasNoRecentConfigs": {
-    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
-  },
-  "emptyCanvasRecentSessionsHeading": "Recent sessions",
-  "@emptyCanvasRecentSessionsHeading": {
-    "description": "Section heading above the list of recently-opened .simcrux-session export files."
   },
   "emptyCanvasOpenFailed": "Could not open the file picker: {error}",
   "@emptyCanvasOpenFailed": {

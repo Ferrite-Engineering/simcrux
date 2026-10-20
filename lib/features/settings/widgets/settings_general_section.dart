@@ -75,64 +75,89 @@ class SettingsGeneralSection extends ConsumerWidget {
         const SizedBox(height: 16),
         // Off by default, by design: opening a config must not launch
         // the whole regression. See `AppSettings.autoRunOnOpen`.
-        Row(
-          children: [
-            Expanded(
-              child: CruxFormRow.toggle(
-                key: const Key('settings.autoRunOnOpen'),
-                label: l10n.settingsAutoRunOnOpenLabel,
-                help: l10n.settingsAutoRunOnOpenDescription,
-                value: settings.autoRunOnOpen,
-                onChanged: (enabled) {
-                  unawaited(
-                    ref
-                        .read(appSettingsProvider.notifier)
-                        .updateAutoRunOnOpen(enabled: enabled),
-                  );
-                },
+        _TileAligned(
+          child: Row(
+            children: [
+              Expanded(
+                child: CruxFormRow.toggle(
+                  key: const Key('settings.autoRunOnOpen'),
+                  label: l10n.settingsAutoRunOnOpenLabel,
+                  help: l10n.settingsAutoRunOnOpenDescription,
+                  value: settings.autoRunOnOpen,
+                  onChanged: (enabled) {
+                    unawaited(
+                      ref
+                          .read(appSettingsProvider.notifier)
+                          .updateAutoRunOnOpen(enabled: enabled),
+                    );
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            CruxHelpLink(
-              url: HelpUrls.runningTests,
-              tooltip: l10n.helpLinkLearnMore,
-            ),
-          ],
+              const SizedBox(width: 4),
+              CruxHelpLink(
+                url: HelpUrls.runningTests,
+                tooltip: l10n.helpLinkLearnMore,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         // Gates every *scheduled* update check (launch, 24 h periodic, on
         // resume) via `crux_updates`' `autoUpdateCheckEnabledProvider`. The
         // manual Help → Check for Updates action ignores it by contract.
-        CruxFormRow.toggle(
-          key: const Key('settings.autoCheckForUpdates'),
-          label: l10n.settingsAutoCheckUpdatesLabel,
-          help: l10n.settingsAutoCheckUpdatesDescription,
-          value: settings.autoCheckForUpdates,
-          onChanged: (enabled) {
-            unawaited(
-              ref
-                  .read(appSettingsProvider.notifier)
-                  .updateAutoCheckForUpdates(enabled: enabled),
-            );
-          },
-        ),
-        if (showDiagnosticsToggle) ...[
-          const SizedBox(height: 16),
-          CruxFormRow.toggle(
-            key: const Key('settings.diagnosticsEnabled'),
-            label: l10n.settingsDiagnosticsEnabledLabel,
-            help: l10n.settingsDiagnosticsEnabledDescription,
-            value: settings.diagnosticsEnabled,
+        _TileAligned(
+          child: CruxFormRow.toggle(
+            key: const Key('settings.autoCheckForUpdates'),
+            label: l10n.settingsAutoCheckUpdatesLabel,
+            help: l10n.settingsAutoCheckUpdatesDescription,
+            value: settings.autoCheckForUpdates,
             onChanged: (enabled) {
               unawaited(
                 ref
                     .read(appSettingsProvider.notifier)
-                    .updateDiagnosticsEnabled(enabled: enabled),
+                    .updateAutoCheckForUpdates(enabled: enabled),
               );
             },
+          ),
+        ),
+        if (showDiagnosticsToggle) ...[
+          const SizedBox(height: 16),
+          _TileAligned(
+            child: CruxFormRow.toggle(
+              key: const Key('settings.diagnosticsEnabled'),
+              label: l10n.settingsDiagnosticsEnabledLabel,
+              help: l10n.settingsDiagnosticsEnabledDescription,
+              value: settings.diagnosticsEnabled,
+              onChanged: (enabled) {
+                unawaited(
+                  ref
+                      .read(appSettingsProvider.notifier)
+                      .updateDiagnosticsEnabled(enabled: enabled),
+                );
+              },
+            ),
           ),
         ],
       ],
     );
   }
+}
+
+/// Insets a toggle row by the 16 dp each side the suite's shared settings
+/// tiles (`CruxSettingsControlTile`, `CruxSettingsSliderTile`, the
+/// auto-reload and language tiles) carry inside their own padding, so the
+/// toggles' labels start where the other rows' labels do.
+///
+/// A bare `CruxFormRow.toggle` has no padding of its own, which put every
+/// toggle about 16 dp to the left of the tiles above it.
+class _TileAligned extends StatelessWidget {
+  const _TileAligned({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: child,
+  );
 }

@@ -7,7 +7,7 @@ library;
 import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
-import 'package:crux_window_chrome/crux_window_chrome.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -21,24 +21,19 @@ import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/providers/inbound_request_handler.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_tab_overrides.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
 import 'package:simcrux/services/remote/cxp/cxp_project_open_handle.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_discovery.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
-import '../../../support/answered_telemetry.dart';
 import '../../../support/cxp_fake_peer.dart';
-import '../../../support/delete_manifest_dir.dart';
+import '../../../support/cxp_runtime_harness.dart';
 import '../../../support/poll_until.dart';
 
 /// A single-suite config whose only test is `suiteA/testB`, used to
@@ -95,25 +90,34 @@ class _StubLauncher implements EditorLauncher {
 }
 
 void main() {
+  late Directory manifests;
+
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
-    // The inbound handler fires `requestUserAttention()` on honored
-    // messages. These are binding-less `dart:test` cases, so the default
-    // method-channel backend would throw on the missing ServicesBinding —
-    // gate it to the no-op backend exactly as the settings bridge does when
-    // the preference is off.
-    windowAttentionRequester = const NoopWindowAttentionRequester();
+    manifests = cxpTestManifestDirectory();
   });
 
-  tearDown(() {
-    windowAttentionRequester = const MethodChannelWindowAttentionRequester();
-  });
+  /// SimCrux's real handler on the shared runtime, with the editor stubbed.
+  ProviderContainer makeContainer({
+    required _StubLauncher launcher,
+    CxpWorkspaceStore? workspaceStore,
+    List<Override> extra = const <Override>[],
+  }) => simcruxCxpRuntimeContainer(
+    manifestDirectory: manifests,
+    extra: <Override>[
+      cruxCxpRequestHandlerProvider.overrideWith(SimcruxCxpRequestHandler.new),
+      editorLauncherProvider.overrideWithValue(launcher),
+      if (workspaceStore != null)
+        cxpWorkspaceStoreProvider.overrideWithValue(workspaceStore),
+      ...extra,
+    ],
+  );
 
   Future<
     ({
       ProviderContainer container,
       LocalCxpClient client,
-      SimCruxCxpServer server,
+      CruxCxpRuntime runtime,
       _StubLauncher launcher,
     })
   >
@@ -121,43 +125,23 @@ void main() {
     bool launcherSucceeds = true,
     String? openedConfig,
     CxpWorkspaceStore? workspaceStore,
-    bool anchorBeforeServer = false,
+    List<Override> extra = const <Override>[],
   }) async {
     final launcher = _StubLauncher(shouldSucceed: launcherSucceeds);
-    final container = ProviderContainer(
-      overrides: <Override>[
-        ...answeredTelemetryOverrides(),
-        // A server with no containment of its own — the floor rule only — so
-        // a path that is absolute but outside the opened directories reaches
-        // the handler, and the handler's own CXP §11 check is what is tested.
-        cxpServerFactoryProvider.overrideWithValue(
-          ({required selfIdentity, required port}) => SimCruxCxpServer(
-            selfIdentity: selfIdentity,
-            port: 0,
-          ),
-        ),
-        editorLauncherProvider.overrideWithValue(launcher),
-        if (workspaceStore != null)
-          cxpWorkspaceStoreProvider.overrideWithValue(workspaceStore),
-      ],
+    final container = makeContainer(
+      launcher: launcher,
+      workspaceStore: workspaceStore,
+      extra: extra,
     );
-    // The app anchors the handler at startup, before the server has bound:
-    // that ordering is the one production runs.
-    if (anchorBeforeServer) container.read(inboundRequestHandlerProvider);
-    await container.read(appSettingsProvider.future);
-    // The user has opened a config under `/abs` — the recent-projects list is
+    // The user has opened a config under `/abs`: the recent-projects list is
     // one of the sources of CXP §11's containment roots, so every
     // peer-supplied path below `/abs` is inside the rule and everything else
     // is refused. Seeding it here, rather than overriding the containment
     // provider, keeps the production roots in the path under test.
-    await container
-        .read(appSettingsProvider.notifier)
-        .addRecentProject(openedConfig ?? _abs('/abs/simcrux.yaml'));
-    final server = await container.read(cxpServerProvider.future);
-    expect(server, isNotNull);
-
-    // Anchor the handler.
-    container.read(inboundRequestHandlerProvider);
+    final recents = container.read(recentProjects.provider.notifier);
+    await recents.restored;
+    recents.markOpened(openedConfig ?? _abs('/abs/simcrux.yaml'));
+    final runtime = await runningCxpRuntime(container);
 
     final client = LocalCxpClient(
       selfIdentity: const PeerIdentity(
@@ -166,55 +150,113 @@ void main() {
         productVersion: '0.0.0',
       ),
     );
+    addTearDown(client.dispose);
     await client.connect(
       host: '127.0.0.1',
-      port: server!.boundPort!,
+      port: runtime.boundPort!,
       token: cxpProcessAuthToken,
     );
     return (
       container: container,
       client: client,
-      server: server,
+      runtime: runtime,
       launcher: launcher,
     );
   }
 
-  test('a handler anchored before the server bound still answers', () async {
-    // The app anchors the handler at startup, while the server is still
-    // binding. attach() returned on "no server yet" before registering the
-    // listener that picks the server up, so no inbound request was ever
-    // dispatched or acknowledged; peers waited out their ack timeout.
-    final wired = await wireClient(anchorBeforeServer: true);
-    addTearDown(() async {
-      await wired.client.dispose();
-      wired.container.dispose();
-    });
-    wired.container
-        .read(activeConfigProvider.notifier)
-        .replace(_configWithTest('suiteA/testB'));
+  group('acknowledgement and attention belong to the runtime', () {
+    test('a request is acknowledged exactly once', () async {
+      // The handler returns a result and the shared runtime sends the ack. A
+      // handler that also replied would answer twice.
+      final wired = await wireClient();
+      wired.container
+          .read(activeConfigProvider.notifier)
+          .replace(_configWithTest('suiteA/testB'));
 
-    final ackFuture = wired.client.inbound.firstWhere(
-      (m) => m.message is RequestHighlightAck,
-    );
-    wired.client.send(
-      const RequestHighlight(
-        element: ElementId(kind: ElementKind.test, path: 'suiteA/testB'),
-      ),
-    );
-    final ack =
-        (await ackFuture.timeout(const Duration(seconds: 2))).message
-            as RequestHighlightAck;
-    expect(ack.honored, isTrue);
+      final acks = <RequestHighlightAck>[];
+      final sub = wired.client.inbound.listen((m) {
+        final message = m.message;
+        if (message is RequestHighlightAck) acks.add(message);
+      });
+      addTearDown(sub.cancel);
+      wired.client.send(
+        const RequestHighlight(
+          element: ElementId(kind: ElementKind.test, path: 'suiteA/testB'),
+        ),
+      );
+      expect(await pollUntil(() => acks.isNotEmpty), isTrue);
+      // An absence assertion: a second ack, if the handler sent one, travels
+      // right behind the first.
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      expect(acks, hasLength(1));
+      expect(acks.single.honored, isTrue);
+    });
+
+    test('the dock is asked for attention once per honoured request and '
+        'never for a refusal', () async {
+      var attention = 0;
+      final wired = await wireClient(
+        extra: <Override>[
+          cruxCxpAttentionRequesterProvider.overrideWithValue(
+            () => attention++,
+          ),
+        ],
+      );
+      wired.container
+          .read(activeConfigProvider.notifier)
+          .replace(_configWithTest('suiteA/testB'));
+
+      Future<void> send(String path) async {
+        final ack = wired.client.inbound.firstWhere(
+          (m) => m.message is RequestHighlightAck,
+        );
+        wired.client.send(
+          RequestHighlight(
+            element: ElementId(kind: ElementKind.test, path: path),
+          ),
+        );
+        await ack.timeout(const Duration(seconds: 2));
+      }
+
+      await send('suiteA/testB');
+      expect(attention, 1);
+      await send('suiteA/nope');
+      expect(attention, 1, reason: 'a refused request asks for nothing');
+    });
+
+    test('with "Request attention" off the dock is never asked', () async {
+      var attention = 0;
+      final wired = await wireClient(
+        extra: <Override>[
+          cruxCxpAttentionRequesterProvider.overrideWithValue(
+            () => attention++,
+          ),
+        ],
+      );
+      await wired.container
+          .read(cruxCxpSettingsProvider.notifier)
+          .setRequestAttention(requestAttention: false);
+      wired.container
+          .read(activeConfigProvider.notifier)
+          .replace(_configWithTest('suiteA/testB'));
+
+      final ack = wired.client.inbound.firstWhere(
+        (m) => m.message is RequestHighlightAck,
+      );
+      wired.client.send(
+        const RequestHighlight(
+          element: ElementId(kind: ElementKind.test, path: 'suiteA/testB'),
+        ),
+      );
+      await ack.timeout(const Duration(seconds: 2));
+      expect(attention, 0);
+    });
   });
 
   group('RequestHighlight — ElementKind.test', () {
     test('selects the named test in the dashboard when it exists in '
         'the loaded config', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
       wired.container
           .read(activeConfigProvider.notifier)
           .replace(_configWithTest('suiteA/testB'));
@@ -231,19 +273,12 @@ void main() {
           (await ackFuture.timeout(const Duration(seconds: 2))).message
               as RequestHighlightAck;
       expect(ack.honored, isTrue);
-      expect(
-        wired.container.read(selectedTestIdProvider),
-        'suiteA/testB',
-      );
+      expect(wired.container.read(selectedTestIdProvider), 'suiteA/testB');
     });
 
     test('acks honored:false when the named test is not in the loaded '
         'config (honest ack — no silent-success lie)', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
       wired.container
           .read(activeConfigProvider.notifier)
           .replace(_configWithTest('suiteA/testB'));
@@ -266,10 +301,6 @@ void main() {
 
     test('acks honored:false when no config is loaded', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestHighlightAck,
@@ -288,22 +319,19 @@ void main() {
   });
 
   group('active-tab routing (workspace mounted)', () {
-    test('RequestHighlight (test) mutates the ACTIVE tab container, '
-        'not the dormant root instances', () async {
-      final tempDir = await Directory.systemTemp.createTemp('simcrux_cxp_ws_');
+    /// The workspace plumbing the production app builds, in the harness
+    /// container.
+    ({
+      ProviderContainer container,
+      LocalCxpClient Function(CruxCxpRuntime) connect,
+    })
+    mountedContainer(Directory tempDir) {
       final launcher = _StubLauncher();
-      late final ProviderContainer container;
       final managersCompleter = <WorkspaceContainerManagers>[];
-      container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-          editorLauncherProvider.overrideWithValue(launcher),
+      late final ProviderContainer container;
+      container = makeContainer(
+        launcher: launcher,
+        extra: <Override>[
           simcruxWorkspaceServiceProvider.overrideWithValue(
             crux.WorkspaceService<SimcruxTabPayload>(
               codec: const SimcruxWorkspaceCodec(),
@@ -330,14 +358,24 @@ void main() {
         for (final m in managersCompleter) {
           m.dispose();
         }
-        container.dispose();
         if (tempDir.existsSync()) await tempDir.delete(recursive: true);
       });
+      LocalCxpClient connect(CruxCxpRuntime runtime) => LocalCxpClient(
+        selfIdentity: const PeerIdentity(
+          peerId: 'test-inbound-client',
+          productName: 'test',
+          productVersion: '0.0.0',
+        ),
+      );
+      return (container: container, connect: connect);
+    }
 
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
-      expect(server, isNotNull);
-      container.read(inboundRequestHandlerProvider);
+    test('RequestHighlight (test) mutates the ACTIVE tab container, '
+        'not the dormant root instances', () async {
+      final tempDir = await Directory.systemTemp.createTemp('simcrux_cxp_ws_');
+      final mounted = mountedContainer(tempDir);
+      final container = mounted.container;
+      final runtime = await runningCxpRuntime(container);
 
       // Hydrate the workspace and open one tab; it becomes active.
       await container.read(workspaceProvider.future);
@@ -355,17 +393,11 @@ void main() {
           .read(activeConfigProvider.notifier)
           .replace(_configWithTest('suiteA/testB'));
 
-      final client = LocalCxpClient(
-        selfIdentity: const PeerIdentity(
-          peerId: 'test-inbound-client',
-          productName: 'test',
-          productVersion: '0.0.0',
-        ),
-      );
+      final client = mounted.connect(runtime);
       addTearDown(client.dispose);
       await client.connect(
         host: '127.0.0.1',
-        port: server!.boundPort!,
+        port: runtime.boundPort!,
         token: cxpProcessAuthToken,
       );
 
@@ -429,62 +461,9 @@ void main() {
         final tempDir = await Directory.systemTemp.createTemp(
           'simcrux_cxp_ws_e2e_',
         );
-        final manifestDir = await Directory.systemTemp.createTemp(
-          'simcrux_cxp_manifest_e2e_',
-        );
-        final launcher = _StubLauncher();
-        late final ProviderContainer container;
-        final managersCompleter = <WorkspaceContainerManagers>[];
-        container = ProviderContainer(
-          overrides: <Override>[
-            ...answeredTelemetryOverrides(),
-            cxpServerFactoryProvider.overrideWithValue(
-              ({required selfIdentity, required port}) => SimCruxCxpServer(
-                selfIdentity: selfIdentity,
-                port: 0,
-              ),
-            ),
-            cxpDiscoveryFactoryProvider.overrideWithValue(
-              () async => SimCruxCxpDiscoveryService(
-                manifestDirectory: manifestDir.path,
-                scanInterval: const Duration(milliseconds: 30),
-              ),
-            ),
-            editorLauncherProvider.overrideWithValue(launcher),
-            simcruxWorkspaceServiceProvider.overrideWithValue(
-              crux.WorkspaceService<SimcruxTabPayload>(
-                codec: const SimcruxWorkspaceCodec(),
-                directoryFactory: () async => tempDir,
-              ),
-            ),
-            workspaceContainerManagersProvider.overrideWith((ref) {
-              final managers = WorkspaceContainerManagers(
-                tabs: crux.TabContainerManager(
-                  rootContainer: container,
-                  overridesFactory: simcruxTabOverrides,
-                ),
-                panes: crux.PaneContainerManager(rootContainer: container),
-              );
-              managersCompleter.add(managers);
-              return managers;
-            }),
-          ],
-        );
-        addTearDown(() async {
-          await container.read(workspaceProvider.notifier).flushPendingSave();
-          for (final m in managersCompleter) {
-            m.dispose();
-          }
-          container.dispose();
-          if (tempDir.existsSync()) await tempDir.delete(recursive: true);
-          deleteManifestDir(manifestDir);
-        });
-
-        await container.read(appSettingsProvider.future);
-        final server = await container.read(cxpServerProvider.future);
-        expect(server, isNotNull);
-        await container.read(cxpDiscoveryProvider.future);
-        container.read(inboundRequestHandlerProvider);
+        final mounted = mountedContainer(tempDir);
+        final container = mounted.container;
+        final runtime = await runningCxpRuntime(container);
 
         await container.read(workspaceProvider.future);
         final tabId = await container
@@ -506,14 +485,14 @@ void main() {
         );
         final peer = await CxpFakePeer.start(
           identity: waveId,
-          manifestDirectory: manifestDir.path,
+          manifestDirectory: manifests.path,
         );
         addTearDown(peer.stop);
 
         final mutual = await pollUntil(
           () =>
-              server!.connectedPeers.any((p) => p.peerId == waveId.peerId) &&
-              peer.isConnectedTo(server.selfIdentity.peerId),
+              runtime.peers.any((p) => p.peerId == waveId.peerId) &&
+              peer.isConnectedTo(runtime.selfIdentity.peerId),
         );
         expect(
           mutual,
@@ -521,10 +500,10 @@ void main() {
           reason: 'expected mutual connect before probing',
         );
 
-        // Peer originates — the same shape a real WaveCrux "Debug in
+        // Peer originates: the same shape a real WaveCrux "Debug in
         // SimCrux" (or equivalent) cross-probe would send.
         final delivered = peer.server.sendTo(
-          server!.selfIdentity.peerId,
+          runtime.selfIdentity.peerId,
           const RequestHighlight(
             element: ElementId(kind: ElementKind.test, path: 'suiteA/testB'),
           ),
@@ -547,8 +526,8 @@ void main() {
           reason: 'the dormant root instance must stay untouched',
         );
 
-        // The ack SimCrux's handler sent back must reach the PEER's own
-        // product-level inbound stream — proving the round trip, not
+        // The ack the runtime sent back must reach the PEER's own
+        // product-level inbound stream: proving the round trip, not
         // just that the inbound side mutated local state.
         final gotAck = await pollUntil(
           () => peer.received.any((m) => m.message is RequestHighlightAck),
@@ -571,10 +550,6 @@ void main() {
   group('RequestHighlight — ElementKind.source', () {
     test('records an explicit source selection', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestHighlightAck,
@@ -601,10 +576,6 @@ void main() {
   group('RequestHighlight — ElementKind.signal / instance', () {
     test('filters the dashboard to the leaf identifier', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       wired.client.send(
         const RequestHighlight(
@@ -628,10 +599,6 @@ void main() {
 
     test('uses instance leaf when given ElementKind.instance', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       wired.client.send(
         const RequestHighlight(
@@ -656,10 +623,6 @@ void main() {
   group('RequestHighlight — ElementKind.breakpoint', () {
     test('replies honored: false with a reason', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestHighlightAck,
@@ -683,10 +646,6 @@ void main() {
   group('RequestHighlight — ElementKind.marker / rule', () {
     test('replies honored: false with a clear reason', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestHighlightAck,
@@ -713,10 +672,6 @@ void main() {
         // The forward-compatible contract is to decline politely, not to
         // blow up the inbound dispatch loop.
         final wired = await wireClient();
-        addTearDown(() async {
-          await wired.client.dispose();
-          wired.container.dispose();
-        });
 
         final ackFuture = wired.client.inbound.firstWhere(
           (m) => m.message is RequestHighlightAck,
@@ -742,10 +697,6 @@ void main() {
       // an unknown kind killing the subscription so every subsequent
       // request goes unanswered.
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final firstAck = wired.client.inbound.firstWhere(
         (m) => m.message is RequestHighlightAck,
@@ -775,10 +726,6 @@ void main() {
   group('RequestOpenSource', () {
     test('shells to the editor and acks honored: true', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestOpenSourceAck,
@@ -797,10 +744,6 @@ void main() {
 
     test('acks honored: false when launcher fails', () async {
       final wired = await wireClient(launcherSucceeds: false);
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestOpenSourceAck,
@@ -816,13 +759,13 @@ void main() {
     });
   });
 
-  // CXP §11. The server `wireClient` builds applies only the floor rule, so an
+  // CXP §11. The runtime's binding applies only the floor rule, so an
   // absolute path outside the opened directories reaches the handler: every
   // refusal below is the handler's own check on the value it is about to hand
   // to an editor argv.
   //
   // MUTATION: deleting any one of the three containment checks in
-  // `InboundRequestHandler` (open-source, open-artifact, the highlight
+  // `SimcruxCxpRequestHandler` (open-source, open-artifact, the highlight
   // fallback) turns the matching case red.
   group('CXP §11 containment', () {
     late Directory inside;
@@ -869,29 +812,18 @@ void main() {
       ({
         ProviderContainer container,
         LocalCxpClient client,
-        SimCruxCxpServer server,
+        CruxCxpRuntime runtime,
         _StubLauncher launcher,
       })
     >
-    wireInside() async {
-      final wired = await wireClient(
-        openedConfig: '${inside.path}/simcrux.yaml',
-        workspaceStore: store,
-      );
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
-      return wired;
-    }
+    wireInside() => wireClient(
+      openedConfig: '${inside.path}/simcrux.yaml',
+      workspaceStore: store,
+    );
 
     test('RequestOpenSource outside the opened directories is refused, and '
         'no editor runs', () async {
       final wired = await wireClient();
-      addTearDown(() async {
-        await wired.client.dispose();
-        wired.container.dispose();
-      });
 
       final ackFuture = wired.client.inbound.firstWhere(
         (m) => m.message is RequestOpenSourceAck,

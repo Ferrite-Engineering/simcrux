@@ -18,52 +18,33 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/suite.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
+import 'package:simcrux/features/remote/simcrux_cxp_binding.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_tab_overrides.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 
 import '../../support/answered_telemetry.dart';
-
-/// Running-server stub so the producer's CXP-running gate passes without
-/// binding a real socket.
-class _RunningCxpServerNotifier extends CxpServerNotifier {
-  _RunningCxpServerNotifier(this._fake);
-  final SimCruxCxpServer _fake;
-
-  @override
-  Future<SimCruxCxpServer?> build() async => _fake;
-}
-
-class _DisabledCxpServerNotifier extends CxpServerNotifier {
-  @override
-  Future<SimCruxCxpServer?> build() async => null;
-}
+import '../../support/cxp_test_overrides.dart';
 
 /// Exposes a container-bound [Ref] so the producer helper (which takes a `Ref`)
 /// can be driven directly from a test.
 final Provider<Ref> _refProbe = Provider<Ref>((ref) => ref);
 
+/// [serverRunning] makes the shared server status read as up, so the
+/// producer's CXP-running gate passes without binding a real socket.
 ProviderContainer _makeContainer({
   required bool serverRunning,
   required String workspaceDir,
 }) {
-  final fake = SimCruxCxpServer(
-    selfIdentity: buildSimcruxPeerIdentity(processId: 1),
-    port: 0,
-  );
   return ProviderContainer(
     overrides: <Override>[
       ...answeredTelemetryOverrides(),
-      if (serverRunning)
-        cxpServerProvider.overrideWith(() => _RunningCxpServerNotifier(fake))
-      else
-        cxpServerProvider.overrideWith(_DisabledCxpServerNotifier.new),
+      ...simcruxCxpTestOverrides(running: serverRunning),
       cxpWorkspaceStoreProvider.overrideWithValue(
         CxpWorkspaceStore(workspaceDirectory: workspaceDir),
       ),
@@ -108,7 +89,6 @@ void main() {
         workspaceDir: workspaceDir,
       );
       addTearDown(container.dispose);
-      await container.read(cxpServerProvider.future);
       final ref = container.read(_refProbe);
 
       // The producer keys off the design's INPUT (simcrux.yaml) directory.
@@ -201,9 +181,12 @@ void main() {
       displayName: 'active',
       payload: SimcruxTabPayload(configPath: _abs('/proj/sim/simcrux.yaml')),
     );
-    await container
-        .read(appSettingsProvider.notifier)
-        .addRecentProject(_abs('/recent/sim/simcrux.yaml'));
+    // A recent project is a directory the user opened. The list is the
+    // shared one, read at every containment check.
+    await container.read(recentProjects.provider.notifier).restored;
+    container
+        .read(recentProjects.provider.notifier)
+        .markOpened(_abs('/recent/sim/simcrux.yaml'));
     container
         .read(workspaceContainerManagersProvider)
         .tabs
@@ -254,21 +237,17 @@ void main() {
     }
 
     // The store carries the very instance the handler reads, since the
-    // `crux.design_id` fallback resolves records through it. The production
-    // server factory carries the floor instead: its one rule also screens a
+    // `crux.design_id` fallback resolves records through it. The binding
+    // carries the floor instead: the runtime's one rule also screens a
     // `request_open_artifact` hint, which must not be rooted
     // (`kCxpOpenArtifactContainment`), so the handler's rooted check is the
     // one that keeps an editor to these directories.
     //
-    // MUTATION: handing `SimCruxCxpServer` `cxpPathContainmentProvider` in
-    // `cxpServerFactoryProvider` makes this red.
+    // MUTATION: handing the binding `cxpPathContainmentProvider`'s rule makes
+    // this red.
     expect(container.read(cxpWorkspaceStoreProvider).containment, same(rule));
-    final server = container.read(cxpServerFactoryProvider)(
-      selfIdentity: buildSimcruxPeerIdentity(processId: 1),
-      port: 0,
-    );
-    expect(server.containment, same(kCxpOpenArtifactContainment));
-    expect(server.containment.roots, isNull);
+    expect(kSimcruxCxpBinding.containment, same(kCxpOpenArtifactContainment));
+    expect(kSimcruxCxpBinding.containment.roots, isNull);
   });
 
   test('the producer is a no-op when the CXP server is not running', () async {
@@ -277,7 +256,6 @@ void main() {
       workspaceDir: workspaceDir,
     );
     addTearDown(container.dispose);
-    await container.read(cxpServerProvider.future);
     final ref = container.read(_refProbe);
 
     final designId = cxpDesignIdForPath(

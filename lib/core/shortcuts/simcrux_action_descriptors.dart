@@ -36,6 +36,13 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   SimcruxAction.importRiscvArchTest ||
   SimcruxAction.importRiscvFormal ||
   SimcruxAction.reopenRecentProject ||
+  // Clear Recent: File menu and palette, no toolbar button and no shortcut.
+  // Always enabled; clearing an empty list is harmless and says so.
+  SimcruxAction.clearRecentProjects ||
+  // Cross-probe Selection: menu and palette. It is never disabled, because
+  // "select something first" and "no peer is running" are answers the user
+  // should be given, not a greyed item that explains nothing.
+  SimcruxAction.crossProbeSelection ||
   SimcruxAction.openAppDiagnostics ||
   SimcruxAction.openAbout ||
   SimcruxAction.openDocumentation ||

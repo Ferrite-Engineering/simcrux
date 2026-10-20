@@ -2,16 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/active_tab_container.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 import 'package:simcrux/services/remote/cxp/simcrux_name_resolver.dart';
 
 /// "Anchor" provider whose only purpose is to wire the
@@ -28,7 +25,7 @@ import 'package:simcrux/services/remote/cxp/simcrux_name_resolver.dart';
 ///    whenever the user navigates the inspector to a source file
 ///    (e.g. via the "Open Source" action).
 ///
-/// Gated on [cxpServerProvider]: the emitter is dormant when the CXP
+/// Gated on the shared CXP runtime: the emitter is dormant when the CXP
 /// server is not running. The provider can be `.watch`ed from the
 /// cross-probe panel or kept alive by the app root.
 final Provider<NotifySelectionEmitter> notifySelectionEmitterProvider =
@@ -169,29 +166,11 @@ class NotifySelectionEmitter {
     );
   }
 
-  void _broadcast(NotifySelection message) {
-    // Gate on the "Broadcast selection automatically" setting. When off, the
-    // live cross-probe is silenced — selection changes no longer announce to
-    // peers (explicit sends / "Debug in WaveCrux" use a different path and are
-    // unaffected). Defaults to true if settings have not hydrated yet.
-    final autoBroadcast =
-        ref.read(appSettingsProvider).value?.broadcastSelectionOnCrossProbe ??
-        true;
-    if (!autoBroadcast) return;
-    final serverAsync = ref.read(cxpServerProvider);
-    final server = serverAsync.value;
-    if (server == null) return;
-    server.broadcast(message);
-    ref
-        .read(crossProbeEventsProvider.notifier)
-        .record(
-          CrossProbeEvent(
-            timestamp: DateTime.now(),
-            direction: CrossProbeDirection.outbound,
-            kind: message.kind,
-            peerId: '*broadcast*',
-            summary: message.displayName,
-          ),
-        );
-  }
+  /// Announces [message] to every peer. The shared helper is gated on the
+  /// "Broadcast selection automatically" setting (when off, the live
+  /// cross-probe is silenced; explicit sends and "Debug in WaveCrux" use a
+  /// different path and are unaffected) and is a no-op with the server off.
+  /// The runtime records the event in the panel's log.
+  void _broadcast(NotifySelection message) =>
+      broadcastCruxCxpSelection(ref.read, message);
 }

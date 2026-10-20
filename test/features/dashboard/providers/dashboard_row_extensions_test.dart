@@ -1,6 +1,9 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +14,13 @@ import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_results_table.dart';
+import 'package:simcrux/features/remote/widgets/cross_probe_row_menu.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
+
+import '../../../support/cxp_fake_dispatcher.dart';
+import '../../../support/cxp_test_overrides.dart';
 
 void main() {
   group('dashboardRowTrailingBuilderProvider', () {
@@ -118,11 +125,140 @@ void main() {
   });
 
   group('dashboardRowContextMenuBuilderProvider', () {
-    test('open-core default returns an empty entry list', () {
+    test('open-core default is the one-item Cross-probe to builder', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       final builder = container.read(dashboardRowContextMenuBuilderProvider);
-      expect(builder, isA<Function>());
+      expect(builder, equals(buildCrossProbeRowMenuEntries));
+    });
+
+    /// The open-core default on a one-row table, with [peers] connected and
+    /// every send recorded by [fake].
+    Future<void> pumpDefaultMenuRow(
+      WidgetTester tester, {
+      required List<PeerIdentity> peers,
+      required FakeCrossProbeDispatcher fake,
+      String? waveformPath,
+    }) async {
+      final run = TestRun(
+        id: 'r1',
+        startedAt: DateTime.utc(2026, 5),
+        testIds: const ['unit/alu'],
+      );
+      final store = InMemoryResultStore.forRun(run);
+      await store.recordResult(
+        TestResult(
+          testId: 'unit/alu',
+          runId: 'r1',
+          status: TestStatus.pass,
+          startedAt: DateTime.utc(2026, 5),
+          finishedAt: DateTime.utc(2026, 5, 1, 0, 0, 1),
+          waveformPath: waveformPath,
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            resultStoreProvider.overrideWith(
+              () => _ImmediateResultStoreNotifier(store),
+            ),
+            ...simcruxCxpTestOverrides(running: true, peers: peers),
+            cxpFakeDispatcherOverride(fake),
+          ],
+          child: MaterialApp(
+            theme: ThemeData(platform: TargetPlatform.linux),
+            localizationsDelegates: const [
+              L10N.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: L10N.supportedLocales,
+            home: const Scaffold(
+              body: SizedBox(width: 1400, child: DashboardResultsTable()),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the row menu offers Cross-probe to, lists the running peer '
+        'products, and sends the row to the one chosen', (tester) async {
+      final fake = FakeCrossProbeDispatcher();
+      await pumpDefaultMenuRow(
+        tester,
+        peers: [cxpTestPeer('wavecrux'), cxpTestPeer('netcrux')],
+        fake: fake,
+        waveformPath: '/runs/r1/alu.vcd',
+      );
+
+      await tester.tap(find.text('alu'), buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Cross-probe to'), findsOneWidget);
+
+      await tester.tap(find.text('Cross-probe to'));
+      await tester.pumpAndSettle();
+      // The second menu lists the peer products, in the suite's order.
+      expect(
+        tester.getTopLeft(find.text('WaveCrux')).dy,
+        lessThan(tester.getTopLeft(find.text('NetCrux')).dy),
+      );
+
+      await tester.tap(find.text('WaveCrux'));
+      await tester.pumpAndSettle();
+
+      final (peer, selection) = fake.sent.single;
+      expect(peer.productName, 'wavecrux');
+      // WaveCrux gets the waveform the test captured.
+      final element = crossProbeElementFor(selection!, peer)!;
+      expect(element.kind, ElementKind.source);
+      expect(element.path, '/runs/r1/alu.vcd');
+    });
+
+    testWidgets('NetCrux gets the test as a scope', (tester) async {
+      final fake = FakeCrossProbeDispatcher();
+      await pumpDefaultMenuRow(
+        tester,
+        peers: [cxpTestPeer('netcrux')],
+        fake: fake,
+        waveformPath: '/runs/r1/alu.vcd',
+      );
+
+      await tester.tap(find.text('alu'), buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cross-probe to'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('NetCrux'));
+      await tester.pumpAndSettle();
+
+      final (peer, selection) = fake.sent.single;
+      final element = crossProbeElementFor(selection!, peer)!;
+      expect(element.kind, ElementKind.scope);
+      expect(element.path, 'unit/alu');
+    });
+
+    testWidgets('with no peer running the item is greyed and says what to '
+        'start', (tester) async {
+      final fake = FakeCrossProbeDispatcher();
+      await pumpDefaultMenuRow(tester, peers: const [], fake: fake);
+
+      await tester.tap(find.text('alu'), buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+
+      final item = tester.widget<PopupMenuItem<void>>(
+        find.byKey(const ValueKey('crossProbeRowMenuItem')),
+      );
+      expect(item.enabled, isFalse);
+      expect(find.text('Cross-probe to (no peers running)'), findsOneWidget);
+      expect(
+        find.byTooltip(
+          'Start WaveCrux, NetCrux, LintCrux or SimCrux with CXP on to '
+          'cross-probe to it.',
+        ),
+        findsOneWidget,
+      );
+      expect(fake.sent, isEmpty);
     });
 
     testWidgets(
@@ -151,7 +287,7 @@ void main() {
                 () => _ImmediateResultStoreNotifier(store),
               ),
               dashboardRowContextMenuBuilderProvider.overrideWithValue(
-                (context, ref, row) => <PopupMenuEntry<void>>[
+                (context, ref, row, position) => <PopupMenuEntry<void>>[
                   PopupMenuItem<void>(
                     child: Text('CTX-${row.testName}'),
                   ),

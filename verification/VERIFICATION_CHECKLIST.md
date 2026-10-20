@@ -41,7 +41,7 @@
 
 ### Empty-canvas launch surface
 
-- [ ] Cold boot with no project lands on the empty-canvas state (0 tabs; "No recent configs yet." when empty) — `[Coverage: AUTOMATED — flutter test --tags integration (empty_canvas_boot_test.dart)]`
+- [ ] Cold boot with no project lands on the empty-canvas state (0 tabs; "No recent projects" when empty) — `[Coverage: AUTOMATED — flutter test --tags integration (empty_canvas_boot_test.dart)]`
 - [ ] Locale sweep (`en`/`zh_CN`/`ja`/`ko`) renders the primary actions without overflow — `[Coverage: AUTOMATED — flutter test (empty_canvas_content_test.dart)]`
 - [ ] Switching theme preset flips MaterialApp brightness live — `[Coverage: AUTOMATED — flutter test --tags integration (theme_switch_test.dart)]`
 
@@ -171,7 +171,7 @@
 
 - [ ] Fresh install → window opens to the SimCrux empty-canvas card with localized headline + subtitle in en/zh_CN/zh/ja/ko — `[Coverage: AUTOMATED — flutter test (empty_canvas_content_test.dart locale sweep)]`
 - [ ] Four primary actions present and labeled per active locale: Open Config… / Open Session… / Open Workspace… / New Config — `[Coverage: AUTOMATED — flutter test]`
-- [ ] Recent-configs list renders entries from `AppSettings.recentProjectPaths`; "No recent configs yet." placeholder when empty — `[Coverage: AUTOMATED — flutter test]`
+- [ ] The Recent projects list renders the saved recent project paths; "No recent projects" placeholder when empty — `[Coverage: AUTOMATED — flutter test]`
 - [ ] Opening a config from the picker hides the empty-canvas state and renders the per-tab dashboard scaffold — `[Coverage: MANUAL]`
 - [ ] "New Config" creates an empty-payload tab that renders the projectScreenPlaceholder — `[Coverage: MANUAL]`
 
@@ -237,24 +237,37 @@
 ## Cross-Probing & CXP Integration
 
 ### CXP server lifecycle
-- [ ] CXP server binds on `127.0.0.1:54325` by default (verify via `lsof -i :54325`) — `[Coverage: PARTIAL — flutter test for provider lifecycle; manual lsof for OS-process visibility]`
-- [ ] Manifest file `simcrux-<pid>-<startedAtMillis>.json` appears in the **suite-shared** directory (`~/Library/Application Support/crux/cxp/peers/` on macOS — NOT the per-app container, which peers in other apps cannot see) on start, removes on stop, and its `started_at` refreshes every ~30 s while running (heartbeat) — `[Coverage: AUTOMATED — simcrux_cxp_discovery_test.dart; shared-dir resolver + heartbeat crux_cxp peer_connectivity_test.dart]`
-- [ ] Toggle "Enable cross-probe (CXP)" off → server stops + manifest removed; toggle on → server restarts with fresh manifest — `[Coverage: AUTOMATED — cxp_server_provider_test.dart]`
-- [ ] Changing the port restarts the server on the new port — `[Coverage: AUTOMATED — cxp_server_provider_test.dart]`
+- [ ] CXP server binds on `127.0.0.1:54325` by default (verify via `lsof -i :54325`) — `[Coverage: PARTIAL — flutter test for the shared runtime; manual lsof for OS-process visibility]`
+- [ ] Manifest file `simcrux-<pid>-<startedAtMillis>.json` appears in the **suite-shared** directory (`~/Library/Application Support/crux/cxp/peers/` on macOS — NOT the per-app container, which peers in other apps cannot see) on start, removes on stop, and its `started_at` refreshes every ~30 s while running (heartbeat) — `[Coverage: AUTOMATED — crux_cxp_ui cxp_lifecycle_test.dart; shared-dir resolver + heartbeat crux_cxp peer_connectivity_test.dart]`
+- [ ] Toggle "Enable CXP server" off → server stops + manifest removed; toggle on → server restarts with fresh manifest — `[Coverage: AUTOMATED — crux_cxp_ui cxp_lifecycle_test.dart; integration_test cxp_server_lifecycle_test.dart]`
+- [ ] Changing the port restarts the server on the new port at once, with no relaunch — `[Coverage: AUTOMATED — crux_cxp_ui cxp_lifecycle_test.dart]`
 - [ ] Invalid port (99999 or 0) → inline error "Enter a port between 1 and 65535."; no setting change — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart]`
+- [ ] The four CXP settings are saved at once under `simcrux.cxpServerEnabled`, `.cxpServerPort`, `.requestAttentionOnCrossProbe` and `.broadcastSelectionOnCrossProbe`, and an unrelated settings save never rewrites them — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart, simcrux_settings_codec_test.dart]`
 
 ### Peer discovery + cross-probe panel
-- [ ] Cross-probe panel opens via command palette → "Open Cross-Probe Panel" and via Tools menu — `[Coverage: MANUAL — desktop menu integration]`
-- [ ] Status header reads "Cross-probe running on port 54325" when enabled, "Cross-probe is disabled." when off — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
-- [ ] Connected peers section lists every non-simcrux peer with productName + version + host:port + peerId — `[Coverage: AUTOMATED — cxp_discovery_provider_test.dart + panel widget]`
-- [ ] **Unreachable-peer indicator:** a discovered peer whose dial keeps failing (closed port / stale manifest) shows a persistent amber "Couldn't reach <peer>" warning under the peer list within ~5 s; it clears on recovery/removal, hides SimCrux's own product, and renders nothing when all peers are reachable; localized in all five locales — `[Coverage: AUTOMATED — cross_probe_panel_test.dart (widget) + cxpDialFailuresProvider in cxp_discovery_provider_test.dart + simcrux_cxp_discovery_test.dart (service getters)]` + visual/multi-process `[Coverage: MANUAL]`
-- [ ] "Send selection to <Product>" delivers a `NotifySelection` carrying the active test id; outbound event appears in Recent activity — `[Coverage: PARTIAL — outbound emit unit-tested; multi-process flow MANUAL]`
-- [ ] Recent activity buffer trims to 50 entries; "Clear" button empties the buffer and disables when already empty — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
-- [ ] Foreign peer manifest disappearing from the shared directory removes the peer row within ~2 scan ticks — `[Coverage: AUTOMATED — simcrux_cxp_discovery_test.dart]`
-- [ ] **Mutual connect:** SimCrux + a second suite app on one machine end up MUTUALLY CONNECTED within ~5 s (discovered manifest → symmetric connector dial → inbound Hello on both servers); rows persist past 5 minutes (heartbeat); SimCrux never lists itself; panel shows the **Discovery directory** line naming the shared path — `[Coverage: AUTOMATED — simcrux_cxp_discovery_test.dart "… end up MUTUALLY CONNECTED"; crux_cxp peer_connectivity_test.dart]` + real two-app flow `[Coverage: MANUAL]`
-- [ ] **Connector-link routing (pin `20b7305`):** presence (mutual connect) does NOT imply traffic routes — a full peer stack's `server.inbound` genuinely receives a request sent over the connector-dialed link, and SimCrux's own `server.inbound` genuinely receives the reply — `[Coverage: AUTOMATED — simcrux_cxp_discovery_test.dart "end-to-end product traffic over the connector-dialed link…"]`
+- [ ] Cross-probe panel opens via command palette → "Show Cross-Probe Panel", via the View menu and with Cmd/Ctrl+Shift+X — `[Coverage: MANUAL — desktop menu integration]`
+- [ ] The offline banner shows when the server is off and not when it is running — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
+- [ ] Connected peers section lists every connected peer — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
+- [ ] **Unreachable-peer section:** a discovered peer whose dial keeps failing (closed port / stale manifest) appears under "Unreachable peers" within ~5 s; it clears on recovery/removal and nothing renders when all peers are reachable; localized in all five locales — `[Coverage: AUTOMATED — crux_cxp_ui cross_probe_panel_test.dart + cxp_lifecycle_test.dart]` + visual/multi-process `[Coverage: MANUAL]`
+- [ ] The panel's per-peer send button sends the selected test (as a test and as a scope); a refusal shows "Cross-probe to <Product>: <reason>" in the peer's words; the outbound event appears in Recent events — `[Coverage: AUTOMATED — cross_probe_panel_test.dart; multi-process flow MANUAL]`
+- [ ] The send is free on every tier and in every beta state: no badge, no upgrade dialog — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
+- [ ] "Clear" empties the event log — `[Coverage: AUTOMATED — crux_cxp_ui cross_probe_panel_test.dart]`
+- [ ] The toolbar badge counts connected peers, not discovered ones — `[Coverage: AUTOMATED — simcrux_toolbar_test.dart]`
+- [ ] Foreign peer manifest disappearing from the shared directory removes the peer row within ~2 scan ticks — `[Coverage: AUTOMATED — crux_cxp_ui cxp_lifecycle_test.dart]`
+- [ ] **Mutual connect:** SimCrux + a second suite app on one machine end up MUTUALLY CONNECTED within ~5 s (discovered manifest → symmetric connector dial → inbound Hello on both servers); rows persist past 5 minutes (heartbeat); SimCrux never lists itself — `[Coverage: AUTOMATED — simcrux_cxp_conformance_test.dart "two products"; crux_cxp peer_connectivity_test.dart]` + real two-app flow `[Coverage: MANUAL]`
+- [ ] **Connector-link routing:** presence (mutual connect) does NOT imply traffic routes — a full peer stack's `server.inbound` genuinely receives a request sent over the connector-dialed link, and the ack genuinely reaches the peer — `[Coverage: AUTOMATED — inbound_request_handler_test.dart "…over a REAL connector-dialed link…"]`
+
+### Cross-probe to, and the Cross-probe Selection command
+- [ ] Right-click (or long-press) a result row → "Cross-probe to" opens a second menu, at the same place, listing each running peer product once in suite order; several windows of one product are sub-items "WaveCrux 1", "WaveCrux 2" — `[Coverage: AUTOMATED — dashboard_row_extensions_test.dart; cascade position MANUAL]`
+- [ ] Choosing a product sends the row: WaveCrux gets the waveform the test captured, NetCrux and LintCrux the test as a scope — `[Coverage: AUTOMATED — dashboard_row_extensions_test.dart, simcrux_cxp_conformance_test.dart]`
+- [ ] With no peer running the item is greyed, reads "Cross-probe to (no peers running)", and its tooltip says what to start — `[Coverage: AUTOMATED — dashboard_row_extensions_test.dart]`
+- [ ] The menu item, the command and the send carry no tier badge and never show an upgrade dialog, in open core, at every tier, during and after the beta — `[Coverage: AUTOMATED — cross_probe_panel_test.dart]`
+- [ ] View → Cross-probe Selection… and Cmd/Ctrl+Shift+Enter: one running target is sent at once, several open the target menu, and nothing selected, server off or no peer running each say so in a toast — `[Coverage: AUTOMATED — simcrux_action_handlers_test.dart]`
+- [ ] With a text field focused, Cmd/Ctrl+Shift+Enter sends nothing and the field gets the key, also when the chord is remapped — `[Coverage: AUTOMATED — shortcut_manager_widget_test.dart]`
 
 ### notify_selection emit
+- [ ] The runtime records every broadcast in the panel's event log; the emitter records nothing itself — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart]`
+- [ ] "Broadcast selection automatically" off → nothing is announced — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart]`
 - [ ] Selecting a different test broadcasts `NotifySelection(kind=test, path=<suite>/<name>...)` — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart + conformance suite]`
 - [ ] "Open testbench source" broadcasts `NotifySelection(kind=source, path=<absolute>)` — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart]`
 - [ ] Same-value writes are debounced (no re-emit) — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart]`
@@ -263,6 +276,7 @@
 - [ ] A real connector-linked peer (server + manifest writer + discovery + connector, no manual `Subscribe`) receives the broadcast on its own `server.inbound` — the connector auto-subscribes every link on handshake — `[Coverage: AUTOMATED — notify_selection_emitter_test.dart "broadcasts reach a real connector-linked peer…"]`
 
 ### Inbound request_highlight + request_open_source handlers
+- [ ] Every request is acknowledged exactly once and the dock is asked for attention once per honoured request, never for a refusal or with "Request attention" off — `[Coverage: AUTOMATED — inbound_request_handler_test.dart]`
 - [ ] RequestHighlight(test) for a test in the loaded config selects it in the ACTIVE tab's scope + acks honored:true — `[Coverage: AUTOMATED — inbound_request_handler_test.dart + conformance suite]`
 - [ ] RequestHighlight(test) for an unknown test id (or with no config loaded) acks honored:false with reason "not found"; no state change — `[Coverage: AUTOMATED — inbound_request_handler_test.dart]`
 - [ ] Inbound selection/filter mutations land in the ACTIVE tab container; dormant root instances stay untouched — `[Coverage: AUTOMATED — inbound_request_handler_test.dart (workspace-mounted group)]`
@@ -272,23 +286,33 @@
 - [ ] RequestHighlight(breakpoint) acks honored:false with reason mentioning "breakpoint editor" — `[Coverage: AUTOMATED]`
 - [ ] RequestHighlight(marker/rule) acks honored:false with a clear reason — `[Coverage: AUTOMATED]`
 - [ ] RequestOpenSource shells to the configured editor + acks honored:true; malformed template acks honored:false — `[Coverage: PARTIAL — stub launcher AUTOMATED; real editor handoff MANUAL]`
-- [ ] **Containment (CXP §11):** a `request_open_source` path, a `request_open_artifact` record or path hint, or a highlight's `crux.design_id` fallback that lies outside the directories the user has opened (every tab's config directory, every recent project's directory, the active config's source and include directories) acks honored:false with a reason that never repeats the path, and no editor opens — `[Coverage: AUTOMATED — inbound_request_handler_test.dart "CXP §11 containment" group (the handler's own check, mutation-verified), simcrux_cxp_conformance_test.dart (refused at the server through the production factory), simcrux_cxp_server_test.dart (refused before inbound), cxp_workspace_link_test.dart (the roots)]`
-- [ ] **Peer auth:** a peer whose `hello` does not carry the token SimCrux published in its discovery manifest is refused `unauthorized` — `[Coverage: AUTOMATED — simcrux_cxp_server_test.dart, simcrux_cxp_conformance_test.dart]`
+- [ ] **Containment (CXP §11):** a `request_open_source` path, a `request_open_artifact` record or path hint, or a highlight's `crux.design_id` fallback that lies outside the directories the user has opened (every tab's config directory, every recent project's directory, the active config's source and include directories) acks honored:false with a reason that never repeats the path, and no editor opens — `[Coverage: AUTOMATED — inbound_request_handler_test.dart "CXP §11 containment" group (the handler's own check, mutation-verified), simcrux_cxp_conformance_test.dart (refused through the production binding), cxp_open_artifact_test.dart, cxp_workspace_link_test.dart (the roots)]`
+- [ ] **Peer auth:** a peer whose `hello` does not carry the token SimCrux published in its discovery manifest is refused `unauthorized` — `[Coverage: AUTOMATED — crux_cxp_ui cxp_lifecycle_test.dart, simcrux_cxp_conformance_test.dart]`
 
 ### "Debug in WaveCrux" originator flow
 - [ ] Button appears on selected test result rows; tooltip explains WaveCrux must be running — `[Coverage: MANUAL — visual]`
 - [ ] Click with connected WaveCrux peer → snackbar "Sent to WaveCrux (<peerId>)." + WaveCrux opens the waveform — `[Coverage: PARTIAL — dispatcher logic AUTOMATED; WaveCrux opens-waveform MANUAL]`
 - [ ] `NotifySelection` carrying `simcrux.suggested_signals` metadata precedes the `RequestHighlight` — `[Coverage: AUTOMATED — debug_in_wavecrux_dispatcher_test.dart]`
 - [ ] No WaveCrux peer → snackbar "WaveCrux is not connected. ..." + no outbound events — `[Coverage: AUTOMATED]`
-- [ ] CXP disabled → snackbar pointing at Settings → Remote Control — `[Coverage: AUTOMATED]`
+- [ ] CXP disabled → snackbar pointing at Settings > CXP Cross-Probe — `[Coverage: AUTOMATED]`
 - [ ] Test without captured waveform → snackbar "This test did not capture a waveform. ..." — `[Coverage: AUTOMATED]`
 - [ ] **Delivery is observed, not assumed:** dispatching to a real connector-linked WaveCrux-style peer (full stack, not a raw client) proves genuine RECEIPT on the peer's own `server.inbound` and the ack's genuine receipt on SimCrux's own `server.inbound` — not merely `dispatch()` returning `outcome: dispatched` — `[Coverage: AUTOMATED — debug_in_wavecrux_dispatcher_test.dart "connector-linked peer (production topology)"]`
 
-### Settings → Remote Control
+### Settings → CXP Cross-Probe
 - [ ] Section appears between Editors and Detectors — `[Coverage: MANUAL]`
-- [ ] Switch reflects current `cxpServerEnabled`; port field reflects current `cxpServerPort` — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart]`
-- [ ] Settings round-trip via `SimcruxSettingsCodec` (`simcrux.cxpServerEnabled`, `simcrux.cxpServerPort`) — `[Coverage: AUTOMATED — codec tests]`
+- [ ] The three switches and the port field reflect the saved CXP settings, and the status line reads "Running on port 54325" with the connected-peer count, or "Stopped" — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart]`
+- [ ] Each control saves at once under its `simcrux.` key — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart]`
+- [ ] The help link beside the section opens the integrations page — `[Coverage: AUTOMATED — settings_remote_control_section_test.dart]`
+- [ ] The Tab order is one named stop per control — `[Coverage: AUTOMATED — cxp_settings_focus_walk_test.dart]`
 - [ ] All five locales (en/zh_CN/zh/ja/ko) render the section without exception — `[Coverage: AUTOMATED — locale sweep]`
+- [ ] The General section's toggle rows start at the same left edge as its other tiles — `[Coverage: AUTOMATED — settings_general_alignment_test.dart]`
+
+### Recent projects
+- [ ] The welcome screen lists recent projects most recent first, each with a remove button; the button removes just that row and the list stays removed after a relaunch — `[Coverage: AUTOMATED — empty_canvas_content_test.dart]`
+- [ ] Clear Recent Projects (welcome button, File menu, command palette) empties the list, shows and announces "Recent projects cleared." — `[Coverage: AUTOMATED — empty_canvas_content_test.dart, simcrux_action_handlers_test.dart; file menu MANUAL]`
+- [ ] A project file that has gone is greyed and marked "Project file not found"; opening it drops it and reports it — `[Coverage: AUTOMATED — empty_canvas_content_test.dart]`
+- [ ] Every route that opens a project records it only after the open succeeded — `[Coverage: AUTOMATED — empty_canvas_content_test.dart, cxp_open_artifact_test.dart]`
+- [ ] A recent-projects list saved by an older build (a JSON string) is read on first launch and survives later settings changes — `[Coverage: AUTOMATED — app_settings_provider_test.dart, simcrux_settings_codec_test.dart]`
 
 ### Cross-suite end-to-end
 - [ ] With SimCrux + WaveCrux running, a failing-test "Debug in WaveCrux" opens the .vcd in WaveCrux and the cursor lands on a sensible default — `[Coverage: MANUAL — two running apps]`

@@ -402,9 +402,17 @@
   "@actionMoveTabToOtherPane": {
     "description": "Command palette label for the action that moves the active tab to the other pane."
   },
-  "actionOpenCrossProbePanel": "교차 프로브 패널 열기",
+  "actionOpenCrossProbePanel": "교차 프로브 패널 표시",
   "@actionOpenCrossProbePanel": {
-    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+    "description": "Command palette / menu label that shows or hides the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionCrossProbeSelection": "선택 항목 교차 프로브…",
+  "@actionCrossProbeSelection": {
+    "description": "Command palette / menu label that sends the selected test to a peer product (Cmd/Ctrl+Shift+Enter). Matches the shared cross-probe wording."
+  },
+  "actionClearRecentProjects": "최근 프로젝트 지우기",
+  "@actionClearRecentProjects": {
+    "description": "Command palette / File menu label that empties the list of recently opened projects."
   },
   "actionOpenSeedFailureHeatmap": "시드 실패 히트맵 보기",
   "@actionOpenSeedFailureHeatmap": {
@@ -437,62 +445,6 @@
   "actionConfigurePrAnnotationTarget": "PR 어노테이션 구성…",
   "@actionConfigurePrAnnotationTarget": {
     "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog."
-  },
-  "crossProbePanelTitle": "교차 프로브",
-  "@crossProbePanelTitle": {
-    "description": "Title of the CXP cross-probe panel."
-  },
-  "crossProbeCloseTooltip": "크로스 프로브 패널 닫기",
-  "crossProbeServerOffline": "크로스 프로브 서버가 오프라인입니다.",
-  "crossProbeSendTooltip": "이 피어로 선택 항목 보내기",
-  "crossProbeUnreachableTitle": "연결할 수 없는 피어",
-  "settingsRequestAttentionOnCrossProbeLabel": "크로스 프로브 시 주의 요청",
-  "settingsRequestAttentionOnCrossProbeDescription": "피어가 크로스 프로브를 보내면 Dock을 바운스(또는 작업 표시줄 깜박임)합니다. 포커스를 가져오지 않습니다.",
-  "settingsBroadcastSelectionOnCrossProbeLabel": "선택 항목 자동 브로드캐스트",
-  "settingsBroadcastSelectionOnCrossProbeDescription": "선택하는 즉시 연결된 피어에 선택 항목을 알립니다(라이브 크로스 프로브). 끄면 명시적으로 보낸 항목만 공유됩니다.",
-  "crossProbeSectionPeers": "연결된 피어",
-  "@crossProbeSectionPeers": {
-    "description": "Section header listing the CXP peers SimCrux is currently connected to."
-  },
-  "crossProbeSectionEvents": "최근 활동",
-  "@crossProbeSectionEvents": {
-    "description": "Section header for the rolling buffer of recent cross-probe events."
-  },
-  "crossProbeNoPeers": "연결된 피어가 없습니다. 이 컴퓨터에서 WaveCrux, NetCrux, LintCrux를 실행하면 여기에 표시됩니다.",
-  "@crossProbeNoPeers": {
-    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
-  },
-  "crossProbeNoEvents": "교차 프로브 활동이 아직 없습니다.",
-  "@crossProbeNoEvents": {
-    "description": "Empty-state shown in the cross-probe events section before any events arrive."
-  },
-  "crossProbeClearEvents": "지우기",
-  "@crossProbeClearEvents": {
-    "description": "Button label that clears the rolling cross-probe events buffer."
-  },
-  "crossProbeSendFailed": "{peer}에 보낸 교차 프로브가 완료되지 않았습니다",
-  "@crossProbeSendFailed": {
-    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      }
-    }
-  },
-  "crossProbeSendRefused": "{peer}에 보낸 교차 프로브: {reason}",
-  "@crossProbeSendRefused": {
-    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      },
-      "reason": {
-        "type": "String",
-        "example": "element not found: top.data"
-      }
-    }
   },
   "panelTestBrowserPlaceholder": "프로젝트를 열어 테스트를 탐색하세요.",
   "@panelTestBrowserPlaceholder": {
@@ -1336,30 +1288,6 @@
   "@webInspectorClose": {
     "description": "Close button label in the web inspector dialog."
   },
-  "settingsCxpEnabledLabel": "CXP 서버 활성화",
-  "@settingsCxpEnabledLabel": {
-    "description": "Switch label that turns the SimCrux CXP server on or off."
-  },
-  "settingsCxpEnabledDescription": "이 컴퓨터에서 WaveCrux, NetCrux, LintCrux, SimCrux가 선택과 강조 이벤트를 교환할 수 있게 합니다.",
-  "@settingsCxpEnabledDescription": {
-    "description": "Helper text under the CXP enable switch explaining what the toggle does."
-  },
-  "settingsCxpPortLabel": "CXP 포트",
-  "@settingsCxpPortLabel": {
-    "description": "Text field label for the CXP server's listening port."
-  },
-  "settingsCxpPortDescription": "TCP 포트 번호(1~65535)",
-  "@settingsCxpPortDescription": {
-    "description": "Helper text under the CXP port field describing the valid port range."
-  },
-  "settingsCxpPortError": "1부터 65535 사이의 포트를 입력하세요.",
-  "@settingsCxpPortError": {
-    "description": "Error string when the user enters an invalid CXP port number."
-  },
-  "settingsCxpStatus": "CXP 상태",
-  "settingsCxpStatusRunning": "포트 {port}에서 실행 중",
-  "settingsCxpStatusStopped": "중지됨",
-  "settingsCxpPeersConnected": "{count}개 피어 연결됨",
   "settingsDetectorsSection": "디텍터",
   "@settingsDetectorsSection": {
     "description": "Settings screen section header for the reusable pass/fail detector library."
@@ -1632,18 +1560,6 @@
   "emptyCanvasOpenWorkspace": "워크스페이스 열기…",
   "@emptyCanvasOpenWorkspace": {
     "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
-  },
-  "emptyCanvasRecentConfigsHeading": "최근 구성",
-  "@emptyCanvasRecentConfigsHeading": {
-    "description": "Section heading above the list of recently-opened simcrux.yaml files."
-  },
-  "emptyCanvasNoRecentConfigs": "아직 최근 구성이 없습니다.",
-  "@emptyCanvasNoRecentConfigs": {
-    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
-  },
-  "emptyCanvasRecentSessionsHeading": "최근 세션",
-  "@emptyCanvasRecentSessionsHeading": {
-    "description": "Section heading above the list of recently-opened .simcrux-session export files."
   },
   "emptyCanvasOpenFailed": "파일 선택기를 열 수 없습니다: {error}",
   "@emptyCanvasOpenFailed": {

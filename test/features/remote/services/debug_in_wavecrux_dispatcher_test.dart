@@ -7,33 +7,28 @@ library;
 import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/test_result.dart';
-import 'package:simcrux/features/remote/providers/cross_probe_events_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
-import 'package:simcrux/features/remote/providers/cxp_server_provider.dart';
 import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_discovery.dart';
-import 'package:simcrux/services/remote/cxp/simcrux_cxp_server.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
 
 import '../../../support/answered_telemetry.dart';
 import '../../../support/cxp_auto_ack.dart';
 import '../../../support/cxp_fake_peer.dart';
-import '../../../support/delete_manifest_dir.dart';
+import '../../../support/cxp_runtime_harness.dart';
 import '../../../support/poll_until.dart';
 
 void main() {
-  // A real on-disk dump: the dispatcher now guards against handing off a path
+  // A real on-disk dump: the dispatcher guards against handing off a path
   // that no longer exists, so tests that expect to progress past that guard
   // must point at a file that actually exists.
   late File waveformFile;
+  late Directory manifests;
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -43,6 +38,7 @@ void main() {
         'dump.vcd',
       ),
     )..writeAsStringSync('VCD');
+    manifests = cxpTestManifestDirectory();
   });
 
   tearDown(() {
@@ -106,24 +102,11 @@ void main() {
 
   group('DebugInWaveCruxDispatcher — server disabled', () {
     test('returns serverDisabled when CXP is off', () async {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
+        enabled: false,
       );
-      addTearDown(container.dispose);
-
-      await container.read(appSettingsProvider.future);
-      await container
-          .read(appSettingsProvider.notifier)
-          .updateCxpServerEnabled(enabled: false);
-      await container.read(cxpServerProvider.future);
+      expect(await container.read(cruxCxpRuntimeProvider.future), isNull);
 
       final dispatcher = container.read(debugInWaveCruxDispatcherProvider);
       final result = await dispatcher.dispatch(waveformPath: waveformFile.path);
@@ -133,20 +116,10 @@ void main() {
 
   group('DebugInWaveCruxDispatcher — no peer', () {
     test('returns noPeer when no WaveCrux peer is connected', () async {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
       );
-      addTearDown(container.dispose);
-      await container.read(appSettingsProvider.future);
-      await container.read(cxpServerProvider.future);
+      await runningCxpRuntime(container);
 
       final dispatcher = container.read(debugInWaveCruxDispatcherProvider);
       final result = await dispatcher.dispatch(waveformPath: waveformFile.path);
@@ -157,21 +130,10 @@ void main() {
   group('DebugInWaveCruxDispatcher — dispatched', () {
     test('dispatches RequestHighlight to a connected WaveCrux peer and '
         'records an outbound cross-probe event', () async {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
       );
-      addTearDown(container.dispose);
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
-      expect(server, isNotNull);
+      final runtime = await runningCxpRuntime(container);
 
       // Connect a fake WaveCrux peer to the server.
       final wavecruxClient = LocalCxpClient(
@@ -183,7 +145,7 @@ void main() {
       );
       await wavecruxClient.connect(
         host: '127.0.0.1',
-        port: server!.boundPort!,
+        port: runtime.boundPort!,
         token: cxpProcessAuthToken,
       );
       addTearDown(wavecruxClient.dispose);
@@ -193,15 +155,13 @@ void main() {
       // "I honoured the element but could not resolve the coordinate".
       addTearDown(autoAckHighlights(wavecruxClient).cancel);
 
-      // Wait for handshake to settle so the server's connectedPeers
-      // includes the new wavecrux peer.
+      // Wait for handshake to settle so the runtime's peers include the new
+      // wavecrux peer.
       final handshook = await pollUntil(
-        () => server.connectedPeers.any((p) => p.peerId == 'wavecrux-fake-99'),
+        () => runtime.peers.any((p) => p.peerId == 'wavecrux-fake-99'),
       );
       expect(handshook, isTrue, reason: 'expected the peer to be connected');
 
-      // Subscribe the client to RequestHighlight (peers only get what
-      // they ask for in v1 CXP).
       final received = wavecruxClient.inbound.firstWhere(
         (m) => m.message is RequestHighlight,
       );
@@ -220,37 +180,27 @@ void main() {
       expect(msg.element.kind, ElementKind.source);
       expect(msg.element.path, waveformFile.path);
 
-      // Cross-probe events buffer captured the outbound RequestHighlight.
-      final events = container.read(crossProbeEventsProvider);
+      // The panel's event log captured the outbound RequestHighlight: the
+      // runtime records every send, so the dispatcher records none itself.
+      final events = container.read(cruxCxpEventLogProvider);
       final outbound = events
           .where(
             (e) =>
-                e.direction == CrossProbeDirection.outbound &&
-                e.kind == CxpMessageKind.requestHighlight,
+                e.direction == CrossProbeEventDirection.outbound &&
+                e.kind == CrossProbeEventKind.highlightSent,
           )
           .toList();
       expect(outbound, hasLength(1));
-      expect(outbound.single.peerId, 'wavecrux-fake-99');
+      expect(outbound.single.peerLabel, 'WaveCrux');
       expect(outbound.single.summary, 'cpu_unit/test_alu_basic');
     });
 
     test('when suggestedSignals is non-empty, a NotifySelection metadata '
         'ping precedes the RequestHighlight', () async {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
       );
-      addTearDown(container.dispose);
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
-      expect(server, isNotNull);
+      final runtime = await runningCxpRuntime(container);
 
       final wavecruxClient = LocalCxpClient(
         selfIdentity: const PeerIdentity(
@@ -261,12 +211,12 @@ void main() {
       );
       await wavecruxClient.connect(
         host: '127.0.0.1',
-        port: server!.boundPort!,
+        port: runtime.boundPort!,
         token: cxpProcessAuthToken,
       );
       addTearDown(wavecruxClient.dispose);
       final handshook = await pollUntil(
-        () => server.connectedPeers.any((p) => p.peerId == 'wavecrux-fake-100'),
+        () => runtime.peers.any((p) => p.peerId == 'wavecrux-fake-100'),
       );
       expect(handshook, isTrue, reason: 'expected the peer to be connected');
 
@@ -329,50 +279,16 @@ void main() {
 
   group('DebugInWaveCruxDispatcher — connector-linked peer (production '
       'topology)', () {
-    late Directory tempDir;
-
-    setUp(() {
-      tempDir = Directory.systemTemp.createTempSync('simcrux_debug_wc_e2e_');
-    });
-
-    tearDown(() => deleteManifestDir(tempDir));
-
     test(
       'dispatches over a real connector-dialed link and the peer '
       'genuinely RECEIVES it on its own server.inbound — trusting '
       'dispatched:true as proof of delivery is the worst CXP failure mode; '
       'this asserts on the PEER product stack instead',
       () async {
-        final container = ProviderContainer(
-          overrides: <Override>[
-            ...answeredTelemetryOverrides(),
-            cxpServerFactoryProvider.overrideWithValue(
-              ({required selfIdentity, required port}) => SimCruxCxpServer(
-                selfIdentity: selfIdentity,
-                port: 0,
-              ),
-            ),
-            cxpDiscoveryFactoryProvider.overrideWithValue(
-              () async => SimCruxCxpDiscoveryService(
-                manifestDirectory: tempDir.path,
-                scanInterval: const Duration(milliseconds: 30),
-              ),
-            ),
-          ],
+        final container = simcruxCxpRuntimeContainer(
+          manifestDirectory: manifests,
         );
-        addTearDown(container.dispose);
-
-        await container.read(appSettingsProvider.future);
-        final simServer = await container.read(cxpServerProvider.future);
-        expect(simServer, isNotNull);
-        await container.read(cxpDiscoveryProvider.future);
-
-        // SimCrux's own inbound stream, subscribed independently of any
-        // handler — this is what "genuinely received" means for the
-        // ack half of the round trip below.
-        final simInbound = <InboundCxpMessage>[];
-        final simSub = simServer!.inbound.listen(simInbound.add);
-        addTearDown(simSub.cancel);
+        final runtime = await runningCxpRuntime(container);
 
         const waveId = PeerIdentity(
           peerId: 'wavecrux-debug-e2e-1',
@@ -381,7 +297,7 @@ void main() {
         );
         final peer = await CxpFakePeer.start(
           identity: waveId,
-          manifestDirectory: tempDir.path,
+          manifestDirectory: manifests.path,
         );
         addTearDown(peer.stop);
         // The real WaveCrux acks every request_highlight, and the dispatcher
@@ -391,26 +307,13 @@ void main() {
 
         final mutual = await pollUntil(
           () =>
-              simServer.connectedPeers.any((p) => p.peerId == waveId.peerId) &&
-              peer.isConnectedTo(simServer.selfIdentity.peerId),
+              runtime.peers.any((p) => p.peerId == waveId.peerId) &&
+              peer.isConnectedTo(runtime.selfIdentity.peerId),
         );
         expect(
           mutual,
           isTrue,
           reason: 'expected mutual connect before dispatch',
-        );
-
-        final discovered = await pollUntil(
-          () => container
-              .read(cxpPeersProvider)
-              .any((m) => m.identity.peerId == waveId.peerId),
-        );
-        expect(
-          discovered,
-          isTrue,
-          reason:
-              'the dispatcher resolves peers via '
-              'cxpPeersProvider first',
         );
 
         final result = await container
@@ -420,6 +323,8 @@ void main() {
               displayName: 'cpu_unit/test_alu_basic',
               suggestedSignals: const <String>['tb_alu.*'],
             );
+        // `dispatched` is only ever the outcome of an acknowledged send, so it
+        // also proves the peer's ack routed back into SimCrux over the link.
         expect(result.outcome, DebugInWaveCruxOutcome.dispatched);
         expect(result.targetPeerId, waveId.peerId);
 
@@ -443,34 +348,18 @@ void main() {
           (request.message as RequestHighlight).element.path,
           waveformFile.path,
         );
-        expect(request.from.peerId, simServer.selfIdentity.peerId);
-
-        // Full round trip: the peer's ack must reach SimCrux's own
-        // inbound — this leg requires SimCrux's discovery connector to
-        // be wired with `server:` (the fix this pin bump lands). The ack is
-        // the peer's own automatic reply, which is also what let the dispatch
-        // above resolve as `dispatched` rather than `unacknowledged`.
-        final gotAck = await pollUntil(
-          () => simInbound.any((m) => m.message is RequestHighlightAck),
-        );
-        expect(
-          gotAck,
-          isTrue,
-          reason:
-              "the peer's ack must route back into SimCrux's own "
-              'server.inbound over the link SimCrux dialed out on',
-        );
+        expect(request.from.peerId, runtime.selfIdentity.peerId);
       },
     );
   });
 
   group('DebugInWaveCruxDispatcher — the CXP stream coordinate on the wire', () {
-    /// Stands up SimCrux's server with one connected fake WaveCrux client and
+    /// Stands up SimCrux's runtime with one connected fake WaveCrux client and
     /// hands back everything that crossed the socket plus the dispatch result,
     /// so each case below asserts only on the wire.
     ///
     /// The messages are **recorded from before the dispatch**, not awaited
-    /// after it: `dispatch` now waits for the peer's acknowledgement, so by
+    /// after it: `dispatch` waits for the peer's acknowledgement, so by
     /// the time it returns the request has already been delivered and a
     /// `firstWhere` subscribed afterwards would wait forever.
     ///
@@ -486,8 +375,7 @@ void main() {
       Duration ackTimeout = const Duration(seconds: 5),
       bool ack = true,
     }) async {
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
+      final runtime = await runningCxpRuntime(container);
       final client = LocalCxpClient(
         selfIdentity: PeerIdentity(
           peerId: peerId,
@@ -497,11 +385,11 @@ void main() {
       );
       await client.connect(
         host: '127.0.0.1',
-        port: server!.boundPort!,
+        port: runtime.boundPort!,
         token: cxpProcessAuthToken,
       );
       final handshook = await pollUntil(
-        () => server.connectedPeers.any((p) => p.peerId == peerId),
+        () => runtime.peers.any((p) => p.peerId == peerId),
       );
       expect(handshook, isTrue);
       final received = <CxpClientInbound>[];
@@ -527,21 +415,8 @@ void main() {
       return (client, received, dispatched);
     }
 
-    ProviderContainer newContainer() {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      return container;
-    }
+    ProviderContainer newContainer() =>
+        simcruxCxpRuntimeContainer(manifestDirectory: manifests);
 
     TestResult counterexampleRow() {
       final now = DateTime.utc(2026, 8, 2);
@@ -644,22 +519,6 @@ void main() {
     ///
     /// MUTATION: go back to `sendTo` for the request_highlight, or collapse
     /// `dispatchedWithLimitation` into `dispatched`, and these go red.
-    ProviderContainer newContainer() {
-      final container = ProviderContainer(
-        overrides: <Override>[
-          ...answeredTelemetryOverrides(),
-          cxpServerFactoryProvider.overrideWithValue(
-            ({required selfIdentity, required port}) => SimCruxCxpServer(
-              selfIdentity: selfIdentity,
-              port: 0,
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      return container;
-    }
-
     Future<DebugInWaveCruxResult> dispatchWithAck({
       required String peerId,
       bool ackHonored = true,
@@ -667,9 +526,10 @@ void main() {
       bool ack = true,
       Duration ackTimeout = const Duration(seconds: 5),
     }) async {
-      final container = newContainer();
-      await container.read(appSettingsProvider.future);
-      final server = await container.read(cxpServerProvider.future);
+      final container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
+      );
+      final runtime = await runningCxpRuntime(container);
       final client = LocalCxpClient(
         selfIdentity: PeerIdentity(
           peerId: peerId,
@@ -679,12 +539,12 @@ void main() {
       );
       await client.connect(
         host: '127.0.0.1',
-        port: server!.boundPort!,
+        port: runtime.boundPort!,
         token: cxpProcessAuthToken,
       );
       addTearDown(client.dispose);
       final handshook = await pollUntil(
-        () => server.connectedPeers.any((p) => p.peerId == peerId),
+        () => runtime.peers.any((p) => p.peerId == peerId),
       );
       expect(handshook, isTrue);
       if (ack) {

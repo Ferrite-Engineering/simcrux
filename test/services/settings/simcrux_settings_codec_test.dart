@@ -128,28 +128,45 @@ void main() {
     });
 
     test(
-      'broadcastSelectionOnCrossProbe defaults to ON when the key is absent',
+      'a save never touches the four CXP keys the shared settings own',
       () async {
+        // The shared CXP settings save these under the product's prefix. A
+        // second writer here would overwrite them with defaults on every
+        // unrelated settings save (opening a project, toggling a panel).
+        SharedPreferences.setMockInitialValues(<String, Object>{
+          'simcrux.cxpServerEnabled': false,
+          'simcrux.cxpServerPort': 54999,
+          'simcrux.requestAttentionOnCrossProbe': false,
+          'simcrux.broadcastSelectionOnCrossProbe': false,
+        });
         final prefs = await SharedPreferences.getInstance();
-        final loaded = await const SimcruxSettingsCodec().load(prefs);
-        expect(loaded.broadcastSelectionOnCrossProbe, isTrue);
+        const codec = SimcruxSettingsCodec();
+        await codec.save(prefs, const AppSettings(autoRunOnOpen: true));
+
+        expect(prefs.getBool('simcrux.cxpServerEnabled'), isFalse);
+        expect(prefs.getInt('simcrux.cxpServerPort'), 54999);
+        expect(prefs.getBool('simcrux.requestAttentionOnCrossProbe'), isFalse);
+        expect(
+          prefs.getBool('simcrux.broadcastSelectionOnCrossProbe'),
+          isFalse,
+        );
       },
     );
 
     test(
-      'save then load round-trips broadcastSelectionOnCrossProbe = false',
+      'a save does not write the CXP keys when they were never set',
       () async {
         final prefs = await SharedPreferences.getInstance();
-        const codec = SimcruxSettingsCodec();
-        const settings = AppSettings(broadcastSelectionOnCrossProbe: false);
-        await codec.save(prefs, settings);
+        await const SimcruxSettingsCodec().save(prefs, const AppSettings());
 
+        expect(prefs.containsKey('simcrux.cxpServerEnabled'), isFalse);
+        expect(prefs.containsKey('simcrux.cxpServerPort'), isFalse);
         expect(
-          (await codec.load(prefs)).broadcastSelectionOnCrossProbe,
+          prefs.containsKey('simcrux.requestAttentionOnCrossProbe'),
           isFalse,
         );
         expect(
-          prefs.getBool('simcrux.broadcastSelectionOnCrossProbe'),
+          prefs.containsKey('simcrux.broadcastSelectionOnCrossProbe'),
           isFalse,
         );
       },
@@ -163,9 +180,7 @@ void main() {
         const settings = AppSettings(
           autoCheckForUpdates: false,
           autoRunOnOpen: true,
-          broadcastSelectionOnCrossProbe: false,
           recentProjectPaths: ['/proj/a/simcrux.yaml'],
-          cxpServerPort: 54999,
         );
         await codec.save(prefs, settings);
 

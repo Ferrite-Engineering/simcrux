@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
+import 'package:simcrux/features/remote/widgets/cross_probe_row_menu.dart';
 
 /// Builder function the dashboard results table invokes per row to
 /// produce an optional trailing widget rendered at the row's far edge.
@@ -56,34 +57,33 @@ dashboardRowTrailingBuilderProvider = Provider<DashboardRowTrailingBuilder>(
 /// build the row's right-click / long-press context menu.
 ///
 /// Returns the list of `PopupMenuEntry` items to render. Open-core
-/// default returns an empty list (no menu surfaces). The Pro overlay
-/// overrides this provider in `proOverrides` to inject a
-/// "Cross-probe to peer →" submenu and other Pro-tier per-row
-/// actions.
+/// default returns the one "Cross-probe to" item. The Pro overlay
+/// overrides this provider in `proOverrides`, keeps that item first and adds
+/// its own per-row actions after it.
 ///
-/// Receives a `BuildContext` so handlers can show snackbars / open
-/// dialogs and a `WidgetRef` so they can read the active CXP peer
-/// list, the active license tier, etc.
+/// Receives a `BuildContext` so handlers can show toasts / open
+/// dialogs, a `WidgetRef` so they can read the active CXP peer
+/// list, the active license tier, etc., and the global [position] the menu
+/// opens at, so an item that opens a second menu opens it in the same place.
 typedef DashboardRowContextMenuBuilder =
     List<PopupMenuEntry<void>> Function(
       BuildContext context,
       WidgetRef ref,
       DashboardRow row,
+      Offset position,
     );
 
-/// Extension-point seam the Pro overlay uses to attach per-row
-/// context-menu actions to dashboard rows.
+/// Extension-point seam for the per-row context-menu actions of dashboard
+/// rows.
 ///
-/// **Open-core default.** Returns a builder that always produces an
-/// empty entry list — rows render no context menu at all in an
-/// open-core build, and `onSecondaryTap` / long-press on the row body
-/// are no-ops.
+/// **Open-core default.** One "Cross-probe to" item: the running peer
+/// products, each sent the row's test (and its waveform) through the suite's
+/// shared cross-probe send. Cross-probing is free on every tier, so a build
+/// with no Pro overlay has the menu.
 ///
-/// **Pro override.** The Pro overlay registers a builder that adds a
-/// "Cross-probe to peer →" submenu enumerating currently-connected
-/// CXP peers via `cxpPeersProvider`. Each peer entry routes through
-/// `CrossProbeOriginator.originateToNetCrux` /
-/// `originateToLintCrux` / the existing "Debug in WaveCrux" path.
+/// **Pro override.** The Pro overlay registers a builder that calls
+/// [buildCrossProbeRowMenuEntries] first, then adds the re-run and trend
+/// entries.
 ///
 /// Like [dashboardRowTrailingBuilderProvider], builder receives a
 /// `WidgetRef` so per-row state can be resolved without rebuilding
@@ -91,6 +91,5 @@ typedef DashboardRowContextMenuBuilder =
 final Provider<DashboardRowContextMenuBuilder>
 dashboardRowContextMenuBuilderProvider =
     Provider<DashboardRowContextMenuBuilder>(
-      (ref) =>
-          (_, _, _) => const <PopupMenuEntry<void>>[],
+      (ref) => buildCrossProbeRowMenuEntries,
     );

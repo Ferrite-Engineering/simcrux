@@ -19,6 +19,8 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
+import '../../../support/cxp_test_overrides.dart';
+
 TestResult _result(String id, TestStatus status) {
   return TestResult(
     testId: id,
@@ -240,12 +242,12 @@ void main() {
       expect(find.text('alu'), findsOneWidget);
     }
 
-    // A Pro-style builder that contributes one findable entry so the menu
-    // has something to show (open-core's default builder is empty).
+    // A Pro-style builder that contributes one findable entry of its own,
+    // so the gesture is tested apart from the open-core default item.
     Override contributingBuilder() {
       return dashboardRowContextMenuBuilderProvider.overrideWithValue(
-        (context, ref, row) => const <PopupMenuEntry<void>>[
-          PopupMenuItem<void>(child: Text('Cross-probe to peer')),
+        (context, ref, row, position) => const <PopupMenuEntry<void>>[
+          PopupMenuItem<void>(child: Text('Contributed entry')),
         ],
       );
     }
@@ -260,7 +262,7 @@ void main() {
       );
       await tester.tap(find.text('alu'), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
-      expect(find.text('Cross-probe to peer'), findsOneWidget);
+      expect(find.text('Contributed entry'), findsOneWidget);
     });
 
     testWidgets('opens on long-press on a touch platform', (tester) async {
@@ -271,22 +273,46 @@ void main() {
       );
       await tester.longPress(find.text('alu'));
       await tester.pumpAndSettle();
-      expect(find.text('Cross-probe to peer'), findsOneWidget);
+      expect(find.text('Contributed entry'), findsOneWidget);
     });
 
-    testWidgets('right-click is inert with the open-core empty builder', (
+    testWidgets('the builder is handed the position the menu opens at', (
       tester,
     ) async {
-      // No override → the open-core default builder returns no entries, so
-      // the gesture resolves without surfacing a menu.
+      Offset? seen;
       await pumpRow(
         tester,
-        overrides: const [],
+        overrides: [
+          dashboardRowContextMenuBuilderProvider.overrideWithValue(
+            (context, ref, row, position) {
+              seen = position;
+              return const <PopupMenuEntry<void>>[
+                PopupMenuItem<void>(child: Text('Contributed entry')),
+              ];
+            },
+          ),
+        ],
+        platform: TargetPlatform.linux,
+      );
+      final at = tester.getCenter(find.text('alu'));
+      await tester.tapAt(at, buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+      expect(seen, at);
+    });
+
+    testWidgets('right-click on the open-core default offers Cross-probe to', (
+      tester,
+    ) async {
+      // No override: the open-core default builder is the one "Cross-probe
+      // to" item (greyed here, with no peer running).
+      await pumpRow(
+        tester,
+        overrides: simcruxCxpTestOverrides(),
         platform: TargetPlatform.linux,
       );
       await tester.tap(find.text('alu'), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
-      expect(find.byType(PopupMenuItem<void>), findsNothing);
+      expect(find.text('Cross-probe to (no peers running)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

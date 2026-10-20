@@ -158,6 +158,12 @@ enum SimcruxAction implements CruxAction {
   /// peers and a rolling log of recent cross-probe events.
   openCrossProbePanel,
 
+  /// Cross-probe the selected test to a peer product (Cmd/Ctrl+Shift+Enter).
+  ///
+  /// One running target receives it at once; several open a menu of them at
+  /// the selection. Free on every tier, like the "Cross-probe to" row menu.
+  crossProbeSelection,
+
   /// Open the Pro Seed Failure Heatmap screen.
   ///
   /// Open-core builds register the action so it shows up in the
@@ -250,6 +256,13 @@ enum SimcruxAction implements CruxAction {
   /// in the Pro registry — [NoopProjectRegistry] clears them by
   /// construction.
   reopenRecentProject,
+
+  /// Empty the Recent Projects list (File menu, command palette, and the
+  /// welcome screen's own button).
+  ///
+  /// Open-core: the list is the plain recently-opened `simcrux.yaml` files,
+  /// not the Pro project registry that [reopenRecentProject] reads.
+  clearRecentProjects,
 
   /// Pin or unpin the active project tab. Pinned tabs survive the
   /// [closeAllProjects] action.
@@ -419,6 +432,8 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.focusOtherPane:
       case SimcruxAction.moveTabToOtherPane:
       case SimcruxAction.openCrossProbePanel:
+      case SimcruxAction.crossProbeSelection:
+      case SimcruxAction.clearRecentProjects:
       // Opening and closing a single project work standalone under
       // `NoopProjectRegistry`, as does closing every workspace tab, so
       // all three stay open-core. LintCrux classifies `openProject` /
@@ -445,6 +460,7 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.importRiscvFormal:
       case SimcruxAction.switchProject:
       case SimcruxAction.reopenRecentProject:
+      case SimcruxAction.clearRecentProjects:
       case SimcruxAction.pinActiveProject:
       case SimcruxAction.closeTab:
       case SimcruxAction.closeProject:
@@ -474,6 +490,7 @@ enum SimcruxAction implements CruxAction {
       // toggles — the suite's flagship cross-product feature was in a
       // different menu in half the products.
       case SimcruxAction.openCrossProbePanel:
+      case SimcruxAction.crossProbeSelection:
       case SimcruxAction.splitPaneRight:
       case SimcruxAction.closePane:
       case SimcruxAction.focusOtherPane:
@@ -576,6 +593,10 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionMoveTabToOtherPane;
       case SimcruxAction.openCrossProbePanel:
         return l10n.actionOpenCrossProbePanel;
+      case SimcruxAction.crossProbeSelection:
+        return l10n.actionCrossProbeSelection;
+      case SimcruxAction.clearRecentProjects:
+        return l10n.actionClearRecentProjects;
       case SimcruxAction.openSeedFailureHeatmap:
         return l10n.actionOpenSeedFailureHeatmap;
       case SimcruxAction.showTrendChart:

@@ -19,12 +19,16 @@ import 'package:simcrux/domain/models/retention_policy.dart';
 /// Forward-compatibility: unknown keys are silently ignored; malformed
 /// values fall back to defaults. Old preferences never crash a new
 /// build.
+///
+/// The four CXP settings (`simcrux.cxpServerEnabled`, `.cxpServerPort`,
+/// `.requestAttentionOnCrossProbe`, `.broadcastSelectionOnCrossProbe`) are
+/// not read or written here: the shared CXP settings own those keys, and a
+/// second writer would overwrite them on every unrelated settings save.
 class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
   /// Const constructor — codec is stateless.
   const SimcruxSettingsCodec();
 
   static const String _kRecentProjectPaths = 'simcrux.recentProjectPaths';
-  static const String _kRecentSessionPaths = 'simcrux.recentSessionPaths';
   static const String _kInspectorLogPreviewLineCount =
       'simcrux.inspectorLogPreviewLineCount';
   static const String _kEditorCommandTemplate = 'simcrux.editorCommandTemplate';
@@ -35,12 +39,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
   static const String _kSimulatorDefaultOptions =
       'simcrux.simulatorDefaultOptions';
   static const String _kReusableDetectors = 'simcrux.reusableDetectors';
-  static const String _kCxpServerEnabled = 'simcrux.cxpServerEnabled';
-  static const String _kCxpServerPort = 'simcrux.cxpServerPort';
-  static const String _kRequestAttentionOnCrossProbe =
-      'simcrux.requestAttentionOnCrossProbe';
-  static const String _kBroadcastSelectionOnCrossProbe =
-      'simcrux.broadcastSelectionOnCrossProbe';
   static const String _kAutoCheckForUpdates = 'simcrux.autoCheckForUpdates';
   static const String _kAutoRunOnOpen = 'simcrux.autoRunOnOpen';
   static const String _kMaxTotalSimulators = 'simcrux.maxTotalSimulators';
@@ -73,7 +71,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
     return AppSettings(
       core: core,
       recentProjectPaths: _readStringList(prefs, _kRecentProjectPaths),
-      recentSessionPaths: _readStringList(prefs, _kRecentSessionPaths),
       panelLayout: _readPanelLayout(prefs),
       inspectorLogPreviewLineCount:
           prefs.getInt(_kInspectorLogPreviewLineCount) ?? 50,
@@ -95,12 +92,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       ),
       reusableDetectors: _readReusableDetectors(prefs),
       retentionPolicy: _readRetentionPolicy(prefs),
-      cxpServerEnabled: prefs.getBool(_kCxpServerEnabled) ?? true,
-      cxpServerPort: _readClampedPort(prefs, _kCxpServerPort) ?? 54325,
-      requestAttentionOnCrossProbe:
-          prefs.getBool(_kRequestAttentionOnCrossProbe) ?? true,
-      broadcastSelectionOnCrossProbe:
-          prefs.getBool(_kBroadcastSelectionOnCrossProbe) ?? true,
       autoCheckForUpdates: prefs.getBool(_kAutoCheckForUpdates) ?? true,
       // Absent means off. Opening a config must not start a run for a
       // user who never asked for it, including on first launch.
@@ -112,16 +103,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
         64,
       ),
     );
-  }
-
-  /// Reads a port number and clamps it to a valid IANA range. Returns
-  /// null when the key is absent or the value is out of range so the
-  /// caller can fall back to the default.
-  int? _readClampedPort(SharedPreferences prefs, String key) {
-    final raw = prefs.getInt(key);
-    if (raw == null) return null;
-    if (raw < 1 || raw > 65535) return null;
-    return raw;
   }
 
   Map<String, DetectorSpec> _readReusableDetectors(SharedPreferences prefs) {
@@ -168,10 +149,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       _kRecentProjectPaths,
       jsonEncode(settings.recentProjectPaths),
     );
-    await prefs.setString(
-      _kRecentSessionPaths,
-      jsonEncode(settings.recentSessionPaths),
-    );
     await prefs.setInt(
       _kInspectorLogPreviewLineCount,
       settings.inspectorLogPreviewLineCount,
@@ -198,16 +175,6 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
         for (final entry in settings.reusableDetectors.entries)
           entry.key: DetectorSpec.encode(entry.value),
       }),
-    );
-    await prefs.setBool(_kCxpServerEnabled, settings.cxpServerEnabled);
-    await prefs.setInt(_kCxpServerPort, settings.cxpServerPort);
-    await prefs.setBool(
-      _kRequestAttentionOnCrossProbe,
-      settings.requestAttentionOnCrossProbe,
-    );
-    await prefs.setBool(
-      _kBroadcastSelectionOnCrossProbe,
-      settings.broadcastSelectionOnCrossProbe,
     );
     await prefs.setBool(_kAutoCheckForUpdates, settings.autoCheckForUpdates);
     await prefs.setBool(_kAutoRunOnOpen, settings.autoRunOnOpen);

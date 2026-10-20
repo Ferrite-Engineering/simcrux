@@ -23,7 +23,8 @@ binding can be changed in **Settings → Keyboard Shortcuts**.
 | ++cmd+1++ / ++ctrl+1++ | Toggle Test Browser |
 | ++cmd+2++ / ++ctrl+2++ | Toggle Inspector (the Details panel) |
 | ++cmd+3++ / ++ctrl+3++ | Toggle Log Panel |
-| ++cmd+shift+x++ / ++ctrl+shift+x++ | Open Cross-Probe Panel |
+| ++cmd+shift+x++ / ++ctrl+shift+x++ | Open Cross-Probe Panel (named **Show Cross-Probe Panel** from SimCrux 1.2) |
+| ++cmd+shift+enter++ / ++ctrl+shift+enter++ | Cross-probe Selection… (from SimCrux 1.2). Sends the selected test to a running EDACrux app; while a text box has focus the keys stay with the box. |
 | ++cmd+backslash++ / ++ctrl+backslash++ | Split Pane Right |
 | ++cmd+shift+k++ / ++ctrl+shift+k++ | Toggle Theme |
 
@@ -88,6 +89,7 @@ Shortcuts**.
 - Configure Trend Retention… <span class="tier tier-pro">Pro</span>
 - Dispatch PR Annotations <span class="tier tier-pro">Pro</span>
 - Configure PR Annotations… <span class="tier tier-pro">Pro</span>
+- Clear Recent Projects (from SimCrux 1.2)
 - Reopen Recent Project <span class="tier tier-pro">Pro</span>
 - Pin Project Tab <span class="tier tier-pro">Pro</span>
 - Close All Projects <span class="tier tier-pro">Pro</span>
@@ -139,7 +141,7 @@ These keys are fixed and not remappable.
 | Click a column header | Sort by that column; click again to reverse. |
 | Drag a column header's right-edge divider | Resize that column against the next (from 1.1). Double-click the divider to restore the default widths. |
 | Click a heatmap cell | Select that test. |
-| Right-click (or long-press) a results-table row | Open the row menu: **Send selection to WaveCrux / NetCrux / LintCrux** under **Cross-probe to peer…** (every tier from 1.1; Pro in 1.0), then <span class="tier tier-pro">Pro</span> **Re-run with seed N** (rows with a recorded seed), **Re-run all in this parameter group** (rows from a sweep) and **Show Trend Chart**. A build from the open-source repository alone has no row menu; use the Cross-Probe panel's send button there. |
+| Right-click (or long-press) a results-table row | Open the row menu: **Send selection to WaveCrux / NetCrux / LintCrux** under **Cross-probe to peer…** (every tier from 1.1; Pro in 1.0), then <span class="tier tier-pro">Pro</span> **Re-run with seed N** (rows with a recorded seed), **Re-run all in this parameter group** (rows from a sweep) and **Show Trend Chart**. A build from the open-source repository alone has no row menu; use the Cross-Probe panel's send button there. From SimCrux 1.2 the first entry is a single **Cross-probe to** item that lists the running EDACrux apps in a second menu, and every build, the open-source one included, has it. |
 | Drag a tab onto another pane | Move the tab to that pane. |
 | Hover a tab | Show a tooltip with the tab's full file path. |
 | Right-click a tab | Open the tab menu — the file path, **Reveal in Finder / Explorer / Files**, and the close actions. |

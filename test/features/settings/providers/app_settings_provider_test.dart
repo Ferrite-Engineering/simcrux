@@ -36,12 +36,14 @@ void main() {
     });
 
     test(
-      'addRecentProject prepends and persists to SharedPreferences',
+      'setRecentProjects replaces the list and persists it as JSON',
       () async {
         await container.read(appSettingsProvider.future);
         final notifier = container.read(appSettingsProvider.notifier);
-        await notifier.addRecentProject('/proj/one/simcrux.yaml');
-        await notifier.addRecentProject('/proj/two/simcrux.yaml');
+        await notifier.setRecentProjects([
+          '/proj/two/simcrux.yaml',
+          '/proj/one/simcrux.yaml',
+        ]);
 
         final state = container.read(appSettingsProvider).value;
         expect(state!.recentProjectPaths, [
@@ -49,65 +51,39 @@ void main() {
           '/proj/one/simcrux.yaml',
         ]);
 
-        // Verify persistence: a fresh load against the same prefs returns
-        // the same list.
+        // A fresh load against the same prefs returns the same list, from
+        // the JSON string the codec has always written.
         final reloaded = await const SimcruxSettingsCodec().load(prefs);
         expect(reloaded.recentProjectPaths, [
           '/proj/two/simcrux.yaml',
           '/proj/one/simcrux.yaml',
         ]);
+        expect(prefs.getString('simcrux.recentProjectPaths'), isNotNull);
       },
     );
 
-    test('addRecentProject deduplicates existing entries', () async {
+    test('setRecentProjects with the same list changes nothing', () async {
       await container.read(appSettingsProvider.future);
       final notifier = container.read(appSettingsProvider.notifier);
-      await notifier.addRecentProject('/proj/a/simcrux.yaml');
-      await notifier.addRecentProject('/proj/b/simcrux.yaml');
-      await notifier.addRecentProject('/proj/a/simcrux.yaml');
+      await notifier.setRecentProjects(['/proj/a/simcrux.yaml']);
+      final before = container.read(appSettingsProvider).value;
+      await notifier.setRecentProjects(['/proj/a/simcrux.yaml']);
 
-      final state = container.read(appSettingsProvider).value;
-      expect(state!.recentProjectPaths, [
-        '/proj/a/simcrux.yaml',
-        '/proj/b/simcrux.yaml',
-      ]);
+      expect(container.read(appSettingsProvider).value, same(before));
     });
 
-    test('addRecentProject caps at recentProjectsMax entries', () async {
+    test('setRecentProjects with an empty list empties it', () async {
       await container.read(appSettingsProvider.future);
       final notifier = container.read(appSettingsProvider.notifier);
-      for (var i = 0; i < AppSettings.recentProjectsMax + 3; i++) {
-        await notifier.addRecentProject('/proj/$i/simcrux.yaml');
-      }
+      await notifier.setRecentProjects(['/proj/a/simcrux.yaml']);
+      await notifier.setRecentProjects(const <String>[]);
 
       final state = container.read(appSettingsProvider).value;
-      expect(state!.recentProjectPaths.length, AppSettings.recentProjectsMax);
-      // Most recent at index 0.
+      expect(state!.recentProjectPaths, isEmpty);
       expect(
-        state.recentProjectPaths.first,
-        '/proj/${AppSettings.recentProjectsMax + 2}/simcrux.yaml',
+        (await const SimcruxSettingsCodec().load(prefs)).recentProjectPaths,
+        isEmpty,
       );
-    });
-
-    test('removeRecentProject removes the entry and persists', () async {
-      await container.read(appSettingsProvider.future);
-      final notifier = container.read(appSettingsProvider.notifier);
-      await notifier.addRecentProject('/proj/a/simcrux.yaml');
-      await notifier.addRecentProject('/proj/b/simcrux.yaml');
-      await notifier.removeRecentProject('/proj/a/simcrux.yaml');
-
-      final state = container.read(appSettingsProvider).value;
-      expect(state!.recentProjectPaths, ['/proj/b/simcrux.yaml']);
-    });
-
-    test('removeRecentProject is a no-op when entry is not present', () async {
-      await container.read(appSettingsProvider.future);
-      final notifier = container.read(appSettingsProvider.notifier);
-      await notifier.addRecentProject('/proj/a/simcrux.yaml');
-      await notifier.removeRecentProject('/proj/missing/simcrux.yaml');
-
-      final state = container.read(appSettingsProvider).value;
-      expect(state!.recentProjectPaths, ['/proj/a/simcrux.yaml']);
     });
   });
 }

@@ -197,11 +197,10 @@ class _DashboardResultRow extends ConsumerWidget {
     final trailingBuilder = ref.watch(dashboardRowTrailingBuilderProvider);
     final trailing = trailingBuilder(ref, row);
 
-    // Optional per-row context menu, produced by the Pro-overlay-
-    // overridable [dashboardRowContextMenuBuilderProvider]. Open-core
-    // default returns an empty list — right-click / long-press are
-    // inert. Pro registers a "Cross-probe to peer →" submenu via
-    // proOverrides.
+    // Per-row context menu, produced by the Pro-overlay-overridable
+    // [dashboardRowContextMenuBuilderProvider]. Open-core default is the
+    // one "Cross-probe to" item; the Pro overlay keeps it first and adds the
+    // re-run and trend entries via proOverrides.
     final contextMenuBuilder = ref.watch(
       dashboardRowContextMenuBuilderProvider,
     );
@@ -375,17 +374,17 @@ class _DashboardResultRow extends ConsumerWidget {
   /// builder produced any entries, surfaces them through `showMenu` at
   /// [anchor] (the global screen position from [PlatformContextMenu]).
   ///
-  /// Open-core's default builder returns the empty list, so right-
-  /// click / long-press are no-ops without any extra branching at the
-  /// call site. The Pro overlay's CXP-originate submenu registers
-  /// entries here.
+  /// Open-core's default builder returns the "Cross-probe to" item; a builder
+  /// that returns nothing leaves right-click / long-press inert without any
+  /// extra branching at the call site. [anchor] is passed to the builder so an
+  /// item that opens a second menu opens it where this one did.
   Future<void> _maybeShowRowMenu(
     BuildContext context,
     WidgetRef ref,
     DashboardRowContextMenuBuilder builder, {
     required Offset anchor,
   }) async {
-    final entries = builder(context, ref, row);
+    final entries = builder(context, ref, row, anchor);
     if (entries.isEmpty) return;
     final overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;

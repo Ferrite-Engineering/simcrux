@@ -22,11 +22,31 @@ class _TextAwareShortcutManager extends ShortcutManager {
     if (_isTextInputFocused() && _isBareLetter()) {
       return KeyEventResult.ignored;
     }
+    // Modifier chords pass through a text field on purpose (Cmd+S still
+    // saves), but Cross-probe Selection's chord ends in Enter, which a field
+    // uses: without this the field never sees the key.
+    if (_isTextInputFocused() && _isCrossProbeSelectionChord(event)) {
+      return KeyEventResult.ignored;
+    }
     if (_activatesFocusedControl(event)) return KeyEventResult.ignored;
     if (_isBareEscape(event) && _isPopupFocused()) {
       return KeyEventResult.ignored;
     }
     return super.handleKeypress(context, event);
+  }
+
+  /// Whether [event] is the chord currently bound to
+  /// [SimcruxAction.crossProbeSelection], wherever the user put it.
+  bool _isCrossProbeSelectionChord(KeyEvent event) {
+    for (final entry in shortcuts.entries) {
+      final intent = entry.value;
+      if (intent is SimcruxActionIntent &&
+          intent.action == SimcruxAction.crossProbeSelection &&
+          entry.key.accepts(event, HardwareKeyboard.instance)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Escape with no modifier at all.

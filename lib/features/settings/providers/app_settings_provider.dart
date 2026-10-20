@@ -27,7 +27,7 @@ final Provider<SettingsService<AppSettings>> settingsServiceProvider =
 /// `AsyncNotifierProvider` so the first frame can render against the
 /// settings defaults while persistence resolves; once loaded, consumers
 /// see the persisted values. Calls to mutators (e.g.
-/// [AppSettingsNotifier.addRecentProject]) flush to disk via
+/// [AppSettingsNotifier.setRecentProjects]) flush to disk via
 /// [SettingsService.save] and update the in-memory state.
 final AsyncNotifierProvider<AppSettingsNotifier, AppSettings>
 appSettingsProvider = AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
@@ -48,32 +48,27 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     return loaded;
   }
 
-  /// Records [path] at the top of the recent-projects list, removing
-  /// any previous entry for the same path (case-sensitive). Trims to
-  /// [AppSettings.recentProjectsMax].
-  Future<void> addRecentProject(String path) async {
+  /// Replaces the recent-projects list with [paths], most recent first.
+  ///
+  /// The one writer of `recentProjectPaths`: the shared Recent list
+  /// (`recentProjects`) owns the order, the cap, removal and Clear Recent, and
+  /// saves its result here. The list is stored as a JSON-encoded string, which
+  /// is why it is not a `CruxPrefsRecentStore` key.
+  Future<void> setRecentProjects(List<String> paths) async {
     final current = state.value;
     if (current == null) return;
-    final next = <String>[path];
-    for (final existing in current.recentProjectPaths) {
-      if (existing == path) continue;
-      next.add(existing);
-      if (next.length >= AppSettings.recentProjectsMax) break;
+    final next = List<String>.unmodifiable(paths);
+    if (current.recentProjectPaths.length == next.length) {
+      var same = true;
+      for (var i = 0; i < next.length; i++) {
+        if (current.recentProjectPaths[i] != next[i]) {
+          same = false;
+          break;
+        }
+      }
+      if (same) return;
     }
     final updated = current.copyWith(recentProjectPaths: next);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Removes [path] from the recent-projects list, if present.
-  Future<void> removeRecentProject(String path) async {
-    final current = state.value;
-    if (current == null) return;
-    final filtered = current.recentProjectPaths
-        .where((p) => p != path)
-        .toList(growable: false);
-    if (filtered.length == current.recentProjectPaths.length) return;
-    final updated = current.copyWith(recentProjectPaths: filtered);
     state = AsyncData(updated);
     await ref.read(settingsServiceProvider).save(updated);
   }
@@ -292,73 +287,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final next = Map<String, DetectorSpec>.from(current.reusableDetectors)
       ..remove(name);
     final updated = current.copyWith(reusableDetectors: next);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Enables or disables the CXP server.
-  Future<void> updateCxpServerEnabled({required bool enabled}) async {
-    final current = state.value;
-    if (current == null) return;
-    if (current.cxpServerEnabled == enabled) return;
-    final updated = current.copyWith(cxpServerEnabled: enabled);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Updates whether an actionable inbound cross-probe requests the user's
-  /// attention (dock bounce / taskbar flash — never a focus steal). The
-  /// settings→lifecycle bridge (`cxpAttentionBridgeProvider`) observes this and
-  /// swaps the global `windowAttentionRequester` accordingly.
-  Future<void> updateRequestAttentionOnCrossProbe({
-    required bool enabled,
-  }) async {
-    final current = state.value;
-    if (current == null) return;
-    if (current.requestAttentionOnCrossProbe == enabled) return;
-    final updated = current.copyWith(requestAttentionOnCrossProbe: enabled);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Updates whether the local selection is auto-broadcast to connected CXP
-  /// peers as it changes (live cross-probe). The `notify_selection` emitter
-  /// observes this: when false it stops announcing selection changes, so only
-  /// explicit sends (e.g. "Debug in WaveCrux") are shared.
-  Future<void> updateBroadcastSelectionOnCrossProbe({
-    required bool enabled,
-  }) async {
-    final current = state.value;
-    if (current == null) return;
-    if (current.broadcastSelectionOnCrossProbe == enabled) return;
-    final updated = current.copyWith(broadcastSelectionOnCrossProbe: enabled);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Updates the CXP server's listening port. Values outside the
-  /// 1–65535 IANA range are rejected (no state change, no save).
-  Future<void> updateCxpServerPort(int port) async {
-    final current = state.value;
-    if (current == null) return;
-    if (port < 1 || port > 65535) return;
-    if (current.cxpServerPort == port) return;
-    final updated = current.copyWith(cxpServerPort: port);
-    state = AsyncData(updated);
-    await ref.read(settingsServiceProvider).save(updated);
-  }
-
-  /// Records [path] at the top of the recent-sessions list.
-  Future<void> addRecentSession(String path) async {
-    final current = state.value;
-    if (current == null) return;
-    final next = <String>[path];
-    for (final existing in current.recentSessionPaths) {
-      if (existing == path) continue;
-      next.add(existing);
-      if (next.length >= AppSettings.recentProjectsMax) break;
-    }
-    final updated = current.copyWith(recentSessionPaths: next);
     state = AsyncData(updated);
     await ref.read(settingsServiceProvider).save(updated);
   }

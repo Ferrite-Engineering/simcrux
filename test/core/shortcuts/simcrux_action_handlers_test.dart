@@ -4,6 +4,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:crux_app_info/crux_app_info.dart';
+import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_projects/crux_projects.dart';
 import 'package:crux_settings/crux_settings.dart';
@@ -40,6 +42,7 @@ import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/providers/retention_policy_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_action_context_provider.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_pane_overrides.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_tab_overrides.dart';
@@ -54,6 +57,8 @@ import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
 
 import '../../support/answered_telemetry.dart';
+import '../../support/cxp_fake_dispatcher.dart';
+import '../../support/cxp_test_overrides.dart';
 
 /// How a [SimcruxAction]'s handler is expected to behave when it is
 /// dispatched in a stock **open-core** build with no project open.
@@ -98,6 +103,11 @@ enum _Dispatch {
 
   /// Opens a dialog or route; no snack.
   opensSurface,
+
+  /// Reports what it did in a toast of its own (the cross-probe outcome, the
+  /// "Recent projects cleared." confirmation), whether or not a project is
+  /// open.
+  reportsOutcome,
 
   /// Mutates workspace/panel state directly; no snack, no dialog.
   mutatesState,
@@ -157,6 +167,11 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // Toggles the docked cross-probe panel's visibility flag rather
   // than opening a modal dialog.
   SimcruxAction.openCrossProbePanel: _Dispatch.mutatesState,
+  // Both report in a toast: Cross-probe Selection says which of "nothing
+  // selected", "server off" or "no peer running" stopped it, and Clear Recent
+  // Projects confirms.
+  SimcruxAction.crossProbeSelection: _Dispatch.reportsOutcome,
+  SimcruxAction.clearRecentProjects: _Dispatch.reportsOutcome,
   SimcruxAction.openCommandPalette: _Dispatch.opensSurface,
   // Beta-release infrastructure. Both open a surface: the manual
   // update check shows its in-flight / outcome SnackBar, the issue reporter
@@ -327,6 +342,8 @@ class _Harness {
         simulatorDriverRegistryProvider.overrideWithValue(
           SimulatorDriverRegistry({'icarus': _PassingDriver()}),
         ),
+        // The cross-probe command reads the shared CXP providers.
+        ...simcruxCxpTestOverrides(),
         trendStoreDirectoryOverrideProvider.overrideWithValue(tempDir.path),
         // A minimal router keeps the navigator context resolution the
         // handlers depend on real, without mounting the full workspace
@@ -487,6 +504,134 @@ void main() {
               'the menu bar / command palette and silently do nothing.',
         );
       }
+    });
+  });
+
+  group('Cross-probe Selection', () {
+    List<Override> running({
+      required List<PeerIdentity> peers,
+      required FakeCrossProbeDispatcher fake,
+    }) => <Override>[
+      cruxCxpPeersProvider.overrideWithValue(peers),
+      cruxCxpServerStatusProvider.overrideWithValue((
+        running: true,
+        port: 54325,
+        problem: null,
+      )),
+      cxpFakeDispatcherOverride(fake),
+    ];
+
+    Future<ProviderContainer> openTabWithSelection(
+      WidgetTester tester,
+      _Harness harness,
+    ) async {
+      await harness.scoped
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'simcrux.yaml',
+            payload: SimcruxTabPayload(configPath: '/proj/simcrux.yaml'),
+          );
+      await tester.pumpAndSettle();
+      final tab = harness.activeTabContainer()!;
+      tab.read(selectedTestIdProvider.notifier).select('unit/alu');
+      return tab;
+    }
+
+    testWidgets('with nothing selected it says so, and sends nothing', (
+      tester,
+    ) async {
+      final fake = FakeCrossProbeDispatcher();
+      final harness = await pumpHarness(
+        tester,
+        extraOverrides: running(peers: [cxpTestPeer('netcrux')], fake: fake),
+      );
+
+      harness.handlers[SimcruxAction.crossProbeSelection]!();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Select something to cross-probe first.'),
+        findsOneWidget,
+      );
+      expect(fake.sent, isEmpty);
+      await settleWorkspace(tester);
+    });
+
+    testWidgets("with one peer it sends the ACTIVE tab's selected test at "
+        'once', (tester) async {
+      final fake = FakeCrossProbeDispatcher();
+      final harness = await pumpHarness(
+        tester,
+        extraOverrides: running(peers: [cxpTestPeer('netcrux')], fake: fake),
+      );
+      await openTabWithSelection(tester, harness);
+
+      harness.handlers[SimcruxAction.crossProbeSelection]!();
+      await tester.pumpAndSettle();
+
+      final (peer, selection) = fake.sent.single;
+      expect(peer.productName, 'netcrux');
+      expect(selection!.candidates.first.kind, ElementKind.test);
+      expect(selection.candidates.first.path, 'unit/alu');
+      await settleWorkspace(tester);
+    });
+
+    testWidgets('with several products it opens the target menu and sends '
+        'only to the one chosen', (tester) async {
+      final fake = FakeCrossProbeDispatcher();
+      final harness = await pumpHarness(
+        tester,
+        extraOverrides: running(
+          peers: [cxpTestPeer('wavecrux'), cxpTestPeer('netcrux')],
+          fake: fake,
+        ),
+      );
+      await openTabWithSelection(tester, harness);
+
+      harness.handlers[SimcruxAction.crossProbeSelection]!();
+      await tester.pumpAndSettle();
+      expect(fake.sent, isEmpty);
+      expect(find.text('WaveCrux'), findsOneWidget);
+      expect(find.text('NetCrux'), findsOneWidget);
+
+      await tester.tap(find.text('NetCrux'));
+      await tester.pumpAndSettle();
+
+      expect(fake.sent.single.$1.productName, 'netcrux');
+      await settleWorkspace(tester);
+    });
+
+    testWidgets('with the server off it says to turn it on', (tester) async {
+      final harness = await pumpHarness(tester);
+      await openTabWithSelection(tester, harness);
+
+      harness.handlers[SimcruxAction.crossProbeSelection]!();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'The CXP server is off. Turn it on in Settings > CXP Cross-Probe.',
+        ),
+        findsOneWidget,
+      );
+      await settleWorkspace(tester);
+    });
+  });
+
+  group('Clear Recent Projects', () {
+    testWidgets('empties the list, saves it and says so', (tester) async {
+      final harness = await pumpHarness(tester);
+      harness.root
+          .read(recentProjects.provider.notifier)
+          .markOpened('/proj/simcrux.yaml');
+      expect(harness.root.read(recentProjects.provider), isNotEmpty);
+
+      harness.handlers[SimcruxAction.clearRecentProjects]!();
+      await tester.pumpAndSettle();
+
+      expect(harness.root.read(recentProjects.provider), isEmpty);
+      expect(find.text('Recent projects cleared.'), findsOneWidget);
+      await settleWorkspace(tester);
     });
   });
 

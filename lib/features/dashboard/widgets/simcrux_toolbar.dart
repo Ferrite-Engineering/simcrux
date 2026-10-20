@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_toolbar/crux_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,6 @@ import 'package:simcrux/core/shortcuts/simcrux_action_context.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action_descriptor.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action_descriptors.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_actions_extensions.dart';
-import 'package:simcrux/features/remote/providers/cxp_discovery_provider.dart';
 import 'package:simcrux/features/viewer/providers/right_dock_provider.dart';
 import 'package:simcrux/features/workspace/providers/simcrux_action_context_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -54,7 +54,7 @@ class SimcruxToolbar extends ConsumerWidget {
     final bindings = ref.watch(shortcutBindingsProvider);
     // Dock-aware glyph: lit only when the CXP tab is the one on screen.
     final crossProbeVisible = ref.watch(crossProbeShowingProvider);
-    final peerCount = ref.watch(cxpPeersProvider).length;
+    final peerCount = ref.watch(cruxCxpConnectedPeerCountProvider);
     final extraActions = ref.watch(extraDashboardActionsProvider);
 
     return CruxToolbar<SimcruxAction>(

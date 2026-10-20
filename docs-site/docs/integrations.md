@@ -43,6 +43,9 @@ Changing the enable switch or the port restarts the server. Disabling it removes
 SimCrux's discovery manifest. The section's **CXP Status** row shows whether the
 server is running and how many peers are connected.
 
+From SimCrux 1.2 the status line also says why the server could not start when
+it could not, a port that is already in use for example.
+
 ### Discovery {#discovery}
 
 No registry, no broadcast. Every EDACrux tool writes a JSON manifest into a
@@ -82,6 +85,29 @@ Right-clicking a results row adds **Cross-probe to peer…** with a **Send
 selection to WaveCrux / NetCrux / LintCrux** entry for each connected peer.
 From 1.1 the per-peer send button and these row entries work on every tier,
 with no license.
+
+From SimCrux 1.2 the panel is the one the other EDACrux apps share. Its headings
+read **Connected peers** and **Recent events**, the log keeps the last 200
+events, and the toolbar badge counts the peers that are connected now.
+
+### Cross-probe to, and Cross-probe Selection {#cross-probe-to}
+
+From SimCrux 1.2 right-clicking a results row gives one **Cross-probe to** item
+in place of the 1.1 entries above. It opens a second menu, where the first one
+opened, of the EDACrux apps that are running: WaveCrux, NetCrux, LintCrux or
+another SimCrux window. An app open in several windows lists each one, as
+**WaveCrux 1** and **WaveCrux 2**. Choosing one sends the row: WaveCrux receives
+the waveform the test captured, when it captured one, and NetCrux and LintCrux
+receive the test as a scope. A toast says how it went. With nothing running the
+item is greyed and reads **Cross-probe to (no peers running)**; hover it to see
+what to start. It is free on every tier, and a build from the open-source
+repository alone has it too.
+
+**View → Cross-probe Selection…**, or ++cmd+shift+enter++ /
+++ctrl+shift+enter++, does the same for the selected test without the mouse.
+With one app running it sends at once. With several it opens the same list at
+the selection. With nothing selected, the server off, or no app running, a toast
+says which. While a text box has focus the shortcut stays with the box.
 
 ## Debug in WaveCrux deep-link {#deep-link}
 

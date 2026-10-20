@@ -17,8 +17,8 @@ import 'package:simcrux/domain/models/app_settings.dart';
 ///
 /// The order matters and is load-bearing, not stylistic. The three
 /// call sites in `inbound_request_handler.dart` hand this class a
-/// `filePath` that arrived over CXP from a peer, and
-/// `cxpServerEnabled` defaults to true. Containment (below) bounds
+/// `filePath` that arrived over CXP from a peer, and the CXP server is on by
+/// default. Containment (below) bounds
 /// *which* file a peer can name, not what characters its path holds —
 /// a directory the user opened may itself contain spaces. A
 /// substitute-then-split launcher would let a peer path of

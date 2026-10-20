@@ -56,6 +56,11 @@ import 'scope_leak_scanner.dart';
 /// could not reach); it is a genuine exemption, not a bug — removing it would
 /// break the emitter for every headless caller.
 const Map<String, String> allowlist = <String, String>{
+  'dashboardRowContextMenuBuilderProvider':
+      'Its value is the open-core "Cross-probe to" row-menu builder, a '
+      'function. The builder reads the active project through the WidgetRef '
+      "the results row hands it at call time, which is that row's own tab "
+      'scope; the provider itself reads nothing per-tab when it is built.',
   'notifySelectionEmitterProvider':
       'Root-hosted CXP outbound emitter. Subscribes to the ACTIVE tab '
       "container's selectedTestIdProvider (re-attaching on active-tab change); "

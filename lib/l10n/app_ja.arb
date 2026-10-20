@@ -402,9 +402,17 @@
   "@actionMoveTabToOtherPane": {
     "description": "Command palette label for the action that moves the active tab to the other pane."
   },
-  "actionOpenCrossProbePanel": "クロスプローブパネルを開く",
+  "actionOpenCrossProbePanel": "クロスプローブパネルを表示",
   "@actionOpenCrossProbePanel": {
-    "description": "Command palette / menu label that opens the CXP cross-probe panel listing connected peers and recent cross-probe events."
+    "description": "Command palette / menu label that shows or hides the CXP cross-probe panel listing connected peers and recent cross-probe events."
+  },
+  "actionCrossProbeSelection": "選択をクロスプローブ…",
+  "@actionCrossProbeSelection": {
+    "description": "Command palette / menu label that sends the selected test to a peer product (Cmd/Ctrl+Shift+Enter). Matches the shared cross-probe wording."
+  },
+  "actionClearRecentProjects": "最近のプロジェクトを消去",
+  "@actionClearRecentProjects": {
+    "description": "Command palette / File menu label that empties the list of recently opened projects."
   },
   "actionOpenSeedFailureHeatmap": "シード失敗ヒートマップを表示",
   "@actionOpenSeedFailureHeatmap": {
@@ -437,62 +445,6 @@
   "actionConfigurePrAnnotationTarget": "PR アノテーションを設定…",
   "@actionConfigurePrAnnotationTarget": {
     "description": "Command palette / menu label that opens the Pro PR Annotation target configuration dialog."
-  },
-  "crossProbePanelTitle": "クロスプローブ",
-  "@crossProbePanelTitle": {
-    "description": "Title of the CXP cross-probe panel."
-  },
-  "crossProbeCloseTooltip": "クロスプローブパネルを閉じる",
-  "crossProbeServerOffline": "クロスプローブサーバーはオフラインです。",
-  "crossProbeSendTooltip": "このピアに選択を送信",
-  "crossProbeUnreachableTitle": "到達不能なピア",
-  "settingsRequestAttentionOnCrossProbeLabel": "クロスプローブ時に注意を要求",
-  "settingsRequestAttentionOnCrossProbeDescription": "ピアからクロスプローブが届いたら Dock をバウンス（またはタスクバーを点滅）します。フォーカスは奪いません。",
-  "settingsBroadcastSelectionOnCrossProbeLabel": "選択範囲を自動的にブロードキャスト",
-  "settingsBroadcastSelectionOnCrossProbeDescription": "選択した内容を接続中のピアにその場で通知します（ライブクロスプローブ）。オフの場合は、明示的な送信のみが共有されます。",
-  "crossProbeSectionPeers": "接続中のピア",
-  "@crossProbeSectionPeers": {
-    "description": "Section header listing the CXP peers SimCrux is currently connected to."
-  },
-  "crossProbeSectionEvents": "最近のアクティビティ",
-  "@crossProbeSectionEvents": {
-    "description": "Section header for the rolling buffer of recent cross-probe events."
-  },
-  "crossProbeNoPeers": "接続中のピアはまだありません。WaveCrux、NetCrux、LintCrux をこのマシンで起動するとここに表示されます。",
-  "@crossProbeNoPeers": {
-    "description": "Empty-state shown in the cross-probe panel when no peers have been discovered."
-  },
-  "crossProbeNoEvents": "クロスプローブのアクティビティはまだありません。",
-  "@crossProbeNoEvents": {
-    "description": "Empty-state shown in the cross-probe events section before any events arrive."
-  },
-  "crossProbeClearEvents": "クリア",
-  "@crossProbeClearEvents": {
-    "description": "Button label that clears the rolling cross-probe events buffer."
-  },
-  "crossProbeSendFailed": "{peer} へのクロスプローブは完了しませんでした",
-  "@crossProbeSendFailed": {
-    "description": "Toast in the docked cross-probe panel when a send failed with no explanation: it never reached the peer, the peer never answered, or the peer declined without saying why. {peer} is the peer's product name.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      }
-    }
-  },
-  "crossProbeSendRefused": "{peer} へのクロスプローブ: {reason}",
-  "@crossProbeSendRefused": {
-    "description": "Toast in the docked cross-probe panel when a send came back with an explanation: a refusal, a partial result, or a delivery failure the carrier explained. {peer} is the peer's product name; {reason} is that explanation, as sent.",
-    "placeholders": {
-      "peer": {
-        "type": "String",
-        "example": "WaveCrux"
-      },
-      "reason": {
-        "type": "String",
-        "example": "element not found: top.data"
-      }
-    }
   },
   "panelTestBrowserPlaceholder": "プロジェクトを開いてテストを参照します。",
   "@panelTestBrowserPlaceholder": {
@@ -1336,30 +1288,6 @@
   "@webInspectorClose": {
     "description": "Close button label in the web inspector dialog."
   },
-  "settingsCxpEnabledLabel": "CXP サーバーを有効化",
-  "@settingsCxpEnabledLabel": {
-    "description": "Switch label that turns the SimCrux CXP server on or off."
-  },
-  "settingsCxpEnabledDescription": "WaveCrux、NetCrux、LintCrux、SimCrux がこのマシンで選択イベントとハイライトを交換できるようにします。",
-  "@settingsCxpEnabledDescription": {
-    "description": "Helper text under the CXP enable switch explaining what the toggle does."
-  },
-  "settingsCxpPortLabel": "CXP ポート",
-  "@settingsCxpPortLabel": {
-    "description": "Text field label for the CXP server's listening port."
-  },
-  "settingsCxpPortDescription": "TCP ポート番号（1〜65535）",
-  "@settingsCxpPortDescription": {
-    "description": "Helper text under the CXP port field describing the valid port range."
-  },
-  "settingsCxpPortError": "1 から 65535 の範囲でポートを入力してください。",
-  "@settingsCxpPortError": {
-    "description": "Error string when the user enters an invalid CXP port number."
-  },
-  "settingsCxpStatus": "CXP ステータス",
-  "settingsCxpStatusRunning": "ポート {port} で実行中",
-  "settingsCxpStatusStopped": "停止中",
-  "settingsCxpPeersConnected": "{count} 台のピアが接続中",
   "settingsDetectorsSection": "ディテクター",
   "@settingsDetectorsSection": {
     "description": "Settings screen section header for the reusable pass/fail detector library."
@@ -1632,18 +1560,6 @@
   "emptyCanvasOpenWorkspace": "ワークスペースを開く…",
   "@emptyCanvasOpenWorkspace": {
     "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
-  },
-  "emptyCanvasRecentConfigsHeading": "最近の構成",
-  "@emptyCanvasRecentConfigsHeading": {
-    "description": "Section heading above the list of recently-opened simcrux.yaml files."
-  },
-  "emptyCanvasNoRecentConfigs": "最近の構成はまだありません。",
-  "@emptyCanvasNoRecentConfigs": {
-    "description": "Placeholder shown in place of the recent-configs list when the user has never opened a project."
-  },
-  "emptyCanvasRecentSessionsHeading": "最近のセッション",
-  "@emptyCanvasRecentSessionsHeading": {
-    "description": "Section heading above the list of recently-opened .simcrux-session export files."
   },
   "emptyCanvasOpenFailed": "ファイルピッカーを開けませんでした: {error}",
   "@emptyCanvasOpenFailed": {

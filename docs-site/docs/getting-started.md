@@ -96,6 +96,12 @@ and three buttons: **Open Config…**, **Open Session…** and
 reachable before any project is loaded, so you can set simulator paths first.
 On the next launch SimCrux reopens the tabs you had open.
 
+From SimCrux 1.2 the start screen's list is headed **Recent projects**. Each row
+has a remove button, **Clear Recent Projects** empties the list (it is also in
+the **File** menu and the command palette), and a project file that has gone is
+greyed and marked **Project file not found**. Choosing it removes it from the
+list and says so.
+
 ## Run your first regression {#first-regression}
 
 A regression starts from a `simcrux.yaml` in your project. Here is a minimal

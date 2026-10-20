@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crux_cxp_ui/crux_cxp_ui.dart' show runCrossProbeSelection;
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
@@ -13,6 +14,8 @@ import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:crux_theme/crux_theme.dart';
 import 'package:crux_updates/crux_updates.dart';
+import 'package:crux_workspace/crux_workspace.dart'
+    show CruxRecentKind, CruxRecentListStrings, clearCruxRecentList;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,13 +44,14 @@ import 'package:simcrux/features/projects/providers/cross_project_search_opener.
 import 'package:simcrux/features/projects/providers/project_list_openers.dart';
 import 'package:simcrux/features/projects/providers/project_switcher_opener.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
+import 'package:simcrux/features/remote/services/cross_probe_selection.dart';
 import 'package:simcrux/features/search/widgets/search_dialog.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/screens/settings_screen.dart';
 import 'package:simcrux/features/trend_tracking/providers/trend_screen_openers.dart';
 import 'package:simcrux/features/viewer/providers/right_dock_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/widgets/open_config_tab.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -112,6 +116,31 @@ class SimcruxActionHandlers {
     BuildContext? navigatorContext() {
       final router = ref.read(appRouterProvider);
       return router.routerDelegate.navigatorKey.currentState?.context;
+    }
+
+    // A context that sits BELOW the router's Overlay, for a surface that
+    // measures itself against it (a context menu). The navigator's own
+    // context is the Navigator widget, which is the Overlay's parent, so
+    // `Overlay.of` cannot find one from it; the first element under the
+    // overlay's entries that can is the routed content, which keeps the
+    // theme, locale and media query. Falls back to the navigator's context
+    // while the overlay has not mounted.
+    BuildContext? overlayContext() {
+      final router = ref.read(appRouterProvider);
+      final overlay = router.routerDelegate.navigatorKey.currentState?.overlay;
+      if (overlay == null || !overlay.mounted) return navigatorContext();
+      BuildContext? inside;
+      void visit(Element element) {
+        if (inside != null) return;
+        if (Overlay.maybeOf(element) != null) {
+          inside = element;
+          return;
+        }
+        element.visitChildElements(visit);
+      }
+
+      overlay.context.visitChildElements(visit);
+      return inside ?? navigatorContext();
     }
 
     final handlers = <SimcruxAction, VoidCallback>{
@@ -459,6 +488,38 @@ class SimcruxActionHandlers {
               .reveal(kRightDockTabCrossProbe);
         }
       },
+      // Cross-probe the active tab's selected test (Cmd/Ctrl+Shift+Enter).
+      // The chord belongs to a focused text field; the shortcut manager keeps
+      // it from reaching here then, and the check below covers the menu and
+      // palette routes while a field holds focus.
+      SimcruxAction.crossProbeSelection: () {
+        if (cruxTextInputFocused()) return;
+        // With several targets the command opens a menu, which needs the
+        // overlay; every other outcome is a toast.
+        final ctx = overlayContext();
+        if (ctx == null) return;
+        final tabContainer = activeTabContainer();
+        unawaited(
+          runCrossProbeSelection(
+            ctx,
+            ref,
+            selection: tabContainer == null
+                ? null
+                : selectedTestCrossProbeSelection(tabContainer.read),
+          ),
+        );
+      },
+      // Clear Recent Projects: empties the list and says so in a toast.
+      SimcruxAction.clearRecentProjects: () {
+        final ctx = navigatorContext();
+        if (ctx == null) return;
+        clearCruxRecentList(
+          ctx,
+          ref,
+          list: recentProjects,
+          strings: CruxRecentListStrings.of(ctx, CruxRecentKind.projects),
+        );
+      },
       SimcruxAction.openSeedFailureHeatmap: () {
         // Open-core ships the action so it stays discoverable
         // in the command palette / menu inventory; the screen
@@ -752,9 +813,6 @@ class SimcruxActionHandlers {
               .any((t) => t.payload.configPath == outPath) ??
           false;
       await File(outPath).writeAsString(imported.simcruxYaml);
-      unawaited(
-        root.read(appSettingsProvider.notifier).addRecentProject(outPath),
-      );
       // Inside the try, after the write: an import that threw produced no
       // project to open, and counting it would answer "how often is the
       // importer reached" rather than "does the FuseSoC importer earn its
@@ -766,6 +824,7 @@ class SimcruxActionHandlers {
             displayName: p.basename(outPath),
             payload: SimcruxTabPayload(configPath: outPath),
           );
+      root.read(recentProjects.provider.notifier).markOpened(outPath);
       if (wasAlreadyOpen) {
         // `openTab` de-dupes on the config path: it activated the tab it
         // found and returned, and that tab keeps the config it parsed the
@@ -905,9 +964,6 @@ class SimcruxActionHandlers {
 
     try {
       await File(outPath).writeAsString(imported.simcruxYaml);
-      unawaited(
-        root.read(appSettingsProvider.notifier).addRecentProject(outPath),
-      );
       // One token for both RISC-V importers. Which of the two the user reached
       // for is a question the telemetry does not ask, and splitting it would put
       // two near-identical rows on a dashboard for no decision either would
@@ -919,6 +975,7 @@ class SimcruxActionHandlers {
             displayName: p.basename(outPath),
             payload: SimcruxTabPayload(configPath: outPath),
           );
+      root.read(recentProjects.provider.notifier).markOpened(outPath);
     } on Object catch (e) {
       failure = '$e';
     }

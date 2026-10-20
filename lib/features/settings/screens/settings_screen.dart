@@ -141,7 +141,7 @@ class SettingsBody extends ConsumerWidget {
             // WaveCrux's WCP Remote Control).
             icon: Icons.hub_outlined,
             title: l10n.settingsCxpSectionTitle,
-            content: _card(SettingsRemoteControlSection(settings: settings)),
+            content: _card(const SettingsRemoteControlSection()),
           ),
           CruxSettingsCategory(
             id: CruxSettingsCategoryId.detectors,

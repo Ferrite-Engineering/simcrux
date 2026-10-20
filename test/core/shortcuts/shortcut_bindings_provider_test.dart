@@ -35,6 +35,7 @@ void main() {
       SimcruxAction.configurePrAnnotationTarget,
       // Tab-strip / context-menu / command-palette only.
       SimcruxAction.reopenRecentProject,
+      SimcruxAction.clearRecentProjects,
       SimcruxAction.pinActiveProject,
       SimcruxAction.closeAllProjects,
       SimcruxAction.closeAllTabs,

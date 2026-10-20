@@ -10,9 +10,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/app_info/about_providers.dart';
-import 'package:simcrux/domain/models/app_settings.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
+import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/simcrux_workspace_codec.dart';
 import 'package:simcrux/features/workspace/widgets/empty_canvas_content.dart';
@@ -30,19 +29,36 @@ const _testBuildInfo = ApplicationBuildInfo(
   dartSdkVersion: '3.12.2',
 );
 
+/// An in-memory Recent store that remembers what the list saved.
+class _MemoryStore implements crux.CruxRecentStore {
+  _MemoryStore(this.entries);
+
+  List<String> entries;
+
+  @override
+  Future<List<String>> load() async => entries;
+
+  @override
+  Future<void> save(List<String> next) async => entries = next;
+}
+
 Future<void> _pumpWith({
   required WidgetTester tester,
   required Locale locale,
   required crux.WorkspaceService<SimcruxTabPayload> workspaceService,
-  AppSettings settings = const AppSettings(),
+  _MemoryStore? store,
+  bool Function(String path)? exists,
   ApplicationBuildInfo? buildInfo,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        appSettingsProvider.overrideWith(
-          _FakeSettingsNotifier.factory(settings),
+        recentProjects.storeProvider.overrideWithValue(
+          store ?? _MemoryStore(const <String>[]),
         ),
+        // The paths below are not on disk: every entry is present unless a
+        // test says otherwise.
+        recentProjects.existsProvider.overrideWithValue(exists ?? (_) => true),
         simcruxWorkspaceServiceProvider.overrideWithValue(workspaceService),
         if (buildInfo != null)
           aboutBuildInfoProvider.overrideWith((ref) async => buildInfo),
@@ -65,15 +81,6 @@ Future<void> _pumpWith({
   // frames instead — the same constraint WaveCrux's welcome test documents.
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
-}
-
-class _FakeSettingsNotifier extends AppSettingsNotifier {
-  _FakeSettingsNotifier(this._settings);
-  final AppSettings _settings;
-  static AppSettingsNotifier Function() factory(AppSettings settings) =>
-      () => _FakeSettingsNotifier(settings);
-  @override
-  Future<AppSettings> build() async => _settings;
 }
 
 void main() {
@@ -116,88 +123,184 @@ void main() {
         );
         expect(tester.takeException(), isNull);
       });
-    }
 
-    testWidgets('shows recent-configs section when settings have entries', (
+      testWidgets('renders recent projects without overflow for $locale', (
+        tester,
+      ) async {
+        await tester.binding.setSurfaceSize(const Size(900, 800));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await _pumpWith(
+          tester: tester,
+          locale: locale,
+          store: _MemoryStore(const ['/projects/cpu/simcrux.yaml']),
+          workspaceService: workspaceService,
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.text('/projects/cpu/simcrux.yaml'), findsOneWidget);
+      });
+    }
+  });
+
+  group('EmptyCanvasContent — the shared Recent list', () {
+    testWidgets('shows the recent projects, most recent first, and no '
+        'sessions section', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        store: _MemoryStore(const [
+          '/projects/cpu/simcrux.yaml',
+          '/projects/gpu/simcrux.yaml',
+        ]),
+        workspaceService: workspaceService,
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text('Recent projects'), findsOneWidget);
+      expect(find.text('/projects/cpu/simcrux.yaml'), findsOneWidget);
+      expect(find.text('/projects/gpu/simcrux.yaml'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('/projects/cpu/simcrux.yaml')).dy,
+        lessThan(tester.getTopLeft(find.text('/projects/gpu/simcrux.yaml')).dy),
+      );
+      // Nothing ever wrote the recent sessions, so the section is gone.
+      expect(find.text('Recent sessions'), findsNothing);
+    });
+
+    testWidgets('says so when there are no recent projects', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        workspaceService: workspaceService,
+      );
+      expect(find.text('No recent projects'), findsOneWidget);
+      expect(find.text('Clear Recent Projects'), findsNothing);
+    });
+
+    testWidgets('a row has a remove button that drops just that entry and '
+        'saves the list', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final store = _MemoryStore(const [
+        '/projects/cpu/simcrux.yaml',
+        '/projects/gpu/simcrux.yaml',
+      ]);
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        store: store,
+        workspaceService: workspaceService,
+      );
+
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(
+            const ValueKey(
+              'cruxRecent:recentProjects:/projects/cpu/simcrux.yaml',
+            ),
+          ),
+          matching: find.byKey(const ValueKey('cruxRecentRemove')),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('/projects/cpu/simcrux.yaml'), findsNothing);
+      expect(find.text('/projects/gpu/simcrux.yaml'), findsOneWidget);
+      expect(store.entries, ['/projects/gpu/simcrux.yaml']);
+    });
+
+    testWidgets('the Clear Recent Projects button empties the list, saves it '
+        'and says so', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final store = _MemoryStore(const ['/projects/cpu/simcrux.yaml']);
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        store: store,
+        workspaceService: workspaceService,
+      );
+
+      await tester.tap(find.text('Clear Recent Projects'));
+      await tester.pump();
+
+      expect(find.text('/projects/cpu/simcrux.yaml'), findsNothing);
+      expect(find.text('No recent projects'), findsOneWidget);
+      expect(find.text('Recent projects cleared.'), findsOneWidget);
+      expect(store.entries, isEmpty);
+    });
+
+    testWidgets('a file that has gone is greyed and marked missing', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(900, 800));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      const settings = AppSettings(
-        recentProjectPaths: ['/projects/cpu/simcrux.yaml'],
-        recentSessionPaths: ['/sessions/last.simcrux-session'],
-      );
       await _pumpWith(
         tester: tester,
         locale: const Locale('en'),
-        settings: settings,
+        store: _MemoryStore(const [
+          '/projects/cpu/simcrux.yaml',
+          '/projects/gone/simcrux.yaml',
+        ]),
+        exists: (path) => !path.contains('/gone/'),
+        workspaceService: workspaceService,
+      );
+
+      expect(find.text('Project file not found'), findsOneWidget);
+      // The present entry still shows its path; the missing one shows why it
+      // is greyed in place of the path.
+      expect(find.text('/projects/cpu/simcrux.yaml'), findsOneWidget);
+      expect(find.text('/projects/gone/simcrux.yaml'), findsNothing);
+    });
+
+    testWidgets('opening a missing file drops it and tells the user', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final store = _MemoryStore(const [
+        '/projects/cpu/simcrux.yaml',
+        '/projects/gone/simcrux.yaml',
+      ]);
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        store: store,
+        exists: (path) => !path.contains('/gone/'),
+        workspaceService: workspaceService,
+      );
+
+      await tester.tap(find.text('Project file not found'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.textContaining('was removed from Recent Projects'),
+        findsOneWidget,
+      );
+      expect(find.text('Project file not found'), findsNothing);
+      expect(store.entries, ['/projects/cpu/simcrux.yaml']);
+    });
+
+    testWidgets('a full list of ten fits the default 800x500 window without '
+        'overflow, the card scrolling', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(800, 500));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await _pumpWith(
+        tester: tester,
+        locale: const Locale('en'),
+        store: _MemoryStore([
+          for (var i = 0; i < 10; i++) '/projects/p$i/simcrux.yaml',
+        ]),
         workspaceService: workspaceService,
       );
       expect(tester.takeException(), isNull);
-      expect(find.text('/projects/cpu/simcrux.yaml'), findsOneWidget);
-      expect(find.text('/sessions/last.simcrux-session'), findsOneWidget);
     });
+  });
 
-    testWidgets(
-      'long recents lists stay bounded and scrollable — the Open '
-      'actions remain on the card, not pushed off by list growth',
-      (tester) async {
-        await tester.binding.setSurfaceSize(const Size(900, 800));
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        final settings = AppSettings(
-          recentProjectPaths: [
-            for (var i = 0; i < 10; i++) '/projects/p$i/simcrux.yaml',
-          ],
-          recentSessionPaths: [
-            for (var i = 0; i < 10; i++) '/sessions/s$i.simcrux-session',
-          ],
-        );
-        await _pumpWith(
-          tester: tester,
-          locale: const Locale('en'),
-          settings: settings,
-          workspaceService: workspaceService,
-        );
-        expect(tester.takeException(), isNull);
-        // Both lists are capped (bounded boxes with visible scrollbars)…
-        expect(find.byType(Scrollbar), findsNWidgets(2));
-        for (final list in tester.widgetList(find.byType(ListView))) {
-          final size = tester.getSize(find.byWidget(list));
-          expect(size.height, lessThanOrEqualTo(180));
-        }
-        // …so the primary actions stay within the 800px-tall viewport
-        // no matter how many recents accumulate.
-        expect(find.text('Open Config…'), findsOneWidget);
-        expect(
-          tester.getBottomLeft(find.text('Open Config…')).dy,
-          lessThanOrEqualTo(800),
-        );
-      },
-    );
-
-    testWidgets(
-      'default 800x500 window with long recents lists: no overflow',
-      (tester) async {
-        await tester.binding.setSurfaceSize(const Size(800, 500));
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        final settings = AppSettings(
-          recentProjectPaths: [
-            for (var i = 0; i < 10; i++) '/projects/p$i/simcrux.yaml',
-          ],
-          recentSessionPaths: [
-            for (var i = 0; i < 10; i++) '/sessions/s$i.simcrux-session',
-          ],
-        );
-        await _pumpWith(
-          tester: tester,
-          locale: const Locale('en'),
-          settings: settings,
-          workspaceService: workspaceService,
-        );
-        expect(tester.takeException(), isNull);
-      },
-    );
-
+  group('EmptyCanvasContent — primary actions and version', () {
     testWidgets('renders the three primary Open actions in en', (tester) async {
       await tester.binding.setSurfaceSize(const Size(900, 800));
       addTearDown(() => tester.binding.setSurfaceSize(null));
