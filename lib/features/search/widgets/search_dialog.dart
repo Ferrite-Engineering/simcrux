@@ -36,7 +36,7 @@ class SimcruxSearchDialog extends ConsumerStatefulWidget {
     // the opener so every caller is covered.
     return ModalGuard.run(
       'search',
-      () => showDialog<void>(
+      () => showCruxDialog<void>(
         context: context,
         builder: (_) => UncontrolledProviderScope(
           container: tabContainer,

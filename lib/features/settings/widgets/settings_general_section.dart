@@ -75,49 +75,39 @@ class SettingsGeneralSection extends ConsumerWidget {
         const SizedBox(height: 16),
         // Off by default, by design: opening a config must not launch
         // the whole regression. See `AppSettings.autoRunOnOpen`.
-        SwitchListTile(
-          key: const Key('settings.autoRunOnOpen'),
-          contentPadding: EdgeInsets.zero,
-          value: settings.autoRunOnOpen,
-          title: Row(
-            children: [
-              // Flexible so the label shrinks (and ellipsises) before the
-              // help icon trailing the row gets pushed off-screen on narrow
-              // viewports (the WaveCrux settings help-link pattern).
-              Flexible(
-                child: Text(
-                  l10n.settingsAutoRunOnOpenLabel,
-                  overflow: TextOverflow.ellipsis,
-                ),
+        Row(
+          children: [
+            Expanded(
+              child: CruxFormRow.toggle(
+                key: const Key('settings.autoRunOnOpen'),
+                label: l10n.settingsAutoRunOnOpenLabel,
+                help: l10n.settingsAutoRunOnOpenDescription,
+                value: settings.autoRunOnOpen,
+                onChanged: (enabled) {
+                  unawaited(
+                    ref
+                        .read(appSettingsProvider.notifier)
+                        .updateAutoRunOnOpen(enabled: enabled),
+                  );
+                },
               ),
-              const SizedBox(width: 4),
-              CruxHelpLink(
-                url: HelpUrls.runningTests,
-                tooltip: l10n.helpLinkLearnMore,
-              ),
-            ],
-          ),
-          subtitle: Text(l10n.settingsAutoRunOnOpenDescription),
-          onChanged: (enabled) {
-            unawaited(
-              ref
-                  .read(appSettingsProvider.notifier)
-                  .updateAutoRunOnOpen(enabled: enabled),
-            );
-          },
+            ),
+            const SizedBox(width: 4),
+            CruxHelpLink(
+              url: HelpUrls.runningTests,
+              tooltip: l10n.helpLinkLearnMore,
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         // Gates every *scheduled* update check (launch, 24 h periodic, on
         // resume) via `crux_updates`' `autoUpdateCheckEnabledProvider`. The
         // manual Help → Check for Updates action ignores it by contract.
-        // SwitchListTile's default vertical padding already clears the
-        // suite's 44 dp minimum touch target.
-        SwitchListTile(
+        CruxFormRow.toggle(
           key: const Key('settings.autoCheckForUpdates'),
-          contentPadding: EdgeInsets.zero,
+          label: l10n.settingsAutoCheckUpdatesLabel,
+          help: l10n.settingsAutoCheckUpdatesDescription,
           value: settings.autoCheckForUpdates,
-          title: Text(l10n.settingsAutoCheckUpdatesLabel),
-          subtitle: Text(l10n.settingsAutoCheckUpdatesDescription),
           onChanged: (enabled) {
             unawaited(
               ref
@@ -128,12 +118,11 @@ class SettingsGeneralSection extends ConsumerWidget {
         ),
         if (showDiagnosticsToggle) ...[
           const SizedBox(height: 16),
-          SwitchListTile(
+          CruxFormRow.toggle(
             key: const Key('settings.diagnosticsEnabled'),
-            contentPadding: EdgeInsets.zero,
+            label: l10n.settingsDiagnosticsEnabledLabel,
+            help: l10n.settingsDiagnosticsEnabledDescription,
             value: settings.diagnosticsEnabled,
-            title: Text(l10n.settingsDiagnosticsEnabledLabel),
-            subtitle: Text(l10n.settingsDiagnosticsEnabledDescription),
             onChanged: (enabled) {
               unawaited(
                 ref

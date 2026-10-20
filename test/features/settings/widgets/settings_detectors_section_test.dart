@@ -1,7 +1,9 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -152,7 +154,7 @@ void main() {
           home: Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => showDialog<void>(
+                onPressed: () => showCruxDialog<void>(
                   context: context,
                   barrierDismissible: false,
                   builder: (_) => DetectorEditorDialog(
@@ -179,7 +181,7 @@ void main() {
       await tester.enterText(find.byType(TextField).first, 'strict');
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
       await tester.pumpAndSettle();
       expect(find.text('Discard changes?'), findsOneWidget);
 
@@ -191,16 +193,36 @@ void main() {
       expect(find.text('strict'), findsOneWidget);
 
       // "Discard" closes the editor.
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Discard'));
       await tester.pumpAndSettle();
       expect(find.byType(DetectorEditorDialog), findsNothing);
     });
 
+    testWidgets('Escape on a dirty form reaches the discard prompt', (
+      tester,
+    ) async {
+      await openOnRoute(tester);
+      await tester.enterText(find.byType(TextField).first, 'strict');
+      await tester.pumpAndSettle();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Discard changes?'), findsOneWidget);
+      expect(find.byType(DetectorEditorDialog), findsOneWidget);
+    });
+
+    testWidgets('Escape on a clean form closes it', (tester) async {
+      await openOnRoute(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(DetectorEditorDialog), findsNothing);
+    });
+
     testWidgets('clean cancel closes without a prompt', (tester) async {
       await openOnRoute(tester);
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
       await tester.pumpAndSettle();
       expect(find.text('Discard changes?'), findsNothing);
       expect(find.byType(DetectorEditorDialog), findsNothing);

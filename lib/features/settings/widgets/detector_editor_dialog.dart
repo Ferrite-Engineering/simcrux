@@ -1,6 +1,10 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
+
+import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/features/dialogs/confirm_dialog.dart';
@@ -84,57 +88,68 @@ class _DetectorEditorDialogState extends State<DetectorEditorDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return AlertDialog(
-      title: Text(l10n.settingsDetectorEditDialogTitle),
-      content: SizedBox(
+    // Escape closes a Crux dialog through `maybePop`, so the unsaved-changes
+    // guard runs for it too: the pop is always handed to `_onCancel`.
+    return PopScope<void>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_onCancel());
+      },
+      child: CruxDialog(
+        title: l10n.settingsDetectorEditDialogTitle,
         width: 580,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsDetectorNameLabel,
-                  hintText: l10n.settingsDetectorNameHint,
-                  errorText: _nameMissing
-                      ? l10n.settingsDetectorNameRequired
-                      : null,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CruxFormSection(
+              children: [
+                CruxFormRow(
+                  label: l10n.settingsDetectorNameLabel,
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: l10n.settingsDetectorNameHint,
+                      errorText: _nameMissing
+                          ? l10n.settingsDetectorNameRequired
+                          : null,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              DetectorSpecEditor(
-                spec: _root,
-                existingNames: widget.existingNames
-                    .where((n) => n != widget.initialName)
-                    .toSet(),
-                onChanged: (next) => setState(() => _root = next),
-              ),
-            ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            DetectorSpecEditor(
+              spec: _root,
+              existingNames: widget.existingNames
+                  .where((n) => n != widget.initialName)
+                  .toSet(),
+              onChanged: (next) => setState(() => _root = next),
+            ),
+          ],
+        ),
+        actions: [
+          CruxDialogAction(
+            label: l10n.settingsDetectorCancel,
+            onPressed: _onCancel,
           ),
-        ),
+          CruxDialogAction(
+            label: l10n.settingsDetectorSave,
+            role: CruxDialogActionRole.primary,
+            onPressed: () async {
+              final name = _nameController.text.trim();
+              if (name.isEmpty) {
+                setState(() => _nameMissing = true);
+                return;
+              }
+              final navigator = Navigator.of(context);
+              await widget.onCommit(name, _root);
+              if (!mounted) return;
+              navigator.pop();
+            },
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _onCancel,
-          child: Text(l10n.settingsDetectorCancel),
-        ),
-        FilledButton(
-          onPressed: () async {
-            final name = _nameController.text.trim();
-            if (name.isEmpty) {
-              setState(() => _nameMissing = true);
-              return;
-            }
-            final navigator = Navigator.of(context);
-            await widget.onCommit(name, _root);
-            if (!mounted) return;
-            navigator.pop();
-          },
-          child: Text(l10n.settingsDetectorSave),
-        ),
-      ],
     );
   }
 }

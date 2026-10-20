@@ -309,7 +309,7 @@ class _ResultsTable extends ConsumerWidget {
           onTap: () {
             ref.read(webSelectedTestProvider.notifier).select(row.testId);
             unawaited(
-              showDialog<void>(
+              showCruxDialog<void>(
                 context: context,
                 builder: (_) => WebInspectorDialog(row: row),
               ),

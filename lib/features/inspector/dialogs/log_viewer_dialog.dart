@@ -3,6 +3,7 @@
 
 import 'dart:math' as math;
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,7 +44,7 @@ class LogViewerDialog extends ConsumerStatefulWidget {
     SelectedTest selection,
   ) {
     final container = ProviderScope.containerOf(context, listen: false);
-    return showDialog<void>(
+    return showCruxDialog<void>(
       context: context,
       builder: (_) => UncontrolledProviderScope(
         container: container,
@@ -134,16 +135,25 @@ class _LogViewerDialogState extends ConsumerState<LogViewerDialog> {
       _recomputeMatches(lines, _searchController.text);
     }
 
-    // Clamp against the window so the dialog never exceeds small windows
-    // (suite minimum is 800×500) — same idiom as `CruxSettingsShell`
-    // (`math.min(cap, screen - margin)`).
+    // The frame clamps its width to the window; the body height is clamped
+    // here so the dialog never exceeds small windows (suite minimum is
+    // 800x500).
     final screen = MediaQuery.sizeOf(context);
-    return Dialog(
-      insetPadding: const EdgeInsets.all(32),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: math.min<double>(1100, screen.width - 64),
-          maxHeight: math.min<double>(760, screen.height - 64),
+    return CruxDialog(
+      title: l10n.logViewerTitle(widget.selection.testId),
+      width: 1100,
+      scrollable: false,
+      contentPadding: EdgeInsets.zero,
+      actions: [
+        CruxDialogAction(
+          label: l10n.logViewerClose,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+      content: SizedBox(
+        height: math.max<double>(
+          160,
+          math.min<double>(640, screen.height - 200),
         ),
         child: Column(
           children: [
@@ -187,14 +197,6 @@ class _LogViewerDialogState extends ConsumerState<LogViewerDialog> {
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              l10n.logViewerTitle(widget.selection.testId),
-              style: theme.textTheme.titleSmall,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
           SizedBox(
             width: 220,
             child: TextField(
@@ -262,10 +264,6 @@ class _LogViewerDialogState extends ConsumerState<LogViewerDialog> {
                     ),
                   ),
             icon: const Icon(Icons.copy_outlined),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.logViewerClose),
           ),
         ],
       ),

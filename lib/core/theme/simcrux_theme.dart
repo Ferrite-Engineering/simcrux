@@ -1,10 +1,13 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_theme/crux_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/core/theme/simcrux_colors.dart';
 
-/// Builders for the SimCrux Material 3 themes.
+/// Builders for the SimCrux themes: the brand seed and canvas colours over
+/// `cruxThemeForDevice` (Crux Desktop on macOS, Windows, Linux and web; plain
+/// Material 3 on iOS and Android).
 ///
 /// Both light and dark themes are derived from a single brand seed
 /// ([SimcruxColors.brandSeed], a muted indigo). Dark is the default —
@@ -40,14 +43,21 @@ abstract final class SimcruxTheme {
       // high-contrast accessibility themes want.
       contrastLevel: highContrast ? 1 : 0,
     );
-    return ThemeData(
-      useMaterial3: true,
-      brightness: brightness,
+    final canvas = brightness == Brightness.dark
+        ? SimcruxColors.darkCanvasBackground
+        : SimcruxColors.lightCanvasBackground;
+    // Desktop hosts get the Crux Desktop component themes over the brand
+    // scheme; iOS and Android keep the plain Material 3 theme below.
+    final base = cruxThemeForDevice(
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: brightness == Brightness.dark
-          ? SimcruxColors.darkCanvasBackground
-          : SimcruxColors.lightCanvasBackground,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
+      highContrast: highContrast,
+      mobile: () => ThemeData(
+        useMaterial3: true,
+        brightness: brightness,
+        colorScheme: colorScheme,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
     );
+    return base.copyWith(scaffoldBackgroundColor: canvas);
   }
 }

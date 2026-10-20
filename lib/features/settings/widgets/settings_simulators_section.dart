@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/help_urls.dart';
@@ -137,33 +138,27 @@ class SettingsSimulatorsSection extends ConsumerWidget {
         // decide what SimCrux executes, so honoring them makes opening a
         // downloaded `.yaml` a code-execution decision the user never
         // made. See `AppSettings.allowProjectDefinedTooling`.
-        SwitchListTile(
-          key: const Key('settings.allowProjectDefinedTooling'),
-          contentPadding: EdgeInsets.zero,
-          value: settings.allowProjectDefinedTooling,
-          title: Row(
-            children: [
-              // Flexible so the label ellipsises before the trailing help
-              // icon is pushed off-screen on a narrow viewport.
-              Flexible(
-                child: Text(
-                  l10n.settingsAllowProjectDefinedToolingLabel,
-                  overflow: TextOverflow.ellipsis,
+        Row(
+          children: [
+            Expanded(
+              child: CruxFormRow.toggle(
+                key: const Key('settings.allowProjectDefinedTooling'),
+                label: l10n.settingsAllowProjectDefinedToolingLabel,
+                help: l10n.settingsAllowProjectDefinedToolingDescription,
+                value: settings.allowProjectDefinedTooling,
+                onChanged: (enabled) => unawaited(
+                  ref
+                      .read(appSettingsProvider.notifier)
+                      .setAllowProjectDefinedTooling(enabled: enabled),
                 ),
               ),
-              const SizedBox(width: 4),
-              CruxHelpLink(
-                url: HelpUrls.projectsAndSimulators,
-                tooltip: l10n.helpLinkLearnMore,
-              ),
-            ],
-          ),
-          subtitle: Text(l10n.settingsAllowProjectDefinedToolingDescription),
-          onChanged: (enabled) => unawaited(
-            ref
-                .read(appSettingsProvider.notifier)
-                .setAllowProjectDefinedTooling(enabled: enabled),
-          ),
+            ),
+            const SizedBox(width: 4),
+            CruxHelpLink(
+              url: HelpUrls.projectsAndSimulators,
+              tooltip: l10n.helpLinkLearnMore,
+            ),
+          ],
         ),
       ],
     );

@@ -31,6 +31,8 @@ class SimcruxWebApp extends ConsumerWidget {
       title: 'SimCrux',
       theme: SimcruxTheme.light(),
       darkTheme: SimcruxTheme.dark(),
+      highContrastTheme: SimcruxTheme.highContrastLight(),
+      highContrastDarkTheme: SimcruxTheme.highContrastDark(),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
         L10N.delegate,

@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/domain/enums/golden_compare_profile.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
@@ -188,29 +189,29 @@ class _StringMatchFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return Column(
+    return CruxFormSection(
       children: [
-        TextFormField(
-          initialValue: spec.passString,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldPassString,
-          ),
-          onChanged: (value) => onChanged(
-            StringMatchSpec(
-              passString: value.isEmpty ? null : value,
-              failString: spec.failString,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldPassString,
+          child: TextFormField(
+            initialValue: spec.passString,
+            onChanged: (value) => onChanged(
+              StringMatchSpec(
+                passString: value.isEmpty ? null : value,
+                failString: spec.failString,
+              ),
             ),
           ),
         ),
-        TextFormField(
-          initialValue: spec.failString,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldFailString,
-          ),
-          onChanged: (value) => onChanged(
-            StringMatchSpec(
-              passString: spec.passString,
-              failString: value.isEmpty ? null : value,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldFailString,
+          child: TextFormField(
+            initialValue: spec.failString,
+            onChanged: (value) => onChanged(
+              StringMatchSpec(
+                passString: spec.passString,
+                failString: value.isEmpty ? null : value,
+              ),
             ),
           ),
         ),
@@ -228,29 +229,29 @@ class _RegexFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return Column(
+    return CruxFormSection(
       children: [
-        TextFormField(
-          initialValue: spec.passPattern,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldPassPattern,
-          ),
-          onChanged: (value) => onChanged(
-            RegexSpec(
-              passPattern: value.isEmpty ? null : value,
-              failPattern: spec.failPattern,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldPassPattern,
+          child: TextFormField(
+            initialValue: spec.passPattern,
+            onChanged: (value) => onChanged(
+              RegexSpec(
+                passPattern: value.isEmpty ? null : value,
+                failPattern: spec.failPattern,
+              ),
             ),
           ),
         ),
-        TextFormField(
-          initialValue: spec.failPattern,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldFailPattern,
-          ),
-          onChanged: (value) => onChanged(
-            RegexSpec(
-              passPattern: spec.passPattern,
-              failPattern: value.isEmpty ? null : value,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldFailPattern,
+          child: TextFormField(
+            initialValue: spec.failPattern,
+            onChanged: (value) => onChanged(
+              RegexSpec(
+                passPattern: spec.passPattern,
+                failPattern: value.isEmpty ? null : value,
+              ),
             ),
           ),
         ),
@@ -273,13 +274,11 @@ class _CocotbFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return CheckboxListTile(
+    return CruxFormRow.checkbox(
+      label: l10n.settingsDetectorFieldAllowNoTests,
+      help: l10n.settingsDetectorFieldAllowNoTestsHint,
       value: spec.allowNoTests,
-      onChanged: (v) => onChanged(CocotbSpec(allowNoTests: v ?? false)),
-      title: Text(l10n.settingsDetectorFieldAllowNoTests),
-      subtitle: Text(l10n.settingsDetectorFieldAllowNoTestsHint),
-      controlAffinity: ListTileControlAffinity.leading,
-      contentPadding: EdgeInsets.zero,
+      onChanged: (v) => onChanged(CocotbSpec(allowNoTests: v)),
     );
   }
 }
@@ -293,7 +292,7 @@ class _UvmReportFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return Column(
+    return CruxFormSection(
       children: [
         _IntField(
           label: l10n.settingsDetectorFieldFatalThreshold,
@@ -351,38 +350,39 @@ class _GoldenCompareFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return Column(
+    return CruxFormSection(
       children: [
-        DropdownButtonFormField<GoldenCompareProfile>(
-          initialValue: spec.profile,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldGoldenProfile,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldGoldenProfile,
+          child: DropdownButtonFormField<GoldenCompareProfile>(
+            initialValue: spec.profile,
+            items: [
+              for (final profile in GoldenCompareProfile.values)
+                DropdownMenuItem<GoldenCompareProfile>(
+                  value: profile,
+                  child: Text(_profileLabel(profile, l10n)),
+                ),
+            ],
+            onChanged: (value) {
+              if (value == null) return;
+              onChanged(spec.copyWith(profile: value));
+            },
           ),
-          items: [
-            for (final profile in GoldenCompareProfile.values)
-              DropdownMenuItem<GoldenCompareProfile>(
-                value: profile,
-                child: Text(_profileLabel(profile, l10n)),
-              ),
-          ],
-          onChanged: (value) {
-            if (value == null) return;
-            onChanged(spec.copyWith(profile: value));
-          },
         ),
-        TextFormField(
-          initialValue: spec.dutPath,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldGoldenDut,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldGoldenDut,
+          child: TextFormField(
+            initialValue: spec.dutPath,
+            onChanged: (value) => onChanged(spec.copyWith(dutPath: value)),
           ),
-          onChanged: (value) => onChanged(spec.copyWith(dutPath: value)),
         ),
-        TextFormField(
-          initialValue: spec.referencePath,
-          decoration: InputDecoration(
-            labelText: l10n.settingsDetectorFieldGoldenReference,
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldGoldenReference,
+          child: TextFormField(
+            initialValue: spec.referencePath,
+            onChanged: (value) =>
+                onChanged(spec.copyWith(referencePath: value)),
           ),
-          onChanged: (value) => onChanged(spec.copyWith(referencePath: value)),
         ),
       ],
     );
@@ -404,18 +404,20 @@ class _IntField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value?.toString() ?? '',
-      decoration: InputDecoration(labelText: label),
-      keyboardType: TextInputType.number,
-      onChanged: (text) {
-        if (text.isEmpty) {
-          if (allowNull) onChanged(null);
-          return;
-        }
-        final parsed = int.tryParse(text);
-        if (parsed != null && parsed >= 0) onChanged(parsed);
-      },
+    return CruxFormRow(
+      label: label,
+      child: TextFormField(
+        initialValue: value?.toString() ?? '',
+        keyboardType: TextInputType.number,
+        onChanged: (text) {
+          if (text.isEmpty) {
+            if (allowNull) onChanged(null);
+            return;
+          }
+          final parsed = int.tryParse(text);
+          if (parsed != null && parsed >= 0) onChanged(parsed);
+        },
+      ),
     );
   }
 }
@@ -539,27 +541,37 @@ class _UseFields extends StatelessWidget {
     final l10n = L10N.of(context);
     final names = existingNames.toList()..sort();
     if (names.isEmpty) {
-      return TextFormField(
-        initialValue: spec.name,
-        decoration: InputDecoration(
-          labelText: l10n.settingsDetectorFieldUseName,
-          hintText: l10n.settingsDetectorNameHint,
-        ),
-        onChanged: (v) => onChanged(UseSpec(v)),
+      return CruxFormSection(
+        children: [
+          CruxFormRow(
+            label: l10n.settingsDetectorFieldUseName,
+            child: TextFormField(
+              initialValue: spec.name,
+              decoration: InputDecoration(
+                hintText: l10n.settingsDetectorNameHint,
+              ),
+              onChanged: (v) => onChanged(UseSpec(v)),
+            ),
+          ),
+        ],
       );
     }
-    return DropdownButtonFormField<String>(
-      initialValue: names.contains(spec.name) ? spec.name : null,
-      decoration: InputDecoration(
-        labelText: l10n.settingsDetectorFieldUseName,
-      ),
-      items: [
-        for (final n in names)
-          DropdownMenuItem<String>(value: n, child: Text(n)),
+    return CruxFormSection(
+      children: [
+        CruxFormRow(
+          label: l10n.settingsDetectorFieldUseName,
+          child: DropdownButtonFormField<String>(
+            initialValue: names.contains(spec.name) ? spec.name : null,
+            items: [
+              for (final n in names)
+                DropdownMenuItem<String>(value: n, child: Text(n)),
+            ],
+            onChanged: (v) {
+              if (v != null) onChanged(UseSpec(v));
+            },
+          ),
+        ),
       ],
-      onChanged: (v) {
-        if (v != null) onChanged(UseSpec(v));
-      },
     );
   }
 }

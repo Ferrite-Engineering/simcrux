@@ -91,13 +91,11 @@ class SettingsDetectorsSection extends ConsumerWidget {
     // and a dead `ref` would throw between the remove and the put.
     final settings = ref.read(appSettingsProvider.notifier);
     unawaited(
-      showDialog<void>(
+      showCruxDialog<void>(
         context: context,
         // Editor dialogs hold in-progress user input: closing must be a
-        // deliberate act (Cancel / Save), never a stray scrim click — the
-        // suite dialog canon. Note this
-        // also disables Escape (Flutter routes DismissIntent through the
-        // barrier flag).
+        // deliberate act (Cancel / Save / Escape), never a stray scrim click.
+        // Escape reaches the dialog's unsaved-changes guard.
         barrierDismissible: false,
         builder: (_) => DetectorEditorDialog(
           initialName: initialName,

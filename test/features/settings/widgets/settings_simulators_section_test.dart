@@ -4,6 +4,7 @@
 @TestOn('vm')
 library;
 
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -155,7 +156,7 @@ void main() {
       );
       await tester.pump();
 
-      final tile = tester.widget<SwitchListTile>(
+      final tile = tester.widget<CruxFormRow>(
         find.byKey(const Key('settings.allowProjectDefinedTooling')),
       );
       expect(tile.value, isFalse);
@@ -173,7 +174,7 @@ void main() {
 
       expect(
         tester
-            .widget<SwitchListTile>(
+            .widget<CruxFormRow>(
               find.byKey(const Key('settings.allowProjectDefinedTooling')),
             )
             .value,

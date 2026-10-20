@@ -629,34 +629,24 @@ class SimcruxApp extends ConsumerWidget {
     final cruxColorTheme = ref.watch(cruxColorThemeProvider);
     final chromeExt = CruxThemeExtension(theme: cruxColorTheme);
     final themeMode = themeModeFromBrightness(cruxColorTheme);
-    final lightTheme = applyChromeTokens(
-      SimcruxTheme.light().copyWith(
-        extensions: <ThemeExtension<dynamic>>[chromeExt],
-      ),
-      chromeExt,
-    );
-    final darkTheme = applyChromeTokens(
-      SimcruxTheme.dark().copyWith(
-        extensions: <ThemeExtension<dynamic>>[chromeExt],
-      ),
-      chromeExt,
-    );
+    // The base theme's extensions stay: on a desktop host it carries
+    // `CruxDesktopTokens`, the marker the Crux Desktop widgets read.
+    ThemeData withChrome(ThemeData base) {
+      final kept = base.extensions.values.toList();
+      return applyChromeTokens(
+        base.copyWith(extensions: [...kept, chromeExt]),
+        chromeExt,
+      );
+    }
+
+    final lightTheme = withChrome(SimcruxTheme.light());
+    final darkTheme = withChrome(SimcruxTheme.dark());
     // High-contrast variants for the platform accessibility setting, given
     // the same chrome tokens so an active theme preset still applies. Wired
     // into highContrastTheme / highContrastDarkTheme below for parity with
     // WaveCrux's app.dart.
-    final highContrastLightTheme = applyChromeTokens(
-      SimcruxTheme.highContrastLight().copyWith(
-        extensions: <ThemeExtension<dynamic>>[chromeExt],
-      ),
-      chromeExt,
-    );
-    final highContrastDarkTheme = applyChromeTokens(
-      SimcruxTheme.highContrastDark().copyWith(
-        extensions: <ThemeExtension<dynamic>>[chromeExt],
-      ),
-      chromeExt,
-    );
+    final highContrastLightTheme = withChrome(SimcruxTheme.highContrastLight());
+    final highContrastDarkTheme = withChrome(SimcruxTheme.highContrastDark());
     return MaterialApp.router(
       onGenerateTitle: (context) => L10N.of(context).appTitle,
       theme: lightTheme,

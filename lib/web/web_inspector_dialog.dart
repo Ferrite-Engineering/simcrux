@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/web/web_results_document.dart';
@@ -25,83 +26,79 @@ class WebInspectorDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final theme = Theme.of(context);
-    return AlertDialog(
-      title: Text(l10n.webInspectorTitle(row.testId)),
-      content: SizedBox(
-        width: 560,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _FieldRow(
-                label: l10n.webInspectorFieldStatus,
-                value: WebStatusChip(row.status),
+    return CruxDialog(
+      title: l10n.webInspectorTitle(row.testId),
+      width: 560,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FieldRow(
+            label: l10n.webInspectorFieldStatus,
+            value: WebStatusChip(row.status),
+          ),
+          _FieldRow(
+            label: l10n.webInspectorFieldRuntime,
+            value: Text(
+              _formatDuration(row.runtime),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontFamily: 'monospace',
               ),
-              _FieldRow(
-                label: l10n.webInspectorFieldRuntime,
-                value: Text(
-                  _formatDuration(row.runtime),
-                  style: theme.textTheme.bodyMedium?.copyWith(
+            ),
+          ),
+          _FieldRow(
+            label: l10n.webInspectorFieldSuite,
+            value: Text(row.suiteName, style: theme.textTheme.bodyMedium),
+          ),
+          _FieldRow(
+            label: l10n.webInspectorFieldSimulator,
+            value: Text(row.simulatorId, style: theme.textTheme.bodyMedium),
+          ),
+          if (row.exitCode != null)
+            _FieldRow(
+              label: l10n.webInspectorFieldExitCode,
+              value: Text(
+                '${row.exitCode}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+          if (row.failureMessage != null && row.failureMessage!.isNotEmpty)
+            _FieldRow(
+              label: l10n.webInspectorFieldFailureMessage,
+              value: SelectableText(
+                row.failureMessage!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+          if (row.metrics.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              l10n.webInspectorFieldMetrics,
+              style: theme.textTheme.titleSmall,
+            ),
+            const SizedBox(height: 4),
+            ...row.metrics.entries.map(
+              (e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1),
+                child: Text(
+                  '${e.key} = ${e.value}',
+                  style: theme.textTheme.bodySmall?.copyWith(
                     fontFamily: 'monospace',
                   ),
                 ),
               ),
-              _FieldRow(
-                label: l10n.webInspectorFieldSuite,
-                value: Text(row.suiteName, style: theme.textTheme.bodyMedium),
-              ),
-              _FieldRow(
-                label: l10n.webInspectorFieldSimulator,
-                value: Text(row.simulatorId, style: theme.textTheme.bodyMedium),
-              ),
-              if (row.exitCode != null)
-                _FieldRow(
-                  label: l10n.webInspectorFieldExitCode,
-                  value: Text(
-                    '${row.exitCode}',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ),
-              if (row.failureMessage != null && row.failureMessage!.isNotEmpty)
-                _FieldRow(
-                  label: l10n.webInspectorFieldFailureMessage,
-                  value: SelectableText(
-                    row.failureMessage!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ),
-              if (row.metrics.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  l10n.webInspectorFieldMetrics,
-                  style: theme.textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                ...row.metrics.entries.map(
-                  (e) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1),
-                    child: Text(
-                      '${e.key} = ${e.value}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
+            ),
+          ],
+        ],
       ),
       actions: [
-        TextButton(
+        CruxDialogAction(
+          label: l10n.webInspectorClose,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.webInspectorClose),
         ),
       ],
     );

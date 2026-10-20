@@ -35,7 +35,7 @@ class AppDiagnosticsDialog extends ConsumerWidget {
   static Future<void> show(BuildContext context) {
     return ModalGuard.run(
       'appDiagnostics',
-      () => showDialog<void>(
+      () => showCruxDialog<void>(
         context: context,
         builder: (_) => const AppDiagnosticsDialog(),
       ),
@@ -149,78 +149,55 @@ class AppDiagnosticsDialog extends ConsumerWidget {
         reportFor(ref.watch(cruxIssueSessionContextProvider)) +
         _trendStoreSection(ref, l10n);
 
-    return Dialog(
-      child: SizedBox(
-        width: 640,
-        height: 480,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.diagnosticsAppDialogTitle,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    tooltip: l10n.diagnosticsCopyFullReport,
-                    onPressed: () => _copy(context, report),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).closeButtonTooltip,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
+    return CruxDialog(
+      title: l10n.diagnosticsAppDialogTitle,
+      width: 640,
+      titleTrailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: l10n.diagnosticsCopyFullReport,
+            onPressed: () => _copy(context, report),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SelectableText(
+            report,
+            style: const TextStyle(fontFamily: 'monospace'),
+          ),
+          // Renders nothing unless this session's trend database
+          // was quarantined. It is here, above the RISC-V report,
+          // because it is the one part of this dialog that is not a
+          // status read-out: it carries the user's way back from a
+          // damaged `trends.db`.
+          const TrendStoreRecoveryCard(),
+          const SizedBox(height: 16),
+          // RISC-V toolchain. The one section of this dialog that
+          // is rendered rather than printed, because its content is
+          // actionable per-platform guidance and that has to be
+          // localized — the plain-text remediation strings on
+          // RiscvComponentReport are the log-facing channel and stay
+          // unlocalized.
+          // Watched here and nowhere else, so the four probe
+          // subprocesses are only ever paid for when this dialog is
+          // actually opened.
+          switch (ref.watch(riscvToolchainReportProvider)) {
+            AsyncData(:final value) => RiscvToolchainReportView(
+              report: value,
+              platform: ref.watch(riscvHostPlatformProvider),
             ),
-            const Divider(height: 1),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SelectableText(
-                      report,
-                      style: const TextStyle(fontFamily: 'monospace'),
-                    ),
-                    // Renders nothing unless this session's trend database
-                    // was quarantined. It is here, above the RISC-V report,
-                    // because it is the one part of this dialog that is not a
-                    // status read-out: it carries the user's way back from a
-                    // damaged `trends.db`.
-                    const TrendStoreRecoveryCard(),
-                    const SizedBox(height: 16),
-                    // RISC-V toolchain. The one section of this dialog that
-                    // is rendered rather than printed, because its content is
-                    // actionable per-platform guidance and that has to be
-                    // localized — the plain-text remediation strings on
-                    // RiscvComponentReport are the log-facing channel and stay
-                    // unlocalized.
-                    // Watched here and nowhere else, so the four probe
-                    // subprocesses are only ever paid for when this dialog is
-                    // actually opened.
-                    switch (ref.watch(riscvToolchainReportProvider)) {
-                      AsyncData(:final value) => RiscvToolchainReportView(
-                        report: value,
-                        platform: ref.watch(riscvHostPlatformProvider),
-                      ),
-                      _ => const SizedBox.shrink(),
-                    },
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+            _ => const SizedBox.shrink(),
+          },
+        ],
       ),
     );
   }

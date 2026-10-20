@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/export/result_exporter.dart';
@@ -23,7 +24,7 @@ const Key kExportFormatDialogExportKey = Key('exportFormatDialogExport');
 /// afterwards, seeded with [ExportFormat.extension] — which is precisely what
 /// that field's doc comment says it exists for.
 Future<ExportFormat?> showExportFormatDialog(BuildContext context) {
-  return showDialog<ExportFormat>(
+  return showCruxDialog<ExportFormat>(
     context: context,
     builder: (dialogContext) => const _ExportFormatDialog(),
   );
@@ -44,9 +45,11 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
-    return AlertDialog(
+    return CruxDialog(
       key: kExportFormatDialogKey,
-      title: Text(l10n.exportDialogTitle),
+      title: l10n.exportDialogTitle,
+      width: 360,
+      onSubmit: () => Navigator.of(context).pop(_format),
       content: RadioGroup<ExportFormat>(
         groupValue: _format,
         onChanged: (v) => setState(() => _format = v ?? _format),
@@ -65,14 +68,15 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        CruxDialogAction(
+          label: l10n.exportActionCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.exportActionCancel),
         ),
-        FilledButton(
+        CruxDialogAction(
           key: kExportFormatDialogExportKey,
+          label: l10n.exportActionExport,
+          role: CruxDialogActionRole.primary,
           onPressed: () => Navigator.of(context).pop(_format),
-          child: Text(l10n.exportActionExport),
         ),
       ],
     );

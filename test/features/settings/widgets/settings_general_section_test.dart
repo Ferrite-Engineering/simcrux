@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_settings/crux_settings.dart';
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,7 +139,7 @@ void main() {
         findsOneWidget,
       );
 
-      final tile = tester.widget<SwitchListTile>(
+      final tile = tester.widget<CruxFormRow>(
         find.byKey(const Key('settings.autoCheckForUpdates')),
       );
       expect(tile.value, isTrue);
@@ -154,7 +155,7 @@ void main() {
       expect(find.text(l10n.settingsAutoRunOnOpenLabel), findsOneWidget);
       expect(find.text(l10n.settingsAutoRunOnOpenDescription), findsOneWidget);
 
-      final tile = tester.widget<SwitchListTile>(
+      final tile = tester.widget<CruxFormRow>(
         find.byKey(const Key('settings.autoRunOnOpen')),
       );
       expect(
@@ -268,7 +269,7 @@ void main() {
       final l10n = L10N.of(tester.element(find.byType(Scaffold)));
       expect(find.text(l10n.settingsDiagnosticsEnabledLabel), findsOneWidget);
       final finder = find.byKey(const Key('settings.diagnosticsEnabled'));
-      expect(tester.widget<SwitchListTile>(finder).value, isFalse);
+      expect(tester.widget<CruxFormRow>(finder).value, isFalse);
       expect(tester.getSize(finder).height, greaterThanOrEqualTo(44.0));
 
       await tester.ensureVisible(finder);

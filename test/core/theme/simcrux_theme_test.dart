@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart' show CruxDesktopTokens;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/theme/simcrux_colors.dart';
@@ -64,6 +66,24 @@ void main() {
         isNot(SimcruxTheme.dark().colorScheme),
       );
     });
+
+    test(
+      'a desktop host carries the Crux Desktop marker, a phone does not',
+      () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        try {
+          expect(SimcruxTheme.dark().extension<CruxDesktopTokens>(), isNotNull);
+          expect(
+            SimcruxTheme.highContrastLight().extension<CruxDesktopTokens>(),
+            isNotNull,
+          );
+          debugDefaultTargetPlatformOverride = TargetPlatform.android;
+          expect(SimcruxTheme.dark().extension<CruxDesktopTokens>(), isNull);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
 
     test('high-contrast themes keep the SimCrux canvas backgrounds', () {
       expect(

@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a modal yes/no confirmation dialog and resolves to whether the
@@ -22,34 +23,31 @@ Future<bool> showConfirmDialog({
   required String confirmLabel,
   bool confirmIsDestructive = true,
 }) async {
-  final confirmed = await showDialog<bool>(
+  final confirmed = await showCruxDialog<bool>(
     context: context,
     builder: (dialogContext) {
-      final colors = Theme.of(dialogContext).colorScheme;
-      return AlertDialog(
+      return CruxDialog(
         key: const Key('confirmDialog'),
-        title: Text(title),
+        title: title,
+        width: 400,
         content: Text(body),
         actions: [
-          TextButton(
+          CruxDialogAction(
             key: const Key('confirmDialogCancel'),
+            label: cancelLabel,
+            // The safe choice takes focus when the confirm destroys state.
+            autofocus: confirmIsDestructive,
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(cancelLabel),
           ),
-          // Suite-standard destructive emphasis (matches
-          // confirmCruxDestructiveAction in crux_ide_layout): an
-          // error-FILLED button, not error-colored text — the same visual
-          // the other three apps use for Reset Workspace-class confirms.
-          FilledButton(
+          // Suite-standard destructive emphasis: an error-filled button,
+          // not error-coloured text.
+          CruxDialogAction(
             key: const Key('confirmDialogConfirm'),
-            style: confirmIsDestructive
-                ? FilledButton.styleFrom(
-                    backgroundColor: colors.error,
-                    foregroundColor: colors.onError,
-                  )
-                : null,
+            label: confirmLabel,
+            role: confirmIsDestructive
+                ? CruxDialogActionRole.destructive
+                : CruxDialogActionRole.primary,
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(confirmLabel),
           ),
         ],
       );

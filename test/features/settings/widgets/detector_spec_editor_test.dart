@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,6 +44,13 @@ class _EditorHarnessState extends State<_EditorHarness> {
     );
   }
 }
+
+/// The text field of the form row labelled [label] (labels sit beside the
+/// field on desktop, not inside it).
+Finder _field(String label) => find.descendant(
+  of: find.widgetWithText(CruxFormRow, label),
+  matching: find.byType(TextFormField),
+);
 
 Widget _wrap(Widget child, {Locale? locale}) {
   return MaterialApp(
@@ -156,13 +164,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'DUT output file'),
+        _field('DUT output file'),
         'out/mine.sig',
       );
       expect((latest! as GoldenCompareSpec).dutPath, 'out/mine.sig');
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Golden reference file'),
+        _field('Golden reference file'),
         '/goldens/rv32i.sig',
       );
       final spec = latest! as GoldenCompareSpec;
@@ -223,13 +231,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Pass substring'),
+        _field('Pass substring'),
         'ALL PASS',
       );
       expect(latest, const StringMatchSpec(passString: 'ALL PASS'));
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Fail substring'),
+        _field('Fail substring'),
         'FAILED',
       );
       expect(
@@ -253,7 +261,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Pass substring'),
+        _field('Pass substring'),
         '',
       );
       expect(latest, const StringMatchSpec());
@@ -276,13 +284,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Pass regex'),
+        _field('Pass regex'),
         r'^OK$',
       );
       expect(latest, const RegexSpec(passPattern: r'^OK$'));
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Fail regex'),
+        _field('Fail regex'),
         'FATAL',
       );
       expect(
@@ -330,7 +338,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Fatal threshold'),
+        _field('Fatal threshold'),
         '5',
       );
       expect(latest, const UvmReportSpec(fatalThreshold: 5));
@@ -351,7 +359,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Fatal threshold'),
+        _field('Fatal threshold'),
         'abc',
       );
       expect(called, isFalse);
@@ -372,7 +380,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Fatal threshold'),
+        _field('Fatal threshold'),
         '-1',
       );
       expect(called, isFalse);
@@ -393,7 +401,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Warning threshold'),
+        _field('Warning threshold'),
         '',
       );
       expect(latest, const UvmReportSpec());
@@ -414,7 +422,7 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.enterText(
-          find.widgetWithText(TextFormField, 'Fatal threshold'),
+          _field('Fatal threshold'),
           '',
         );
         expect(called, isFalse);
@@ -471,7 +479,7 @@ void main() {
       // The nested StringMatchSpec's own "Pass substring" field is
       // reachable and reports through the parent CompositeSpec.
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Pass substring'),
+        _field('Pass substring'),
         'NESTED PASS',
       );
       final composite = latest! as CompositeSpec;
@@ -517,7 +525,7 @@ void main() {
 
       expect(find.byType(DropdownButtonFormField<String>), findsNothing);
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Referenced detector'),
+        _field('Referenced detector'),
         'strict-uvm',
       );
       expect(latest, const UseSpec('strict-uvm'));
