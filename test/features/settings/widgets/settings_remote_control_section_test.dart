@@ -5,6 +5,7 @@
 library;
 
 import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_settings_ui/crux_settings_ui.dart' show CruxFormRow;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -193,7 +194,7 @@ void main() {
     await tester.pump();
 
     final switchFinder = find.descendant(
-      of: find.widgetWithText(SwitchListTile, 'Enable CXP server'),
+      of: find.widgetWithText(CruxFormRow, 'Enable CXP server'),
       matching: find.byType(Switch),
     );
     expect(
@@ -226,7 +227,7 @@ void main() {
 
     final attentionSwitch = find.descendant(
       of: find.widgetWithText(
-        SwitchListTile,
+        CruxFormRow,
         'Request attention on cross-probe',
       ),
       matching: find.byType(Switch),
@@ -258,7 +259,7 @@ void main() {
 
     final broadcastSwitch = find.descendant(
       of: find.widgetWithText(
-        SwitchListTile,
+        CruxFormRow,
         'Broadcast selection automatically',
       ),
       matching: find.byType(Switch),
