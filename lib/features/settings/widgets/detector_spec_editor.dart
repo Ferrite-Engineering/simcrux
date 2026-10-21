@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:simcrux/domain/enums/golden_compare_profile.dart';
@@ -354,19 +355,17 @@ class _GoldenCompareFields extends StatelessWidget {
       children: [
         CruxFormRow(
           label: l10n.settingsDetectorFieldGoldenProfile,
-          child: DropdownButtonFormField<GoldenCompareProfile>(
-            initialValue: spec.profile,
+          child: CruxPopUpButton<GoldenCompareProfile>(
+            value: spec.profile,
             items: [
               for (final profile in GoldenCompareProfile.values)
-                DropdownMenuItem<GoldenCompareProfile>(
+                CruxPopUpItem<GoldenCompareProfile>(
                   value: profile,
-                  child: Text(_profileLabel(profile, l10n)),
+                  label: _profileLabel(profile, l10n),
                 ),
             ],
-            onChanged: (value) {
-              if (value == null) return;
-              onChanged(spec.copyWith(profile: value));
-            },
+            expand: true,
+            onChanged: (value) => onChanged(spec.copyWith(profile: value)),
           ),
         ),
         CruxFormRow(
@@ -560,15 +559,14 @@ class _UseFields extends StatelessWidget {
       children: [
         CruxFormRow(
           label: l10n.settingsDetectorFieldUseName,
-          child: DropdownButtonFormField<String>(
-            initialValue: names.contains(spec.name) ? spec.name : null,
+          child: CruxPopUpButton<String>(
+            value: names.contains(spec.name) ? spec.name : null,
             items: [
-              for (final n in names)
-                DropdownMenuItem<String>(value: n, child: Text(n)),
+              for (final n in names) CruxPopUpItem<String>(value: n, label: n),
             ],
-            onChanged: (v) {
-              if (v != null) onChanged(UseSpec(v));
-            },
+            expand: true,
+            placeholder: l10n.settingsDetectorFieldUseName,
+            onChanged: (v) => onChanged(UseSpec(v)),
           ),
         ),
       ],

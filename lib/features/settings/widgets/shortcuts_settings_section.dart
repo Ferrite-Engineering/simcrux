@@ -173,7 +173,7 @@ class _ShortcutsSettingsSectionState
 
 /// The keymap-preset chooser shown above the editable shortcut list. Selecting
 /// a preset replaces all bindings; once the user hand-edits a row the active
-/// preset reads as "Custom" (the `null` case, surfaced via the dropdown `hint`
+/// preset reads as "Custom" (the `null` case, surfaced via the pop-up placeholder
 /// so the user can land on it by editing but can never select it directly).
 class _PresetSelector extends StatelessWidget {
   const _PresetSelector({required this.active, required this.onSelect});
@@ -194,19 +194,19 @@ class _PresetSelector extends StatelessWidget {
     return ListTile(
       title: Text(l10n.settingsShortcutsPresetLabel),
       subtitle: Text(l10n.settingsShortcutsPresetDescription),
-      // `active == null` ("Custom") has no item — it is surfaced via [hint], so
-      // the user can never *select* Custom, only land on it by hand-editing.
-      trailing: DropdownButton<KeymapPreset>(
+      // `active == null` ("Custom") has no item; it is surfaced via the
+      // placeholder, so the user can never *select* Custom, only land on it by
+      // hand-editing.
+      trailing: CruxPopUpButton<KeymapPreset>(
         value: active,
-        hint: Text(l10n.settingsShortcutsPresetCustom),
-        onChanged: (preset) {
-          if (preset != null) onSelect(preset);
-        },
+        placeholder: l10n.settingsShortcutsPresetCustom,
+        semanticLabel: l10n.settingsShortcutsPresetLabel,
+        onChanged: onSelect,
         items: [
           for (final preset in KeymapPreset.values)
-            DropdownMenuItem<KeymapPreset>(
+            CruxPopUpItem<KeymapPreset>(
               value: preset,
-              child: Text(_label(preset, l10n)),
+              label: _label(preset, l10n),
             ),
         ],
       ),

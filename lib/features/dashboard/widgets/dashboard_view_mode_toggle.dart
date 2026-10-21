@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/enums/dashboard_view_mode.dart';
@@ -19,23 +20,23 @@ class DashboardViewModeToggle extends ConsumerWidget {
     final mode = ref.watch(dashboardViewModeProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: SegmentedButton<DashboardViewMode>(
-        showSelectedIcon: false,
+      child: CruxSegmentedControl<DashboardViewMode>(
+        semanticLabel: l10n.dashboardViewModeLabel,
         segments: [
-          ButtonSegment(
+          CruxSegment(
             value: DashboardViewMode.table,
-            icon: const Icon(Icons.table_rows_outlined),
-            label: Text(l10n.dashboardViewModeTable),
+            icon: Icons.table_rows_outlined,
+            label: l10n.dashboardViewModeTable,
           ),
-          ButtonSegment(
+          CruxSegment(
             value: DashboardViewMode.heatmap,
-            icon: const Icon(Icons.grid_on_outlined),
-            label: Text(l10n.dashboardViewModeHeatmap),
+            icon: Icons.grid_on_outlined,
+            label: l10n.dashboardViewModeHeatmap,
           ),
         ],
-        selected: {mode},
-        onSelectionChanged: (selection) {
-          ref.read(dashboardViewModeProvider.notifier).setMode(selection.first);
+        selected: mode,
+        onChanged: (m) {
+          ref.read(dashboardViewModeProvider.notifier).setMode(m);
         },
       ),
     );

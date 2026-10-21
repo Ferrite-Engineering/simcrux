@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -523,7 +524,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+      expect(find.byType(CruxPopUpButton<String>), findsNothing);
       await tester.enterText(
         _field('Referenced detector'),
         'strict-uvm',
@@ -545,8 +546,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      expect(find.byType(CruxPopUpButton<String>), findsOneWidget);
+      await tester.tap(find.byType(CruxPopUpButton<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('beta').last);
       await tester.pumpAndSettle();

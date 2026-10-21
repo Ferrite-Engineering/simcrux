@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,13 +43,16 @@ void main() {
       await tester.pumpWidget(_wrap(const DashboardViewModeToggle()));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byType(SegmentedButton<DashboardViewMode>), findsOneWidget);
+      expect(
+        find.byType(CruxSegmentedControl<DashboardViewMode>),
+        findsOneWidget,
+      );
       expect(find.byIcon(Icons.table_rows_outlined), findsOneWidget);
       expect(find.byIcon(Icons.grid_on_outlined), findsOneWidget);
-      final button = tester.widget<SegmentedButton<DashboardViewMode>>(
-        find.byType(SegmentedButton<DashboardViewMode>),
+      final button = tester.widget<CruxSegmentedControl<DashboardViewMode>>(
+        find.byType(CruxSegmentedControl<DashboardViewMode>),
       );
-      expect(button.selected, {DashboardViewMode.table});
+      expect(button.selected, DashboardViewMode.table);
       expect(
         _containerOf(tester).read(dashboardViewModeProvider),
         DashboardViewMode.table,
@@ -78,10 +82,10 @@ void main() {
         container.read(dashboardViewModeProvider),
         DashboardViewMode.heatmap,
       );
-      final button = tester.widget<SegmentedButton<DashboardViewMode>>(
-        find.byType(SegmentedButton<DashboardViewMode>),
+      final button = tester.widget<CruxSegmentedControl<DashboardViewMode>>(
+        find.byType(CruxSegmentedControl<DashboardViewMode>),
       );
-      expect(button.selected, {DashboardViewMode.heatmap});
+      expect(button.selected, DashboardViewMode.heatmap);
 
       await tester.tap(find.byIcon(Icons.table_rows_outlined));
       await tester.pumpAndSettle();
@@ -98,10 +102,10 @@ void main() {
           .read(dashboardViewModeProvider.notifier)
           .setMode(DashboardViewMode.heatmap);
       await tester.pumpAndSettle();
-      final button = tester.widget<SegmentedButton<DashboardViewMode>>(
-        find.byType(SegmentedButton<DashboardViewMode>),
+      final button = tester.widget<CruxSegmentedControl<DashboardViewMode>>(
+        find.byType(CruxSegmentedControl<DashboardViewMode>),
       );
-      expect(button.selected, {DashboardViewMode.heatmap});
+      expect(button.selected, DashboardViewMode.heatmap);
     });
 
     testWidgets('locale sweep renders without exceptions', (tester) async {

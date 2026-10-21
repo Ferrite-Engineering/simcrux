@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_keybindings/crux_keybindings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,10 +152,8 @@ void main() {
     await tester.pump();
     expect(find.text('Custom'), findsOneWidget);
 
-    // Open the dropdown (showing the "Custom" hint) and pick the preset.
-    // Tap the button widget, not the hint Text: the hint is rendered inside
-    // the button's IndexedStack and its own center may not hit-test.
-    await tester.tap(find.byType(DropdownButton<KeymapPreset>));
+    // Open the pop-up (showing the "Custom" placeholder) and pick the preset.
+    await tester.tap(find.byType(CruxPopUpButton<KeymapPreset>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('SimCrux (Default)').last);
     await tester.pumpAndSettle();

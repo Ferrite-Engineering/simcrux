@@ -1822,6 +1822,10 @@
   "@snackNoTestSelected": {
     "description": "Snackbar shown when Re-run Selected fires with no test selected in the results table."
   },
+  "dashboardViewModeLabel": "表示",
+  "@dashboardViewModeLabel": {
+    "description": "Screen-reader name of the dashboard's view-mode segmented control (table or heatmap)."
+  },
   "dashboardViewModeTable": "テーブル",
   "@dashboardViewModeTable": {
     "description": "Segmented-button label for the dashboard's table view mode."
