@@ -145,25 +145,15 @@ class SimcruxActionHandlers {
 
     final handlers = <SimcruxAction, VoidCallback>{
       // ── File ──────────────────────────────────────────────
-      SimcruxAction.openProject: () => unawaited(
-        _openProjectFromPicker(builderContext, ref),
-      ),
-      SimcruxAction.importFusesoc: () => unawaited(
-        _importFusesocFromPicker(builderContext, ref),
-      ),
+      SimcruxAction.openProject: () =>
+          unawaited(_openProjectFromPicker(builderContext, ref)),
+      SimcruxAction.importFusesoc: () =>
+          unawaited(_importFusesocFromPicker(builderContext, ref)),
       SimcruxAction.importRiscvArchTest: () => unawaited(
-        _importRiscvFromPicker(
-          builderContext,
-          ref,
-          RiscvImportKind.archTest,
-        ),
+        _importRiscvFromPicker(builderContext, ref, RiscvImportKind.archTest),
       ),
       SimcruxAction.importRiscvFormal: () => unawaited(
-        _importRiscvFromPicker(
-          builderContext,
-          ref,
-          RiscvImportKind.formal,
-        ),
+        _importRiscvFromPicker(builderContext, ref, RiscvImportKind.formal),
       ),
       SimcruxAction.closeProject: () {
         final ws = ref.read(workspaceProvider).value;
@@ -172,9 +162,7 @@ class SimcruxActionHandlers {
           _snackInfo(navigatorContext(), (l10n) => l10n.snackNoProjectOpen);
           return;
         }
-        unawaited(
-          ref.read(workspaceProvider.notifier).closeTab(id),
-        );
+        unawaited(ref.read(workspaceProvider.notifier).closeTab(id));
       },
       // Cmd/Ctrl+W (suite keyboard-parity pass). SimCrux tabs *are*
       // projects, so closing the active tab is closing the active
@@ -186,9 +174,7 @@ class SimcruxActionHandlers {
           _snackInfo(navigatorContext(), (l10n) => l10n.snackNoProjectOpen);
           return;
         }
-        unawaited(
-          ref.read(workspaceProvider.notifier).closeTab(id),
-        );
+        unawaited(ref.read(workspaceProvider.notifier).closeTab(id));
       },
       // Close-all-but-pinned is a Pro multi-project registry
       // contract: `NoopProjectRegistry` pins nothing and holds one
@@ -265,10 +251,8 @@ class SimcruxActionHandlers {
         unawaited(
           ModalGuard.run(
             'exportResults',
-            () => runExportResultsFlow(
-              context: ctx,
-              tabContainer: tabContainer,
-            ),
+            () =>
+                runExportResultsFlow(context: ctx, tabContainer: tabContainer),
           ),
         );
       },
@@ -306,15 +290,12 @@ class SimcruxActionHandlers {
       // ── View / panel toggles ──────────────────────────────
       // panelLayoutProvider is app-scoped (not per-tab) so
       // reading from ref is correct.
-      SimcruxAction.toggleTestBrowser: () => unawaited(
-        ref.read(panelLayoutProvider.notifier).toggleTestBrowser(),
-      ),
-      SimcruxAction.toggleInspector: () => unawaited(
-        ref.read(panelLayoutProvider.notifier).toggleRunDetails(),
-      ),
-      SimcruxAction.toggleLogPanel: () => unawaited(
-        ref.read(panelLayoutProvider.notifier).toggleLogPanel(),
-      ),
+      SimcruxAction.toggleTestBrowser: () =>
+          unawaited(ref.read(panelLayoutProvider.notifier).toggleTestBrowser()),
+      SimcruxAction.toggleInspector: () =>
+          unawaited(ref.read(panelLayoutProvider.notifier).toggleRunDetails()),
+      SimcruxAction.toggleLogPanel: () =>
+          unawaited(ref.read(panelLayoutProvider.notifier).toggleLogPanel()),
       // Flip between the default light and dark presets. Brightness in
       // SimCrux is driven by the active color-theme preset —
       // `MaterialApp.themeMode` in app.dart derives from the preset's
@@ -336,9 +317,8 @@ class SimcruxActionHandlers {
       // Split-pane actions. Fire-and-forget —
       // mutations resolve quickly against the in-memory
       // workspace; the autosave debounce handles persistence.
-      SimcruxAction.splitPaneRight: () => unawaited(
-        ref.read(workspaceProvider.notifier).splitPaneRight(),
-      ),
+      SimcruxAction.splitPaneRight: () =>
+          unawaited(ref.read(workspaceProvider.notifier).splitPaneRight()),
       SimcruxAction.closePane: () {
         final ws = ref.read(workspaceProvider).value;
         if (ws == null || ws.panes.length < 2) return;
@@ -346,9 +326,8 @@ class SimcruxActionHandlers {
           ref.read(workspaceProvider.notifier).closePane(ws.activePaneId),
         );
       },
-      SimcruxAction.focusOtherPane: () => unawaited(
-        ref.read(workspaceProvider.notifier).focusOtherPane(),
-      ),
+      SimcruxAction.focusOtherPane: () =>
+          unawaited(ref.read(workspaceProvider.notifier).focusOtherPane()),
       SimcruxAction.moveTabToOtherPane: () {
         final ws = ref.read(workspaceProvider).value;
         if (ws == null || ws.panes.length < 2) return;
@@ -376,9 +355,8 @@ class SimcruxActionHandlers {
         // simulator); Enter or a click selects the test in the shared
         // per-tab selection provider. Falls back to a no-op when no tab
         // is mounted (nothing to search).
-        final tabContainer = activeTabContainer();
-        if (tabContainer == null) return;
-        unawaited(SimcruxSearchDialog.open(ctx, tabContainer));
+        if (activeTabContainer() == null) return;
+        unawaited(SimcruxSearchDialog.open(ctx));
       },
       // ── Tools / Help ─────────────────────────────────────
       SimcruxAction.openSettings: () {

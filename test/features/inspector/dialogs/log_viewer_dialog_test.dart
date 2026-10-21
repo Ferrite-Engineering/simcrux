@@ -378,7 +378,9 @@ void main() {
         overridesFactory: simcruxTabOverrides,
       );
       addTearDown(tabs.dispose);
-      final tabContainer = tabs.containerFor(crux.TabId.generate());
+      final tabId = crux.TabId.generate();
+      final tabContainer = tabs.containerFor(tabId);
+      final navigatorKey = crux.CruxTabNavigators().keyFor(tabId);
 
       // Seed the log buffer in the TAB container only. The root container's
       // `resultStoreProvider` stays null — exactly as in the real app, where
@@ -408,13 +410,18 @@ void main() {
             ],
             supportedLocales: L10N.supportedLocales,
             home: Scaffold(
+              // The tab's content on its own navigator, inside the tab's
+              // scope, as the pane host builds it.
               body: UncontrolledProviderScope(
                 container: tabContainer,
-                child: Builder(
-                  builder: (context) => TextButton(
-                    onPressed: () =>
-                        LogViewerDialog.show(context, _selection()),
-                    child: const Text('open'),
+                child: crux.CruxTabNavigatorHost(
+                  navigatorKey: navigatorKey,
+                  builder: (_) => Builder(
+                    builder: (context) => TextButton(
+                      onPressed: () =>
+                          LogViewerDialog.show(context, _selection()),
+                      child: const Text('open'),
+                    ),
                   ),
                 ),
               ),
@@ -426,8 +433,8 @@ void main() {
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
-      // Mutation-verified: drop the `UncontrolledProviderScope` from
-      // `LogViewerDialog.show` and this fails — the viewer renders the
+      // Mutation-verified: drop `navigator: ActiveTab.navigatorFor(context)`
+      // from `LogViewerDialog.show` and this fails — the viewer renders the
       // "No log output" empty state because the ROOT container has no
       // result store.
       expect(find.text('hello from the tab'), findsOneWidget);

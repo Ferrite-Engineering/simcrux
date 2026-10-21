@@ -837,11 +837,29 @@ re-bind the container hands the dialog the **root** container, where
 `selectedTestProvider`, …) resolves to its empty value. No exception,
 no log line — the dialog just renders an empty state.
 
-Fixed 2026-07-21 in `LogViewerDialog.show`, found by crux-shared's
-`route_mounted_scope_leak_test` static guard (the same defect class the
-guard caught in NetCrux). Before the fix, **Open full log** rendered "No
-log output" over an inspector that was visibly streaming lines, and
-search / jump-to-line / Copy all operated on an empty buffer.
+Found by crux-shared's `route_mounted_scope_leak_test` static guard (the
+same defect class the guard caught in NetCrux). Before the fix, **Open
+full log** rendered "No log output" over an inspector that was visibly
+streaming lines, and search / jump-to-line / Copy all operated on an
+empty buffer.
+
+That first fix wrapped the dialog in a second `UncontrolledProviderScope`
+over the tab's container, which brought a second defect: Riverpod flushes
+a container's pending rebuilds from inside the build of every scope that
+mounts it, the dialog's scope built first, and a per-tab write while the
+log viewer, the search dialog or the Tab Diagnostics drawer was open
+marked the tab's own widgets dirty mid-build ("setState() or
+markNeedsBuild() called during build"; out-of-order rebuilds in release).
+From 1.2 each tab's content sits on its own nested navigator
+(`PaneHost.tabNavigators`, owned by `WorkspaceContainerManagers`) and a
+dialog that reads per-tab state is pushed on it with
+`navigator: ActiveTab.navigatorFor(context)`, so it is built under the
+tab's one scope. It covers the tab's area, not the window, stays with its
+tab across a tab switch, keys its `ModalGuard` per tab and closes when its
+tab closes. The Tab Diagnostics drawer is an overlay entry on the active
+tab's navigator and follows the active tab. Dialogs that read no per-tab
+state (Settings, App Diagnostics, About, the issue reporter, the export
+format prompt, confirmations) stay window-modal.
 
 **Setup.** Open a `simcrux.yaml` and run a regression that produces
 log output. Select a test in the dashboard so the inspector populates.
@@ -865,12 +883,29 @@ log output. Select a test in the dashboard so the inspector populates.
 - A test with genuinely no output still shows "No log output" — that is
   the correct empty state, distinguished by the inspector tail also
   being empty.
+- **Tab dialogs.** Over tab A, open the full log (Inspector > Open full
+  log) and the test search (Cmd/Ctrl+F). Each covers tab A's area while
+  the toolbar and the tab strip stay usable. Re-run tab A while one is
+  open: the dialog and the table behind it update and nothing is logged.
+  Click tab B: the dialog is hidden with tab A, and Cmd/Ctrl+F opens
+  tab B's own search. Click tab A: its dialog is still there. Close tab A
+  with its dialog open: the dialog closes with it.
+- **Tab Diagnostics drawer.** Open it (Cmd/Ctrl+Shift+I) over tab A and
+  re-run the tab: the counts update, nothing is logged. Click tab B: the
+  drawer shows B's report. Close tab B: it shows A's. Close the last tab:
+  the drawer closes.
+- With no tab open, the search and the drawer are no-ops with the
+  "no project open" toast, and Settings and App Diagnostics open over the
+  whole window.
 
 **Automation.**
 
 | Check | Automatable? | How |
 |---|---|---|
-| The viewer binds the launching tab's container | **WIDGET** | `test/features/inspector/dialogs/log_viewer_dialog_test.dart` — "LogViewerDialog.show binds the CALLER tab container". Builds the real two-container shape (root `ProviderContainer` + a child from the app's own `TabContainerManager`, `MaterialApp` at root, the launching button inside the tab scope). Mutation-verified: reverting the fix gives `Found 0 widgets with text "hello from the tab"`. Every *other* test in that file pumps the dialog under one `ProviderScope`, which is why none of them could ever have caught it. |
+| The viewer binds the launching tab's container | **WIDGET** | `test/features/inspector/dialogs/log_viewer_dialog_test.dart` — "LogViewerDialog.show binds the CALLER tab container". Builds the tab's content on a `CruxTabNavigatorHost` inside the tab's scope, as the pane host does, with `MaterialApp` at root. Mutation-verified: dropping `navigator: ActiveTab.navigatorFor(context)` gives `Found 0 widgets with text "hello from the tab"`. Every *other* test in that file pumps the dialog under one `ProviderScope`, which is why none of them could ever have caught it. |
+| A per-tab write while a dialog reads the same tab marks nothing dirty mid-build | **WIDGET** | `test/features/workspace/services/active_tab_dialog_test.dart`: the production topology from `createWorkspaceContainers` and a `PaneHost` with `tabNavigators`; the tab content watches a per-tab derived provider; the search dialog is open over tab A while A's config is replaced three times. Mutation-verified: putting the dialog back on the root navigator under a second `UncontrolledProviderScope` fails it with the field assertion (`markNeedsBuild()` on the tab body while `UncontrolledProviderScope` builds). |
+| A tab dialog covers only its tab; it stays with its tab and its `ModalGuard` key is per tab; closing the tab completes its future and frees the key | **WIDGET** | same file: "covers only its tab", "the guard key is per tab", "closing a tab with its dialog open". |
+| The Tab Diagnostics drawer reads the active tab under its one scope, follows a tab switch and closes with the last tab; no tab means the root navigator and the plain guard key | **WIDGET** | same file: "the diagnostics drawer", "with no tab". |
 | No route-mounted widget reads per-tab state unscoped | **STATIC** | crux-shared `packages/crux_workspace/test/static/route_mounted_scope_leak_test.dart`, pointed at this tree. Guards the whole class rather than this one site. Enforced in-repo once the `crux-shared` submodule pin carries `route_mounted_scope_leak_guard.dart`; until then run it by hand: `CRUX_ROUTE_SCOPE_ROOTS=<abs>/simcrux/lib CRUX_ROUTE_SCOPE_SEED_OVERRIDES=<abs>/simcrux/lib/features/workspace/providers/simcrux_tab_overrides.dart#simcruxTabOverrides flutter test test/static/route_mounted_scope_leak_test.dart` from `crux-shared/packages/crux_workspace`. |
 | Cross-tab isolation end-to-end | **MANUAL** | Needs two configs, two tabs, two runs. |
 

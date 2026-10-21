@@ -8,6 +8,7 @@ import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/workspace/services/active_tab_scope.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 /// SimCrux's test search — the suite's Search surface (⌘/Ctrl+F), which
@@ -24,24 +25,21 @@ class SimcruxSearchDialog extends ConsumerStatefulWidget {
   /// Creates the search dialog body.
   const SimcruxSearchDialog({super.key});
 
-  /// Opens the dialog against [tabContainer] — the ACTIVE tab's container,
-  /// so the config and selection resolve per-tab even though the dialog
-  /// route lives above the tab scope.
-  static Future<void> open(
-    BuildContext context,
-    ProviderContainer tabContainer,
-  ) {
+  /// Opens the dialog on the tab's own navigator ([ActiveTab.navigatorFor]:
+  /// the tab [context] is inside, else the active tab), so it is built under
+  /// that tab's one provider scope and the config and selection resolve
+  /// per-tab. It covers the tab's area and belongs to its tab.
+  static Future<void> open(BuildContext context) {
     // Re-entrancy guard: Cmd/Ctrl+F auto-repeat or a double-tap on the menu /
     // palette entry must not stack a second search dialog. Guarded inside
-    // the opener so every caller is covered.
+    // the opener so every caller is covered. Keyed per tab: the dialog stays
+    // open, hidden, with its tab, and another tab can open its own.
     return ModalGuard.run(
-      'search',
+      ActiveTab.guardKey(context, 'search'),
       () => showCruxDialog<void>(
         context: context,
-        builder: (_) => UncontrolledProviderScope(
-          container: tabContainer,
-          child: const SimcruxSearchDialog(),
-        ),
+        navigator: ActiveTab.navigatorFor(context),
+        builder: (_) => const SimcruxSearchDialog(),
       ),
     );
   }

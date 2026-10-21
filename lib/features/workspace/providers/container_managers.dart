@@ -18,8 +18,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// `bootstrap` and never disposes it (the manager is dropped when the
 /// app exits).
 class WorkspaceContainerManagers {
-  /// Creates a holder pairing a tab + pane manager.
-  WorkspaceContainerManagers({required this.tabs, required this.panes});
+  /// Creates a holder pairing a tab + pane manager, with one set of tab
+  /// navigators (a fresh one unless [tabNavigators] is given).
+  WorkspaceContainerManagers({
+    required this.tabs,
+    required this.panes,
+    crux.CruxTabNavigators? tabNavigators,
+  }) : tabNavigators = tabNavigators ?? crux.CruxTabNavigators();
 
   /// Per-tab `ProviderContainer` manager. Disposes each tab's
   /// container when the tab is closed.
@@ -28,6 +33,15 @@ class WorkspaceContainerManagers {
   /// Per-pane `ProviderContainer` manager. Disposes each pane's
   /// container when the pane closes.
   final crux.PaneContainerManager panes;
+
+  /// One nested navigator per tab, handed to `PaneHost.tabNavigators`.
+  ///
+  /// A dialog that reads a tab's providers is pushed on that tab's navigator
+  /// (`ActiveTab.navigatorFor`), so it is built under the tab's one
+  /// `UncontrolledProviderScope` rather than under a second scope over the
+  /// same container. Also a scope reconciler, registered before [tabs]: a
+  /// closing tab's dialogs are closed with it.
+  final crux.CruxTabNavigators tabNavigators;
 
   /// Tears down every tab and pane container. Production calls this on
   /// app shutdown; tests should call it from `tearDown` to release the

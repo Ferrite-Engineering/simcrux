@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart'
+    show cruxFocusIsInPushedRoute;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +31,10 @@ class _TextAwareShortcutManager extends ShortcutManager {
       return KeyEventResult.ignored;
     }
     if (_activatesFocusedControl(event)) return KeyEventResult.ignored;
-    if (_isBareEscape(event) && _isPopupFocused()) {
+    // A tab-modal dialog is pushed inside the screen's own route, so Escape
+    // pressed to close it must not also cancel the regression behind it.
+    if (_isBareEscape(event) &&
+        (_isPopupFocused() || cruxFocusIsInPushedRoute())) {
       return KeyEventResult.ignored;
     }
     return super.handleKeypress(context, event);

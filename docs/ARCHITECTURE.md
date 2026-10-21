@@ -141,6 +141,15 @@ SimCrux uses WaveCrux's per-tab and per-pane container architecture (`wavecrux/d
 
 The headless `--ci` and `export-dashboard` paths build a single transient `ProviderContainer` with the same telemetry overrides and `extraOverrides`, so a Pro override reaches them without the widget tree.
 
+**Dialogs that read a tab's providers are tab-modal.** `showDialog` pushes onto the root navigator, outside every tab's `UncontrolledProviderScope`, so a dialog there resolves the ROOT container, where no config is loaded. The fix is never a second `UncontrolledProviderScope` over the tab's container: Riverpod flushes a container's pending rebuilds from inside the build of every scope that mounts it, the dialog's scope builds first and flushes into the tab content, and a per-tab write while the dialog is open marks the tab's own widgets dirty mid-build ("setState() or markNeedsBuild() called during build"). Instead:
+
+- `WorkspaceContainerManagers.tabNavigators` owns one `CruxTabNavigators`. `createWorkspaceContainers` registers it as a workspace scope reconciler before `managers.tabs`, and `WorkspaceScreen` hands it to `PaneHost.tabNavigators`, so each tab's content is built on its own nested navigator inside the tab's scope.
+- `ActiveTab.navigatorFor(context)` (`lib/features/workspace/services/active_tab_scope.dart`) resolves the navigator of the tab the context is inside, else the active tab's, else null (no tab: the root navigator, as before). It is the name the shared route scope-leak guard accepts. `ActiveTab.guardKey(context, surface)` keys a `ModalGuard` per tab.
+- A tab dialog is opened with `showCruxDialog(context: context, navigator: ActiveTab.navigatorFor(context), builder: ...)` (Settings-style shells take the same `navigator:`). It is built under the tab's one scope, covers the tab's area (one pane in a split), stays with its tab across a tab switch, and closes when its tab closes (the reconciler pops the closing tab's routes, so the opener's future completes and its guard key is released).
+- The Tab Diagnostics drawer is an overlay entry on the active tab's navigator and moves to the new active tab's overlay when the active tab changes; no tab left closes it.
+
+Tab-modal in open core: the log viewer and the test search dialog. Window-modal because they read no per-tab state: Settings and the detector editor it opens, App Diagnostics (reads the shared issue session context, which resolves the active tab itself), the issue reporter, About, the export format prompt, confirmation prompts, the upgrade dialog and the command palette.
+
 ### 6.5 Run Lifecycle, Cancellation & Shutdown
 
 A regression run spawns real simulator subprocesses, so cancellation and app exit must reap them deterministically rather than leaking process trees:

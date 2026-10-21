@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -440,6 +442,113 @@ void main() {
 
       expect(find.text('Re-run'), findsNothing);
       expect(cancelled(), 0);
+    });
+
+    // A tab-modal dialog is pushed on the tab's own navigator, inside the
+    // screen's route, which stays current: Escape must close the dialog and
+    // not also cancel the regression behind it.
+    testWidgets('Escape in a tab dialog closes it and does not cancel', (
+      tester,
+    ) async {
+      var cancelled = 0;
+      final navigators = crux.CruxTabNavigators();
+      final key = navigators.keyFor(crux.TabId.generate());
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            builder: (context, child) => ShortcutManagerWidget(
+              handlers: <SimcruxAction, VoidCallback>{
+                SimcruxAction.cancelRegression: () => cancelled++,
+              },
+              child: child!,
+            ),
+            home: Scaffold(
+              body: crux.CruxTabNavigatorHost(
+                navigatorKey: key,
+                builder: (_) => Builder(
+                  builder: (context) => TextButton(
+                    autofocus: true,
+                    onPressed: () => showCruxDialog<void>(
+                      context: context,
+                      navigator: key.currentState,
+                      builder: (_) => Dialog(
+                        child: TextButton(
+                          autofocus: true,
+                          onPressed: () {},
+                          child: const Text('In dialog'),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Open'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('In dialog'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.text('In dialog'), findsNothing);
+      expect(cancelled, 0);
+    });
+
+    // A pushed page route (not a popup) on the tab's navigator is the case
+    // `_isPopupFocused` cannot see.
+    testWidgets('Escape in a page pushed on a tab navigator does not cancel', (
+      tester,
+    ) async {
+      var cancelled = 0;
+      final key = crux.CruxTabNavigators().keyFor(crux.TabId.generate());
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            builder: (context, child) => ShortcutManagerWidget(
+              handlers: <SimcruxAction, VoidCallback>{
+                SimcruxAction.cancelRegression: () => cancelled++,
+              },
+              child: child!,
+            ),
+            home: Scaffold(
+              body: crux.CruxTabNavigatorHost(
+                navigatorKey: key,
+                builder: (_) => Builder(
+                  builder: (context) => TextButton(
+                    autofocus: true,
+                    onPressed: () => key.currentState!.push<void>(
+                      MaterialPageRoute<void>(
+                        builder: (_) => Scaffold(
+                          body: TextButton(
+                            autofocus: true,
+                            onPressed: () {},
+                            child: const Text('On page'),
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Open'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('On page'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(cancelled, 0);
     });
 
     testWidgets('Escape with no popup open still cancels', (tester) async {

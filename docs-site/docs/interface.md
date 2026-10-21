@@ -110,6 +110,16 @@ as **Re-run Selected Test** (++cmd+shift+r++ / ++ctrl+shift+r++), with
 counter, a **Line** field with **Go** to jump to a line, and
 **Copy all to clipboard**.
 
+From SimCrux 1.2, a dialog that works on one tab's results belongs to that tab.
+The Log Viewer and **Search Tests** open over that tab's area instead of the
+whole window, so the toolbar and the tab strip stay usable, and in a split
+window the other pane does too. Click another tab and the dialog is hidden with
+its tab; it is still there when you click back, and the other tab can open its
+own. Closing a tab closes its dialog. The **Tab Diagnostics** drawer opens over
+the active tab and moves to whichever tab you activate next. Settings, App
+Diagnostics, About and confirmations are not tied to a tab and still open over
+the whole window.
+
 ## Menu bar & command palette {#menus}
 
 The menu bar carries **File**, **View**, **Search**, **Tools** and **Help**; on

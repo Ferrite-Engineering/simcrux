@@ -67,6 +67,10 @@ class WorkspaceScreen extends ConsumerWidget {
                   provider: workspaceProvider,
                   tabs: managers.tabs,
                   panes: managers.panes,
+                  // Each tab on its own navigator, so a dialog that reads
+                  // the tab's providers is built under the tab's one scope
+                  // (`ActiveTab.navigatorFor`).
+                  tabNavigators: managers.tabNavigators,
                   strings: SimcruxViewerTabBarStrings(l10n),
                   // Tab chips are filename + close(X) only — no leading
                   // drag-handle icon (suite-canonical, matching WaveCrux). The

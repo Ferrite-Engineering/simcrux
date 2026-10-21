@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/inspector/providers/inspector_log_provider.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/workspace/services/active_tab_scope.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/result_store/log_buffer_store.dart';
 
@@ -26,30 +27,22 @@ class LogViewerDialog extends ConsumerStatefulWidget {
 
   /// Convenience launcher: show the dialog with the selected test.
   ///
-  /// The builder re-binds the CALLER's `ProviderContainer`. A dialog route
-  /// is a child of the Navigator, which sits ABOVE the per-tab
-  /// `UncontrolledProviderScope` (`simcrux_tab_overrides.dart` re-binds
-  /// [fullInspectorLogProvider] per tab), so the dialog's own `ref` would
-  /// otherwise resolve the ROOT container — whose log buffer store is empty
-  /// for every test id. The viewer then rendered "No log output" over an
-  /// inspector that was visibly streaming lines, and search / jump-to-line /
-  /// Copy all operated on nothing.
+  /// The dialog is pushed on the navigator of the tab [context] is inside
+  /// ([ActiveTab.navigatorFor]), so it is built under that tab's one
+  /// provider scope. A dialog on the root navigator would resolve the ROOT
+  /// container instead ([fullInspectorLogProvider] is re-bound per tab in
+  /// `simcrux_tab_overrides.dart`), whose log buffer store is empty for
+  /// every test id: the viewer rendered "No log output" over an inspector
+  /// that was visibly streaming lines. Wrapping it in a second scope over
+  /// the tab's container fixed that but let a per-tab write mark the tab's
+  /// own widgets dirty mid-build.
   ///
-  /// `containerOf` rather than "the active tab's container": [context] is
-  /// the launching widget's own context, so this binds the tab the button
-  /// actually lives in — correct even if the launch is not from the active
-  /// tab.
-  static Future<void> show(
-    BuildContext context,
-    SelectedTest selection,
-  ) {
-    final container = ProviderScope.containerOf(context, listen: false);
+  /// It covers the tab's area, not the window, and belongs to its tab.
+  static Future<void> show(BuildContext context, SelectedTest selection) {
     return showCruxDialog<void>(
       context: context,
-      builder: (_) => UncontrolledProviderScope(
-        container: container,
-        child: LogViewerDialog(selection: selection),
-      ),
+      navigator: ActiveTab.navigatorFor(context),
+      builder: (_) => LogViewerDialog(selection: selection),
     );
   }
 
@@ -259,9 +252,7 @@ class _LogViewerDialogState extends ConsumerState<LogViewerDialog> {
             onPressed: lines.isEmpty
                 ? null
                 : () => Clipboard.setData(
-                    ClipboardData(
-                      text: lines.map((e) => e.line).join('\n'),
-                    ),
+                    ClipboardData(text: lines.map((e) => e.line).join('\n')),
                   ),
             icon: const Icon(Icons.copy_outlined),
           ),

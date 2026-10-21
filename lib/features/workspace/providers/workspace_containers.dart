@@ -97,7 +97,12 @@ WorkspaceContainers createWorkspaceContainers({
   // subscription and timer it holds for the process lifetime — and a
   // workspace reload that revives a persisted TabId hands the "new" tab
   // the dead tab's container, bleeding state across tabs.
+  //
+  // The tab navigators go first: they close a closing tab's dialogs, whose
+  // widgets are still mounted under that tab's container until the next
+  // frame, so they are popped before the container manager disposes it.
   scoped.read(workspaceProvider.notifier)
+    ..addScopeReconciler(managers.tabNavigators)
     ..addScopeReconciler(managers.tabs)
     ..addScopeReconciler(managers.panes);
   return (root: root, scoped: scoped, managers: managers);
