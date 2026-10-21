@@ -181,6 +181,11 @@ class RiscvFormalDriver extends SbyDriver {
   @override
   bool get liveStatus => false;
 
+  /// The shipped metrics, unchanged: riscv-formal's generated checks are
+  /// read by one known frontend, and the track's rows stay byte-identical.
+  @override
+  bool get analysesRuns => false;
+
   /// Builds a probe phrased for this driver's platform, spawning through
   /// the base class's non-throwing [detectVersionOf].
   RiscvToolchainProbe probeFor() =>

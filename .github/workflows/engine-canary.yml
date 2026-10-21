@@ -101,3 +101,18 @@ jobs:
         run: |
           set -euo pipefail
           flutter test test/integration/sby_driver_live_test.dart test/integration/formal_toolchain_probe_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/sby-driver-live.log"
+
+      # The 51-probe SVA matrix through the driver on both open
+      # frontends (every refusal diagnosed, nothing refused reported
+      # passing), then the docs-site support table checked against what was
+      # just measured.
+      - name: Run the SVA probe matrix through the driver
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FORMAL_LIVE_REQUIRED: '1'
+          SVA_MATRIX_RESULTS: ${{ runner.temp }}/sva-matrix-results.tsv
+        run: |
+          set -euo pipefail
+          flutter test test/integration/sva_matrix_driver_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/sva-matrix-live.log"
+          dart run tool/generate_sva_support_table.dart --check --results "${SVA_MATRIX_RESULTS}"

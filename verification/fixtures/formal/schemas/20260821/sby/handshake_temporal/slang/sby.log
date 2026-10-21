@@ -1,0 +1,13 @@
+SBY 17:26:45 [handshake_temporal_builtin] Removing directory '<work>/20260821/schema/handshake_temporal/handshake_temporal_builtin'.
+SBY 17:26:45 [handshake_temporal_slang] Removing directory '<work>/20260821/schema/handshake_temporal/handshake_temporal_slang'.
+SBY 17:26:45 [handshake_temporal_slang] Copy '<work>/20260821/schema/handshake_temporal/handshake.sv' to '<work>/20260821/schema/handshake_temporal/handshake_temporal_slang/src/handshake.sv'.
+SBY 17:26:45 [handshake_temporal_slang] engine_0: smtbmc yices
+SBY 17:26:45 [handshake_temporal_slang] base: starting process "cd handshake_temporal_slang/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:45 [handshake_temporal_slang] base: ERROR: Design elaboration failed; see full log for details
+SBY 17:26:45 [handshake_temporal_slang] base: finished (returncode=1)
+SBY 17:26:45 [handshake_temporal_slang] base: task failed. ERROR.
+SBY 17:26:45 [handshake_temporal_slang] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:45 [handshake_temporal_slang] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:45 [handshake_temporal_slang] summary: engine_0 (smtbmc yices) did not return a status
+SBY 17:26:45 [handshake_temporal_slang] summary: engine_0 did not produce any traces
+SBY 17:26:45 [handshake_temporal_slang] DONE (ERROR, rc=16)

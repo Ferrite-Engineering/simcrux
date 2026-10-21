@@ -42,6 +42,26 @@ void main() {
     expect(fold.step, isNull, reason: 'a proof has no witness step');
   });
 
+  test('a job file with no [tasks] has no task_name: still read', () {
+    // Measured on build 20261021 (sby -f --live jsonl on a task-less file).
+    final reader = SbyStatusReader()
+      ..addLine(
+        _line(
+          '{"time": 0.18, "mode": "bmc", "engine": "engine_0", "name": '
+          '"m._witness_.check_probe_sv_2_assert_2", "location": '
+          '"probe.sv:2.31-2.41", "kind": "ASSERT", "status": "FAIL", '
+          '"trace": "probe/engine_0/trace.vcd", "depth": 1}',
+          job: 'probe',
+        ),
+      );
+    expect(reader.malformedCount, 0);
+    expect(
+      reader.properties.single.status,
+      FormalPropertyStatus.counterexample,
+    );
+    expect(reader.properties.single.task, '');
+  });
+
   test('a line without the SBY prefix (a tee wrapper) still parses', () {
     final reader = SbyStatusReader()..addLine('jsonl: ${_record()}');
     expect(reader.recordCount, 1);

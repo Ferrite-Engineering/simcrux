@@ -1,40 +1,40 @@
-SBY 15:27:02 [handshake_imm_prove] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove'.
-SBY 15:27:02 [handshake_imm_prove_bug] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove_bug'.
-SBY 15:27:02 [handshake_imm_cover] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_cover'.
-SBY 15:27:02 [handshake_imm_cover] Copy '<work>/20261021/sby/handshake_imm/handshake_imm.sv' to '<work>/20261021/sby/handshake_imm/handshake_imm_cover/src/handshake_imm.sv'.
-SBY 15:27:02 [handshake_imm_cover] engine_0: smtbmc yices
-SBY 15:27:02 [handshake_imm_cover] base: starting process "cd handshake_imm_cover/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:02 [handshake_imm_cover] base: finished (returncode=0)
-SBY 15:27:02 [handshake_imm_cover] prep: starting process "cd handshake_imm_cover/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:02 [handshake_imm_cover] prep: finished (returncode=0)
-SBY 15:27:02 [handshake_imm_cover] smt2: starting process "cd handshake_imm_cover/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:02 [handshake_imm_cover] smt2: finished (returncode=0)
-SBY 15:27:02 [handshake_imm_cover] engine_0: starting process "cd handshake_imm_cover; yosys-smtbmc -s yices --presat --unroll -c --noprogress -t 12  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Solver: yices
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Reached cover statement in step 5 at handshake_imm: handshake_imm.sv:46.5-46.40 (_witness_.check_handshake_imm_sv_46_cover_30)
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.vcd", "depth": 5}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
-SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.yw", "depth": 5}
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
-SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Status: passed
-SBY 15:27:02 [handshake_imm_cover] engine_0: finished (returncode=0)
-SBY 15:27:02 [handshake_imm_cover] engine_0: Status returned by engine: pass
-SBY 15:27:02 [handshake_imm_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_imm_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_imm_cover] summary: engine_0 (smtbmc yices) returned pass
-SBY 15:27:02 [handshake_imm_cover] summary: cover trace: handshake_imm_cover/engine_0/trace0.vcd
-SBY 15:27:02 [handshake_imm_cover] summary:   reached cover statement handshake_imm._witness_.check_handshake_imm_sv_46_cover_30 at handshake_imm.sv:46.5-46.40 step 5
-SBY 15:27:02 [handshake_imm_cover] DONE (PASS, rc=0)
+SBY 17:26:19 [handshake_imm_prove] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove'.
+SBY 17:26:19 [handshake_imm_prove_bug] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove_bug'.
+SBY 17:26:19 [handshake_imm_cover] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_cover'.
+SBY 17:26:19 [handshake_imm_cover] Copy '<work>/20261021/sby/handshake_imm/handshake_imm.sv' to '<work>/20261021/sby/handshake_imm/handshake_imm_cover/src/handshake_imm.sv'.
+SBY 17:26:19 [handshake_imm_cover] engine_0: smtbmc yices
+SBY 17:26:19 [handshake_imm_cover] base: starting process "cd handshake_imm_cover/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:19 [handshake_imm_cover] base: finished (returncode=0)
+SBY 17:26:19 [handshake_imm_cover] prep: starting process "cd handshake_imm_cover/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:19 [handshake_imm_cover] prep: finished (returncode=0)
+SBY 17:26:19 [handshake_imm_cover] smt2: starting process "cd handshake_imm_cover/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:19 [handshake_imm_cover] smt2: finished (returncode=0)
+SBY 17:26:19 [handshake_imm_cover] engine_0: starting process "cd handshake_imm_cover; yosys-smtbmc -s yices --presat --unroll -c --noprogress -t 12  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Solver: yices
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Reached cover statement in step 5 at handshake_imm: handshake_imm.sv:46.5-46.40 (_witness_.check_handshake_imm_sv_46_cover_30)
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.38, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.vcd", "depth": 5}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 17:26:19 [handshake_imm_cover] jsonl: {"time": 0.43, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.yw", "depth": 5}
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 17:26:19 [handshake_imm_cover] engine_0: ##   0:00:00  Status: passed
+SBY 17:26:19 [handshake_imm_cover] engine_0: finished (returncode=0)
+SBY 17:26:19 [handshake_imm_cover] engine_0: Status returned by engine: pass
+SBY 17:26:19 [handshake_imm_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:19 [handshake_imm_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:19 [handshake_imm_cover] summary: engine_0 (smtbmc yices) returned pass
+SBY 17:26:19 [handshake_imm_cover] summary: cover trace: handshake_imm_cover/engine_0/trace0.vcd
+SBY 17:26:19 [handshake_imm_cover] summary:   reached cover statement handshake_imm._witness_.check_handshake_imm_sv_46_cover_30 at handshake_imm.sv:46.5-46.40 step 5
+SBY 17:26:19 [handshake_imm_cover] DONE (PASS, rc=0)

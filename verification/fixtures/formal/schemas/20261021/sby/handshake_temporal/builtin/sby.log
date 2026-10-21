@@ -1,0 +1,12 @@
+SBY 17:26:15 [handshake_temporal_builtin] Removing directory '<work>/20261021/schema/handshake_temporal/handshake_temporal_builtin'.
+SBY 17:26:15 [handshake_temporal_builtin] Copy '<work>/20261021/schema/handshake_temporal/handshake.sv' to '<work>/20261021/schema/handshake_temporal/handshake_temporal_builtin/src/handshake.sv'.
+SBY 17:26:15 [handshake_temporal_builtin] engine_0: smtbmc yices
+SBY 17:26:15 [handshake_temporal_builtin] base: starting process "cd handshake_temporal_builtin/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:15 [handshake_temporal_builtin] base: handshake.sv:33: ERROR: syntax error, unexpected ';', expecting '(' or '['
+SBY 17:26:15 [handshake_temporal_builtin] base: finished (returncode=1)
+SBY 17:26:15 [handshake_temporal_builtin] base: task failed. ERROR.
+SBY 17:26:15 [handshake_temporal_builtin] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:15 [handshake_temporal_builtin] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:15 [handshake_temporal_builtin] summary: engine_0 (smtbmc yices) did not return a status
+SBY 17:26:15 [handshake_temporal_builtin] summary: engine_0 did not produce any traces
+SBY 17:26:15 [handshake_temporal_builtin] DONE (ERROR, rc=16)

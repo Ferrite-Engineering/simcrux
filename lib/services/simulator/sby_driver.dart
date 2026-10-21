@@ -7,18 +7,21 @@ import 'dart:io';
 
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/enums/formal_property_status.dart';
 import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/kill_signal.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/formal_config.dart';
+import 'package:simcrux/domain/models/formal_diagnostic.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
 import 'package:simcrux/domain/models/sby_outcome.dart';
 import 'package:simcrux/domain/models/sby_script.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/services/formal/formal_containment.dart';
 import 'package:simcrux/services/formal/formal_reconciliation.dart';
+import 'package:simcrux/services/formal/formal_run_analysis.dart';
 import 'package:simcrux/services/formal/sby_status_database.dart';
 import 'package:simcrux/services/formal/sby_status_reader.dart';
 import 'package:simcrux/services/simulator/process_backed_simulator_driver.dart';
@@ -153,8 +156,47 @@ class SbyRunFacts {
 ///
 /// **Never gated.** A formal verdict is correctness and is free.
 class SbyDriver extends ProcessBackedSimulatorDriver {
-  /// Creates an [SbyDriver].
-  SbyDriver({super.launcher, super.reaper, super.killGrace});
+  /// Creates an [SbyDriver]. [analyser] reads the finished task directory
+  /// for the SVA diagnostic, the pre-trace marker and the dropped-property
+  /// guard; tests pass one with a scripted Yosys.
+  SbyDriver({
+    super.launcher,
+    super.reaper,
+    super.killGrace,
+    this._analyser = const FormalRunAnalyser(),
+  });
+
+  final FormalRunAnalyser _analyser;
+
+  /// Metric key: the frontend that read the design (`builtin`, `slang`,
+  /// `verific`, `unknown`).
+  static const String kMetricFrontend = 'formal.frontend';
+
+  /// Metric key: why the row did not run, when SimCrux knows
+  /// ([FormalNotRunReason]).
+  static const String kMetricNotRunReason = 'formal.not_run_reason';
+
+  /// Metric key: the refused construct's class ([SvaConstructClass]).
+  static const String kMetricSvaClass = 'formal.sva.class';
+
+  /// Metric key: the refused construct as written (`|=>`).
+  static const String kMetricSvaConstruct = 'formal.sva.construct';
+
+  /// Metric key: where the frontend refused it (`handshake.sv:42`).
+  static const String kMetricSvaLocation = 'formal.sva.location';
+
+  /// Metric key: `assert` or `cover`, for the first property whose result
+  /// depends on state before the trace began. Absent when none does.
+  static const String kMetricPretraceKind = 'formal.pretrace.kind';
+
+  /// Metric key: that property's `$past` depth.
+  static const String kMetricPretraceDepth = 'formal.pretrace.depth';
+
+  /// Metric key: the step it fired at.
+  static const String kMetricPretraceStep = 'formal.pretrace.step';
+
+  /// Metric key: its location.
+  static const String kMetricPretraceLocation = 'formal.pretrace.location';
 
   /// The `simulatorId` this driver claims.
   static const String kId = FormalConfig.kSbySimulatorId;
@@ -243,6 +285,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     'step',
     'trace',
     'id',
+    'pretrace',
   ];
 
   /// The most properties written as indexed metrics. The counts above
@@ -287,6 +330,11 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
   /// command line.
   @protected
   bool get liveStatus => true;
+
+  /// Whether a finished run's task directory is read for the frontend, the
+  /// SVA diagnostic, the pre-trace marker and the dropped-property guard.
+  @protected
+  bool get analysesRuns => true;
 
   /// Declares no HDL languages: `sby` reads the sources its job file's
   /// `[files]` and `[script]` name, never `TestSpec.sources`.
@@ -474,6 +522,8 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     final live = SbyStatusReader(task: job.task);
     // SymbiYosys is Python: a crash arrives as a multi-frame traceback.
     final reducer = PythonTracebackReducer();
+    // The lines a frontend refusal could be on, bounded.
+    final errorLines = <String>[];
 
     await runProcessStreaming(
       request: request,
@@ -489,6 +539,12 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         reader.addLine(line);
         live.addLine(line);
         reducer.addLine(line);
+        if (errorLines.length < 200 &&
+            (line.contains('ERROR') ||
+                line.contains('error:') ||
+                line.contains('Source line'))) {
+          errorLines.add(line);
+        }
       },
       buildFinished: (exitCode, process) async {
         stopwatch.stop();
@@ -498,6 +554,16 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
           p.join(job.taskDirectory, 'status.sqlite'),
           task: job.task,
         );
+        final analysis = await _analyse(
+          request,
+          job,
+          script,
+          reader.outcome,
+          errorLines,
+        );
+        for (final note in analysis.notes) {
+          faultNotice(controller, note);
+        }
         return await buildTerminalEvent(
           request: request,
           job: job,
@@ -511,9 +577,57 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
           killSignal: process.killSignal,
           tracebackSummary: reducer.summary,
           controller: controller,
+          analysis: analysis,
         );
       },
     );
+  }
+
+  /// Reads the finished task directory: which frontend read the design,
+  /// what it refused (a run that stopped before the design elaborated),
+  /// and what the elaborated design holds (a run that reached a verdict).
+  Future<FormalRunAnalysis> _analyse(
+    ExecuteRequest request,
+    SbyJob job,
+    SbyScript? script,
+    SbyOutcome outcome,
+    List<String> errorLines,
+  ) async {
+    if (!analysesRuns) return FormalRunAnalysis.none;
+    try {
+      return await _analyser.analyse(
+        taskDirectory: job.taskDirectory,
+        task: job.task,
+        script: script,
+        logLines: errorLines,
+        classify:
+            outcome.verdict == FormalVerdict.error ||
+            outcome.verdict == FormalVerdict.noOutcome,
+        readDesign:
+            outcome.verdict == FormalVerdict.pass ||
+            outcome.verdict == FormalVerdict.fail,
+        yosys: _yosysFor(request, job),
+        environment: request.binaryConfig.extraEnv,
+      );
+    } on Object catch (e) {
+      return FormalRunAnalysis(
+        notes: <String>['the task directory could not be analysed ($e).'],
+      );
+    }
+  }
+
+  /// The Yosys `sby` ran with: the job's `formal.tools.yosys`, else the one
+  /// beside an absolute `sby`, else `yosys` on PATH.
+  String _yosysFor(ExecuteRequest request, SbyJob job) {
+    final configured = request.test.formal?.tools?['yosys'];
+    if (configured != null && configured.isNotEmpty) return configured;
+    final sby = job.argv.isEmpty ? '' : job.argv.first;
+    if (p.isAbsolute(sby)) {
+      final name = Platform.isWindows ? 'yosys.exe' : 'yosys';
+      final beside = p.join(p.dirname(sby), name);
+      if (File(beside).existsSync()) return beside;
+    }
+    return 'yosys';
   }
 
   /// Ends the run as a `fail` before anything is spawned or staged.
@@ -677,6 +791,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     required KillSignal? killSignal,
     required String? tracebackSummary,
     required StreamController<TestExecutionEvent> controller,
+    FormalRunAnalysis analysis = FormalRunAnalysis.none,
   }) async {
     final reconciliation = FormalReconciliation.reconcile(
       taskVerdict: outcome.verdict,
@@ -768,9 +883,25 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
           'is contradicted by the process outcome.';
     }
 
+    final explained = _applyAnalysis(
+      metrics: metrics,
+      analysis: analysis,
+      job: job,
+      script: script,
+      verdict: verdict,
+      outcome: outcome,
+      reconciliation: reconciliation,
+    );
+    if (explained != null) {
+      status = TestStatus.fail;
+      failureMessage = explained;
+    }
+
     // The driver never hands the scheduler an exit code that contradicts its
     // own verdict: `0` is what every exit-code classifier reads as a pass.
-    final reportedExitCode = withheld ? null : exitCode;
+    final dropped =
+        metrics[kMetricNotRunReason] == FormalNotRunReason.dropped.wireName;
+    final reportedExitCode = withheld || dropped ? null : exitCode;
     if (tracebackSummary != null && status != TestStatus.pass) {
       failureMessage = tracebackSummary;
     }
@@ -879,6 +1010,123 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     }
     return metrics;
   }
+
+  /// Writes what [analysis] found into [metrics], and returns the failure
+  /// message it explains, or null when it explains nothing.
+  ///
+  /// Never moves a row toward a proof: a refused construct annotates a row
+  /// that is already Did not run; a dropped property turns a `PASS` that
+  /// checked nothing into Did not run; a pre-trace exposure marks a row
+  /// whose verdict stands.
+  String? _applyAnalysis({
+    required Map<String, String> metrics,
+    required FormalRunAnalysis analysis,
+    required SbyJob job,
+    required SbyScript? script,
+    required FormalVerdict verdict,
+    required SbyOutcome outcome,
+    required FormalReconciliation reconciliation,
+  }) {
+    if (analysis.frontend != FormalFrontend.unknown) {
+      metrics[kMetricFrontend] = analysis.frontend.wireName;
+    }
+    String? message;
+    final refusal = analysis.refusal;
+    if (refusal != null && !verdict.proved) {
+      final location = refusal.file == null
+          ? null
+          : FormalReconciliation.normaliseLocation(
+              refusal.location!,
+              files: script?.files ?? const <String, String>{},
+              sbyDirectory: job.spawnDirectory,
+              projectRoot: job.projectRoot,
+            ).location;
+      metrics[kMetricNotRunReason] = FormalNotRunReason.svaUnsupported.wireName;
+      metrics[kMetricSvaClass] = refusal.constructClass.wireName;
+      if (refusal.construct != null) {
+        metrics[kMetricSvaConstruct] = refusal.construct!;
+      }
+      if (location != null) metrics[kMetricSvaLocation] = location;
+      final what = refusal.construct == null
+          ? 'An assertion'
+          : '`${refusal.construct}`';
+      final where = location == null ? '' : ' at $location';
+      final frontend = switch (refusal.frontend) {
+        FormalFrontend.slang => 'The yosys-slang frontend',
+        FormalFrontend.builtin => "Yosys's built-in frontend",
+        FormalFrontend.verific || FormalFrontend.unknown => 'The frontend',
+      };
+      message =
+          '$what$where is ${_classPhrase(refusal.constructClass)}. '
+          '$frontend does not support it, so SymbiYosys did not run '
+          '${job.subject}; nothing was proved.';
+    } else if (verdict == FormalVerdict.error &&
+        outcome.errorLine == null &&
+        analysis.frontendError != null) {
+      message =
+          'SymbiYosys could not read the design for ${job.subject}: '
+          '${analysis.frontendError}';
+    }
+
+    final mode = metrics[kMetricMode];
+    if (verdict == FormalVerdict.pass && analysis.droppedFor(mode)) {
+      final cover = mode?.toLowerCase() == 'cover';
+      final declared = cover ? analysis.sourceCovers : analysis.sourceAsserts;
+      metrics[kMetricNotRunReason] = FormalNotRunReason.dropped.wireName;
+      message =
+          'The sources declare $declared ${cover ? 'cover' : 'assert'} '
+          '${declared == 1 ? 'statement' : 'statements'}, but none reached '
+          'the elaborated design: the frontend dropped '
+          '${declared == 1 ? 'it' : 'them'}, so ${job.subject} checked '
+          'nothing and did not run.';
+    }
+
+    final facts = analysis.facts;
+    if (facts != null) {
+      var n = 0;
+      var flagged = false;
+      for (final property in reconciliation.properties.take(
+        kMaxPropertyRows,
+      )) {
+        final step = property.step;
+        final fired =
+            property.status == FormalPropertyStatus.reached ||
+            property.status == FormalPropertyStatus.counterexample;
+        final exposure = facts.at(property.rawLocation);
+        // Measured on both frontends: a property `sby` reports at step s
+        // samples the design at step s - 1, so a chain of depth N reads
+        // before step 0 while s <= N.
+        if (fired &&
+            step != null &&
+            exposure != null &&
+            exposure.pastDepth > 0 &&
+            step <= exposure.pastDepth) {
+          metrics['$kPropertyPrefix$n.pretrace'] = '${exposure.pastDepth}';
+          if (!flagged) {
+            flagged = true;
+            metrics[kMetricPretraceKind] =
+                property.kind.toUpperCase() == 'COVER' ? 'cover' : 'assert';
+            metrics[kMetricPretraceDepth] = '${exposure.pastDepth}';
+            metrics[kMetricPretraceStep] = '$step';
+            metrics[kMetricPretraceLocation] = property.location;
+          }
+        }
+        n++;
+      }
+    }
+    return message;
+  }
+
+  static String _classPhrase(SvaConstructClass c) => switch (c) {
+    SvaConstructClass.implication => 'a temporal implication',
+    SvaConstructClass.delay => 'a cycle delay',
+    SvaConstructClass.repetition => 'a sequence repetition',
+    SvaConstructClass.sequenceOp => 'a sequence operator',
+    SvaConstructClass.namedSequence => 'a named sequence or property',
+    SvaConstructClass.defaultClocking => 'a default clocking declaration',
+    SvaConstructClass.livenessOp => 'a liveness operator',
+    SvaConstructClass.other => 'an assertion form',
+  };
 
   /// The failure message for [verdict], naming [subject].
   @protected

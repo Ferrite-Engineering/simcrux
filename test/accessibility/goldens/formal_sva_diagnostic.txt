@@ -1,0 +1,7 @@
+# Tab walk: 6 stops, cycles
+1. |=> at rtl/handshake.sv:42 is a temporal implication. text
+2. Did not run, unsupported SVA text
+3. Temporal SVA is not supported by the open-source frontends. Yosys and yosys-slang check immediate assertions and clocked boolean assert property, but not sequences or implications across cycles. text
+4. Full support is in progress upstream (yosys-slang pull request 317). text
+5. A Yosys build with the Verific frontend, such as Tabby CAD, accepts it. text
+6. What you can do: rewrite it as a clocked boolean property with $past, or as an immediate assertion in an always block. text

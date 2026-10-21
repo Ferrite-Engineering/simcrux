@@ -244,12 +244,15 @@ class _DashboardResultRow extends ConsumerWidget {
       row.result.status,
       row.result.metrics,
     );
+    final pretraceMarker = summary?.pretrace == null
+        ? null
+        : L10N.of(context).formalPretraceMarker;
     final spoken = L10N
         .of(context)
         .accessibilityResultRow(
           statusFormal == null
               ? testStatusLabel(L10N.of(context), row.result.status)
-              : verdictText,
+              : formalVerdictSpoken(L10N.of(context), statusFormal),
           row.suiteName,
           displayName,
           row.simulatorId,
@@ -334,13 +337,32 @@ class _DashboardResultRow extends ConsumerWidget {
                     // Blank for a simulation row. The words carry the
                     // verdict; the hue only repeats it, and Inconclusive is
                     // never error red.
+                    // The pre-trace marker rides the verdict: a glyph here,
+                    // the words in the tooltip and in the row's spoken
+                    // label, so the shape is never the only channel.
                     CruxTableCell(
                       text: verdictText,
+                      tooltip: pretraceMarker == null
+                          ? null
+                          : '$verdictText. $pretraceMarker',
                       flex: layout.flexOf(DashboardSortColumn.verdict),
                       style: summary == null
                           ? null
                           : theme.textTheme.bodySmall?.copyWith(
                               color: _verdictTextColor(theme, summary),
+                            ),
+                      annotation: pretraceMarker == null
+                          ? null
+                          : ExcludeSemantics(
+                              child: Tooltip(
+                                message: pretraceMarker,
+                                child: Icon(
+                                  Icons.history_toggle_off,
+                                  key: const ValueKey('formalPretraceMarker'),
+                                  size: 14,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                             ),
                     ),
                     // crux_table's text cell: the full value as a hover-only

@@ -1,0 +1,24 @@
+[tasks]
+builtin_cover
+slang_cover
+slang_bmc
+
+[options]
+builtin_cover: mode cover
+slang_cover: mode cover
+slang_bmc: mode bmc
+depth 16
+
+[engines]
+smtbmc yices
+
+[script]
+builtin_cover: read -formal pretrace.sv
+slang_cover: plugin -i slang
+slang_cover: read_slang -DSLANG pretrace.sv --top pretrace
+slang_bmc: plugin -i slang
+slang_bmc: read_slang -DSLANG -DWITH_ASSERT pretrace.sv --top pretrace
+prep -top pretrace
+
+[files]
+pretrace.sv

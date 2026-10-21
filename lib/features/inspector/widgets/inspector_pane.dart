@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_actions.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_details.dart';
+import 'package:simcrux/features/inspector/widgets/inspector_formal_notes.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_header.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_log_preview.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_trend.dart';
@@ -43,6 +44,7 @@ class InspectorPane extends ConsumerWidget {
           InspectorActions(selection: selection),
           const SizedBox(height: 16),
           InspectorDetails(selection: selection),
+          InspectorFormalNotes(selection: selection),
           const SizedBox(height: 16),
           InspectorLogPreview(selection: selection),
           const SizedBox(height: 16),

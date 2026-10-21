@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/formal_bucket.dart';
+import 'package:simcrux/domain/models/formal_diagnostic.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
 import 'package:simcrux/services/simulator/sby_driver.dart';
@@ -41,6 +42,27 @@ void main() {
     expect(
       FormalResultSummary.kAssertionsDisabledKey,
       SbyDriver.kMetricAssertionsDisabled,
+    );
+    expect(FormalResultSummary.kFrontendKey, SbyDriver.kMetricFrontend);
+    expect(
+      FormalResultSummary.kNotRunReasonKey,
+      SbyDriver.kMetricNotRunReason,
+    );
+    expect(FormalResultSummary.kSvaClassKey, SbyDriver.kMetricSvaClass);
+    expect(
+      FormalResultSummary.kSvaConstructKey,
+      SbyDriver.kMetricSvaConstruct,
+    );
+    expect(FormalResultSummary.kSvaLocationKey, SbyDriver.kMetricSvaLocation);
+    expect(FormalResultSummary.kPretraceKindKey, SbyDriver.kMetricPretraceKind);
+    expect(
+      FormalResultSummary.kPretraceDepthKey,
+      SbyDriver.kMetricPretraceDepth,
+    );
+    expect(FormalResultSummary.kPretraceStepKey, SbyDriver.kMetricPretraceStep);
+    expect(
+      FormalResultSummary.kPretraceLocationKey,
+      SbyDriver.kMetricPretraceLocation,
     );
     expect(
       FormalResultSummary.kRiscvVerdictKey,
@@ -164,6 +186,46 @@ void main() {
       expect(w(_sby('ERROR')), FormalVerdictWording.didNotRun);
       expect(w(_sby('NO_OUTCOME')), FormalVerdictWording.didNotRun);
       expect(w(_sby('SOMETHING_NEW')), FormalVerdictWording.unrecognised);
+    });
+
+    test('a PASS whose properties were dropped is Did not run, never a '
+        'proof', () {
+      final s = FormalResultSummary.fromMetrics({
+        ..._sby('PASS', mode: 'prove'),
+        SbyDriver.kMetricNotRunReason: 'dropped',
+      })!;
+      expect(s.bucket, FormalBucket.didNotRun);
+      expect(s.wording, FormalVerdictWording.didNotRun);
+      expect(s.notRunReason, FormalNotRunReason.dropped);
+    });
+
+    test('the SVA refusal and the pre-trace marker are read back', () {
+      final refused = FormalResultSummary.fromMetrics({
+        ..._sby('ERROR'),
+        SbyDriver.kMetricFrontend: 'builtin',
+        SbyDriver.kMetricNotRunReason: 'sva_unsupported',
+        SbyDriver.kMetricSvaClass: 'delay',
+        SbyDriver.kMetricSvaConstruct: '##[1:3]',
+        SbyDriver.kMetricSvaLocation: 'rtl/hs.sv:38',
+      })!;
+      expect(refused.frontend, FormalFrontend.builtin);
+      expect(refused.svaRefusal?.constructClass, SvaConstructClass.delay);
+      expect(refused.svaRefusal?.construct, '##[1:3]');
+      expect(refused.svaRefusal?.file, 'rtl/hs.sv');
+      expect(refused.svaRefusal?.line, 38);
+      final marked = FormalResultSummary.fromMetrics({
+        ..._sby('PASS', mode: 'cover'),
+        SbyDriver.kMetricPretraceKind: 'cover',
+        SbyDriver.kMetricPretraceDepth: '4',
+        SbyDriver.kMetricPretraceStep: '2',
+      })!;
+      expect(marked.pretrace?.depth, 4);
+      expect(marked.pretrace?.step, 2);
+      expect(marked.bucket, FormalBucket.proved, reason: 'a marker only');
+      expect(
+        FormalResultSummary.fromMetrics(_sby('PASS'))!.pretrace,
+        isNull,
+      );
     });
 
     test('the sort puts the most urgent first and proofs last', () {

@@ -4,6 +4,7 @@
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/formal_bucket.dart';
 import 'package:simcrux/domain/enums/formal_verdict.dart';
+import 'package:simcrux/domain/models/formal_diagnostic.dart';
 
 /// How a formal row's verdict is worded, a finer split than [FormalBucket].
 ///
@@ -67,7 +68,38 @@ class FormalResultSummary {
     this.propertiesFailed,
     this.propertiesUndecided,
     this.assertionsDisabled,
+    this.frontend,
+    this.notRunReason,
+    this.svaRefusal,
+    this.pretrace,
   });
+
+  /// `formal.frontend`.
+  static const String kFrontendKey = 'formal.frontend';
+
+  /// `formal.not_run_reason`.
+  static const String kNotRunReasonKey = 'formal.not_run_reason';
+
+  /// `formal.sva.class`.
+  static const String kSvaClassKey = 'formal.sva.class';
+
+  /// `formal.sva.construct`.
+  static const String kSvaConstructKey = 'formal.sva.construct';
+
+  /// `formal.sva.location`.
+  static const String kSvaLocationKey = 'formal.sva.location';
+
+  /// `formal.pretrace.kind`.
+  static const String kPretraceKindKey = 'formal.pretrace.kind';
+
+  /// `formal.pretrace.depth`.
+  static const String kPretraceDepthKey = 'formal.pretrace.depth';
+
+  /// `formal.pretrace.step`.
+  static const String kPretraceStepKey = 'formal.pretrace.step';
+
+  /// `formal.pretrace.location`.
+  static const String kPretraceLocationKey = 'formal.pretrace.location';
 
   /// `formal.verdict`.
   static const String kVerdictKey = 'formal.verdict';
@@ -132,6 +164,13 @@ class FormalResultSummary {
         ? kToolRiscvFormal
         : (metrics[kToolKey] == kToolEqy ? kToolEqy : kToolSby);
     final engine = metrics[kEngineKey] ?? metrics[kRiscvEngineKey];
+    final frontend = FormalFrontend.fromWireName(metrics[kFrontendKey]);
+    final svaClass = SvaConstructClass.fromWireName(metrics[kSvaClassKey]);
+    final location = metrics[kSvaLocationKey];
+    final colon = location?.lastIndexOf(':') ?? -1;
+    final pretraceDepth = int.tryParse(metrics[kPretraceDepthKey] ?? '');
+    final pretraceStep = int.tryParse(metrics[kPretraceStepKey] ?? '');
+    final pretraceKind = metrics[kPretraceKindKey];
     return FormalResultSummary(
       tool: tool,
       verdictToken: token,
@@ -146,6 +185,30 @@ class FormalResultSummary {
         metrics[kPropertiesUndecidedKey] ?? '',
       ),
       assertionsDisabled: metrics[kAssertionsDisabledKey],
+      frontend: frontend,
+      notRunReason: FormalNotRunReason.fromWireName(metrics[kNotRunReasonKey]),
+      svaRefusal: svaClass == null
+          ? null
+          : SvaRefusal(
+              constructClass: svaClass,
+              frontend: frontend ?? FormalFrontend.unknown,
+              construct: metrics[kSvaConstructKey],
+              file: location == null
+                  ? null
+                  : (colon > 0 ? location.substring(0, colon) : location),
+              line: colon > 0
+                  ? int.tryParse(location!.substring(colon + 1))
+                  : null,
+            ),
+      pretrace:
+          pretraceDepth == null || pretraceStep == null || pretraceKind == null
+          ? null
+          : FormalPretraceMarker(
+              kind: pretraceKind,
+              depth: pretraceDepth,
+              step: pretraceStep,
+              location: metrics[kPretraceLocationKey],
+            ),
     );
   }
 
@@ -177,11 +240,28 @@ class FormalResultSummary {
   /// off.
   final String? assertionsDisabled;
 
+  /// The frontend that read the design, when recorded.
+  final FormalFrontend? frontend;
+
+  /// Why the row did not run, when SimCrux knows.
+  final FormalNotRunReason? notRunReason;
+
+  /// The refused SVA construct, when the frontend refused one.
+  final SvaRefusal? svaRefusal;
+
+  /// The first property whose result depends on state from before the
+  /// trace began, when one does.
+  final FormalPretraceMarker? pretrace;
+
   /// The parsed verdict, or null for a token this build cannot read.
   FormalVerdict? get verdict => FormalVerdict.fromWireName(verdictToken);
 
-  /// The display bucket. Unrecognised for a token this build cannot read.
-  FormalBucket get bucket => FormalBucket.ofStored(verdictToken);
+  /// The display bucket. Unrecognised for a token this build cannot read;
+  /// Did not run whenever [notRunReason] says so, whatever the token (a
+  /// `PASS` whose properties were all dropped checked nothing).
+  FormalBucket get bucket => notRunReason != null
+      ? FormalBucket.didNotRun
+      : FormalBucket.ofStored(verdictToken);
 
   /// What the row may claim. Never resolves toward a proof: an unknown
   /// bound is worded as bounded, and a pass with no property checked is

@@ -16,10 +16,10 @@ $var wire 1 n7 do_wr $end
 $var wire 1 n8 empty $end
 $var wire 1 n9 f_init $end
 $var wire 1 n10 full $end
-$var wire 8 n19 mem<0> $end
-$var wire 8 n18 mem<1> $end
-$var wire 8 n20 mem<2> $end
-$var wire 8 n21 mem<3> $end
+$var wire 8 n20 mem<0> $end
+$var wire 8 n21 mem<1> $end
+$var wire 8 n19 mem<2> $end
+$var wire 8 n18 mem<3> $end
 $var wire 1 n11 rd $end
 $var wire 8 n12 rdata $end
 $var wire 2 n13 rp $end
@@ -51,8 +51,8 @@ b00000000 n15
 b00 n16
 b0 n17
 bxxxxxxxx n18
-b00000000 n19
-bxxxxxxxx n20
+bxxxxxxxx n19
+b00000000 n20
 bxxxxxxxx n21
 #5
 b0 n4
@@ -78,8 +78,8 @@ b00000000 n15
 b00 n16
 b1 n17
 bxxxxxxxx n18
-b00000000 n19
-bxxxxxxxx n20
+bxxxxxxxx n19
+b00000000 n20
 bxxxxxxxx n21
 #15
 b0 n4
@@ -105,8 +105,8 @@ b00000000 n15
 b01 n16
 b1 n17
 bxxxxxxxx n18
-b00000000 n19
-bxxxxxxxx n20
+bxxxxxxxx n19
+b00000000 n20
 bxxxxxxxx n21
 #25
 b0 n4
@@ -131,10 +131,10 @@ b0 n14
 b00000000 n15
 b10 n16
 b1 n17
-b00000000 n18
-b00000000 n19
-bxxxxxxxx n20
-bxxxxxxxx n21
+bxxxxxxxx n18
+bxxxxxxxx n19
+b00000000 n20
+b00000000 n21
 #35
 b0 n4
 #40
@@ -158,10 +158,10 @@ b0 n14
 b00000000 n15
 b11 n16
 b1 n17
-b00000000 n18
+bxxxxxxxx n18
 b00000000 n19
 b00000000 n20
-bxxxxxxxx n21
+b00000000 n21
 #45
 b0 n4
 #50

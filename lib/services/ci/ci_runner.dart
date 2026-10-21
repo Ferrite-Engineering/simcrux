@@ -496,6 +496,19 @@ class CiRunner {
         ),
       );
     }
+    for (final properties in formalSvaUnsupportedProperties(results)) {
+      telemetry.record(
+        TelemetryEvent('formal.sva.unsupported', properties: properties),
+      );
+    }
+    for (final kind in formalPretraceFlaggedKinds(results)) {
+      telemetry.record(
+        TelemetryEvent(
+          'formal.pretrace.flagged',
+          properties: <String, Object?>{'kind': kind},
+        ),
+      );
+    }
     // Per distinct kind and per distinct engine, not per test — the GUI
     // runner's reasoning applies with more force here, because a CI run is
     // where the thousand-test suites are.

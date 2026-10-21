@@ -222,6 +222,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  crux_netlist:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_netlist"
+      relative: true
+    source: path
+    version: "0.1.0"
   crux_policy:
     dependency: "direct main"
     description:
@@ -341,6 +348,13 @@ packages:
       relative: true
     source: path
     version: "0.10.0"
+  crux_yosys:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_yosys"
+      relative: true
+    source: path
+    version: "0.0.1"
   crypto:
     dependency: transitive
     description:

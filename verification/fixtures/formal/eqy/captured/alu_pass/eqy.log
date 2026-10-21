@@ -1,26 +1,26 @@
-EQY 15:27:07 [alu_pass] read_gold: starting process "yosys -ql alu_pass/gold.log alu_pass/gold.ys"
-EQY 15:27:07 [alu_pass] read_gold: finished (returncode=0)
-EQY 15:27:07 [alu_pass] read_gate: starting process "yosys -ql alu_pass/gate.log alu_pass/gate.ys"
-EQY 15:27:07 [alu_pass] read_gate: finished (returncode=0)
-EQY 15:27:07 [alu_pass] combine: starting process "yosys -ql alu_pass/combine.log alu_pass/combine.ys"
-EQY 15:27:07 [alu_pass] combine: finished (returncode=0)
-EQY 15:27:07 [alu_pass] partition: starting process "cd alu_pass; yosys -ql partition.log partition.ys"
-EQY 15:27:07 [alu_pass] partition: finished (returncode=0)
-EQY 15:27:07 [alu_pass] Warning: Partition alu.z contains 3 unused gold inputs.
-EQY 15:27:07 [alu_pass] Warning: Partition alu.z contains 1 unused gate inputs.
-EQY 15:27:07 [alu_pass] run: starting process "make -C alu_pass -f strategies.mk"
-EQY 15:27:07 [alu_pass] run: Running strategy 'sby' on 'alu.r'..
-EQY 15:27:07 [alu_pass] run: Proved equivalence of partition 'alu.r' using strategy 'sby'
-EQY 15:27:07 [alu_pass] run: Running strategy 'sby' on 'alu.y'..
-EQY 15:27:07 [alu_pass] run: Proved equivalence of partition 'alu.y' using strategy 'sby'
-EQY 15:27:07 [alu_pass] run: Running strategy 'sby' on 'alu.z'..
-EQY 15:27:07 [alu_pass] run: Could not prove equivalence of partition 'alu.z' using strategy 'sby': partitions not equivalent
-EQY 15:27:07 [alu_pass] run: /Applications/Xcode.app/Contents/Developer/usr/bin/make -f strategies.mk summary
-EQY 15:27:08 [alu_pass] run: finished (returncode=0)
-EQY 15:27:08 [alu_pass] Successfully proved equivalence of partition alu.y
-EQY 15:27:08 [alu_pass] Successfully proved equivalence of partition alu.r
-EQY 15:27:08 [alu_pass] Warning: Failed to prove equivalence for 1/3 partitions:
-EQY 15:27:08 [alu_pass] Failed to prove equivalence of partition alu.z
-EQY 15:27:08 [alu_pass] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-EQY 15:27:08 [alu_pass] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-EQY 15:27:08 [alu_pass] DONE (FAIL, rc=2)
+EQY 17:26:33 [alu_pass] read_gold: starting process "yosys -ql alu_pass/gold.log alu_pass/gold.ys"
+EQY 17:26:33 [alu_pass] read_gold: finished (returncode=0)
+EQY 17:26:33 [alu_pass] read_gate: starting process "yosys -ql alu_pass/gate.log alu_pass/gate.ys"
+EQY 17:26:33 [alu_pass] read_gate: finished (returncode=0)
+EQY 17:26:33 [alu_pass] combine: starting process "yosys -ql alu_pass/combine.log alu_pass/combine.ys"
+EQY 17:26:33 [alu_pass] combine: finished (returncode=0)
+EQY 17:26:33 [alu_pass] partition: starting process "cd alu_pass; yosys -ql partition.log partition.ys"
+EQY 17:26:34 [alu_pass] partition: finished (returncode=0)
+EQY 17:26:34 [alu_pass] Warning: Partition alu.z contains 3 unused gold inputs.
+EQY 17:26:34 [alu_pass] Warning: Partition alu.z contains 1 unused gate inputs.
+EQY 17:26:34 [alu_pass] run: starting process "make -C alu_pass -f strategies.mk"
+EQY 17:26:34 [alu_pass] run: Running strategy 'sby' on 'alu.r'..
+EQY 17:26:34 [alu_pass] run: Proved equivalence of partition 'alu.r' using strategy 'sby'
+EQY 17:26:34 [alu_pass] run: Running strategy 'sby' on 'alu.y'..
+EQY 17:26:35 [alu_pass] run: Proved equivalence of partition 'alu.y' using strategy 'sby'
+EQY 17:26:35 [alu_pass] run: Running strategy 'sby' on 'alu.z'..
+EQY 17:26:35 [alu_pass] run: Could not prove equivalence of partition 'alu.z' using strategy 'sby': partitions not equivalent
+EQY 17:26:35 [alu_pass] run: /Applications/Xcode.app/Contents/Developer/usr/bin/make -f strategies.mk summary
+EQY 17:26:35 [alu_pass] run: finished (returncode=0)
+EQY 17:26:35 [alu_pass] Successfully proved equivalence of partition alu.y
+EQY 17:26:35 [alu_pass] Successfully proved equivalence of partition alu.r
+EQY 17:26:35 [alu_pass] Warning: Failed to prove equivalence for 1/3 partitions:
+EQY 17:26:35 [alu_pass] Failed to prove equivalence of partition alu.z
+EQY 17:26:35 [alu_pass] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:01 (1)
+EQY 17:26:35 [alu_pass] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:01 (1)
+EQY 17:26:35 [alu_pass] DONE (FAIL, rc=2)

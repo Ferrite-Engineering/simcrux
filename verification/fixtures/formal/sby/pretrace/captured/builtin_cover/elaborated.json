@@ -1,0 +1,827 @@
+{
+  "creator": "Yosys 0.70+186 (git sha1 3718f7f13, Release, Clang /usr/local/osxcross/target/bin/aarch64-apple-darwin25.5-clang++ 21.1.8)",
+  "modules": {
+    "pretrace": {
+      "attributes": {
+        "keep": "00000000000000000000000000000001",
+        "hdlname": "pretrace",
+        "top": "00000000000000000000000000000001",
+        "src": "pretrace.sv:6.1-28.10"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        }
+      },
+      "cells": {
+        "$pretrace.sv:10$add$5": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "pretrace.sv:10.12-10.22"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 4, 5 ],
+            "B": [ "1" ],
+            "Y": [ 6, 7, 8 ]
+          }
+        },
+        "$pretrace.sv:11$add$7": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000010",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "pretrace.sv:11.33-11.45"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 10 ],
+            "B": [ "1" ],
+            "Y": [ 11, 12 ]
+          }
+        },
+        "$pretrace.sv:11$ne$6": {
+          "hide_name": 1,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000010",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000010",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:11.9-11.22"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 10 ],
+            "B": [ "1", "1" ],
+            "Y": [ 13 ]
+          }
+        },
+        "$pretrace.sv:13$eq$8": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000011",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:13.15-13.26"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 4, 5 ],
+            "B": [ "1", "1", "1" ],
+            "Y": [ 14 ]
+          }
+        },
+        "$pretrace.sv:23$eq$19": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:23.40-23.51"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 4, 5 ],
+            "B": [ "1" ],
+            "Y": [ 15 ]
+          }
+        },
+        "$pretrace.sv:23$logic_and$20": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:23.23-23.51"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 16 ],
+            "B": [ 15 ],
+            "Y": [ 17 ]
+          }
+        },
+        "$pretrace.sv:24$logic_and$22": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:24.25-24.53"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18 ],
+            "B": [ 19 ],
+            "Y": [ 20 ]
+          }
+        },
+        "$pretrace.sv:25$eq$23": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000010",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000010",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.36"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 10 ],
+            "B": [ "1", "1" ],
+            "Y": [ 21 ]
+          }
+        },
+        "$pretrace.sv:25$eq$25": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000010",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:25.57-25.68"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 4, 5 ],
+            "B": [ "0", "1" ],
+            "Y": [ 19 ]
+          }
+        },
+        "$pretrace.sv:25$logic_and$24": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.53"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 21 ],
+            "B": [ 22 ],
+            "Y": [ 23 ]
+          }
+        },
+        "$pretrace.sv:25$logic_and$26": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.68"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 23 ],
+            "B": [ 19 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$procdff$31": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14 ],
+            "Q": [ 25 ]
+          }
+        },
+        "$procdff$32": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 25 ],
+            "Q": [ 26 ]
+          }
+        },
+        "$procdff$33": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 26 ],
+            "Q": [ 16 ]
+          }
+        },
+        "$procdff$34": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14 ],
+            "Q": [ 27 ]
+          }
+        },
+        "$procdff$35": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 27 ],
+            "Q": [ 28 ]
+          }
+        },
+        "$procdff$36": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 28 ],
+            "Q": [ 18 ]
+          }
+        },
+        "$procdff$37": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14 ],
+            "Q": [ 29 ]
+          }
+        },
+        "$procdff$38": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 29 ],
+            "Q": [ 30 ]
+          }
+        },
+        "$procdff$39": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "pretrace.sv:22.3-26.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 30 ],
+            "Q": [ 22 ]
+          }
+        },
+        "$procdff$40": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "pretrace.sv:9.3-12.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 6, 7, 8 ],
+            "Q": [ 3, 4, 5 ]
+          }
+        },
+        "$procdff$41": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "pretrace.sv:9.3-12.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 31, 32 ],
+            "Q": [ 9, 10 ]
+          }
+        },
+        "$procmux$29": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "pretrace.sv:11.9-11.22|pretrace.sv:11.5-11.46"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 10 ],
+            "B": [ 11, 12 ],
+            "S": [ 13 ],
+            "Y": [ 31, 32 ]
+          }
+        },
+        "c_footgun": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "cover",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "pretrace.sv:23.5-23.52"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 17 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        },
+        "c_guarded": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "cover",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111101",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "pretrace.sv:25.5-25.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 24 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        },
+        "c_unguarded": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "cover",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111110",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "pretrace.sv:24.5-24.54"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 20 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0\\cnt[2:0]": {
+          "hide_name": 1,
+          "bits": [ 6, 7, 8 ],
+          "attributes": {
+            "src": "pretrace.sv:9.3-12.6"
+          }
+        },
+        "$0\\f_age[1:0]": {
+          "hide_name": 1,
+          "bits": [ 31, 32 ],
+          "attributes": {
+            "src": "pretrace.sv:9.3-12.6"
+          }
+        },
+        "$past$pretrace.sv:23$1$0": {
+          "hide_name": 1,
+          "bits": [ 25 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:23.23-23.28"
+          }
+        },
+        "$past$pretrace.sv:23$1$1": {
+          "hide_name": 1,
+          "bits": [ 26 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:23.23-23.28"
+          }
+        },
+        "$past$pretrace.sv:23$1$2": {
+          "hide_name": 1,
+          "bits": [ 16 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:23.23-23.28"
+          }
+        },
+        "$past$pretrace.sv:24$2$0": {
+          "hide_name": 1,
+          "bits": [ 27 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:24.25-24.30"
+          }
+        },
+        "$past$pretrace.sv:24$2$1": {
+          "hide_name": 1,
+          "bits": [ 28 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:24.25-24.30"
+          }
+        },
+        "$past$pretrace.sv:24$2$2": {
+          "hide_name": 1,
+          "bits": [ 18 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:24.25-24.30"
+          }
+        },
+        "$past$pretrace.sv:25$3$0": {
+          "hide_name": 1,
+          "bits": [ 29 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:25.40-25.45"
+          }
+        },
+        "$past$pretrace.sv:25$3$1": {
+          "hide_name": 1,
+          "bits": [ 30 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:25.40-25.45"
+          }
+        },
+        "$past$pretrace.sv:25$3$2": {
+          "hide_name": 1,
+          "bits": [ 22 ],
+          "attributes": {
+            "single_bit_vector": "00000000000000000000000000000001",
+            "src": "pretrace.sv:25.40-25.45"
+          }
+        },
+        "$pretrace.sv:11$add$7_Y": {
+          "hide_name": 1,
+          "bits": [ 11, 12 ],
+          "attributes": {
+            "src": "pretrace.sv:11.33-11.45"
+          }
+        },
+        "$pretrace.sv:11$ne$6_Y": {
+          "hide_name": 1,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "pretrace.sv:11.9-11.22"
+          }
+        },
+        "$pretrace.sv:23$eq$19_Y": {
+          "hide_name": 1,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "pretrace.sv:23.40-23.51"
+          }
+        },
+        "$pretrace.sv:23$logic_and$20_Y": {
+          "hide_name": 1,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "pretrace.sv:23.23-23.51"
+          }
+        },
+        "$pretrace.sv:24$eq$21_Y": {
+          "hide_name": 1,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "pretrace.sv:24.42-24.53"
+          }
+        },
+        "$pretrace.sv:24$logic_and$22_Y": {
+          "hide_name": 1,
+          "bits": [ 20 ],
+          "attributes": {
+            "src": "pretrace.sv:24.25-24.53"
+          }
+        },
+        "$pretrace.sv:25$eq$23_Y": {
+          "hide_name": 1,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.36"
+          }
+        },
+        "$pretrace.sv:25$logic_and$24_Y": {
+          "hide_name": 1,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.53"
+          }
+        },
+        "$pretrace.sv:25$logic_and$26_Y": {
+          "hide_name": 1,
+          "bits": [ 24 ],
+          "attributes": {
+            "src": "pretrace.sv:25.23-25.68"
+          }
+        },
+        "c_footgun_EN": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "pretrace.sv:23.5-23.52"
+          }
+        },
+        "c_guarded_EN": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "pretrace.sv:25.5-25.69"
+          }
+        },
+        "c_unguarded_EN": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "pretrace.sv:24.5-24.54"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "pretrace.sv:6.30-6.33"
+          }
+        },
+        "cnt": {
+          "hide_name": 0,
+          "bits": [ 3, 4, 5 ],
+          "attributes": {
+            "init": "000",
+            "src": "pretrace.sv:7.15-7.18"
+          }
+        },
+        "f_age": {
+          "hide_name": 0,
+          "bits": [ 9, 10 ],
+          "attributes": {
+            "init": "00",
+            "src": "pretrace.sv:8.15-8.20"
+          }
+        },
+        "top": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "pretrace.sv:13.8-13.11"
+          }
+        }
+      }
+    }
+  }
+}

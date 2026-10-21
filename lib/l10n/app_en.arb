@@ -2625,6 +2625,152 @@
   "@formalVerdictUnrecognized": {
     "description": "Verdict of a stored formal result whose verdict this version cannot read."
   },
+  "formalVerdictDidNotRunSva": "Did not run, unsupported SVA",
+  "@formalVerdictDidNotRunSva": {
+    "description": "Verdict of a formal check that never ran because the open-source Verilog frontend refused a SystemVerilog Assertions (SVA) construct. SVA is not translated."
+  },
+  "formalVerdictDidNotRunDropped": "Did not run, property dropped",
+  "@formalVerdictDidNotRunDropped": {
+    "description": "Verdict of a formal check whose properties were accepted by the frontend but never reached the elaborated design, so nothing was checked."
+  },
+  "formalVerdictWithPretrace": "{verdict}, depends on state before the trace began",
+  "@formalVerdictWithPretrace": {
+    "description": "What a screen reader hears for a formal row whose result depends on values from before the first step of the trace. {verdict} is the row's verdict, for example Reached.",
+    "placeholders": {
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "formalPretraceMarker": "Depends on state before the trace began",
+  "@formalPretraceMarker": {
+    "description": "Marker on a formal row and its inspector: the reached cover or the counterexample reads values from before step 0 of the trace, which nothing constrains."
+  },
+  "formalPretraceCoverExplanation": "This cover was reached at step {step}, but {depth, plural, =1{a $past register feeds it} other{a $past chain {depth} steps deep feeds it}}, so it reads values from before the trace began that nothing constrains. It may not be reachable on any real trace.",
+  "@formalPretraceCoverExplanation": {
+    "description": "One-line explanation of the pre-trace marker for a cover. $past is a SystemVerilog function name and is not translated.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "depth": {
+        "type": "int"
+      }
+    }
+  },
+  "formalPretraceAssertExplanation": "This counterexample fails at step {step}, but {depth, plural, =1{a $past register feeds the assertion} other{a $past chain {depth} steps deep feeds the assertion}}, so it reads values from before the trace began that nothing constrains. It may not happen on any real trace.",
+  "@formalPretraceAssertExplanation": {
+    "description": "One-line explanation of the pre-trace marker for an assertion's counterexample. $past is a SystemVerilog function name and is not translated.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "depth": {
+        "type": "int"
+      }
+    }
+  },
+  "formalPretraceLocation": "Property: {location}",
+  "@formalPretraceLocation": {
+    "description": "Inspector line naming the property the pre-trace marker is about. {location} is a file and line.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaConstructAt": "{construct} at {location} is {what}.",
+  "@formalSvaConstructAt": {
+    "description": "First line of the unsupported-SVA explanation, read before any advice. {construct} is the refused SystemVerilog text as written (for example |=>), {location} a file and line, {what} one of the formalSvaClass phrases.",
+    "placeholders": {
+      "construct": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaAt": "The assertion at {location} is {what}.",
+  "@formalSvaAt": {
+    "description": "First line of the unsupported-SVA explanation when the refused text could not be read. {location} is a file and line, {what} one of the formalSvaClass phrases.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaClassImplication": "a temporal implication",
+  "@formalSvaClassImplication": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An implication across clock cycles (|-> or |=>)."
+  },
+  "formalSvaClassDelay": "a cycle delay",
+  "@formalSvaClassDelay": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A delay of one or more clock cycles (##1, ##[1:3], nexttime)."
+  },
+  "formalSvaClassRepetition": "a sequence repetition",
+  "@formalSvaClassRepetition": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A repetition operator ([*2], [->1])."
+  },
+  "formalSvaClassSequenceOp": "a sequence operator",
+  "@formalSvaClassSequenceOp": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An operator that combines sequences (throughout, until, intersect)."
+  },
+  "formalSvaClassNamedSequence": "a named sequence or property",
+  "@formalSvaClassNamedSequence": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A sequence or property declaration."
+  },
+  "formalSvaClassDefaultClocking": "a default clocking declaration",
+  "@formalSvaClassDefaultClocking": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A default clocking or default disable iff declaration."
+  },
+  "formalSvaClassLivenessOp": "a liveness operator",
+  "@formalSvaClassLivenessOp": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An operator about something eventually happening (s_eventually, strong)."
+  },
+  "formalSvaClassOther": "an assertion form the frontend does not read",
+  "@formalSvaClassOther": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. Any other assertion form the frontend refused."
+  },
+  "formalSvaTemporalHeadline": "Temporal SVA is not supported by the open-source frontends. Yosys and yosys-slang check immediate assertions and clocked boolean assert property, but not sequences or implications across cycles.",
+  "@formalSvaTemporalHeadline": {
+    "description": "Second line of the unsupported-SVA explanation, for a temporal construct. Yosys and yosys-slang are tool names; assert property is SystemVerilog syntax and is not translated."
+  },
+  "formalSvaOtherHeadline": "The frontend in use does not read this assertion form. yosys-slang reads clocked boolean assert property; Yosys's built-in frontend reads immediate assertions.",
+  "@formalSvaOtherHeadline": {
+    "description": "Second line of the unsupported-SVA explanation, for a non-temporal assertion form. yosys-slang and Yosys are tool names; assert property is SystemVerilog syntax."
+  },
+  "formalSvaUpstream": "Full support is in progress upstream ({reference}).",
+  "@formalSvaUpstream": {
+    "description": "Line of the unsupported-SVA explanation naming the upstream work. {reference} is an untranslated reference such as 'yosys-slang pull request 317'.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaVerific": "A Yosys build with the Verific frontend, such as Tabby CAD, accepts it.",
+  "@formalSvaVerific": {
+    "description": "Line of the unsupported-SVA explanation. Verific and Tabby CAD are product names."
+  },
+  "formalSvaAdvice": "What you can do: rewrite it as a clocked boolean property with $past, or as an immediate assertion in an always block.",
+  "@formalSvaAdvice": {
+    "description": "Last line of the unsupported-SVA explanation. $past and always are SystemVerilog keywords and are not translated."
+  },
+  "formalDroppedExplanation": "The sources declare properties of the kind this task checks, but none reached the elaborated design: the frontend dropped them, so nothing was checked.",
+  "@formalDroppedExplanation": {
+    "description": "Inspector explanation for a formal row whose properties were dropped by the frontend."
+  },
+  "inspectorSectionFormal": "Formal result",
+  "@inspectorSectionFormal": {
+    "description": "Section header in the inspector for the explanation of a formal row: why it did not run, or why its result depends on state before the trace began."
+  },
   "importFormalTitle": "Import Formal Project",
   "@importFormalTitle": {
     "description": "Title of the Import Formal Project dialog."

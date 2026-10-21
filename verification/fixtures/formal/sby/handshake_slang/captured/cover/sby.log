@@ -1,58 +1,58 @@
-SBY 15:27:02 [handshake_slang_prove] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove'.
-SBY 15:27:02 [handshake_slang_prove_bug] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug'.
-SBY 15:27:02 [handshake_slang_prove_pdr] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_pdr'.
-SBY 15:27:02 [handshake_slang_cover] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_cover'.
-SBY 15:27:02 [handshake_slang_cover] Copy '<work>/20261021/sby/handshake_slang/handshake_slang.sv' to '<work>/20261021/sby/handshake_slang/handshake_slang_cover/src/handshake_slang.sv'.
-SBY 15:27:02 [handshake_slang_cover] engine_0: smtbmc bitwuzla
-SBY 15:27:02 [handshake_slang_cover] base: starting process "cd handshake_slang_cover/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:02 [handshake_slang_cover] base: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_cover] prep: starting process "cd handshake_slang_cover/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:02 [handshake_slang_cover] prep: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_cover] smt2: starting process "cd handshake_slang_cover/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:02 [handshake_slang_cover] smt2: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_cover] engine_0: starting process "cd handshake_slang_cover; yosys-smtbmc -s bitwuzla --presat --unroll -c --noprogress -t 12  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Solver: bitwuzla
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Reached cover statement in step 5 at handshake_slang: c_ack
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace0.vcd", "depth": 5}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace0.yw", "depth": 5}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 6..
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Reached cover statement in step 6 at handshake_slang: c_b2b
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace1.vcd", "depth": 6}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace1.vcd
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace1_tb.v
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace1.smtc
-SBY 15:27:02 [handshake_slang_cover] jsonl: {"time": 0.24, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace1.yw", "depth": 6}
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace1.yw
-SBY 15:27:02 [handshake_slang_cover] engine_0: ##   0:00:00  Status: passed
-SBY 15:27:02 [handshake_slang_cover] engine_0: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_cover] engine_0: Status returned by engine: pass
-SBY 15:27:02 [handshake_slang_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_slang_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_slang_cover] summary: engine_0 (smtbmc bitwuzla) returned pass
-SBY 15:27:02 [handshake_slang_cover] summary: cover trace: handshake_slang_cover/engine_0/trace0.vcd
-SBY 15:27:02 [handshake_slang_cover] summary:   reached cover statement handshake_slang.c_ack at handshake_slang.sv:47.3-47.82 step 5
-SBY 15:27:02 [handshake_slang_cover] summary: cover trace: handshake_slang_cover/engine_0/trace1.vcd
-SBY 15:27:02 [handshake_slang_cover] summary:   reached cover statement handshake_slang.c_b2b at handshake_slang.sv:48.3-48.89 step 6
-SBY 15:27:02 [handshake_slang_cover] DONE (PASS, rc=0)
+SBY 17:26:20 [handshake_slang_prove] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove'.
+SBY 17:26:20 [handshake_slang_prove_bug] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug'.
+SBY 17:26:20 [handshake_slang_prove_pdr] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_pdr'.
+SBY 17:26:20 [handshake_slang_cover] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_cover'.
+SBY 17:26:20 [handshake_slang_cover] Copy '<work>/20261021/sby/handshake_slang/handshake_slang.sv' to '<work>/20261021/sby/handshake_slang/handshake_slang_cover/src/handshake_slang.sv'.
+SBY 17:26:20 [handshake_slang_cover] engine_0: smtbmc bitwuzla
+SBY 17:26:20 [handshake_slang_cover] base: starting process "cd handshake_slang_cover/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:20 [handshake_slang_cover] base: finished (returncode=0)
+SBY 17:26:20 [handshake_slang_cover] prep: starting process "cd handshake_slang_cover/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:20 [handshake_slang_cover] prep: finished (returncode=0)
+SBY 17:26:20 [handshake_slang_cover] smt2: starting process "cd handshake_slang_cover/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:21 [handshake_slang_cover] smt2: finished (returncode=0)
+SBY 17:26:21 [handshake_slang_cover] engine_0: starting process "cd handshake_slang_cover; yosys-smtbmc -s bitwuzla --presat --unroll -c --noprogress -t 12  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Solver: bitwuzla
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Reached cover statement in step 5 at handshake_slang: c_ack
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace0.vcd", "depth": 5}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_ack", "location": "handshake_slang.sv:47.3-47.82", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace0.yw", "depth": 5}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.41, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Checking cover reachability in step 6..
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Reached cover statement in step 6 at handshake_slang: c_b2b
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.42, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace1.vcd", "depth": 6}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace1.vcd
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace1_tb.v
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace1.smtc
+SBY 17:26:21 [handshake_slang_cover] jsonl: {"time": 0.42, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_slang.c_b2b", "location": "handshake_slang.sv:48.3-48.89", "kind": "COVER", "status": "PASS", "trace": "handshake_slang_cover/engine_0/trace1.yw", "depth": 6}
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace1.yw
+SBY 17:26:21 [handshake_slang_cover] engine_0: ##   0:00:00  Status: passed
+SBY 17:26:21 [handshake_slang_cover] engine_0: finished (returncode=0)
+SBY 17:26:21 [handshake_slang_cover] engine_0: Status returned by engine: pass
+SBY 17:26:21 [handshake_slang_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:21 [handshake_slang_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:21 [handshake_slang_cover] summary: engine_0 (smtbmc bitwuzla) returned pass
+SBY 17:26:21 [handshake_slang_cover] summary: cover trace: handshake_slang_cover/engine_0/trace0.vcd
+SBY 17:26:21 [handshake_slang_cover] summary:   reached cover statement handshake_slang.c_ack at handshake_slang.sv:47.3-47.82 step 5
+SBY 17:26:21 [handshake_slang_cover] summary: cover trace: handshake_slang_cover/engine_0/trace1.vcd
+SBY 17:26:21 [handshake_slang_cover] summary:   reached cover statement handshake_slang.c_b2b at handshake_slang.sv:48.3-48.89 step 6
+SBY 17:26:21 [handshake_slang_cover] DONE (PASS, rc=0)

@@ -5068,7 +5068,112 @@ every bucket at Open Core with the beta period off and no Pro overrides.
 
 ### 26.10 SVA diagnostic and the pre-trace marker
 
-Not yet built.
+**What it covers.** After every `sby` run (the general driver; the RISC-V
+track keeps its shipped metrics), the driver reads the task directory:
+
+- **The frontend** (`formal.frontend`: `builtin`, `slang`, `verific`,
+  `unknown`), from the frontend banner in `model/design.log`, else from the
+  task's `[script]` (`read_verilog`/`read`, `read_slang`, `verific`).
+- **The SVA diagnostic.** A run that stopped before a verdict (`ERROR` or
+  no `DONE`) is read for the frontend's refusal: the task log, and
+  `model/design.log`, the only place builds before 20261021 keep it. The
+  refusal names a line, never a construct (the built-in parser says
+  `unexpected '@'`, yosys-slang says "unsupported SVA feature"), so the
+  class comes from the statement at that line in the task's `src/` copy, in
+  a fixed priority: default clocking, named sequence or property, liveness
+  operator, sequence operator, repetition, delay, implication, other. A
+  message that names the construct (`unknown system name '$initstate'`)
+  wins. The row stays Did not run, now with `formal.not_run_reason:
+  sva_unsupported`, `formal.sva.class`, `formal.sva.construct` and
+  `formal.sva.location`; its failure message starts with the construct and
+  its location. A Verific run is never diagnosed; a syntax error in plain
+  RTL stays an ordinary error.
+- **The dropped-property guard.** A run that reached `PASS` while its
+  sources declare `assert` statements (or `cover`, in cover mode) and the
+  elaborated design holds none of that kind lands in Did not run with
+  `formal.not_run_reason: dropped`, status fail, exit code withheld.
+- **The pre-trace marker.** For a run with a verdict, `model/design.il` is
+  converted to Yosys JSON (`read_rtlil design.il; write_json`, through
+  `crux_yosys`'s process seam, 60 s cap, the Yosys beside `sby`) and
+  `crux_netlist` parses it. `PretraceDetector` finds the `$past` registers
+  feeding each formal cell (yosys-slang names them `$past$<n>`; the built-in
+  frontend names their output nets `$past$<file>:<line>…`) and the deepest
+  chain. A reached cover or a counterexample reported at step s through a
+  chain of depth N with s <= N read state from before step 0: the property
+  gets `formal.property.<n>.pretrace` = N, the row
+  `formal.pretrace.kind/depth/step/location`. The verdict stands; the marker
+  is free.
+- **Telemetry.** At the end of a run, one `formal.sva.unsupported{construct,
+  frontend}` per distinct pair and one `formal.pretrace.flagged{kind}` per
+  kind. Never the construct text, a file, a line, a depth or a step.
+- **The docs-site table.** `tool/generate_sva_support_table.dart` writes
+  `docs-site/generated/sva-support-table.md` from the measured matrix
+  (`sva_matrix/captured/results.tsv`) with its measurement date and build;
+  `--check --results <tsv>` compares a fresh measurement's rows.
+
+**The step rule, measured.** On build 20261021 a cover of a constant-0
+register `$past(r, 2) && t == k` (t a step counter) was reached for k = 0
+and k = 1 only, at steps 1 and 2, on both frontends: a property reported at
+step s samples step s - 1, so a `$past` chain of depth N reads before step
+0 exactly when s <= N. The `pretrace` fixture pins the boundary: its
+`c_unguarded` is reached at step 3 through a depth-3 chain and is flagged;
+its `c_guarded` (guarded until the chain has filled) is reached for real at
+step 11 and is not.
+
+**Setup.** As §26.9. The fixtures are `sby/handshake_temporal/` (ten
+refused constructs, both frontends), `schemas/<build>/sby/handshake_temporal/`
+(the refusal on three builds), `sby/fifo_slang/` task `cov` (the footgun),
+`sby/pretrace/` (both frontends, the constrained variant, the assertion
+form) and `sva_matrix/` (51 probes). `elaborated.json` beside each task
+that reached a verdict is the design sby elaborated.
+
+**Expected behaviour (manual).**
+
+1. Import `verification/fixtures/formal/sby/handshake_temporal`, run it
+   with `sby` set. Both rows read "Did not run, unsupported SVA". Select
+   `slang`: the inspector's Formal result section begins
+   "$initstate at handshake.sv:49 is an assertion form the frontend does not
+   read."; `builtin` begins "sequence at handshake.sv:33 is a named
+   sequence or property.", then why, the upstream note, Verific, and what
+   you can do.
+2. Import `sby/fifo_slang`, run `cov`: Verdict reads Reached with the
+   history glyph; hovering it and the row's spoken label say "depends on
+   state before the trace began"; the inspector says the cover was reached
+   at step 2 through a `$past` chain 4 steps deep.
+3. Import `sby/pretrace`, run `slang_cover`: `c_footgun` and
+   `c_unguarded` carry the marker, `c_guarded` does not.
+
+**Edge cases.**
+
+- A Yosys that cannot convert the design leaves a note in the run log and
+  no marker; the verdict is unchanged.
+- A design over 16 MiB is not analysed (note in the log); the JSON is read,
+  parsed and analysed on a separate isolate, never the UI one.
+- A job file with no `[tasks]` section: sby leaves `task_name` out of its
+  status records; the reader takes them as the empty task.
+- Every source copy, log and design read is contained in the task
+  directory and bounded.
+
+**Tier-gate scenarios.** All of it is open core under both `kBetaPeriod`
+values: the diagnostic, the dropped guard and the marker render at Open
+Core with the beta period off and no Pro overrides. Which `$past` read
+reached before step 0, and how to constrain it, is a separate Pro screen.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| Every refused matrix probe on both frontends, the handshake refusal on three builds, each construct class, Verific suppression, plain RTL errors | `[Coverage: UNIT]` | `test/services/formal/sva_refusal_classifier_test.dart` |
+| `$past` depth per formal cell on the elaborated corpus, both frontends, design registers excluded | `[Coverage: UNIT]` | `test/services/formal/pretrace_detector_test.dart` |
+| The driver end to end on the corpus: diagnostic, older builds, the marker, the constrained variant, the assertion form, a failing Yosys, the dropped guard | `[Coverage: UNIT]` | `test/services/simulator/sby_driver_analysis_test.dart` |
+| A task-less job file's status records | `[Coverage: UNIT]` | `test/services/formal/sby_status_reader_test.dart` |
+| The keys, the dropped bucket, the read-back | `[Coverage: UNIT]` | `test/domain/models/formal_result_summary_test.dart` |
+| The row: words, glyph, spoken label at Open Core | `[Coverage: WIDGET]` | `test/features/dashboard/widgets/dashboard_formal_verdict_test.dart` |
+| The inspector notes: Tab walk transcripts, fact before advice, five locales | `[Coverage: WIDGET]` | `test/accessibility/formal_diagnostic_focus_walk_test.dart` |
+| The two counters on the real run path, closed vocabularies only | `[Coverage: UNIT]` | `test/services/telemetry/formal_events_test.dart` |
+| The committed docs-site table equals the generator's output | `[Coverage: UNIT]` | `test/static/sva_support_table_test.dart` |
+| The 51-probe matrix through the driver on both frontends | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/sva_matrix_driver_live_test.dart` |
+| Every corpus case through the driver, including the diagnostic and the marker against the hand expectations | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/sby_driver_live_test.dart` |
 
 ### 26.11 The `eqy` driver
 

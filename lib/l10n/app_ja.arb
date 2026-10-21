@@ -2381,6 +2381,152 @@
   "@formalVerdictUnrecognized": {
     "description": "Verdict of a stored formal result whose verdict this version cannot read."
   },
+  "formalVerdictDidNotRunSva": "未実行、未対応の SVA",
+  "@formalVerdictDidNotRunSva": {
+    "description": "Verdict of a formal check that never ran because the open-source Verilog frontend refused a SystemVerilog Assertions (SVA) construct. SVA is not translated."
+  },
+  "formalVerdictDidNotRunDropped": "未実行、プロパティが破棄されました",
+  "@formalVerdictDidNotRunDropped": {
+    "description": "Verdict of a formal check whose properties were accepted by the frontend but never reached the elaborated design, so nothing was checked."
+  },
+  "formalVerdictWithPretrace": "{verdict}、トレース開始前の状態に依存",
+  "@formalVerdictWithPretrace": {
+    "description": "What a screen reader hears for a formal row whose result depends on values from before the first step of the trace. {verdict} is the row's verdict, for example Reached.",
+    "placeholders": {
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "formalPretraceMarker": "トレース開始前の状態に依存",
+  "@formalPretraceMarker": {
+    "description": "Marker on a formal row and its inspector: the reached cover or the counterexample reads values from before step 0 of the trace, which nothing constrains."
+  },
+  "formalPretraceCoverExplanation": "このカバーはステップ {step} で到達しましたが、{depth, plural, =1{$past レジスタが入力されている} other{深さ {depth} ステップの $past チェーンが入力されている}}ため、トレース開始前の制約されていない値を読んでいます。実際のトレースでは到達できない可能性があります。",
+  "@formalPretraceCoverExplanation": {
+    "description": "One-line explanation of the pre-trace marker for a cover. $past is a SystemVerilog function name and is not translated.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "depth": {
+        "type": "int"
+      }
+    }
+  },
+  "formalPretraceAssertExplanation": "この反例はステップ {step} で失敗しますが、{depth, plural, =1{$past レジスタがアサーションに入力されている} other{深さ {depth} ステップの $past チェーンがアサーションに入力されている}}ため、トレース開始前の制約されていない値を読んでいます。実際のトレースでは発生しない可能性があります。",
+  "@formalPretraceAssertExplanation": {
+    "description": "One-line explanation of the pre-trace marker for an assertion's counterexample. $past is a SystemVerilog function name and is not translated.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "depth": {
+        "type": "int"
+      }
+    }
+  },
+  "formalPretraceLocation": "プロパティ: {location}",
+  "@formalPretraceLocation": {
+    "description": "Inspector line naming the property the pre-trace marker is about. {location} is a file and line.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaConstructAt": "{location} の {construct} は{what}です。",
+  "@formalSvaConstructAt": {
+    "description": "First line of the unsupported-SVA explanation, read before any advice. {construct} is the refused SystemVerilog text as written (for example |=>), {location} a file and line, {what} one of the formalSvaClass phrases.",
+    "placeholders": {
+      "construct": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaAt": "{location} のアサーションは{what}です。",
+  "@formalSvaAt": {
+    "description": "First line of the unsupported-SVA explanation when the refused text could not be read. {location} is a file and line, {what} one of the formalSvaClass phrases.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaClassImplication": "時間的含意",
+  "@formalSvaClassImplication": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An implication across clock cycles (|-> or |=>)."
+  },
+  "formalSvaClassDelay": "サイクル遅延",
+  "@formalSvaClassDelay": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A delay of one or more clock cycles (##1, ##[1:3], nexttime)."
+  },
+  "formalSvaClassRepetition": "シーケンスの繰り返し",
+  "@formalSvaClassRepetition": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A repetition operator ([*2], [->1])."
+  },
+  "formalSvaClassSequenceOp": "シーケンス演算子",
+  "@formalSvaClassSequenceOp": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An operator that combines sequences (throughout, until, intersect)."
+  },
+  "formalSvaClassNamedSequence": "名前付きシーケンスまたはプロパティ",
+  "@formalSvaClassNamedSequence": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A sequence or property declaration."
+  },
+  "formalSvaClassDefaultClocking": "デフォルトクロッキング宣言",
+  "@formalSvaClassDefaultClocking": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. A default clocking or default disable iff declaration."
+  },
+  "formalSvaClassLivenessOp": "ライブネス演算子",
+  "@formalSvaClassLivenessOp": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. An operator about something eventually happening (s_eventually, strong)."
+  },
+  "formalSvaClassOther": "フロントエンドが読み取れないアサーション形式",
+  "@formalSvaClassOther": {
+    "description": "Construct class phrase, completes 'X at file:line is ...'. Any other assertion form the frontend refused."
+  },
+  "formalSvaTemporalHeadline": "時間的 SVA はオープンソースのフロントエンドでは未対応です。Yosys と yosys-slang は即時アサーションとクロック付きブール assert property を検査しますが、シーケンスやサイクルをまたぐ含意は検査しません。",
+  "@formalSvaTemporalHeadline": {
+    "description": "Second line of the unsupported-SVA explanation, for a temporal construct. Yosys and yosys-slang are tool names; assert property is SystemVerilog syntax and is not translated."
+  },
+  "formalSvaOtherHeadline": "使用中のフロントエンドはこのアサーション形式を読み取れません。yosys-slang はクロック付きブール assert property を、Yosys の組み込みフロントエンドは即時アサーションを読み取ります。",
+  "@formalSvaOtherHeadline": {
+    "description": "Second line of the unsupported-SVA explanation, for a non-temporal assertion form. yosys-slang and Yosys are tool names; assert property is SystemVerilog syntax."
+  },
+  "formalSvaUpstream": "上流で完全な対応が進行中です ({reference})。",
+  "@formalSvaUpstream": {
+    "description": "Line of the unsupported-SVA explanation naming the upstream work. {reference} is an untranslated reference such as 'yosys-slang pull request 317'.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "formalSvaVerific": "Verific フロントエンドを備えた Yosys ビルド (Tabby CAD など) は受け付けます。",
+  "@formalSvaVerific": {
+    "description": "Line of the unsupported-SVA explanation. Verific and Tabby CAD are product names."
+  },
+  "formalSvaAdvice": "対処方法: $past を使ったクロック付きブールプロパティ、または always ブロック内の即時アサーションに書き換えてください。",
+  "@formalSvaAdvice": {
+    "description": "Last line of the unsupported-SVA explanation. $past and always are SystemVerilog keywords and are not translated."
+  },
+  "formalDroppedExplanation": "ソースにはこのタスクが検査する種類のプロパティが宣言されていますが、展開後の設計にはひとつも残っていません。フロントエンドが破棄したため、何も検査されていません。",
+  "@formalDroppedExplanation": {
+    "description": "Inspector explanation for a formal row whose properties were dropped by the frontend."
+  },
+  "inspectorSectionFormal": "形式検証の結果",
+  "@inspectorSectionFormal": {
+    "description": "Section header in the inspector for the explanation of a formal row: why it did not run, or why its result depends on state before the trace began."
+  },
   "importFormalTitle": "形式検証プロジェクトをインポート",
   "@importFormalTitle": {
     "description": "Title of the Import Formal Project dialog."

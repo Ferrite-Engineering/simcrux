@@ -1,95 +1,90 @@
-SBY 15:27:02 [handshake_slang_prove] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove'.
-SBY 15:27:02 [handshake_slang_prove_bug] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug'.
-SBY 15:27:02 [handshake_slang_prove_bug] Copy '<work>/20261021/sby/handshake_slang/handshake_slang.sv' to '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug/src/handshake_slang.sv'.
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0: smtbmc bitwuzla
-SBY 15:27:02 [handshake_slang_prove_bug] base: starting process "cd handshake_slang_prove_bug/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:02 [handshake_slang_prove_bug] base: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_prove_bug] prep: starting process "cd handshake_slang_prove_bug/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:02 [handshake_slang_prove_bug] prep: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_prove_bug] smt2: starting process "cd handshake_slang_prove_bug/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:02 [handshake_slang_prove_bug] smt2: finished (returncode=0)
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: starting process "cd handshake_slang_prove_bug; yosys-smtbmc -s bitwuzla --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: starting process "cd handshake_slang_prove_bug; yosys-smtbmc -s bitwuzla --presat --unroll -i --noprogress -t 12  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Solver: bitwuzla
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Solver: bitwuzla
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 12..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN"}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 11..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 10..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 9..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.21, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 8..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  BMC failed!
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Assert failed in handshake_slang: a_resp
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.22, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace.vcd", "depth": 6}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 7..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 6..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 5..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 4..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 3..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 2..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 1..
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.24, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace.yw", "depth": 6}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 0..
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Status: failed
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Temporal induction failed!
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Assert failed in handshake_slang: a_resp
-SBY 15:27:02 [handshake_slang_prove_bug] jsonl: {"time": 0.25, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace_induct.vcd"}
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to VCD file: engine_0/trace_induct.vcd
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: finished (returncode=1)
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.basecase: Status returned by engine for basecase: FAIL
-SBY 15:27:02 [handshake_slang_prove_bug] engine_0.induction: terminating process
-SBY 15:27:02 [handshake_slang_prove_bug] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_slang_prove_bug] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:02 [handshake_slang_prove_bug] summary: engine_0 (smtbmc bitwuzla) returned FAIL for basecase
-SBY 15:27:02 [handshake_slang_prove_bug] summary: counterexample trace [basecase]: handshake_slang_prove_bug/engine_0/trace.vcd
-SBY 15:27:02 [handshake_slang_prove_bug] summary:   failed assertion handshake_slang.a_resp at handshake_slang.sv:42.3-42.79 step 6
-SBY 15:27:02 [handshake_slang_prove_bug] summary: counterexample trace [induction]: handshake_slang_prove_bug/engine_0/trace_induct.vcd
-SBY 15:27:02 [handshake_slang_prove_bug] summary:   failed assertion handshake_slang.a_resp at handshake_slang.sv:42.3-42.79
-SBY 15:27:02 [handshake_slang_prove_bug] DONE (FAIL, rc=2)
+SBY 17:26:20 [handshake_slang_prove] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove'.
+SBY 17:26:20 [handshake_slang_prove_bug] Removing directory '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug'.
+SBY 17:26:20 [handshake_slang_prove_bug] Copy '<work>/20261021/sby/handshake_slang/handshake_slang.sv' to '<work>/20261021/sby/handshake_slang/handshake_slang_prove_bug/src/handshake_slang.sv'.
+SBY 17:26:20 [handshake_slang_prove_bug] engine_0: smtbmc bitwuzla
+SBY 17:26:20 [handshake_slang_prove_bug] base: starting process "cd handshake_slang_prove_bug/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:20 [handshake_slang_prove_bug] base: finished (returncode=0)
+SBY 17:26:20 [handshake_slang_prove_bug] prep: starting process "cd handshake_slang_prove_bug/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:20 [handshake_slang_prove_bug] prep: finished (returncode=0)
+SBY 17:26:20 [handshake_slang_prove_bug] smt2: starting process "cd handshake_slang_prove_bug/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:21 [handshake_slang_prove_bug] smt2: finished (returncode=0)
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: starting process "cd handshake_slang_prove_bug; yosys-smtbmc -s bitwuzla --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: starting process "cd handshake_slang_prove_bug; yosys-smtbmc -s bitwuzla --presat --unroll -i --noprogress -t 12  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Solver: bitwuzla
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Solver: bitwuzla
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 12..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 11..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 10..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 9..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 8..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 7..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 6..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 5..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 4..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 3..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 2..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 1..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 0..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Temporal induction failed!
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Assert failed in handshake_slang: a_resp
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace_induct.vcd"}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to VCD file: engine_0/trace_induct.vcd
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_induct_tb.v
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.43, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_past", "location": "handshake_slang.sv:44.3-44.83", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_pulse", "location": "handshake_slang.sv:43.3-43.85", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_rose", "location": "handshake_slang.sv:45.3-45.90", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_stable", "location": "handshake_slang.sv:46.3-46.109", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  BMC failed!
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Assert failed in handshake_slang: a_resp
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace.vcd", "depth": 6}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY 17:26:21 [handshake_slang_prove_bug] jsonl: {"time": 0.44, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_slang.a_resp", "location": "handshake_slang.sv:42.3-42.79", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_slang_prove_bug/engine_0/trace.yw", "depth": 6}
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: ##   0:00:00  Status: failed
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: finished (returncode=1)
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.basecase: Status returned by engine for basecase: FAIL
+SBY 17:26:21 [handshake_slang_prove_bug] engine_0.induction: terminating process
+SBY 17:26:21 [handshake_slang_prove_bug] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:21 [handshake_slang_prove_bug] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:21 [handshake_slang_prove_bug] summary: engine_0 (smtbmc bitwuzla) returned FAIL for basecase
+SBY 17:26:21 [handshake_slang_prove_bug] summary: counterexample trace [basecase]: handshake_slang_prove_bug/engine_0/trace.vcd
+SBY 17:26:21 [handshake_slang_prove_bug] summary:   failed assertion handshake_slang.a_resp at handshake_slang.sv:42.3-42.79 step 6
+SBY 17:26:21 [handshake_slang_prove_bug] summary: counterexample trace [induction]: handshake_slang_prove_bug/engine_0/trace_induct.vcd
+SBY 17:26:21 [handshake_slang_prove_bug] summary:   failed assertion handshake_slang.a_resp at handshake_slang.sv:42.3-42.79
+SBY 17:26:21 [handshake_slang_prove_bug] DONE (FAIL, rc=2)

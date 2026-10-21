@@ -1,0 +1,1893 @@
+{
+  "creator": "Yosys 0.70+186 (git sha1 3718f7f13, Release, Clang /usr/local/osxcross/target/bin/aarch64-apple-darwin25.5-clang++ 21.1.8)",
+  "modules": {
+    "fifo_slang": {
+      "attributes": {
+        "keep": "00000000000000000000000000000001",
+        "top": "00000000000000000000000000000001",
+        "src": "fifo_slang.sv:3.8"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "rst": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "wr": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "wdata": {
+          "direction": "input",
+          "bits": [ 5, 6, 7, 8, 9, 10, 11, 12 ]
+        },
+        "rd": {
+          "direction": "input",
+          "bits": [ 13 ]
+        },
+        "rdata": {
+          "direction": "output",
+          "bits": [ 14, 15, 16, 17, 18, 19, 20, 21 ]
+        },
+        "full": {
+          "direction": "output",
+          "bits": [ 22 ]
+        },
+        "empty": {
+          "direction": "output",
+          "bits": [ 23 ]
+        }
+      },
+      "cells": {
+        "$15": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:29.24-29.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 24 ],
+            "Y": [ 25 ]
+          }
+        },
+        "$17": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000010",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:29.48-29.57"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 26, 27 ],
+            "B": [ "1" ],
+            "Y": [ 28, 29 ]
+          }
+        },
+        "$19": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000010",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:30.24-30.33"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 30, 31 ],
+            "B": [ "1" ],
+            "Y": [ 32, 33 ]
+          }
+        },
+        "$21": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:31.25-31.38"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 34 ],
+            "Y": [ 35 ]
+          }
+        },
+        "$22": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:31.16-31.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38 ],
+            "B": [ 35 ],
+            "Y": [ 39, 40, 41 ]
+          }
+        },
+        "$23": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:31.43-31.56"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 42 ],
+            "Y": [ 43 ]
+          }
+        },
+        "$24": {
+          "hide_name": 1,
+          "type": "$sub",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:31.16-31.57"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 39, 40, 41 ],
+            "B": [ 43 ],
+            "Y": [ 44, 45, 46 ]
+          }
+        },
+        "$29": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:37.49-37.56"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 47 ],
+            "Y": [ 48 ]
+          }
+        },
+        "$3": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:21.22-21.28"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 23 ],
+            "Y": [ 49 ]
+          }
+        },
+        "$30": {
+          "hide_name": 1,
+          "type": "$logic_or",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:37.49-37.63"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48 ],
+            "B": [ 3 ],
+            "Y": [ 50 ]
+          }
+        },
+        "$33": {
+          "hide_name": 1,
+          "type": "$le",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000011",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:38.67-38.77"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38 ],
+            "B": [ "0", "0", "1" ],
+            "Y": [ 51 ]
+          }
+        },
+        "$36": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:39.69-39.82"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "B": [ 23 ],
+            "Y": [ 52 ]
+          }
+        },
+        "$37": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:39.67-39.83"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 52 ],
+            "Y": [ 53 ]
+          }
+        },
+        "$4": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:21.16-21.28"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13 ],
+            "B": [ 49 ],
+            "Y": [ 42 ]
+          }
+        },
+        "$40": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.81-40.86"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "Y": [ 54 ]
+          }
+        },
+        "$41": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.75-40.86"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4 ],
+            "B": [ 54 ],
+            "Y": [ 34 ]
+          }
+        },
+        "$42": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.90-40.93"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13 ],
+            "Y": [ 55 ]
+          }
+        },
+        "$43": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.75-40.93"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34 ],
+            "B": [ 55 ],
+            "Y": [ 56 ]
+          }
+        },
+        "$48": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.98-40.109"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 57 ],
+            "Y": [ 58 ]
+          }
+        },
+        "$49": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.69-40.109"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 59 ],
+            "B": [ 58 ],
+            "Y": [ 60 ]
+          }
+        },
+        "$50": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.67-40.110"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 60 ],
+            "Y": [ 61 ]
+          }
+        },
+        "$53": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.123-40.139"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 62, 63, 64 ],
+            "B": [ "1" ],
+            "Y": [ 65, 66, 67, 68 ]
+          }
+        },
+        "$54": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000100",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.114-40.139"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38 ],
+            "B": [ 65, 66, 67, 68 ],
+            "Y": [ 69 ]
+          }
+        },
+        "$55": {
+          "hide_name": 1,
+          "type": "$logic_or",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.67-40.139"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 61 ],
+            "B": [ 69 ],
+            "Y": [ 70 ]
+          }
+        },
+        "$6": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000011",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:22.19-22.29"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38 ],
+            "B": [ "0", "0", "1" ],
+            "Y": [ 22 ]
+          }
+        },
+        "$60": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.68-41.79"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 71 ],
+            "Y": [ 72 ]
+          }
+        },
+        "$61": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.68-41.79"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 72 ],
+            "B": [ 22 ],
+            "Y": [ 73 ]
+          }
+        },
+        "$62": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.67-41.79"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 73 ],
+            "Y": [ 74 ]
+          }
+        },
+        "$65": {
+          "hide_name": 1,
+          "type": "$logic_or",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.67-41.92"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 74 ],
+            "B": [ 75 ],
+            "Y": [ 76 ]
+          }
+        },
+        "$71": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:44.49-44.53"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3 ],
+            "Y": [ 77 ]
+          }
+        },
+        "$8": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000011",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:23.19-23.29"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38 ],
+            "Y": [ 23 ]
+          }
+        },
+        "$84": {
+          "hide_name": 1,
+          "type": "$logic_and",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.90"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 78 ],
+            "B": [ 23 ],
+            "Y": [ 79 ]
+          }
+        },
+        "$driver$count": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:25.3"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 80, 81, 82 ],
+            "Q": [ 36, 37, 38 ]
+          }
+        },
+        "$driver$f_init": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:36.3"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ "0" ],
+            "Q": [ 47 ]
+          }
+        },
+        "$driver$rp": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:25.3"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 83, 84 ],
+            "Q": [ 30, 31 ]
+          }
+        },
+        "$driver$wp": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:25.3"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 85, 86 ],
+            "Q": [ 26, 27 ]
+          }
+        },
+        "$past$45": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.69-40.94"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 56 ],
+            "Q": [ 59 ]
+          }
+        },
+        "$past$47": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.99-40.109"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 3 ],
+            "Q": [ 57 ]
+          }
+        },
+        "$past$52": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.123-40.135"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 36, 37, 38 ],
+            "Q": [ 62, 63, 64 ]
+          }
+        },
+        "$past$59": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.68-41.79"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 22 ],
+            "Q": [ 71 ]
+          }
+        },
+        "$past$64": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.83-41.92"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 4 ],
+            "Q": [ 75 ]
+          }
+        },
+        "$past$77": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 22 ],
+            "Q": [ 87 ]
+          }
+        },
+        "$past$79": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 87 ],
+            "Q": [ 88 ]
+          }
+        },
+        "$past$81": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 88 ],
+            "Q": [ 89 ]
+          }
+        },
+        "$past$83": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "00000000000000000000000000000001",
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 89 ],
+            "Q": [ 78 ]
+          }
+        },
+        "$procmux$16": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:30.18-30.34|fifo_slang.sv:30.7-30.34"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 30, 31 ],
+            "B": [ 32, 33 ],
+            "S": [ 42 ],
+            "Y": [ 90, 91 ]
+          }
+        },
+        "$procmux$21": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:29.18-29.62|fifo_slang.sv:29.7-29.62"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 26, 27 ],
+            "B": [ 28, 29 ],
+            "S": [ 34 ],
+            "Y": [ 92, 93 ]
+          }
+        },
+        "$procmux$28": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "full_case": "00000000000000000000000000000001",
+            "src": "fifo_slang.sv:26.14-28.8|fifo_slang.sv:26.5-32.8"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 90, 91 ],
+            "B": [ "0", "0" ],
+            "S": [ 3 ],
+            "Y": [ 83, 84 ]
+          }
+        },
+        "$procmux$32": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+            "full_case": "00000000000000000000000000000001",
+            "src": "fifo_slang.sv:26.14-28.8|fifo_slang.sv:26.5-32.8"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 92, 93 ],
+            "B": [ "0", "0" ],
+            "S": [ 3 ],
+            "Y": [ 85, 86 ]
+          }
+        },
+        "$procmux$36": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000011"
+          },
+          "attributes": {
+            "full_case": "00000000000000000000000000000001",
+            "src": "fifo_slang.sv:26.14-28.8|fifo_slang.sv:26.5-32.8"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 44, 45, 46 ],
+            "B": [ "0", "0", "0" ],
+            "S": [ 3 ],
+            "Y": [ 80, 81, 82 ]
+          }
+        },
+        "$procmux$41": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "full_case": "00000000000000000000000000000001",
+            "src": "fifo_slang.sv:26.14-28.8|fifo_slang.sv:26.5-32.8"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 35 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$procmux$5": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1" ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 94 ]
+          }
+        },
+        "a_cnt_up": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:40.3-40.141"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 70 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_dis_bad": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:44.3-44.55"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 77 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_dis_ok": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:42.3-42.73"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 77 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_full_empty": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:39.3-39.85"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 53 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_never_over": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:38.3-38.79"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 51 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_rose_full": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:41.3-41.94"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 76 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "c_drain": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "cover",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:47.3-47.92"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 79 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "c_full": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "cover",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:46.3-46.73"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "ARGS": [ ],
+            "EN": [ 94 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "m_rst": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assume",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "fifo_slang.sv:37.3-37.65"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 50 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        },
+        "mem": {
+          "hide_name": 0,
+          "type": "$mem_v2",
+          "parameters": {
+            "ABITS": "00000000000000000000000000000010",
+            "INIT": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "MEMID": "\\mem",
+            "OFFSET": "00000000000000000000000000000000",
+            "RD_ARST_VALUE": "xxxxxxxx",
+            "RD_CE_OVER_SRST": "0",
+            "RD_CLK_ENABLE": "0",
+            "RD_CLK_POLARITY": "0",
+            "RD_COLLISION_X_MASK": "0",
+            "RD_INIT_VALUE": "xxxxxxxx",
+            "RD_PORTS": "00000000000000000000000000000001",
+            "RD_SRST_VALUE": "xxxxxxxx",
+            "RD_TRANSPARENCY_MASK": "0",
+            "RD_WIDE_CONTINUATION": "0",
+            "SIZE": "00000000000000000000000000000100",
+            "WIDTH": "00000000000000000000000000001000",
+            "WR_CLK_ENABLE": "1",
+            "WR_CLK_POLARITY": "1",
+            "WR_PORTS": "00000000000000000000000000000001",
+            "WR_PRIORITY_MASK": "0",
+            "WR_WIDE_CONTINUATION": "0"
+          },
+          "attributes": {
+            "hdlname": "mem",
+            "src": "fifo_slang.sv:13.17"
+          },
+          "port_directions": {
+            "RD_ADDR": "input",
+            "RD_ARST": "input",
+            "RD_CLK": "input",
+            "RD_DATA": "output",
+            "RD_EN": "input",
+            "RD_SRST": "input",
+            "WR_ADDR": "input",
+            "WR_CLK": "input",
+            "WR_DATA": "input",
+            "WR_EN": "input"
+          },
+          "connections": {
+            "RD_ADDR": [ 30, 31 ],
+            "RD_ARST": [ "0" ],
+            "RD_CLK": [ "x" ],
+            "RD_DATA": [ 14, 15, 16, 17, 18, 19, 20, 21 ],
+            "RD_EN": [ "1" ],
+            "RD_SRST": [ "0" ],
+            "WR_ADDR": [ 26, 27 ],
+            "WR_CLK": [ 2 ],
+            "WR_DATA": [ 5, 6, 7, 8, 9, 10, 11, 12 ],
+            "WR_EN": [ 25, 25, 25, 25, 25, 25, 25, 25 ]
+          }
+        }
+      },
+      "netnames": {
+        "$$past$44": {
+          "hide_name": 1,
+          "bits": [ 59 ],
+          "attributes": {
+            "src": "fifo_slang.sv:40.69-40.94"
+          }
+        },
+        "$$past$46": {
+          "hide_name": 1,
+          "bits": [ 57 ],
+          "attributes": {
+            "src": "fifo_slang.sv:40.99-40.109"
+          }
+        },
+        "$$past$51": {
+          "hide_name": 1,
+          "bits": [ 62, 63, 64 ],
+          "attributes": {
+            "src": "fifo_slang.sv:40.123-40.135"
+          }
+        },
+        "$$past$58": {
+          "hide_name": 1,
+          "bits": [ 71 ],
+          "attributes": {
+            "src": "fifo_slang.sv:41.68-41.79"
+          }
+        },
+        "$$past$63": {
+          "hide_name": 1,
+          "bits": [ 75 ],
+          "attributes": {
+            "src": "fifo_slang.sv:41.83-41.92"
+          }
+        },
+        "$$past$76": {
+          "hide_name": 1,
+          "bits": [ 87 ],
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          }
+        },
+        "$$past$78": {
+          "hide_name": 1,
+          "bits": [ 88 ],
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          }
+        },
+        "$$past$80": {
+          "hide_name": 1,
+          "bits": [ 89 ],
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          }
+        },
+        "$$past$82": {
+          "hide_name": 1,
+          "bits": [ 78 ],
+          "attributes": {
+            "src": "fifo_slang.sv:47.67-47.81"
+          }
+        },
+        "$0y": {
+          "hide_name": 1,
+          "bits": [ 54 ],
+          "attributes": {
+          }
+        },
+        "$14": {
+          "hide_name": 1,
+          "bits": [ 24 ],
+          "attributes": {
+            "src": "fifo_slang.sv:29.24-29.40"
+          }
+        },
+        "$15y": {
+          "hide_name": 1,
+          "bits": [ 25, 25, 25, 25, 25, 25, 25, 25 ],
+          "attributes": {
+          }
+        },
+        "$17y": {
+          "hide_name": 1,
+          "bits": [ 28, 29 ],
+          "attributes": {
+          }
+        },
+        "$19y": {
+          "hide_name": 1,
+          "bits": [ 32, 33 ],
+          "attributes": {
+          }
+        },
+        "$21y": {
+          "hide_name": 1,
+          "bits": [ 35 ],
+          "attributes": {
+          }
+        },
+        "$22y": {
+          "hide_name": 1,
+          "bits": [ 39, 40, 41 ],
+          "attributes": {
+          }
+        },
+        "$23y": {
+          "hide_name": 1,
+          "bits": [ 43 ],
+          "attributes": {
+          }
+        },
+        "$24y": {
+          "hide_name": 1,
+          "bits": [ 44, 45, 46 ],
+          "attributes": {
+          }
+        },
+        "$29y": {
+          "hide_name": 1,
+          "bits": [ 48 ],
+          "attributes": {
+          }
+        },
+        "$30y": {
+          "hide_name": 1,
+          "bits": [ 50 ],
+          "attributes": {
+          }
+        },
+        "$33y": {
+          "hide_name": 1,
+          "bits": [ 51 ],
+          "attributes": {
+          }
+        },
+        "$34": {
+          "hide_name": 1,
+          "bits": [ 94 ],
+          "attributes": {
+          }
+        },
+        "$36y": {
+          "hide_name": 1,
+          "bits": [ 52 ],
+          "attributes": {
+          }
+        },
+        "$37y": {
+          "hide_name": 1,
+          "bits": [ 53 ],
+          "attributes": {
+          }
+        },
+        "$3y": {
+          "hide_name": 1,
+          "bits": [ 49 ],
+          "attributes": {
+          }
+        },
+        "$42y": {
+          "hide_name": 1,
+          "bits": [ 55 ],
+          "attributes": {
+          }
+        },
+        "$43y": {
+          "hide_name": 1,
+          "bits": [ 56 ],
+          "attributes": {
+          }
+        },
+        "$48y": {
+          "hide_name": 1,
+          "bits": [ 58 ],
+          "attributes": {
+          }
+        },
+        "$49y": {
+          "hide_name": 1,
+          "bits": [ 60 ],
+          "attributes": {
+          }
+        },
+        "$50y": {
+          "hide_name": 1,
+          "bits": [ 61 ],
+          "attributes": {
+          }
+        },
+        "$53y": {
+          "hide_name": 1,
+          "bits": [ 65, 66, 67, 68 ],
+          "attributes": {
+          }
+        },
+        "$54y": {
+          "hide_name": 1,
+          "bits": [ 69 ],
+          "attributes": {
+          }
+        },
+        "$55y": {
+          "hide_name": 1,
+          "bits": [ 70 ],
+          "attributes": {
+          }
+        },
+        "$60y": {
+          "hide_name": 1,
+          "bits": [ 72 ],
+          "attributes": {
+          }
+        },
+        "$61y": {
+          "hide_name": 1,
+          "bits": [ 73 ],
+          "attributes": {
+          }
+        },
+        "$62y": {
+          "hide_name": 1,
+          "bits": [ 74 ],
+          "attributes": {
+          }
+        },
+        "$65y": {
+          "hide_name": 1,
+          "bits": [ 76 ],
+          "attributes": {
+          }
+        },
+        "$68y": {
+          "hide_name": 1,
+          "bits": [ 77 ],
+          "attributes": {
+          }
+        },
+        "$84y": {
+          "hide_name": 1,
+          "bits": [ 79 ],
+          "attributes": {
+          }
+        },
+        "$count$25": {
+          "hide_name": 1,
+          "bits": [ 80, 81, 82 ],
+          "attributes": {
+            "src": "fifo_slang.sv:26.5-32.8"
+          }
+        },
+        "$procmux$16_Y": {
+          "hide_name": 1,
+          "bits": [ 90, 91 ],
+          "attributes": {
+          }
+        },
+        "$procmux$21_Y": {
+          "hide_name": 1,
+          "bits": [ 92, 93 ],
+          "attributes": {
+          }
+        },
+        "$procmux$28_Y": {
+          "hide_name": 1,
+          "bits": [ 83, 84 ],
+          "attributes": {
+          }
+        },
+        "$procmux$32_Y": {
+          "hide_name": 1,
+          "bits": [ 85, 86 ],
+          "attributes": {
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "hdlname": "clk",
+            "src": "fifo_slang.sv:4.24"
+          }
+        },
+        "count": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38 ],
+          "attributes": {
+            "hdlname": "count",
+            "src": "fifo_slang.sv:14.23"
+          }
+        },
+        "do_rd": {
+          "hide_name": 0,
+          "bits": [ 42 ],
+          "attributes": {
+            "hdlname": "do_rd",
+            "src": "fifo_slang.sv:21.8"
+          }
+        },
+        "do_wr": {
+          "hide_name": 0,
+          "bits": [ 34 ],
+          "attributes": {
+            "hdlname": "do_wr",
+            "src": "fifo_slang.sv:19.8"
+          }
+        },
+        "empty": {
+          "hide_name": 0,
+          "bits": [ 23 ],
+          "attributes": {
+            "hdlname": "empty",
+            "src": "fifo_slang.sv:11.24"
+          }
+        },
+        "f_init": {
+          "hide_name": 0,
+          "bits": [ 47 ],
+          "attributes": {
+            "hdlname": "f_init",
+            "init": "1",
+            "src": "fifo_slang.sv:35.9"
+          }
+        },
+        "full": {
+          "hide_name": 0,
+          "bits": [ 22 ],
+          "attributes": {
+            "hdlname": "full",
+            "src": "fifo_slang.sv:10.24"
+          }
+        },
+        "rd": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "hdlname": "rd",
+            "src": "fifo_slang.sv:8.24"
+          }
+        },
+        "rdata": {
+          "hide_name": 0,
+          "bits": [ 14, 15, 16, 17, 18, 19, 20, 21 ],
+          "attributes": {
+            "hdlname": "rdata",
+            "src": "fifo_slang.sv:9.24"
+          }
+        },
+        "rp": {
+          "hide_name": 0,
+          "bits": [ 30, 31 ],
+          "attributes": {
+            "hdlname": "rp",
+            "src": "fifo_slang.sv:15.29"
+          }
+        },
+        "rst": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "hdlname": "rst",
+            "src": "fifo_slang.sv:5.24"
+          }
+        },
+        "wdata": {
+          "hide_name": 0,
+          "bits": [ 5, 6, 7, 8, 9, 10, 11, 12 ],
+          "attributes": {
+            "hdlname": "wdata",
+            "src": "fifo_slang.sv:7.24"
+          }
+        },
+        "wp": {
+          "hide_name": 0,
+          "bits": [ 26, 27 ],
+          "attributes": {
+            "hdlname": "wp",
+            "src": "fifo_slang.sv:15.25"
+          }
+        },
+        "wr": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "hdlname": "wr",
+            "src": "fifo_slang.sv:6.24"
+          }
+        }
+      }
+    }
+  }
+}

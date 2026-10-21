@@ -183,6 +183,11 @@ run_sby_case() {
     # the Yosys log, not in the task log, so keep it for the refusal.
     if [ -f "$taskdir/ERROR" ]; then
       copy_if "$taskdir/model/design.log" "$dest/$task/design.log"
+    elif [ -f "$taskdir/model/design.il" ]; then
+      # The design sby elaborated, as Yosys JSON: the input the pre-trace
+      # detector and the dropped-property guard read.
+      (cd "$taskdir/model" && "$suite/bin/yosys" -q -p 'read_rtlil design.il; write_json elaborated.json') \
+        && copy_if "$taskdir/model/elaborated.json" "$dest/$task/elaborated.json"
     fi
     (cd "$taskdir" && find . -path './engine_*' -name '*.vcd' -type f) | while read -r vcd; do
       mkdir -p "$dest/$task/$(dirname "${vcd#./}")"
@@ -305,6 +310,19 @@ run_schemas() {
     fi
     (cd "$work" && find . -type f ! -path './src/*' ! -name 'run.log' \
       ! -path '*/model/*' ! -path '*/src/*' | sed 's|^\./||' | LC_ALL=C sort) > "$out/workdir.txt"
+  done
+  # The refusal shapes the SVA classifier reads, per build: older sby builds
+  # keep the frontend's message only in the Yosys log.
+  local twork="$scratch/schema/handshake_temporal"
+  mkdir -p "$twork"
+  find "$FIX/sby/handshake_temporal" -maxdepth 1 -type f \( -name '*.sv' -o -name '*.sby' \) -exec cp {} "$twork/" \;
+  set +e
+  (cd "$twork" && "$suite/bin/sby" -f handshake_temporal.sby) > "$twork/run.log" 2>&1
+  set -e
+  for task in builtin slang; do
+    mkdir -p "$dest/sby/handshake_temporal/$task"
+    copy_if "$twork/handshake_temporal_$task/logfile.txt" "$dest/sby/handshake_temporal/$task/sby.log"
+    copy_if "$twork/handshake_temporal_$task/model/design.log" "$dest/sby/handshake_temporal/$task/design.log"
   done
   local work="$scratch/schema/eqy" out="$dest/eqy/alu_fail2"
   mkdir -p "$work" "$out"

@@ -125,9 +125,50 @@ void main() {
         allOf(
           contains('formalRunCompletedProperties('),
           contains('formalAssertionsDisabledTokens('),
+          contains('formalSvaUnsupportedProperties('),
+          contains('formalPretraceFlaggedKinds('),
         ),
         reason: path,
       );
     }
+  });
+
+  group('the SVA diagnostic and the pre-trace marker', () {
+    test('the sby driver analyses every finished run it owns', () {
+      final driver = _read('lib/services/simulator/sby_driver.dart');
+      expect(
+        driver,
+        allOf(contains('_analyser.analyse('), contains('_applyAnalysis(')),
+      );
+      expect(
+        _read('lib/services/formal/formal_run_analysis.dart'),
+        allOf(
+          contains('classifier.classify('),
+          contains('SvaRefusalClassifier.detectFrontend('),
+          contains('designReader.read('),
+        ),
+      );
+      expect(
+        _read('lib/services/formal/formal_design_reader.dart'),
+        allOf(
+          contains('YosysJsonParser().parse('),
+          contains('PretraceDetector().analyse('),
+        ),
+      );
+    });
+
+    test('the row and the inspector show them', () {
+      expect(
+        _read('lib/features/dashboard/widgets/dashboard_results_table.dart'),
+        allOf(
+          contains('formalVerdictSpoken('),
+          contains('formalPretraceMarker'),
+        ),
+      );
+      expect(
+        _read('lib/features/inspector/widgets/inspector_pane.dart'),
+        contains('InspectorFormalNotes('),
+      );
+    });
   });
 }

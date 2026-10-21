@@ -60,6 +60,60 @@ bool _hasSlang(String sby) {
       0;
 }
 
+/// The SVA diagnostic and the pre-trace marker against the hand
+/// expectation: a refused task names a line and the class of one of the
+/// case's `refused_constructs`; a property whose `pretrace` says it depends
+/// on state before the trace carries the marker, and one that says it does
+/// not carries none.
+List<String> _checkAnalysis(
+  String task,
+  Map<String, Object?> spec,
+  Map<String, Object?> expected,
+  Map<String, String> metrics,
+) {
+  final problems = <String>[];
+  final refused = <int, String>{
+    for (final r in objectList(expected['refused_constructs']))
+      r['line']! as int: r['class']! as String,
+  };
+  if (spec['verdict'] == 'ERROR' && refused.isNotEmpty) {
+    final location = metrics['formal.sva.location'] ?? '';
+    final line = int.tryParse(
+      RegExp(r':(\d+)$').firstMatch(location)?.group(1) ?? '',
+    );
+    if (metrics['formal.not_run_reason'] != 'sva_unsupported') {
+      problems.add('$task: refused, but no SVA diagnostic');
+    } else if (line == null || !refused.containsKey(line)) {
+      problems.add('$task: diagnostic at "$location", not a refused line');
+    } else if (metrics['formal.sva.class'] != refused[line]) {
+      problems.add(
+        '$task: class ${metrics['formal.sva.class']} at line $line, '
+        'expected ${refused[line]}',
+      );
+    }
+  }
+  final flaggedLines = <int>{};
+  for (var n = 0; metrics.containsKey('formal.property.$n.kind'); n++) {
+    if (!metrics.containsKey('formal.property.$n.pretrace')) continue;
+    final location = metrics['formal.property.$n.location'] ?? '';
+    final line = RegExp(r':(\d+)').firstMatch(location)?.group(1);
+    if (line != null) flaggedLines.add(int.parse(line));
+  }
+  for (final prop in objectList(spec['properties'])) {
+    final pretrace = prop['pretrace'] as Map<String, Object?>?;
+    if (pretrace == null) continue;
+    final line = prop['line']! as int;
+    final want = pretrace['depends_on_state_before_trace'] == true;
+    if (flaggedLines.contains(line) != want) {
+      problems.add(
+        '$task line $line: pre-trace marker '
+        '${want ? 'missing' : 'set on a correctly constrained property'}',
+      );
+    }
+  }
+  return problems;
+}
+
 void main() {
   late Directory root;
 
@@ -138,6 +192,14 @@ void main() {
           if (finished.metrics['formal.verdict_disagreement'] == '1') {
             problems.add('$task: the sources disagreed');
           }
+          problems.addAll(
+            _checkAnalysis(
+              task,
+              spec as Map<String, Object?>,
+              expected,
+              finished.metrics,
+            ),
+          );
           final db = File(p.join(taskDir, 'status.sqlite'));
           if (db.existsSync()) {
             for (final suffix in ['-shm', '-wal', '-journal']) {

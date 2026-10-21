@@ -1,0 +1,4 @@
+# Tab walk: 3 stops, cycles
+1. Depends on state before the trace began text
+2. Property: rtl/fifo.sv:47 text
+3. This cover was reached at step 2, but a $past chain 4 steps deep feeds it, so it reads values from before the trace began that nothing constrains. It may not be reachable on any real trace. text

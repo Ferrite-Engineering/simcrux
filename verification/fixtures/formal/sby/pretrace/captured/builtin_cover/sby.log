@@ -1,0 +1,75 @@
+SBY 17:26:22 [pretrace_builtin_cover] Removing directory '<work>/20261021/sby/pretrace/pretrace_builtin_cover'.
+SBY 17:26:22 [pretrace_builtin_cover] Copy '<work>/20261021/sby/pretrace/pretrace.sv' to '<work>/20261021/sby/pretrace/pretrace_builtin_cover/src/pretrace.sv'.
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: smtbmc yices
+SBY 17:26:23 [pretrace_builtin_cover] base: starting process "cd pretrace_builtin_cover/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:23 [pretrace_builtin_cover] base: finished (returncode=0)
+SBY 17:26:23 [pretrace_builtin_cover] prep: starting process "cd pretrace_builtin_cover/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:23 [pretrace_builtin_cover] prep: finished (returncode=0)
+SBY 17:26:23 [pretrace_builtin_cover] smt2: starting process "cd pretrace_builtin_cover/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:23 [pretrace_builtin_cover] smt2: finished (returncode=0)
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: starting process "cd pretrace_builtin_cover; yosys-smtbmc -s yices --presat --unroll -c --noprogress -t 16  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Solver: yices
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_footgun", "location": "pretrace.sv:23.5-23.52", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_unguarded", "location": "pretrace.sv:24.5-24.54", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_footgun", "location": "pretrace.sv:23.5-23.52", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_unguarded", "location": "pretrace.sv:24.5-24.54", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Reached cover statement in step 2 at pretrace: c_footgun
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.28, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_footgun", "location": "pretrace.sv:23.5-23.52", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace0.vcd", "depth": 2}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.29, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_footgun", "location": "pretrace.sv:23.5-23.52", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace0.yw", "depth": 2}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.29, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.29, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_unguarded", "location": "pretrace.sv:24.5-24.54", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Reached cover statement in step 3 at pretrace: c_unguarded
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.29, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_unguarded", "location": "pretrace.sv:24.5-24.54", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace1.vcd", "depth": 3}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace1.vcd
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace1_tb.v
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace1.smtc
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_unguarded", "location": "pretrace.sv:24.5-24.54", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace1.yw", "depth": 3}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace1.yw
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 6..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 6}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 7..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 7}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 8..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 8}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 9..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 9}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 10..
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "UNKNOWN", "depth": 10}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Checking cover reachability in step 11..
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Reached cover statement in step 11 at pretrace: c_guarded
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.32, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace2.vcd", "depth": 11}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace2.vcd
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace2_tb.v
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace2.smtc
+SBY 17:26:23 [pretrace_builtin_cover] jsonl: {"time": 0.33, "task_name": "builtin_cover", "mode": "cover", "engine": "engine_0", "name": "pretrace.c_guarded", "location": "pretrace.sv:25.5-25.69", "kind": "COVER", "status": "PASS", "trace": "pretrace_builtin_cover/engine_0/trace2.yw", "depth": 11}
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace2.yw
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: ##   0:00:00  Status: passed
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: finished (returncode=0)
+SBY 17:26:23 [pretrace_builtin_cover] engine_0: Status returned by engine: pass
+SBY 17:26:23 [pretrace_builtin_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:23 [pretrace_builtin_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:23 [pretrace_builtin_cover] summary: engine_0 (smtbmc yices) returned pass
+SBY 17:26:23 [pretrace_builtin_cover] summary: cover trace: pretrace_builtin_cover/engine_0/trace0.vcd
+SBY 17:26:23 [pretrace_builtin_cover] summary:   reached cover statement pretrace.c_footgun at pretrace.sv:23.5-23.52 step 2
+SBY 17:26:23 [pretrace_builtin_cover] summary: cover trace: pretrace_builtin_cover/engine_0/trace1.vcd
+SBY 17:26:23 [pretrace_builtin_cover] summary:   reached cover statement pretrace.c_unguarded at pretrace.sv:24.5-24.54 step 3
+SBY 17:26:23 [pretrace_builtin_cover] summary: cover trace: pretrace_builtin_cover/engine_0/trace2.vcd
+SBY 17:26:23 [pretrace_builtin_cover] summary:   reached cover statement pretrace.c_guarded at pretrace.sv:25.5-25.69 step 11
+SBY 17:26:23 [pretrace_builtin_cover] DONE (PASS, rc=0)

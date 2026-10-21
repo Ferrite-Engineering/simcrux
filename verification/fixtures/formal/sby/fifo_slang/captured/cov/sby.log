@@ -1,55 +1,55 @@
-SBY 15:27:01 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
-SBY 15:27:01 [fifo_slang_bug] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_bug'.
-SBY 15:27:01 [fifo_slang_dis] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_dis'.
-SBY 15:27:01 [fifo_slang_cov] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_cov'.
-SBY 15:27:01 [fifo_slang_cov] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_cov/src/fifo_slang.sv'.
-SBY 15:27:01 [fifo_slang_cov] engine_0: smtbmc boolector
-SBY 15:27:01 [fifo_slang_cov] base: starting process "cd fifo_slang_cov/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:01 [fifo_slang_cov] base: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_cov] prep: starting process "cd fifo_slang_cov/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:01 [fifo_slang_cov] prep: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_cov] smt2: starting process "cd fifo_slang_cov/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:01 [fifo_slang_cov] smt2: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_cov] engine_0: starting process "cd fifo_slang_cov; yosys-smtbmc -s boolector --presat --unroll -c --noprogress -t 16  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Solver: boolector
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 0..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.15, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "UNKNOWN"}
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.15, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN"}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 1..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.15, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.15, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 2..
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Reached cover statement in step 2 at fifo_slang: c_drain
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace0.vcd", "depth": 2}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace0.yw", "depth": 2}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 2..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 3..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 4..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 5..
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.16, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 5}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 6..
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Reached cover statement in step 6 at fifo_slang: c_full
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.17, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace1.vcd", "depth": 6}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace1.vcd
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace1_tb.v
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace1.smtc
-SBY 15:27:01 [fifo_slang_cov] jsonl: {"time": 0.17, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace1.yw", "depth": 6}
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace1.yw
-SBY 15:27:01 [fifo_slang_cov] engine_0: ##   0:00:00  Status: passed
-SBY 15:27:01 [fifo_slang_cov] engine_0: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_cov] engine_0: Status returned by engine: pass
-SBY 15:27:01 [fifo_slang_cov] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_cov] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_cov] summary: engine_0 (smtbmc boolector) returned pass
-SBY 15:27:01 [fifo_slang_cov] summary: cover trace: fifo_slang_cov/engine_0/trace0.vcd
-SBY 15:27:01 [fifo_slang_cov] summary:   reached cover statement fifo_slang.c_drain at fifo_slang.sv:47.3-47.92 step 2
-SBY 15:27:01 [fifo_slang_cov] summary: cover trace: fifo_slang_cov/engine_0/trace1.vcd
-SBY 15:27:01 [fifo_slang_cov] summary:   reached cover statement fifo_slang.c_full at fifo_slang.sv:46.3-46.73 step 6
-SBY 15:27:01 [fifo_slang_cov] DONE (PASS, rc=0)
+SBY 17:26:17 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
+SBY 17:26:17 [fifo_slang_bug] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_bug'.
+SBY 17:26:17 [fifo_slang_dis] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_dis'.
+SBY 17:26:17 [fifo_slang_cov] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_cov'.
+SBY 17:26:17 [fifo_slang_cov] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_cov/src/fifo_slang.sv'.
+SBY 17:26:17 [fifo_slang_cov] engine_0: smtbmc boolector
+SBY 17:26:17 [fifo_slang_cov] base: starting process "cd fifo_slang_cov/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:17 [fifo_slang_cov] base: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_cov] prep: starting process "cd fifo_slang_cov/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:17 [fifo_slang_cov] prep: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_cov] smt2: starting process "cd fifo_slang_cov/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:17 [fifo_slang_cov] smt2: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_cov] engine_0: starting process "cd fifo_slang_cov; yosys-smtbmc -s boolector --presat --unroll -c --noprogress -t 16  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 17:26:17 [fifo_slang_cov] engine_0: ##   0:00:00  Solver: boolector
+SBY 17:26:17 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.38, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.39, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN"}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.39, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.39, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Reached cover statement in step 2 at fifo_slang: c_drain
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.39, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace0.vcd", "depth": 2}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.4, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_drain", "location": "fifo_slang.sv:47.3-47.92", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace0.yw", "depth": 2}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.4, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.4, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.4, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.41, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "UNKNOWN", "depth": 5}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Checking cover reachability in step 6..
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Reached cover statement in step 6 at fifo_slang: c_full
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.41, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace1.vcd", "depth": 6}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace1.vcd
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace1_tb.v
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace1.smtc
+SBY 17:26:18 [fifo_slang_cov] jsonl: {"time": 0.42, "task_name": "cov", "mode": "cover", "engine": "engine_0", "name": "fifo_slang.c_full", "location": "fifo_slang.sv:46.3-46.73", "kind": "COVER", "status": "PASS", "trace": "fifo_slang_cov/engine_0/trace1.yw", "depth": 6}
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace1.yw
+SBY 17:26:18 [fifo_slang_cov] engine_0: ##   0:00:00  Status: passed
+SBY 17:26:18 [fifo_slang_cov] engine_0: finished (returncode=0)
+SBY 17:26:18 [fifo_slang_cov] engine_0: Status returned by engine: pass
+SBY 17:26:18 [fifo_slang_cov] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_cov] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_cov] summary: engine_0 (smtbmc boolector) returned pass
+SBY 17:26:18 [fifo_slang_cov] summary: cover trace: fifo_slang_cov/engine_0/trace0.vcd
+SBY 17:26:18 [fifo_slang_cov] summary:   reached cover statement fifo_slang.c_drain at fifo_slang.sv:47.3-47.92 step 2
+SBY 17:26:18 [fifo_slang_cov] summary: cover trace: fifo_slang_cov/engine_0/trace1.vcd
+SBY 17:26:18 [fifo_slang_cov] summary:   reached cover statement fifo_slang.c_full at fifo_slang.sv:46.3-46.73 step 6
+SBY 17:26:18 [fifo_slang_cov] DONE (PASS, rc=0)

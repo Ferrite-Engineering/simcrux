@@ -58,6 +58,36 @@ final Map<String, Map<String, String>> _metricsById = {
     'formal.engine': 'abc',
     'formal.assertions_disabled': 'noassert',
   },
+  // The SVA diagnostic and the pre-trace marker (their own run).
+  'diag/temporal_slang': {
+    'formal.tool': 'sby',
+    'formal.verdict': 'ERROR',
+    'formal.frontend': 'slang',
+    'formal.not_run_reason': 'sva_unsupported',
+    'formal.sva.class': 'implication',
+    'formal.sva.construct': '|=>',
+    'formal.sva.location': 'rtl/handshake.sv:42',
+  },
+  'diag/temporal_slang_again': {
+    'formal.tool': 'sby',
+    'formal.verdict': 'ERROR',
+    'formal.frontend': 'slang',
+    'formal.not_run_reason': 'sva_unsupported',
+    'formal.sva.class': 'implication',
+    'formal.sva.construct': '|->',
+    'formal.sva.location': 'rtl/other.sv:7',
+  },
+  'diag/drain_cover': {
+    'formal.tool': 'sby',
+    'formal.verdict': 'PASS',
+    'formal.mode': 'cover',
+    'formal.engine': 'smtbmc',
+    'formal.frontend': 'slang',
+    'formal.pretrace.kind': 'cover',
+    'formal.pretrace.depth': '4',
+    'formal.pretrace.step': '2',
+    'formal.pretrace.location': 'rtl/fifo.sv:47',
+  },
 };
 
 class _FormalDriver implements SimulatorDriver {
@@ -154,8 +184,7 @@ void main() {
       }
     });
 
-    test('one formal.run.completed per (tool, mode, engine), counts summed, '
-        'and one formal.assertions.disabled', () async {
+    Future<void> runSuite(String suite) async {
       final finished = Completer<void>();
       container.listen<AsyncValue<RegressionRunState?>>(
         regressionRunnerProvider,
@@ -174,14 +203,44 @@ void main() {
               schemaVersion: '1',
               suites: [
                 Suite(
-                  name: 'proofs',
-                  tests: [for (final id in _metricsById.keys) _spec(id)],
+                  name: suite,
+                  tests: [
+                    for (final id in _metricsById.keys)
+                      if (id.startsWith('$suite/')) _spec(id),
+                  ],
                 ),
               ],
               simulatorBinaries: const {},
             ),
           );
       await finished.future;
+    }
+
+    test('one formal.sva.unsupported per (construct, frontend) and one '
+        'formal.pretrace.flagged per kind, with nothing of the user', () async {
+      await runSuite('diag');
+      await pollUntil(
+        () => telemetry.named('formal.pretrace.flagged').isNotEmpty,
+      );
+      final sva = telemetry.named('formal.sva.unsupported').single;
+      expect(sva.properties, <String, Object?>{
+        'construct': 'implication',
+        'frontend': 'slang',
+      });
+      expectMatchesCatalog(sva);
+      final pretrace = telemetry.named('formal.pretrace.flagged').single;
+      expect(pretrace.properties, <String, Object?>{'kind': 'cover'});
+      expectMatchesCatalog(pretrace);
+      for (final event in [sva, pretrace]) {
+        final values = event.properties.values.join(' ');
+        expect(values, isNot(contains('.sv')), reason: 'no file or line');
+        expect(values, isNot(contains('|')), reason: 'no construct text');
+      }
+    });
+
+    test('one formal.run.completed per (tool, mode, engine), counts summed, '
+        'and one formal.assertions.disabled', () async {
+      await runSuite('proofs');
       await pollUntil(
         () => telemetry.named('formal.run.completed').length == 2,
       );
@@ -268,6 +327,47 @@ void main() {
       expect(props['properties'], kTelemetryMaxCount);
     });
 
+    test('the SVA and pre-trace helpers read only the closed vocabularies', () {
+      expect(
+        formalSvaUnsupportedProperties([
+          _result('a/b', const {
+            'formal.verdict': 'ERROR',
+            'formal.sva.class': 'delay',
+            'formal.frontend': 'builtin',
+          }),
+          _result('a/c', const {
+            'formal.verdict': 'ERROR',
+            'formal.sva.class': 'delay',
+            'formal.frontend': 'verific',
+          }),
+          _result('a/d', const {
+            'formal.verdict': 'ERROR',
+            'formal.sva.class': 'not_a_class',
+            'formal.frontend': 'slang',
+          }),
+        ]),
+        <Map<String, Object?>>[
+          {'construct': 'delay', 'frontend': 'builtin'},
+        ],
+      );
+      expect(
+        formalPretraceFlaggedKinds([
+          _result('a/b', const {
+            'formal.verdict': 'FAIL',
+            'formal.pretrace.kind': 'assert',
+            'formal.pretrace.depth': '1',
+            'formal.pretrace.step': '1',
+          }),
+          _result('a/c', const {'formal.verdict': 'PASS'}),
+        ]),
+        {'assert'},
+      );
+      for (final token in ['builtin', 'slang']) {
+        expect(kFormalSvaFrontendTokens, contains(token));
+      }
+      expect(kFormalSvaConstructTokens, hasLength(8));
+    });
+
     test('the hand-off origin follows the row', () {
       expect(debugInWaveCruxOrigin(null), 'test');
       expect(debugInWaveCruxOrigin(_result('a/b', const {})), 'test');
@@ -301,6 +401,8 @@ void main() {
       'formal.run.completed',
       'formal.import.completed',
       'formal.assertions.disabled',
+      'formal.sva.unsupported',
+      'formal.pretrace.flagged',
     ]) {
       final entry = kSimcruxEventCatalog.singleWhere((e) => e.name == name);
       expect(entry.propertyKeys.length, lessThanOrEqualTo(6), reason: name);

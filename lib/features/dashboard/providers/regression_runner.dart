@@ -1059,6 +1059,19 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
           ),
         );
       }
+      for (final properties in formalSvaUnsupportedProperties(results)) {
+        telemetry.record(
+          TelemetryEvent('formal.sva.unsupported', properties: properties),
+        );
+      }
+      for (final kind in formalPretraceFlaggedKinds(results)) {
+        telemetry.record(
+          TelemetryEvent(
+            'formal.pretrace.flagged',
+            properties: <String, Object?>{'kind': kind},
+          ),
+        );
+      }
     }
     for (final kind in _activeDetectorKinds) {
       telemetry.record(

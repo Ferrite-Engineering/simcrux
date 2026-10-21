@@ -29,6 +29,7 @@ handshake_imm_prove_bug/engine_0/logfile_induction.txt
 handshake_imm_prove_bug/engine_0/trace.smtc
 handshake_imm_prove_bug/engine_0/trace.vcd
 handshake_imm_prove_bug/engine_0/trace.yw
+handshake_imm_prove_bug/engine_0/trace_induct.vcd
 handshake_imm_prove_bug/engine_0/trace_tb.v
 handshake_imm_prove_bug/handshake_imm_prove_bug.xml
 handshake_imm_prove_bug/logfile.txt

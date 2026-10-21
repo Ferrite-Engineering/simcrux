@@ -1151,6 +1151,20 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] View > Formal Properties… is a Pro action that answers "requires SimCrux Pro" in open core; the four formal opener seams are null at every tier — `[Coverage: UNIT]` (`simcrux_action_handlers_test.dart`, `formal_openers_test.dart`)
 - [ ] The engine canary is capped at 60 minutes, runs monthly and on dispatch on a pinned OSS CAD Suite from 2026-10-21 or newer, and fails on a missing tool — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`); green on dispatch — `[Coverage: CI]` (`engine-canary.yml`)
 
+### SVA diagnostic and the pre-trace marker (guide §26.10)
+
+- [ ] Every refused probe of the SVA matrix on both open frontends, and the refused handshake design on builds 20261021, 20260921 and 20260821 (the older two from `model/design.log` alone), classifies into its hand-expected construct class; a Verific run and a plain RTL syntax error are never diagnosed — `[Coverage: UNIT]` (`sva_refusal_classifier_test.dart`)
+- [ ] A refused run lands in Did not run with `formal.sva.*` and a failure message that starts with the construct and its location — `[Coverage: UNIT]` (`sby_driver_analysis_test.dart`)
+- [ ] A `PASS` whose declared assertions never reached the elaborated design is Did not run, reason dropped, status fail, exit code withheld; a source with none is not — `[Coverage: UNIT]` (`sby_driver_analysis_test.dart`, `formal_result_summary_test.dart`)
+- [ ] `PretraceDetector` gives each formal cell its `$past` depth on the elaborated corpus (fifo_slang `c_drain` 4; pretrace 3; design registers 0) — `[Coverage: UNIT]` (`pretrace_detector_test.dart`)
+- [ ] The footgun covers and the assertion form are marked, the correctly constrained `c_guarded` is not, and the verdict is unchanged — `[Coverage: UNIT]` (`sby_driver_analysis_test.dart`)
+- [ ] The row says "Did not run, unsupported SVA" and carries the pre-trace glyph with the words in its tooltip and spoken label, at Open Core with the beta period off — `[Coverage: WIDGET]` (`dashboard_formal_verdict_test.dart`)
+- [ ] The inspector's Formal result lines are Tab stops in order, construct and location before any advice, in five locales — `[Coverage: WIDGET]` (`formal_diagnostic_focus_walk_test.dart`)
+- [ ] `formal.sva.unsupported{construct, frontend}` and `formal.pretrace.flagged{kind}` are recorded once per distinct value on the real run path, from closed vocabularies only — `[Coverage: UNIT]` (`formal_events_test.dart`, `telemetry_catalog_conformance_test.dart`)
+- [ ] The committed docs-site SVA table is what the generator makes of the measured matrix, with its date and build — `[Coverage: UNIT]` (`sva_support_table_test.dart`)
+- [ ] The 51-probe matrix through the driver on both frontends: every refusal diagnosed, nothing refused reported passing, nothing accepted reported dropped; the measured rows match the table — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sva_matrix_driver_live_test.dart`, `engine-canary.yml`)
+- [ ] Every corpus case through the driver carries the hand-expected diagnostic and markers — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sby_driver_live_test.dart`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)

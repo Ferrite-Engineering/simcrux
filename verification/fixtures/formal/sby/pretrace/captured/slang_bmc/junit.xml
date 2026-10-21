@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite timestamp="2026-10-21T17:26:23" hostname="M4MacMini.local" package="pretrace" id="0" name="slang_bmc" tests="4" errors="0" failures="2" time="0" skipped="3">
+<properties>
+<property name="os" value="Darwin"/>
+<property name="expect" value="PASS"/>
+<property name="status" value="FAIL"/>
+</properties>
+<testcase classname="slang_bmc" name="build execution" time="0">
+<failure type="FAIL" message="Task returned status FAIL." />
+</testcase>
+<testcase classname="slang_bmc" name="Property ASSERT in pretrace at pretrace.sv:19.3-19.81" time="0" type="ASSERT" location="pretrace.sv:19.3-19.81" id="a_footgun" tracefile="engine_0/trace.vcd">
+<failure type="ASSERT" message="Property ASSERT in pretrace at pretrace.sv:19.3-19.81 failed. Trace file: engine_0/trace.vcd" />
+</testcase>
+<testcase classname="slang_bmc" name="Property COVER in pretrace at pretrace.sv:15.3-15.77" time="0" type="COVER" location="pretrace.sv:15.3-15.77" id="c_footgun">
+<skipped />
+</testcase>
+<testcase classname="slang_bmc" name="Property COVER in pretrace at pretrace.sv:17.3-17.94" time="0" type="COVER" location="pretrace.sv:17.3-17.94" id="c_guarded">
+<skipped />
+</testcase>
+<testcase classname="slang_bmc" name="Property COVER in pretrace at pretrace.sv:16.3-16.77" time="0" type="COVER" location="pretrace.sv:16.3-16.77" id="c_unguarded">
+<skipped />
+</testcase>
+<system-out>SBY 17:26:22 [pretrace_builtin_cover] Removing directory '<work>/20261021/sby/pretrace/pretrace_builtin_cover'.
+SBY 17:26:23 [pretrace_slang_cover] Removing directory '<work>/20261021/sby/pretrace/pretrace_slang_cover'.
+SBY 17:26:23 [pretrace_slang_bmc] Removing directory '<work>/20261021/sby/pretrace/pretrace_slang_bmc'.
+SBY 17:26:23 [pretrace_slang_bmc] Copy '<work>/20261021/sby/pretrace/pretrace.sv' to '<work>/20261021/sby/pretrace/pretrace_slang_bmc/src/pretrace.sv'.
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: smtbmc yices
+SBY 17:26:23 [pretrace_slang_bmc] base: starting process &quot;cd pretrace_slang_bmc/src; yosys -ql ../model/design.log ../model/design.ys&quot;
+SBY 17:26:23 [pretrace_slang_bmc] base: finished (returncode=0)
+SBY 17:26:23 [pretrace_slang_bmc] prep: starting process &quot;cd pretrace_slang_bmc/model; yosys -ql design_prep.log design_prep.ys&quot;
+SBY 17:26:23 [pretrace_slang_bmc] prep: finished (returncode=0)
+SBY 17:26:23 [pretrace_slang_bmc] smt2: starting process &quot;cd pretrace_slang_bmc/model; yosys -ql design_smt2.log design_smt2.ys&quot;
+SBY 17:26:23 [pretrace_slang_bmc] smt2: finished (returncode=0)
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: starting process &quot;cd pretrace_slang_bmc; yosys-smtbmc -s yices --presat --unroll --noprogress -t 16  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2&quot;
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Solver: yices
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 17:26:23 [pretrace_slang_bmc] jsonl: {&quot;time&quot;: 0.27, &quot;task_name&quot;: &quot;slang_bmc&quot;, &quot;mode&quot;: &quot;bmc&quot;, &quot;engine&quot;: &quot;engine_0&quot;, &quot;name&quot;: &quot;pretrace.a_footgun&quot;, &quot;location&quot;: &quot;pretrace.sv:19.3-19.81&quot;, &quot;kind&quot;: &quot;ASSERT&quot;, &quot;status&quot;: &quot;UNKNOWN&quot;}
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 17:26:23 [pretrace_slang_bmc] jsonl: {&quot;time&quot;: 0.27, &quot;task_name&quot;: &quot;slang_bmc&quot;, &quot;mode&quot;: &quot;bmc&quot;, &quot;engine&quot;: &quot;engine_0&quot;, &quot;name&quot;: &quot;pretrace.a_footgun&quot;, &quot;location&quot;: &quot;pretrace.sv:19.3-19.81&quot;, &quot;kind&quot;: &quot;ASSERT&quot;, &quot;status&quot;: &quot;UNKNOWN&quot;, &quot;depth&quot;: 1}
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  BMC failed!
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Assert failed in pretrace: a_footgun
+SBY 17:26:23 [pretrace_slang_bmc] jsonl: {&quot;time&quot;: 0.27, &quot;task_name&quot;: &quot;slang_bmc&quot;, &quot;mode&quot;: &quot;bmc&quot;, &quot;engine&quot;: &quot;engine_0&quot;, &quot;name&quot;: &quot;pretrace.a_footgun&quot;, &quot;location&quot;: &quot;pretrace.sv:19.3-19.81&quot;, &quot;kind&quot;: &quot;ASSERT&quot;, &quot;status&quot;: &quot;FAIL&quot;, &quot;trace&quot;: &quot;pretrace_slang_bmc/engine_0/trace.vcd&quot;, &quot;depth&quot;: 2}
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY 17:26:23 [pretrace_slang_bmc] jsonl: {&quot;time&quot;: 0.27, &quot;task_name&quot;: &quot;slang_bmc&quot;, &quot;mode&quot;: &quot;bmc&quot;, &quot;engine&quot;: &quot;engine_0&quot;, &quot;name&quot;: &quot;pretrace.a_footgun&quot;, &quot;location&quot;: &quot;pretrace.sv:19.3-19.81&quot;, &quot;kind&quot;: &quot;ASSERT&quot;, &quot;status&quot;: &quot;FAIL&quot;, &quot;trace&quot;: &quot;pretrace_slang_bmc/engine_0/trace.yw&quot;, &quot;depth&quot;: 2}
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: ##   0:00:00  Status: failed
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: finished (returncode=1)
+SBY 17:26:23 [pretrace_slang_bmc] engine_0: Status returned by engine: FAIL
+SBY 17:26:23 [pretrace_slang_bmc] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:23 [pretrace_slang_bmc] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:23 [pretrace_slang_bmc] summary: engine_0 (smtbmc yices) returned FAIL
+SBY 17:26:23 [pretrace_slang_bmc] summary: counterexample trace: pretrace_slang_bmc/engine_0/trace.vcd
+SBY 17:26:23 [pretrace_slang_bmc] summary:   failed assertion pretrace.a_footgun at pretrace.sv:19.3-19.81 step 2
+SBY 17:26:23 [pretrace_slang_bmc] DONE (FAIL, rc=2)
+</system-out>
+<system-err>
+</system-err>
+</testsuite>
+</testsuites>

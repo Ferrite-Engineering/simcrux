@@ -1,8 +1,8 @@
 time,task_name,mode,engine,name,location,kind,status,trace,depth
-0.16,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_42_assert_24,handshake_imm.sv:42.23-42.36,ASSERT,PASS,,11
-0.16,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_43_assert_26,handshake_imm.sv:43.16-43.35,ASSERT,PASS,,11
-0.16,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_45_assert_28,handshake_imm.sv:45.15-45.38,ASSERT,PASS,,11
-0.15,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_42_assert_24,handshake_imm.sv:42.23-42.36,ASSERT,UNKNOWN,,5
-0.15,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_43_assert_26,handshake_imm.sv:43.16-43.35,ASSERT,UNKNOWN,,5
-0.16,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_45_assert_28,handshake_imm.sv:45.15-45.38,ASSERT,FAIL,handshake_imm_prove_bug/engine_0/trace.yw,6
-0.21,cover,cover,engine_0,handshake_imm._witness_.check_handshake_imm_sv_46_cover_30,handshake_imm.sv:46.5-46.40,COVER,PASS,handshake_imm_cover/engine_0/trace0.vcd,5
+0.38,cover,cover,engine_0,handshake_imm._witness_.check_handshake_imm_sv_46_cover_30,handshake_imm.sv:46.5-46.40,COVER,PASS,handshake_imm_cover/engine_0/trace0.vcd,5
+0.49,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_42_assert_24,handshake_imm.sv:42.23-42.36,ASSERT,PASS,,11
+0.49,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_43_assert_26,handshake_imm.sv:43.16-43.35,ASSERT,PASS,,11
+0.49,prove,prove,task_status,handshake_imm._witness_.check_handshake_imm_sv_45_assert_28,handshake_imm.sv:45.15-45.38,ASSERT,PASS,,11
+0.54,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_45_assert_28,handshake_imm.sv:45.15-45.38,ASSERT,FAIL,handshake_imm_prove_bug/engine_0/trace.vcd,6
+0.54,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_42_assert_24,handshake_imm.sv:42.23-42.36,ASSERT,UNKNOWN,,5
+0.54,prove_bug,prove,engine_0,handshake_imm._witness_.check_handshake_imm_sv_43_assert_26,handshake_imm.sv:43.16-43.35,ASSERT,UNKNOWN,,5

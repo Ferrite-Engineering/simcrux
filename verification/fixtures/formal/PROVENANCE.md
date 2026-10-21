@@ -100,6 +100,12 @@ was changed to match a tool.
    were derived independently from the `gate.v` structure above and the
    oracle, and recorded as `failing_outputs` with that derivation in the
    `why`.
+4. **`pretrace` task `builtin_cover`: the first expectation gave the
+   built-in covers no label**, by analogy with `handshake_imm`, whose
+   unlabelled immediate assertions the built-in frontend names
+   `_witness_.check_…`. Here every cover carries a statement label in the
+   source (`c_footgun: cover (…)`), and a label is the property's name on
+   either frontend; the expectation now names them.
 
 ## Builds the live expectations do not hold on
 
@@ -116,6 +122,31 @@ the differences are the frontend, not the expectations:
 
 No build silently dropped a property: every probe a frontend accepted kept
 its one formal cell.
+
+## The pre-trace case and the refusal captures
+
+- `sby/pretrace/` holds the pre-trace `$past` trap on both open frontends:
+  a cover that is unreachable on any real trace (`c_footgun`), one that is
+  reachable for real but first reached on pre-trace state (`c_unguarded`),
+  the correctly constrained variant (`c_guarded`, guarded by a register that
+  holds 3 only once the `$past` chain has filled), and the assertion form
+  (`a_footgun`). Its expectation was written from the counter's timeline
+  before the first run, with the step rule above checked first on a
+  boundary probe (a constant-0 register `r`, covers `$past(r, 2) && t == k`
+  for k = 0 to 4 with `t` a step counter): on build 20261021 both frontends
+  reached k = 0 and k = 1 only, at steps 1 and 2. A property reported at
+  step s therefore reads state from before the trace began through a
+  `$past` chain of depth n exactly when s <= n.
+- `elaborated.json` beside every task that did not end in ERROR is the
+  design sby elaborated (`model/design.il`) written as Yosys JSON by the
+  same build's Yosys (`read_rtlil design.il; write_json`). It is the input
+  the pre-trace detector and the dropped-property guard read in the
+  product, so the detector's unit tests run on the real thing.
+- `schemas/<build>/sby/handshake_temporal/` keeps each build's task log and
+  Yosys log for the refused design, because the refusal's shape changes
+  across builds: 20261021 repeats the frontend's `file:line: ERROR:` line in
+  the task log, the two older builds keep slang's `file:line:col: error:`
+  line only in `model/design.log`.
 
 <!-- regenerated:begin -->
 
@@ -158,6 +189,7 @@ Regenerated 2026-10-21 with:
 - `sby/handshake_imm/captured/` build 20261021
 - `sby/handshake_slang/captured/` build 20261021
 - `sby/handshake_temporal/captured/` build 20261021
+- `sby/pretrace/captured/` build 20261021
 - `sva_matrix/captured/` build 20261021
 - `eqy/captured/` build 20261021
 - `schemas/20261021/` build 20261021

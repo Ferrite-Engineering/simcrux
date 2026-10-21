@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the RTL and the property text; never from sby output",
+  "sby_file": "pretrace.sby",
+  "step_rule": "Measured on both open frontends (boundary probe in PROVENANCE.md): a property sby reports at step s samples the design at step s - 1, and $past(x, n) there reads step s - 1 - n. For s <= n that is before step 0, which no constraint covers.",
+  "timeline": "cnt is 0 at step 0 and counts up by one per step (mod 8); top = (cnt == 7) holds at steps 7, 15, ... f_age is 0, 1, 2 at steps 0 to 2 and 3 from step 3 on. So on a real trace $past(top, 3) is 1 at steps 10, 18, ..., where cnt == 2.",
+  "tasks": {
+    "builtin_cover": {
+      "verdict": "PASS",
+      "frontend": "builtin",
+      "why": "Same covers as slang_cover, as labelled immediate covers in a clocked always block; the built-in frontend samples them on the same edge and keeps a statement label as the property name.",
+      "properties": [
+        {
+          "line": 23,
+          "kind": "COVER",
+          "label": "c_footgun",
+          "result": "reached",
+          "step": 2,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": true },
+          "trace_check": { "signal": "top", "never": 1 }
+        },
+        {
+          "line": 24,
+          "kind": "COVER",
+          "label": "c_unguarded",
+          "result": "reached",
+          "step": 3,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": true }
+        },
+        {
+          "line": 25,
+          "kind": "COVER",
+          "label": "c_guarded",
+          "result": "reached",
+          "step": 11,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": false }
+        }
+      ]
+    },
+    "slang_cover": {
+      "verdict": "PASS",
+      "frontend": "slang",
+      "why": "c_footgun needs top three steps before a step where cnt == 1, but top is 1 only where cnt == 7, three steps before cnt == 2: on a real trace it is unreachable. Sampled at step 1 (reported at step 2), $past(top, 3) reads step -2, so it is reached there on a trace where top is never 1. c_unguarded is reachable for real at step 11, but sampled at step 2 (reported 3) $past(top, 3) reads step -1, so it is first reached there, before any real witness. c_guarded is the correctly constrained variant: f_age == 3 holds only from step 3, when the $past chain has filled, so its first witness is the real one, sampled at step 10 and reported at step 11.",
+      "properties": [
+        {
+          "line": 15,
+          "kind": "COVER",
+          "label": "c_footgun",
+          "result": "reached",
+          "step": 2,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": true },
+          "trace_check": { "signal": "top", "never": 1 }
+        },
+        {
+          "line": 16,
+          "kind": "COVER",
+          "label": "c_unguarded",
+          "result": "reached",
+          "step": 3,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": true }
+        },
+        {
+          "line": 17,
+          "kind": "COVER",
+          "label": "c_guarded",
+          "result": "reached",
+          "step": 11,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": false }
+        }
+      ]
+    },
+    "slang_bmc": {
+      "verdict": "FAIL",
+      "frontend": "slang",
+      "why": "a_footgun is the assertion form of c_footgun: on a real trace it holds, but sampled at step 1 (reported at step 2) its $past(top, 3) reads step -2, which the solver may set to 1, so BMC reports a counterexample at step 2 on a trace where top is never 1. The covers are not checked in bmc mode.",
+      "properties": [
+        {
+          "line": 19,
+          "kind": "ASSERT",
+          "label": "a_footgun",
+          "result": "counterexample",
+          "step": 2,
+          "pretrace": { "past_depth": 3, "depends_on_state_before_trace": true },
+          "trace_check": { "signal": "top", "never": 1 }
+        }
+      ]
+    }
+  }
+}

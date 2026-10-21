@@ -201,6 +201,24 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'how': kFormalAssertionsDisabledTokens,
         },
       ),
+      // Once per run per distinct (construct class, frontend) an open
+      // frontend refused. The class is SimCrux's closed vocabulary; the
+      // construct as written, its file and its line are never sent.
+      TelemetryCatalogEvent(
+        'formal.sva.unsupported',
+        enumeratedValues: <String, List<String>>{
+          'construct': kFormalSvaConstructTokens,
+          'frontend': kFormalSvaFrontendTokens,
+        },
+      ),
+      // Once per run per kind of property whose result depended on state
+      // from before the trace began. Never the depth or the step.
+      TelemetryCatalogEvent(
+        'formal.pretrace.flagged',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFormalPretraceKindTokens,
+        },
+      ),
       TelemetryCatalogEvent(
         'cxp.crossprobe',
         enumeratedValues: <String, List<String>>{
@@ -720,6 +738,27 @@ const List<String> kFormalAssertionsDisabledTokens = <String>[
   'noassert',
   'ignore_assertions',
 ];
+
+/// `formal.sva.unsupported.construct`: the closed construct classes of
+/// `SvaConstructClass`.
+const List<String> kFormalSvaConstructTokens = <String>[
+  'implication',
+  'delay',
+  'repetition',
+  'sequence_op',
+  'named_sequence',
+  'default_clocking',
+  'liveness_op',
+  'other',
+];
+
+/// `formal.sva.unsupported.frontend`: the open frontends. A Verific run
+/// never produces the diagnostic.
+const List<String> kFormalSvaFrontendTokens = <String>['builtin', 'slang'];
+
+/// `formal.pretrace.flagged.kind`: an assertion's counterexample or a
+/// cover's witness.
+const List<String> kFormalPretraceKindTokens = <String>['assert', 'cover'];
 
 /// `debug_in_wavecrux.used.origin`: what kind of row was handed off. A
 /// counterexample trace and a simulation dump ride the same hand-off, and

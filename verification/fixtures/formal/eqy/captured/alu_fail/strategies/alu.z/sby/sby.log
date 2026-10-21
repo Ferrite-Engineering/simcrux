@@ -1,43 +1,43 @@
-SBY 15:27:06 [alu.z] Removing directory '<work>/20261021/eqy/alu_fail/strategies/alu.z/sby/alu.z'.
-SBY 15:27:06 [alu.z] engine_0: smtbmc yices
-SBY 15:27:06 [alu.z] base: starting process "cd alu.z/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:06 [alu.z] base: finished (returncode=0)
-SBY 15:27:06 [alu.z] prep: starting process "cd alu.z/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:06 [alu.z] prep: finished (returncode=0)
-SBY 15:27:06 [alu.z] smt2: starting process "cd alu.z/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:06 [alu.z] smt2: finished (returncode=0)
-SBY 15:27:06 [alu.z] engine_0.basecase: starting process "cd alu.z; yosys-smtbmc -s yices --presat --unroll --noprogress -t 5  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
-SBY 15:27:06 [alu.z] engine_0.induction: starting process "cd alu.z; yosys-smtbmc -s yices --presat --unroll -i --noprogress -t 5  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Solver: yices
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Solver: yices
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 5..
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 4..
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  BMC failed!
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Assert failed in miter: ../../../../../partitions/alu.z.sv:78.37-78.49 (_witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213)
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 3..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 2..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 1..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 0..
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Temporal induction failed!
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Assert failed in miter: ../../../../../partitions/alu.z.sv:78.37-78.49 (_witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213)
-SBY 15:27:06 [alu.z] engine_0.induction: ##   0:00:00  Writing trace to VCD file: engine_0/trace_induct.vcd
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
-SBY 15:27:06 [alu.z] engine_0.basecase: ##   0:00:00  Status: failed
-SBY 15:27:06 [alu.z] engine_0.basecase: finished (returncode=1)
-SBY 15:27:06 [alu.z] engine_0.basecase: Status returned by engine for basecase: FAIL
-SBY 15:27:06 [alu.z] engine_0.induction: terminating process
-SBY 15:27:06 [alu.z] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:06 [alu.z] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:06 [alu.z] summary: engine_0 (smtbmc yices) returned FAIL for basecase
-SBY 15:27:06 [alu.z] summary: counterexample trace [basecase]: alu.z/engine_0/trace.vcd
-SBY 15:27:06 [alu.z] summary:   failed assertion miter._witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213 at ../../../../../partitions/alu.z.sv:78.37-78.49 step 1
-SBY 15:27:06 [alu.z] summary: counterexample trace [induction]: alu.z/engine_0/trace_induct.vcd
-SBY 15:27:06 [alu.z] summary:   failed assertion miter._witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213 at ../../../../../partitions/alu.z.sv:78.37-78.49
-SBY 15:27:06 [alu.z] DONE (FAIL, rc=0)
+SBY 17:26:31 [alu.z] Removing directory '<work>/20261021/eqy/alu_fail/strategies/alu.z/sby/alu.z'.
+SBY 17:26:31 [alu.z] engine_0: smtbmc yices
+SBY 17:26:31 [alu.z] base: starting process "cd alu.z/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:31 [alu.z] base: finished (returncode=0)
+SBY 17:26:31 [alu.z] prep: starting process "cd alu.z/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:31 [alu.z] prep: finished (returncode=0)
+SBY 17:26:31 [alu.z] smt2: starting process "cd alu.z/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:31 [alu.z] smt2: finished (returncode=0)
+SBY 17:26:31 [alu.z] engine_0.basecase: starting process "cd alu.z; yosys-smtbmc -s yices --presat --unroll --noprogress -t 5  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 17:26:31 [alu.z] engine_0.induction: starting process "cd alu.z; yosys-smtbmc -s yices --presat --unroll -i --noprogress -t 5  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Solver: yices
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Solver: yices
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 5..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  BMC failed!
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Assert failed in miter: ../../../../../partitions/alu.z.sv:78.37-78.49 (_witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213)
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 4..
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 3..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 2..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 1..
+SBY 17:26:31 [alu.z] engine_0.basecase: ##   0:00:00  Status: failed
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Trying induction in step 0..
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Temporal induction failed!
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Assert failed in miter: ../../../../../partitions/alu.z.sv:78.37-78.49 (_witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213)
+SBY 17:26:31 [alu.z] engine_0.induction: ##   0:00:00  Writing trace to VCD file: engine_0/trace_induct.vcd
+SBY 17:26:31 [alu.z] engine_0.basecase: finished (returncode=1)
+SBY 17:26:31 [alu.z] engine_0.basecase: Status returned by engine for basecase: FAIL
+SBY 17:26:31 [alu.z] engine_0.induction: terminating process
+SBY 17:26:31 [alu.z] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:31 [alu.z] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:31 [alu.z] summary: engine_0 (smtbmc yices) returned FAIL for basecase
+SBY 17:26:31 [alu.z] summary: counterexample trace [basecase]: alu.z/engine_0/trace.vcd
+SBY 17:26:31 [alu.z] summary:   failed assertion miter._witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213 at ../../../../../partitions/alu.z.sv:78.37-78.49 step 1
+SBY 17:26:31 [alu.z] summary: counterexample trace [induction]: alu.z/engine_0/trace_induct.vcd
+SBY 17:26:31 [alu.z] summary:   failed assertion miter._witness_.assert_flatten___po_z__assert_________________partitions_alu_z_sv_78_assert_213 at ../../../../../partitions/alu.z.sv:78.37-78.49
+SBY 17:26:31 [alu.z] DONE (FAIL, rc=0)

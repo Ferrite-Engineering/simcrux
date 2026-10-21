@@ -66,7 +66,9 @@ class SbyStatusRecord {
   /// record this reader understands.
   static SbyStatusRecord? fromJson(Object? decoded) {
     if (decoded is! Map) return null;
-    final task = decoded['task_name'];
+    // A job file with no `[tasks]` section: sby leaves `task_name` out of
+    // the record altogether (measured on build 20261021).
+    final task = decoded.containsKey('task_name') ? decoded['task_name'] : '';
     final kind = decoded['kind'];
     final location = decoded['location'];
     final status = decoded['status'];

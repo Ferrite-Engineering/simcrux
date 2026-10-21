@@ -39,7 +39,6 @@ strategies/alu.y/sby/alu.y/engine_0/logfile_induction.txt
 strategies/alu.y/sby/alu.y/engine_0/trace.smtc
 strategies/alu.y/sby/alu.y/engine_0/trace.vcd
 strategies/alu.y/sby/alu.y/engine_0/trace.yw
-strategies/alu.y/sby/alu.y/engine_0/trace_induct.vcd
 strategies/alu.y/sby/alu.y/engine_0/trace_tb.v
 strategies/alu.y/sby/alu.y/logfile.txt
 strategies/alu.y/sby/alu.y/model/design.il

@@ -69,6 +69,38 @@ Set<String> formalAssertionsDisabledTokens(Iterable<TestResult> results) => {
       how,
 };
 
+/// The properties of the `formal.sva.unsupported` events one run records:
+/// one per distinct (construct class, frontend) among [results].
+List<Map<String, Object?>> formalSvaUnsupportedProperties(
+  Iterable<TestResult> results,
+) {
+  final seen = <String>{};
+  final out = <Map<String, Object?>>[];
+  for (final result in results) {
+    final summary = FormalResultSummary.fromMetrics(result.metrics);
+    final refusal = summary?.svaRefusal;
+    if (refusal == null) continue;
+    final construct = refusal.constructClass.wireName;
+    final frontend = refusal.frontend.wireName;
+    if (!kFormalSvaConstructTokens.contains(construct) ||
+        !kFormalSvaFrontendTokens.contains(frontend)) {
+      continue;
+    }
+    if (!seen.add('$construct|$frontend')) continue;
+    out.add(<String, Object?>{'construct': construct, 'frontend': frontend});
+  }
+  return out;
+}
+
+/// The distinct `formal.pretrace.flagged.kind` tokens among [results], for
+/// one event per run per kind.
+Set<String> formalPretraceFlaggedKinds(Iterable<TestResult> results) => {
+  for (final result in results)
+    if (FormalResultSummary.fromMetrics(result.metrics)?.pretrace?.kind
+        case final String kind when kFormalPretraceKindTokens.contains(kind))
+      kind,
+};
+
 /// `debug_in_wavecrux.used.origin` for the row handed off: `eqy` for an
 /// equivalence row, `formal` for any other formal row, `test` otherwise
 /// (including a hand-off with no row).

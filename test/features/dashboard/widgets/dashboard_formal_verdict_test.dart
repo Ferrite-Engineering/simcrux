@@ -76,6 +76,31 @@ final Map<String, (TestStatus, Map<String, String>)> _rows = {
       'formal.mode': 'bmc',
     },
   ),
+  'proofs/temporal': (
+    TestStatus.fail,
+    const {
+      'formal.tool': 'sby',
+      'formal.verdict': 'ERROR',
+      'formal.frontend': 'slang',
+      'formal.not_run_reason': 'sva_unsupported',
+      'formal.sva.class': 'implication',
+      'formal.sva.construct': '|=>',
+      'formal.sva.location': 'rtl/handshake.sv:42',
+    },
+  ),
+  'proofs/drain': (
+    TestStatus.pass,
+    const {
+      'formal.tool': 'sby',
+      'formal.verdict': 'PASS',
+      'formal.mode': 'cover',
+      'formal.properties': '2',
+      'formal.pretrace.kind': 'cover',
+      'formal.pretrace.depth': '4',
+      'formal.pretrace.step': '2',
+      'formal.pretrace.location': 'rtl/fifo.sv:47',
+    },
+  ),
   'unit/alu': (TestStatus.pass, const <String, String>{}),
 };
 
@@ -188,6 +213,36 @@ void main() {
       ),
     );
     expect(simulation.semanticLabel, startsWith('${l10n.testStatusPass}:'));
+    handle.dispose();
+  });
+
+  testWidgets('the SVA diagnostic and the pre-trace marker render at Open '
+      'Core, in words as well as a glyph', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpTable(tester);
+    final l10n = l10nOf(tester);
+    expect(find.text(l10n.formalVerdictDidNotRunSva), findsOneWidget);
+    expect(find.byKey(const ValueKey('formalPretraceMarker')), findsOneWidget);
+    final drain = tester.widget<Checkbox>(
+      find.byWidgetPredicate(
+        (w) => w is Checkbox && (w.semanticLabel ?? '').contains('drain'),
+      ),
+    );
+    expect(
+      drain.semanticLabel,
+      startsWith(
+        '${l10n.formalVerdictWithPretrace(l10n.formalVerdictReached)}:',
+      ),
+    );
+    final temporal = tester.widget<Checkbox>(
+      find.byWidgetPredicate(
+        (w) => w is Checkbox && (w.semanticLabel ?? '').contains('temporal'),
+      ),
+    );
+    expect(
+      temporal.semanticLabel,
+      startsWith('${l10n.formalVerdictDidNotRunSva}:'),
+    );
     handle.dispose();
   });
 

@@ -1,7 +1,7 @@
 {
   "name": "s",
   "kind": "Sequence",
-  "addr": 523300725992
+  "addr": 503000360168
 }
 Source line verification/fixtures/formal/sva_matrix/probes/matrix/10_named_seq.sv:2:11:  sequence s; a ##1 b; endsequence
 ERROR: Feature unimplemented at /work/_builds/darwin-arm64/yosys-slang-plugin/yosys-slang-plugin/src/slang_frontend.cc:3059, see AST and code line dump above

@@ -75,6 +75,11 @@ dependencies:
   # About/Settings/Quit placement, and the native key-equivalent guard.
   crux_menu_bar:
     path: ./crux-shared/packages/crux_menu_bar
+  # Yosys JSON netlist model. The formal driver reads the design `sby`
+  # elaborated through it, for the pre-trace `$past` marker and the
+  # dropped-property guard. Pure Dart.
+  crux_netlist:
+    path: ./crux-shared/packages/crux_netlist
   crux_policy:
     path: ./crux-shared/packages/crux_policy
   # The `.crux-project` suite design manifest — SimCrux reads the
@@ -143,6 +148,10 @@ dependencies:
     path: ./crux-shared/packages/crux_window_chrome
   crux_workspace:
     path: ./crux-shared/packages/crux_workspace
+  # The suite's Yosys process seam (bounded, killable). The formal driver
+  # converts the design `sby` elaborated to Yosys JSON through it. Pure Dart.
+  crux_yosys:
+    path: ./crux-shared/packages/crux_yosys
   # PINNED, not caret-ranged, and **do not migrate to 12.0.0** — it is broken on
   # macOS. 12.0.0's federated split lost the macOS Dart implementation:
   # `file_picker_darwin` 1.0.0 has one Dart class serving two native handlers

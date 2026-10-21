@@ -1,51 +1,51 @@
-SBY 15:27:01 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
-SBY 15:27:01 [fifo_slang_ok] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_ok/src/fifo_slang.sv'.
-SBY 15:27:01 [fifo_slang_ok] engine_0: abc pdr
-SBY 15:27:01 [fifo_slang_ok] base: starting process "cd fifo_slang_ok/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:01 [fifo_slang_ok] base: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_ok] prep: starting process "cd fifo_slang_ok/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:01 [fifo_slang_ok] prep: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_ok] aig: starting process "cd fifo_slang_ok/model; yosys -ql design_aiger.log design_aiger.ys"
-SBY 15:27:01 [fifo_slang_ok] aig: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_ok] engine_0: starting process "cd fifo_slang_ok; yosys-abc -c 'read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw'"
-SBY 15:27:01 [fifo_slang_ok] engine_0: ======== ABC command line "read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw"
-SBY 15:27:01 [fifo_slang_ok] engine_0: Warning: The last 2 outputs are interpreted as constraints.
-SBY 15:27:01 [fifo_slang_ok] engine_0: VarMax = 300. FrameMax = 10000. QueMax = 0. TimeMax = 199. MonoCNF = no. SkipGen = no. SolveAll = no.
-SBY 15:27:01 [fifo_slang_ok] engine_0: Frame Clauses                                                     Max Queue Flops Time
-SBY 15:27:01 [fifo_slang_ok] engine_0: 1 : 0 1                                                                 1     2      0.00 sec  T/O =  0  PRV =  0
-SBY 15:27:01 [fifo_slang_ok] engine_0: 2 : 0 4 17                                                              4    17      0.01 sec  T/O =  0  PRV =  0
-SBY 15:27:01 [fifo_slang_ok] jsonl: {"time": 0.14, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_ok", "location": "fifo_slang.sv:42.3-42.73", "kind": "ASSERT", "status": "PASS"}
-SBY 15:27:01 [fifo_slang_ok] engine_0: Proved output 1 in frame 2.
-SBY 15:27:01 [fifo_slang_ok] jsonl: {"time": 0.14, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_full_empty", "location": "fifo_slang.sv:39.3-39.85", "kind": "ASSERT", "status": "PASS"}
-SBY 15:27:01 [fifo_slang_ok] engine_0: Proved output 2 in frame 2.
-SBY 15:27:01 [fifo_slang_ok] engine_0: 3 : 0 3 3 4 ~11                                                          0    17      0.01 sec  T/O =  0  PRV =  2
-SBY 15:27:01 [fifo_slang_ok] engine_0: 4 : 0 3 2 2 6 ~11                                                        2    17      0.01 sec  T/O =  0  PRV =  2
-SBY 15:27:01 [fifo_slang_ok] engine_0: 5 : 0 3 2 1 6 7 ~13                                                      3    19      0.02 sec  T/O =  0  PRV =  2
-SBY 15:27:01 [fifo_slang_ok] jsonl: {"time": 0.15, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_never_over", "location": "fifo_slang.sv:38.3-38.79", "kind": "ASSERT", "status": "PASS"}
-SBY 15:27:01 [fifo_slang_ok] engine_0: Proved output 3 in frame 5.
-SBY 15:27:01 [fifo_slang_ok] jsonl: {"time": 0.15, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_rose_full", "location": "fifo_slang.sv:41.3-41.94", "kind": "ASSERT", "status": "PASS"}
-SBY 15:27:01 [fifo_slang_ok] engine_0: Proved output 4 in frame 5.
-SBY 15:27:01 [fifo_slang_ok] engine_0: 6 : 0 3 2 1 2 1 3 ~19                                                    2    19      0.02 sec  T/O =  0  PRV =  4
-SBY 15:27:01 [fifo_slang_ok] jsonl: {"time": 0.16, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_cnt_up", "location": "fifo_slang.sv:40.3-40.141", "kind": "ASSERT", "status": "PASS"}
-SBY 15:27:01 [fifo_slang_ok] engine_0: Proved output 0 in frame 6.
-SBY 15:27:01 [fifo_slang_ok] engine_0: 7 : 0 3 2 1 2 0 0 0 ~22                                                  0    19      0.02 sec  T/O =  0  PRV =  5
-SBY 15:27:01 [fifo_slang_ok] engine_0: Block =   11  Oblig =    56  Clause =    36  Call =   289 (sat=64.7%)  Cex =   0  Start =   0
-SBY 15:27:01 [fifo_slang_ok] engine_0: SAT solving =     0.01 sec ( 24.88 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: unsat     =     0.00 sec (  0.74 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: sat       =     0.01 sec ( 24.14 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Generalize  =     0.00 sec ( 13.88 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Push clause =     0.00 sec (  4.27 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Ternary sim =     0.00 sec (  0.36 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Containment =     0.00 sec (  0.05 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: CNF compute =     0.00 sec (  1.45 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Refinement  =     0.00 sec (  0.00 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: TOTAL       =     0.03 sec (100.00 %)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Property proved.  Time =     0.03 sec
-SBY 15:27:01 [fifo_slang_ok] engine_0: Counter-example is not available.
-SBY 15:27:01 [fifo_slang_ok] engine_0: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_ok] engine_0: Status returned by engine: PASS
-SBY 15:27:01 [fifo_slang_ok] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_ok] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_ok] summary: engine_0 (abc pdr) returned PASS
-SBY 15:27:01 [fifo_slang_ok] summary: engine_0 did not produce any traces
-SBY 15:27:01 [fifo_slang_ok] DONE (PASS, rc=0)
+SBY 17:26:17 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
+SBY 17:26:17 [fifo_slang_ok] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_ok/src/fifo_slang.sv'.
+SBY 17:26:17 [fifo_slang_ok] engine_0: abc pdr
+SBY 17:26:17 [fifo_slang_ok] base: starting process "cd fifo_slang_ok/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:17 [fifo_slang_ok] base: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_ok] prep: starting process "cd fifo_slang_ok/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:17 [fifo_slang_ok] prep: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_ok] aig: starting process "cd fifo_slang_ok/model; yosys -ql design_aiger.log design_aiger.ys"
+SBY 17:26:17 [fifo_slang_ok] aig: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_ok] engine_0: starting process "cd fifo_slang_ok; yosys-abc -c 'read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw'"
+SBY 17:26:17 [fifo_slang_ok] engine_0: ======== ABC command line "read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw"
+SBY 17:26:17 [fifo_slang_ok] engine_0: Warning: The last 2 outputs are interpreted as constraints.
+SBY 17:26:17 [fifo_slang_ok] engine_0: VarMax = 300. FrameMax = 10000. QueMax = 0. TimeMax = 199. MonoCNF = no. SkipGen = no. SolveAll = no.
+SBY 17:26:17 [fifo_slang_ok] engine_0: Frame Clauses                                                     Max Queue Flops Time
+SBY 17:26:17 [fifo_slang_ok] engine_0: 1 : 0 1                                                                 1     2      0.00 sec  T/O =  0  PRV =  0
+SBY 17:26:17 [fifo_slang_ok] engine_0: 2 : 0 4 17                                                              4    17      0.01 sec  T/O =  0  PRV =  0
+SBY 17:26:17 [fifo_slang_ok] jsonl: {"time": 0.35, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_ok", "location": "fifo_slang.sv:42.3-42.73", "kind": "ASSERT", "status": "PASS"}
+SBY 17:26:17 [fifo_slang_ok] engine_0: Proved output 1 in frame 2.
+SBY 17:26:17 [fifo_slang_ok] jsonl: {"time": 0.35, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_full_empty", "location": "fifo_slang.sv:39.3-39.85", "kind": "ASSERT", "status": "PASS"}
+SBY 17:26:17 [fifo_slang_ok] engine_0: Proved output 2 in frame 2.
+SBY 17:26:17 [fifo_slang_ok] engine_0: 3 : 0 3 3 4 ~11                                                          0    17      0.01 sec  T/O =  0  PRV =  2
+SBY 17:26:17 [fifo_slang_ok] engine_0: 4 : 0 3 2 2 6 ~11                                                        2    17      0.01 sec  T/O =  0  PRV =  2
+SBY 17:26:17 [fifo_slang_ok] engine_0: 5 : 0 3 2 1 6 7 ~13                                                      3    19      0.02 sec  T/O =  0  PRV =  2
+SBY 17:26:17 [fifo_slang_ok] jsonl: {"time": 0.36, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_never_over", "location": "fifo_slang.sv:38.3-38.79", "kind": "ASSERT", "status": "PASS"}
+SBY 17:26:17 [fifo_slang_ok] engine_0: Proved output 3 in frame 5.
+SBY 17:26:17 [fifo_slang_ok] jsonl: {"time": 0.36, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_rose_full", "location": "fifo_slang.sv:41.3-41.94", "kind": "ASSERT", "status": "PASS"}
+SBY 17:26:17 [fifo_slang_ok] engine_0: Proved output 4 in frame 5.
+SBY 17:26:17 [fifo_slang_ok] engine_0: 6 : 0 3 2 1 2 1 3 ~19                                                    2    19      0.02 sec  T/O =  0  PRV =  4
+SBY 17:26:17 [fifo_slang_ok] jsonl: {"time": 0.37, "task_name": "ok", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_cnt_up", "location": "fifo_slang.sv:40.3-40.141", "kind": "ASSERT", "status": "PASS"}
+SBY 17:26:17 [fifo_slang_ok] engine_0: Proved output 0 in frame 6.
+SBY 17:26:17 [fifo_slang_ok] engine_0: 7 : 0 3 2 1 2 0 0 0 ~22                                                  0    19      0.02 sec  T/O =  0  PRV =  5
+SBY 17:26:17 [fifo_slang_ok] engine_0: Block =   11  Oblig =    56  Clause =    36  Call =   289 (sat=64.7%)  Cex =   0  Start =   0
+SBY 17:26:17 [fifo_slang_ok] engine_0: SAT solving =     0.01 sec ( 24.83 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: unsat     =     0.00 sec (  0.72 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: sat       =     0.01 sec ( 24.12 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Generalize  =     0.00 sec ( 13.85 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Push clause =     0.00 sec (  4.57 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Ternary sim =     0.00 sec (  0.34 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Containment =     0.00 sec (  0.06 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: CNF compute =     0.00 sec (  1.53 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Refinement  =     0.00 sec (  0.00 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: TOTAL       =     0.03 sec (100.00 %)
+SBY 17:26:17 [fifo_slang_ok] engine_0: Property proved.  Time =     0.03 sec
+SBY 17:26:17 [fifo_slang_ok] engine_0: Counter-example is not available.
+SBY 17:26:18 [fifo_slang_ok] engine_0: finished (returncode=0)
+SBY 17:26:18 [fifo_slang_ok] engine_0: Status returned by engine: PASS
+SBY 17:26:18 [fifo_slang_ok] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_ok] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_ok] summary: engine_0 (abc pdr) returned PASS
+SBY 17:26:18 [fifo_slang_ok] summary: engine_0 did not produce any traces
+SBY 17:26:18 [fifo_slang_ok] DONE (PASS, rc=0)

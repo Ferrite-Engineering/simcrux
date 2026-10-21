@@ -1,58 +1,58 @@
-SBY 15:27:01 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
-SBY 15:27:01 [fifo_slang_bug] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_bug'.
-SBY 15:27:01 [fifo_slang_dis] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_dis'.
-SBY 15:27:01 [fifo_slang_dis] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_dis/src/fifo_slang.sv'.
-SBY 15:27:01 [fifo_slang_dis] engine_0: abc pdr
-SBY 15:27:01 [fifo_slang_dis] base: starting process "cd fifo_slang_dis/src; yosys -ql ../model/design.log ../model/design.ys"
-SBY 15:27:01 [fifo_slang_dis] base: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] prep: starting process "cd fifo_slang_dis/model; yosys -ql design_prep.log design_prep.ys"
-SBY 15:27:01 [fifo_slang_dis] prep: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] aig: starting process "cd fifo_slang_dis/model; yosys -ql design_aiger.log design_aiger.ys"
-SBY 15:27:01 [fifo_slang_dis] aig: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-abc -c 'read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw'"
-SBY 15:27:01 [fifo_slang_dis] engine_0: ======== ABC command line "read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw"
-SBY 15:27:01 [fifo_slang_dis] engine_0: Warning: The last 2 outputs are interpreted as constraints.
-SBY 15:27:01 [fifo_slang_dis] engine_0: VarMax = 300. FrameMax = 10000. QueMax = 0. TimeMax = 219. MonoCNF = no. SkipGen = no. SolveAll = no.
-SBY 15:27:01 [fifo_slang_dis] engine_0: Frame Clauses                                                     Max Queue Flops Time
-SBY 15:27:01 [fifo_slang_dis] engine_0: 1 : 0 1                                                                 2     2      0.00 sec  T/O =  0  PRV =  0
-SBY 15:27:01 [fifo_slang_dis] engine_0: Block =    2  Oblig =     4  Clause =     1  Call =    12 (sat=33.3%)  Cex =   0  Start =   0
-SBY 15:27:01 [fifo_slang_dis] engine_0: SAT solving =     0.00 sec ( 10.49 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: unsat     =     0.00 sec (  0.10 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: sat       =     0.00 sec ( 10.39 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Generalize  =     0.00 sec (  5.22 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Push clause =     0.00 sec (  0.00 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Ternary sim =     0.00 sec (  0.12 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Containment =     0.00 sec (  0.02 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: CNF compute =     0.00 sec (  0.18 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Refinement  =     0.00 sec (  0.08 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: TOTAL       =     0.00 sec (100.00 %)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Output 1 of miter "model/design_aiger" was asserted in frame 1.  Time =     0.01 sec
-SBY 15:27:01 [fifo_slang_dis] engine_0: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Status returned by engine: FAIL
-SBY 15:27:01 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-witness aiw2yw engine_0/trace.aiw model/design_aiger.ywa engine_0/trace_aiw.yw"
-SBY 15:27:01 [fifo_slang_dis] smt2: starting process "cd fifo_slang_dis/model; yosys -ql design_smt2.log design_smt2.ys"
-SBY 15:27:01 [fifo_slang_dis] smt2: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] engine_0: Converting AIGER witness trace 'engine_0/trace.aiw' to Yosys witness trace 'engine_0/trace_aiw.yw'...
-SBY 15:27:01 [fifo_slang_dis] engine_0: Using Yosys witness AIGER map file 'model/design_aiger.ywa'
-SBY 15:27:01 [fifo_slang_dis] engine_0: Converted 2 time steps.
-SBY 15:27:01 [fifo_slang_dis] engine_0: finished (returncode=0)
-SBY 15:27:01 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-smtbmc -s yices --noprogress --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc --yw engine_0/trace_aiw.yw model/design_smt2.smt2"
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Solver: yices
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Skipping step 0..
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Checking assertions in step 1..
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  BMC failed!
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Assert failed in fifo_slang: a_dis_bad
-SBY 15:27:01 [fifo_slang_dis] jsonl: {"time": 0.26, "task_name": "dis", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_bad", "location": "fifo_slang.sv:44.3-44.55", "kind": "ASSERT", "status": "FAIL", "trace": "fifo_slang_dis/engine_0/trace.vcd", "depth": 1}
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
-SBY 15:27:01 [fifo_slang_dis] jsonl: {"time": 0.27, "task_name": "dis", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_bad", "location": "fifo_slang.sv:44.3-44.55", "kind": "ASSERT", "status": "FAIL", "trace": "fifo_slang_dis/engine_0/trace.yw", "depth": 1}
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
-SBY 15:27:01 [fifo_slang_dis] engine_0: ##   0:00:00  Status: FAILED
-SBY 15:27:01 [fifo_slang_dis] engine_0: finished (returncode=1)
-SBY 15:27:01 [fifo_slang_dis] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_dis] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
-SBY 15:27:01 [fifo_slang_dis] summary: engine_0 (abc pdr) returned FAIL
-SBY 15:27:01 [fifo_slang_dis] summary: counterexample trace: fifo_slang_dis/engine_0/trace.vcd
-SBY 15:27:01 [fifo_slang_dis] summary:   failed assertion fifo_slang.a_dis_bad at fifo_slang.sv:44.3-44.55 step 1
-SBY 15:27:01 [fifo_slang_dis] DONE (FAIL, rc=2)
+SBY 17:26:17 [fifo_slang_ok] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_ok'.
+SBY 17:26:17 [fifo_slang_bug] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_bug'.
+SBY 17:26:17 [fifo_slang_dis] Removing directory '<work>/20261021/sby/fifo_slang/fifo_slang_dis'.
+SBY 17:26:17 [fifo_slang_dis] Copy '<work>/20261021/sby/fifo_slang/fifo_slang.sv' to '<work>/20261021/sby/fifo_slang/fifo_slang_dis/src/fifo_slang.sv'.
+SBY 17:26:17 [fifo_slang_dis] engine_0: abc pdr
+SBY 17:26:17 [fifo_slang_dis] base: starting process "cd fifo_slang_dis/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 17:26:17 [fifo_slang_dis] base: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_dis] prep: starting process "cd fifo_slang_dis/model; yosys -ql design_prep.log design_prep.ys"
+SBY 17:26:17 [fifo_slang_dis] prep: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_dis] aig: starting process "cd fifo_slang_dis/model; yosys -ql design_aiger.log design_aiger.ys"
+SBY 17:26:17 [fifo_slang_dis] aig: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-abc -c 'read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw'"
+SBY 17:26:17 [fifo_slang_dis] engine_0: ======== ABC command line "read_aiger model/design_aiger.aig; fold; strash; pdr -v -l; write_cex -a engine_0/trace.aiw"
+SBY 17:26:17 [fifo_slang_dis] engine_0: Warning: The last 2 outputs are interpreted as constraints.
+SBY 17:26:17 [fifo_slang_dis] engine_0: VarMax = 300. FrameMax = 10000. QueMax = 0. TimeMax = 219. MonoCNF = no. SkipGen = no. SolveAll = no.
+SBY 17:26:17 [fifo_slang_dis] engine_0: Frame Clauses                                                     Max Queue Flops Time
+SBY 17:26:17 [fifo_slang_dis] engine_0: 1 : 0 1                                                                 2     2      0.00 sec  T/O =  0  PRV =  0
+SBY 17:26:17 [fifo_slang_dis] engine_0: Block =    2  Oblig =     4  Clause =     1  Call =    12 (sat=33.3%)  Cex =   0  Start =   0
+SBY 17:26:17 [fifo_slang_dis] engine_0: SAT solving =     0.00 sec ( 10.38 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: unsat     =     0.00 sec (  0.10 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: sat       =     0.00 sec ( 10.28 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Generalize  =     0.00 sec (  5.25 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Push clause =     0.00 sec (  0.02 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Ternary sim =     0.00 sec (  0.10 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Containment =     0.00 sec (  0.02 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: CNF compute =     0.00 sec (  0.10 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Refinement  =     0.00 sec (  0.08 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: TOTAL       =     0.00 sec (100.00 %)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Output 1 of miter "model/design_aiger" was asserted in frame 1.  Time =     0.00 sec
+SBY 17:26:17 [fifo_slang_dis] engine_0: finished (returncode=0)
+SBY 17:26:17 [fifo_slang_dis] engine_0: Status returned by engine: FAIL
+SBY 17:26:17 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-witness aiw2yw engine_0/trace.aiw model/design_aiger.ywa engine_0/trace_aiw.yw"
+SBY 17:26:17 [fifo_slang_dis] smt2: starting process "cd fifo_slang_dis/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 17:26:18 [fifo_slang_dis] smt2: finished (returncode=0)
+SBY 17:26:18 [fifo_slang_dis] engine_0: Converting AIGER witness trace 'engine_0/trace.aiw' to Yosys witness trace 'engine_0/trace_aiw.yw'...
+SBY 17:26:18 [fifo_slang_dis] engine_0: Using Yosys witness AIGER map file 'model/design_aiger.ywa'
+SBY 17:26:18 [fifo_slang_dis] engine_0: Converted 2 time steps.
+SBY 17:26:18 [fifo_slang_dis] engine_0: finished (returncode=0)
+SBY 17:26:18 [fifo_slang_dis] engine_0: starting process "cd fifo_slang_dis; yosys-smtbmc -s yices --noprogress --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc --yw engine_0/trace_aiw.yw model/design_smt2.smt2"
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Solver: yices
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Skipping step 0..
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  BMC failed!
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Assert failed in fifo_slang: a_dis_bad
+SBY 17:26:18 [fifo_slang_dis] jsonl: {"time": 0.58, "task_name": "dis", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_bad", "location": "fifo_slang.sv:44.3-44.55", "kind": "ASSERT", "status": "FAIL", "trace": "fifo_slang_dis/engine_0/trace.vcd", "depth": 1}
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY 17:26:18 [fifo_slang_dis] jsonl: {"time": 0.59, "task_name": "dis", "mode": "prove", "engine": "engine_0", "name": "fifo_slang.a_dis_bad", "location": "fifo_slang.sv:44.3-44.55", "kind": "ASSERT", "status": "FAIL", "trace": "fifo_slang_dis/engine_0/trace.yw", "depth": 1}
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY 17:26:18 [fifo_slang_dis] engine_0: ##   0:00:00  Status: FAILED
+SBY 17:26:18 [fifo_slang_dis] engine_0: finished (returncode=1)
+SBY 17:26:18 [fifo_slang_dis] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_dis] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 17:26:18 [fifo_slang_dis] summary: engine_0 (abc pdr) returned FAIL
+SBY 17:26:18 [fifo_slang_dis] summary: counterexample trace: fifo_slang_dis/engine_0/trace.vcd
+SBY 17:26:18 [fifo_slang_dis] summary:   failed assertion fifo_slang.a_dis_bad at fifo_slang.sv:44.3-44.55 step 1
+SBY 17:26:18 [fifo_slang_dis] DONE (FAIL, rc=2)
