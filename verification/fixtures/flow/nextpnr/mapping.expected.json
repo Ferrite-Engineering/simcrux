@@ -1,0 +1,13 @@
+{
+  "design": "rtl/path_adder.v",
+  "start_registers": ["src_a", "src_b"],
+  "end_register": "sum_q",
+  "path_statement_line": 16,
+  "declaration_lines": {"src_a": 10, "src_b": 11, "sum_q": 12},
+  "cases": {
+    "path_ice40_met": {"cell_names_carry_register": true},
+    "path_ecp5_met": {"cell_names_carry_register": true},
+    "path_gowin_met": {"cell_names_carry_register": true},
+    "path_gatemate_met": {"cell_names_carry_register": false}
+  }
+}

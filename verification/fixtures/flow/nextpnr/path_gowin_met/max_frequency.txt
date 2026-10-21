@@ -1,0 +1,2 @@
+Info: Max frequency for clock 'clk_IBUF_I_O': 211.95 MHz (PASS at 12.00 MHz)
+Info: Max frequency for clock 'clk_IBUF_I_O': 197.04 MHz (PASS at 12.00 MHz)

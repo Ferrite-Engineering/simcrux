@@ -1,0 +1,2 @@
+Info: Max frequency for clock '$iopadmap$clk': 307.41 MHz (PASS at 12.00 MHz)
+Info: Max frequency for clock '$iopadmap$clk': 204.75 MHz (PASS at 12.00 MHz)

@@ -4513,6 +4513,105 @@ edition decides which settings lock.
 
 ---
 
+## 27. Flow: FPGA place-and-route fixtures and the weekly live check
+
+### 27.1 What it covers
+
+Captured nextpnr runs for iCE40 (`--up5k`), ECP5 (`--25k`), Gowin and GateMate
+(both through `nextpnr-himbaechel`), the RTL that produced them, and one
+FuseSoC and Edalize run of the SERV `servant` system on the iCEBreaker target
+with no `--report`. They are the corpus every Flow reader, verdict and RTL
+mapping is checked against. Each case directory holds the synthesized netlist,
+`report.json`, `pnr.log`, the exit status and the `grep` of nextpnr's own
+`Max frequency` lines, beside a hand-written `verdict.expected.json`.
+
+- The re-screen cases (`rescreen_ice40`, `rescreen_ice40_dsp`, `rescreen_ecp5`)
+  run `verification/fixtures/flow/nextpnr/rtl/top.v`.
+- The designed-path cases (`path_<family>_met`, `path_<family>_violated`) run
+  `verification/fixtures/flow/nextpnr/rtl/path_adder.v`, whose only deep
+  register-to-register path is `src_a` and `src_b` into `sum_q`.
+  `mapping.expected.json` is written from that RTL, never from a mapper.
+- `verification/fixtures/flow/fusesoc/` holds the log-only run.
+
+`verification/fixtures/flow/nextpnr/PROVENANCE.md` records the tool versions,
+the exact commands, the capture date, where each expectation comes from, and
+the measurement of whether the himbaechel families write the same
+`report.json` schema as iCE40 and ECP5 (they do: same sections and key shapes;
+the step-type vocabulary and, for GateMate, the cell naming differ).
+
+### 27.2 Setup
+
+None for the committed corpus: it is checked by plain `flutter test`.
+
+To regenerate, put an OSS CAD Suite directory on the command line (nothing is
+read from `PATH` or installed):
+
+```bash
+tool/flow/regen_nextpnr_fixtures.sh --suite <oss-cad-suite dir>
+tool/flow/regen_fusesoc_fixture.sh --suite <oss-cad-suite dir> --yosys-dir <dir with a Tcl-enabled yosys>
+```
+
+The FuseSoC script needs network (it clones the core repositories and installs
+FuseSoC into a scratch virtual environment). `--yosys-dir` is needed only when
+the suite's own Yosys has no `tcl` command, which is the case for the macOS
+arm64 build the corpus was captured with.
+
+The regenerators capture output. They never write an expectation file; those
+are edited by hand and reviewed.
+
+### 27.3 Expected behaviour
+
+1. `flutter test test/static/flow_nextpnr_fixtures_test.dart` passes with no
+   tools installed. A missing case directory, capture, expectation or
+   provenance file fails it; nothing is skipped.
+2. Every capture is under 5 MB and names no machine path.
+3. Each case's verdict is the PASS or FAIL on nextpnr's last `Max frequency`
+   line, not its exit status: a met case exits 0 and a violated case exits 1,
+   and both are asserted.
+4. For each family's `path_<family>_met` case the worst clocked path starts at
+   `src_a` or `src_b`, runs through line 16 of `path_adder.v`, and ends at
+   `sum_q`. For GateMate the cell names are opaque, so only the net name and
+   the `sources` span identify the registers.
+5. All four families' `report.json` files have the same key shapes.
+6. With a suite on the command line, or the tools on `PATH`,
+   `FLOW_LIVE_REQUIRED=1 OSS_CAD_SUITE=<dir> flutter test
+   test/static/flow_nextpnr_live_test.dart` re-runs the real tools and passes.
+   Frequencies are not compared, only verdicts, exit statuses, endpoints and
+   schema.
+7. `.github/workflows/flow-live.yml` runs weekly and on dispatch. It installs
+   its own pinned Linux OSS CAD Suite, runs the live test with
+   `FLOW_LIVE_REQUIRED=1`, and fails when any hand-written expectation no
+   longer matches. Both jobs carry `timeout-minutes: 30`.
+
+### 27.4 Edge cases
+
+- Without a toolchain the live test is skipped with the reason, and fails
+  instead when `FLOW_LIVE_REQUIRED=1`. A green plain `flutter test` is
+  therefore not evidence that the tools still behave as recorded; the weekly
+  workflow is.
+- Frequencies and placement change with every nextpnr build. The corpus was
+  re-run on the two previous monthly suites and every verdict and exit status
+  was identical, so no expectation pins a number.
+- A new report step type (nextpnr adds `clk-skew` on some families) must not
+  break a reader. The step-type vocabulary is asserted to differ by family,
+  not to be a fixed list.
+- A violated case on a completed flow is a finding, not a tool error; the
+  exit status is recorded only because the CI gate keys off it.
+
+### 27.5 Tier-gate scenarios
+
+Open Core only. The fixtures and their tests exercise no gated feature.
+
+### 27.6 Automation Assessment
+
+| Test | Coverage | File |
+|---|---|---|
+| Corpus present, scrubbed, under 5 MB, documented; verdicts, exit statuses, designed endpoints and report schema match the hand-written expectations | `[Coverage: UNIT]` | `test/static/flow_nextpnr_fixtures_test.dart` |
+| The real tools re-run through the regenerators match the same expectations (gated on tool presence) | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_nextpnr_live_test.dart`, `.github/workflows/flow-live.yml` |
+| Every workflow job has an integer `timeout-minutes`, no step pipes into `tee` without `pipefail`, and `flow-live.yml` keeps its caps | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
+
+---
+
 ## 9+. Subsequent features
 
 Add a new top-level section in the same commit set that ships the feature.

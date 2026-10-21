@@ -1,0 +1,2 @@
+Info: Max frequency for clock '$glbnet$clk$TRELLIS_IO_IN': 159.03 MHz (PASS at 100.00 MHz)
+Info: Max frequency for clock '$glbnet$clk$TRELLIS_IO_IN': 142.53 MHz (PASS at 100.00 MHz)

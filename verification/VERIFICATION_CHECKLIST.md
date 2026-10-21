@@ -1108,6 +1108,17 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 
 ---
 
+## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)
+
+- [ ] The nextpnr corpus (iCE40, ECP5, Gowin, GateMate; re-screen and designed-path cases) and the FuseSoC log-only run are present, under 5 MB each, scrubbed of machine paths and documented in `PROVENANCE.md`; a missing directory fails — `[Coverage: UNIT]` (`flow_nextpnr_fixtures_test.dart`)
+- [ ] Every case's verdict is the PASS or FAIL on nextpnr's own last `Max frequency` line, with exit 0 for met and 1 for violated — `[Coverage: UNIT]` (`flow_nextpnr_fixtures_test.dart`)
+- [ ] The designed adder's worst path starts at `src_a` or `src_b`, names line 16 of the RTL and ends at `sum_q`, from the RTL and not from a mapper — `[Coverage: UNIT]` (`flow_nextpnr_fixtures_test.dart`)
+- [ ] Gowin and GateMate reports share the iCE40 and ECP5 `report.json` key shapes; the step-type vocabulary is not a fixed list — `[Coverage: UNIT]` (`flow_nextpnr_fixtures_test.dart`)
+- [ ] The real tools, re-run through the regenerators, still match every expectation (verdicts, exit statuses, endpoints, schema) — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_nextpnr_live_test.dart`, `flow-live.yml`)
+- [ ] Every Actions job has an integer `timeout-minutes`, no `tee` without `pipefail`, and `flow-live.yml` keeps its 30-minute caps — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`)
+
+---
+
 ## Subsequent features
 
 ---

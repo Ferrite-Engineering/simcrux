@@ -1,0 +1,139 @@
+name: Flow live
+
+# Re-runs the real FPGA flow tools and fails when what they print no longer
+# matches the committed, hand-written expectations under
+# verification/fixtures/flow/. Weekly, because the tools move and no push
+# changes them. It installs its own OSS CAD Suite: nothing here depends on a
+# path on any developer machine.
+#
+# The suite is pinned by tag and by SHA-256 (the release digest). Bumping it is
+# a deliberate commit that also records the new tag in the fixtures'
+# PROVENANCE.md.
+on:
+  workflow_dispatch:
+  schedule:
+    # Mondays, staggered off the shared 05:00 slot and the Sunday platform runs.
+    - cron: '40 5 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  OSS_CAD_SUITE_TAG: '2026-10-21'
+  OSS_CAD_SUITE_FILE: 'oss-cad-suite-linux-x64-20261021.tgz'
+  OSS_CAD_SUITE_SHA256: 'dde9f1700dece195a98a9b15845a4f4043b2aab1dacf9be498bbad0c3be1f247'
+
+jobs:
+  nextpnr:
+    name: nextpnr fixtures
+    runs-on: ubuntu-latest
+    # nextpnr live: 30 minutes. A regeneration takes a few.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Cache OSS CAD Suite
+        id: suite-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite
+          key: oss-cad-suite-${{ env.OSS_CAD_SUITE_TAG }}-linux-x64
+
+      - name: Install OSS CAD Suite
+        if: steps.suite-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${OSS_CAD_SUITE_TAG}/${OSS_CAD_SUITE_FILE}"
+          curl --fail --location --retry 3 --output "${RUNNER_TEMP}/suite.tgz" "$url"
+          echo "${OSS_CAD_SUITE_SHA256}  ${RUNNER_TEMP}/suite.tgz" | sha256sum --check -
+          mkdir -p "${RUNNER_TEMP}/oss-cad-suite"
+          tar -xzf "${RUNNER_TEMP}/suite.tgz" -C "${RUNNER_TEMP}/oss-cad-suite"
+          rm "${RUNNER_TEMP}/suite.tgz"
+
+      - name: Report tool versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          suite="${RUNNER_TEMP}/oss-cad-suite/oss-cad-suite"
+          "${suite}/bin/yosys" -V | tee "${RUNNER_TEMP}/versions.txt"
+          "${suite}/bin/nextpnr-ice40" --version 2>&1 | tee -a "${RUNNER_TEMP}/versions.txt"
+          "${suite}/bin/nextpnr-ecp5" --version 2>&1 | tee -a "${RUNNER_TEMP}/versions.txt"
+          "${suite}/bin/nextpnr-himbaechel" --version 2>&1 | tee -a "${RUNNER_TEMP}/versions.txt"
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Regenerate and check the nextpnr fixtures
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FLOW_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_nextpnr_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/nextpnr-live.log"
+
+  fusesoc:
+    name: FuseSoC fixture
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Cache OSS CAD Suite
+        id: suite-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite
+          key: oss-cad-suite-${{ env.OSS_CAD_SUITE_TAG }}-linux-x64
+
+      - name: Install OSS CAD Suite
+        if: steps.suite-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${OSS_CAD_SUITE_TAG}/${OSS_CAD_SUITE_FILE}"
+          curl --fail --location --retry 3 --output "${RUNNER_TEMP}/suite.tgz" "$url"
+          echo "${OSS_CAD_SUITE_SHA256}  ${RUNNER_TEMP}/suite.tgz" | sha256sum --check -
+          mkdir -p "${RUNNER_TEMP}/oss-cad-suite"
+          tar -xzf "${RUNNER_TEMP}/suite.tgz" -C "${RUNNER_TEMP}/oss-cad-suite"
+          rm "${RUNNER_TEMP}/suite.tgz"
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Regenerate and check the FuseSoC fixture
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FLOW_LIVE_REQUIRED: '1'
+          FLOW_LIVE_FUSESOC: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_nextpnr_live_test.dart --plain-name 'FuseSoC live' --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/fusesoc-live.log"

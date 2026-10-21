@@ -10,7 +10,10 @@ fixtures/
 ├── orchestration/       # scheduler/reaper scenarios replayed through a fake process runner
 │   ├── <scenario>/generated/   # simcrux.yaml + behaviors.json + expected_results.ndjson
 │   └── helpers/README.md       # how the corpus is regenerated and what each file holds
-└── riscv_formal/        # pre-captured SymbiYosys outputs for `riscv: { mode: demo }` (see its README.md)
+├── riscv_formal/        # pre-captured SymbiYosys outputs for `riscv: { mode: demo }` (see its README.md)
+└── flow/
+    ├── nextpnr/         # captured nextpnr runs (iCE40, ECP5, Gowin, GateMate) + the RTL; see its PROVENANCE.md
+    └── fusesoc/         # one FuseSoC/Edalize servant run with no nextpnr report; see its PROVENANCE.md
 ```
 
 Each corpus has a regenerator under `../../tool/`:
@@ -20,6 +23,8 @@ Each corpus has a regenerator under `../../tool/`:
 | `golden_compare/` | `dart run tool/generate_golden_compare_fixtures.dart` |
 | `orchestration/` | `dart run tool/generate_orchestration_fixtures.dart` (also writes `test/fixtures/orchestration/`) |
 | `riscv_formal/` | `dart run tool/generate_riscv_formal_fixtures.dart` |
+| `flow/nextpnr/` | `tool/flow/regen_nextpnr_fixtures.sh --suite <oss-cad-suite dir>` (captures only; the expectation JSON files beside the captures are hand-written) |
+| `flow/fusesoc/` | `tool/flow/regen_fusesoc_fixture.sh --suite <oss-cad-suite dir> --yosys-dir <dir>` (needs network) |
 
 ## Adding a new fixture
 

@@ -1,0 +1,244 @@
+Info: Using uarch 'gatemate' for device 'CCGM1A1'
+Info: Using timing mode 'WORST'.
+Info: Using performance mode 'SPEED'.
+
+Info: Assign cell region based on attributes..
+Info: Packing constants..
+Info: Running cleanups..
+Info: Packing IOs..
+Warning: IO '$iopadmap$path_adder.clk' is unconstrained in CCF and will be automatically placed.
+Info:     Constraining '$iopadmap$path_adder.clk' to pad 'IO_SA_A0'.
+Warning: IO '$iopadmap$path_adder.q' is unconstrained in CCF and will be automatically placed.
+Info:     Constraining '$iopadmap$path_adder.q' to pad 'IO_SA_B0'.
+Warning: IO '$iopadmap$path_adder.d' is unconstrained in CCF and will be automatically placed.
+Info:     Constraining '$iopadmap$path_adder.d' to pad 'IO_SA_A1'.
+Info: Insert clocking cells..
+Info: Packing PLLs..
+Info: Sort BUFGs..
+Info: Packing BUFGs..
+Info: Packing IO SELs..
+Info: Packing misc..
+Info: Packing RAMs..
+Info: Packing SERDES..
+Info: Packing multipliers...
+Info: Packing ADDFs..
+Info: Packing CPEs..
+Info: Removing unused constants..
+Info:     Removed unused VCC cell.
+Info:     Removed unused GND cell.
+Info: Fix cell assigned regions..
+Info: Checksum: 0xa60549c7
+
+Info: Device utilisation:
+Info: 	            USR_RSTN:       0/      1     0%
+Info: 	            CPE_COMP:       0/  20480     0%
+Info: 	         CPE_CPLINES:       1/  20480     0%
+Info: 	               IOSEL:       3/    162     1%
+Info: 	                GPIO:       3/    162     1%
+Info: 	               CLKIN:       1/      1   100%
+Info: 	              GLBOUT:       1/      1   100%
+Info: 	                 PLL:       0/      4     0%
+Info: 	            CFG_CTRL:       0/      1     0%
+Info: 	              SERDES:       0/      1     0%
+Info: 	              CPE_LT:      85/  40960     0%
+Info: 	              CPE_FF:      73/  40960     0%
+Info: 	           CPE_RAMIO:       2/  40960     0%
+Info: 	            RAM_HALF:       0/     64     0%
+
+Info: Placed 0 cells based on constraints.
+Info: Creating initial analytic placement for 56 cells, random placement wirelen = 11132.
+Info:     at initial placer iter 0, wirelen = 493
+Info:     at initial placer iter 1, wirelen = 487
+Info:     at initial placer iter 2, wirelen = 487
+Info:     at initial placer iter 3, wirelen = 487
+Info: Running main analytical placer, max placement attempts per cell = 10000.
+Info:     at iteration #1, type ALL: wirelen solved = 487, spread = 904, legal = 923; time = 0.00s
+Info:     at iteration #2, type ALL: wirelen solved = 492, spread = 850, legal = 858; time = 0.00s
+Info:     at iteration #3, type ALL: wirelen solved = 486, spread = 926, legal = 1004; time = 0.00s
+Info:     at iteration #4, type ALL: wirelen solved = 504, spread = 944, legal = 1013; time = 0.00s
+Info:     at iteration #5, type ALL: wirelen solved = 516, spread = 931, legal = 929; time = 0.00s
+Info:     at iteration #6, type ALL: wirelen solved = 499, spread = 927, legal = 986; time = 0.00s
+Info:     at iteration #7, type ALL: wirelen solved = 514, spread = 887, legal = 961; time = 0.00s
+Info: HeAP Placer Time: 0.10s
+Info:   of which solving equations: 0.00s
+Info:   of which spreading cells: 0.01s
+Info:   of which strict legalisation: 0.00s
+
+Info: Running simulated annealing placer for refinement.
+Info:   at iteration #1: temp = 0.000000, timing cost = 5, wirelen = 740
+Info:   at iteration #5: temp = 0.000000, timing cost = 6, wirelen = 547
+Info:   at iteration #10: temp = 0.000000, timing cost = 9, wirelen = 507
+Info:   at iteration #15: temp = 0.000000, timing cost = 2, wirelen = 495
+Info:   at iteration #15: temp = 0.000000, timing cost = 1, wirelen = 505 
+Info: SA placement time 0.06s
+
+Info: Max frequency for clock '$iopadmap$clk': 307.41 MHz (FAIL at 1000.00 MHz)
+
+Info: Max delay <async> -> posedge $iopadmap$clk: 2.09 ns
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ -2253,  -2158) |* 
+Info: [ -2158,  -2063) | 
+Info: [ -2063,  -1968) | 
+Info: [ -1968,  -1873) | 
+Info: [ -1873,  -1778) | 
+Info: [ -1778,  -1683) | 
+Info: [ -1683,  -1588) | 
+Info: [ -1588,  -1493) | 
+Info: [ -1493,  -1398) | 
+Info: [ -1398,  -1303) | 
+Info: [ -1303,  -1208) | 
+Info: [ -1208,  -1113) | 
+Info: [ -1113,  -1018) |** 
+Info: [ -1018,   -923) | 
+Info: [  -923,   -828) |************ 
+Info: [  -828,   -733) |** 
+Info: [  -733,   -638) |************************* 
+Info: [  -638,   -543) |******** 
+Info: [  -543,   -448) |********* 
+Info: [  -448,   -353) |************ 
+Info: Checksum: 0x40f3be31
+Info: Repacking RAMs..
+Info: Repacking CPEs..
+Info: Remove unused clocking cells..
+Info: Routing multipliers...
+Info: Routing clock nets...
+Info:     routing net '$iopadmap$clk' to 73 users
+Info: Clock router time 0.31s.
+Info: Running router2...
+Info: Setting up routing resources...
+Info: Running main router loop...
+Info:     iter=1 wires=2244 overused=61 overuse=61 resources=119 overused=4 overuse=4 archfail=NA
+Info:     iter=2 wires=2262 overused=13 overuse=13 resources=107 overused=1 overuse=1 archfail=NA
+Info:     iter=3 wires=2272 overused=4 overuse=4 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=4 wires=2279 overused=3 overuse=3 resources=107 overused=1 overuse=1 archfail=NA
+Info:     iter=5 wires=2277 overused=1 overuse=1 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=6 wires=2277 overused=1 overuse=1 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=7 wires=2277 overused=1 overuse=1 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=8 wires=2277 overused=1 overuse=1 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=9 wires=2277 overused=1 overuse=1 resources=104 overused=0 overuse=0 archfail=NA
+Info:     iter=10 wires=2278 overused=0 overuse=0 resources=104 overused=0 overuse=0 archfail=0
+Info: Checksum: 0x7afc79a9
+Info: Router2 time 0.59s
+
+Info: Critical path report for clock '$iopadmap$clk' (posedge -> posedge):
+Info:       type curr  total name
+Info:   clk-skew  0.48  0.48 Net $iopadmap$clk (4,30) -> (5,39)
+Info:                          Sink $auto$ff.cc:337:slice$204.CLK_INT
+Info:   clk-to-q  0.58  1.07 Source $auto$ff.cc:337:slice$139.DOUT
+Info:    routing  1.92  2.99 Net src_a[7] (4,30) -> (5,30)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[7].addf_i.D0_00
+Info:                          Defined in:
+Info:                               path_adder.v:10.14-10.19
+Info:      logic  0.59  3.58 Source $auto$alumacc.cc:578:replace_alu$22.slice[7].addf_i.COUTY1
+Info:    routing  0.00  3.58 Net $auto$alumacc.cc:578:replace_alu$22.CO[7] (5,30) -> (5,31)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[9].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  3.67 Source $auto$alumacc.cc:578:replace_alu$22.slice[9].addf_i.COUTY1
+Info:    routing  0.00  3.67 Net $auto$alumacc.cc:578:replace_alu$22.CO[9] (5,31) -> (5,32)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[11].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  3.75 Source $auto$alumacc.cc:578:replace_alu$22.slice[11].addf_i.COUTY1
+Info:    routing  0.00  3.75 Net $auto$alumacc.cc:578:replace_alu$22.CO[11] (5,32) -> (5,33)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[13].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  3.84 Source $auto$alumacc.cc:578:replace_alu$22.slice[13].addf_i.COUTY1
+Info:    routing  0.00  3.84 Net $auto$alumacc.cc:578:replace_alu$22.CO[13] (5,33) -> (5,34)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[15].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  3.92 Source $auto$alumacc.cc:578:replace_alu$22.slice[15].addf_i.COUTY1
+Info:    routing  0.00  3.92 Net $auto$alumacc.cc:578:replace_alu$22.CO[15] (5,34) -> (5,35)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[17].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  4.01 Source $auto$alumacc.cc:578:replace_alu$22.slice[17].addf_i.COUTY1
+Info:    routing  0.00  4.01 Net $auto$alumacc.cc:578:replace_alu$22.CO[17] (5,35) -> (5,36)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[19].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  4.10 Source $auto$alumacc.cc:578:replace_alu$22.slice[19].addf_i.COUTY1
+Info:    routing  0.00  4.10 Net $auto$alumacc.cc:578:replace_alu$22.CO[19] (5,36) -> (5,37)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[21].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  4.18 Source $auto$alumacc.cc:578:replace_alu$22.slice[21].addf_i.COUTY1
+Info:    routing  0.00  4.18 Net $auto$alumacc.cc:578:replace_alu$22.CO[21] (5,37) -> (5,38)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[23].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.09  4.27 Source $auto$alumacc.cc:578:replace_alu$22.slice[23].addf_i.COUTY1
+Info:    routing  0.00  4.27 Net $auto$alumacc.cc:578:replace_alu$22.CO[23] (5,38) -> (5,39)
+Info:                          Sink $auto$alumacc.cc:578:replace_alu$22.slice[24].addf_i.CINY1
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:37.23-37.25
+Info:      logic  0.51  4.78 Source $auto$alumacc.cc:578:replace_alu$22.slice[24].addf_i.OUT1
+Info:    routing  0.00  4.78 Net $auto$alumacc.cc:578:replace_alu$22.Y[24] (5,39) -> (5,39)
+Info:                          Sink $auto$ff.cc:337:slice$204.DIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gatemate/arith_map.v:33.26-33.27
+Info:      setup  0.10  4.88 Source $auto$ff.cc:337:slice$204.DIN
+Info: 2.48 ns logic, 2.40 ns routing
+
+Info: Critical path report for cross-domain path '<async>' -> 'posedge $iopadmap$clk':
+Info:       type curr  total name
+Info:     source  0.00  0.00 Source $iopadmap$path_adder.d.Y
+Info:    routing  0.00  0.00 Net $iopadmap$path_adder.d$conn$Y (0,31) -> (0,31)
+Info:                          Sink $iopadmap$path_adder.d$iosel.GPIO_IN
+Info:      logic  0.38  0.38 Source $iopadmap$path_adder.d$iosel.IN1
+Info:    routing  1.35  1.73 Net $abc$353$iopadmap$d (0,31) -> (3,27)
+Info:                          Sink $auto$ff.cc:337:slice$132$lt.D0_10
+Info:      logic  0.61  2.34 Source $auto$ff.cc:337:slice$132$lt.OUT
+Info:    routing  0.00  2.34 Net $auto$ff.cc:337:slice$132$di (3,27) -> (3,27)
+Info:                          Sink $auto$ff.cc:337:slice$132.DIN
+Info:      setup  0.10  2.44 Source $auto$ff.cc:337:slice$132.DIN
+Info: 1.09 ns logic, 1.35 ns routing
+
+ERROR: Max frequency for clock '$iopadmap$clk': 204.75 MHz (FAIL at 1000.00 MHz)
+
+Info: Max delay <async> -> posedge $iopadmap$clk: 2.44 ns
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ -3884,  -3700) |*** 
+Info: [ -3700,  -3516) |* 
+Info: [ -3516,  -3332) |**** 
+Info: [ -3332,  -3148) |**** 
+Info: [ -3148,  -2964) |*** 
+Info: [ -2964,  -2780) |***** 
+Info: [ -2780,  -2596) |* 
+Info: [ -2596,  -2412) |**** 
+Info: [ -2412,  -2228) |*** 
+Info: [ -2228,  -2044) |** 
+Info: [ -2044,  -1860) |**** 
+Info: [ -1860,  -1676) |*** 
+Info: [ -1676,  -1492) |*** 
+Info: [ -1492,  -1308) |*** 
+Info: [ -1308,  -1124) |**** 
+Info: [ -1124,   -940) |****** 
+Info: [  -940,   -756) |***** 
+Info: [  -756,   -572) |********** 
+Info: [  -572,   -388) |** 
+Info: [  -388,   -204) |** 
+Info: Update configuration based on routing..
+3 warnings, 1 error
+
+Info: Program finished normally.

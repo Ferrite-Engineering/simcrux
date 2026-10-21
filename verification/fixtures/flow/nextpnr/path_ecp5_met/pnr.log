@@ -1,0 +1,330 @@
+
+
+Info: Logic utilisation before packing:
+Info:     Total LUT4s:        43/24288     0%
+Info:         logic LUTs:     17/24288     0%
+Info:         carry LUTs:     26/24288     0%
+Info:           RAM LUTs:      0/ 3036     0%
+Info:          RAMW LUTs:      0/ 6072     0%
+
+Info:      Total DFFs:        73/24288     0%
+
+Info: Packing IOs..
+Info: Packing constants..
+Info: Packing carries...
+Info: Packing LUTs...
+Info: Packing LUT5-7s...
+Info: Packing FFs...
+Info:     26 FFs paired with LUTs.
+Info: Generating derived timing constraints...
+Info: Promoting globals...
+Info:     promoting clock net clk$TRELLIS_IO_IN to global network
+Info: Checksum: 0x0dcf625d
+
+Info: Device utilisation:
+Info: 	          TRELLIS_IO:       3/    197     1%
+Info: 	                DCCA:       1/     56     1%
+Info: 	              DP16KD:       0/     56     0%
+Info: 	          MULT18X18D:       0/     28     0%
+Info: 	              ALU54B:       0/     14     0%
+Info: 	             EHXPLLL:       0/      2     0%
+Info: 	             EXTREFB:       0/      1     0%
+Info: 	                DCUA:       0/      1     0%
+Info: 	           PCSCLKDIV:       0/      2     0%
+Info: 	             IOLOGIC:       0/    128     0%
+Info: 	            SIOLOGIC:       0/     69     0%
+Info: 	                 GSR:       0/      1     0%
+Info: 	               JTAGG:       0/      1     0%
+Info: 	                OSCG:       0/      1     0%
+Info: 	               SEDGA:       0/      1     0%
+Info: 	                 DTR:       0/      1     0%
+Info: 	             USRMCLK:       0/      1     0%
+Info: 	             CLKDIVF:       0/      4     0%
+Info: 	           ECLKSYNCB:       0/     10     0%
+Info: 	             DLLDELD:       0/      8     0%
+Info: 	              DDRDLL:       0/      4     0%
+Info: 	             DQSBUFM:       0/      8     0%
+Info: 	     TRELLIS_ECLKBUF:       0/      8     0%
+Info: 	        ECLKBRIDGECS:       0/      2     0%
+Info: 	                DCSC:       0/      2     0%
+Info: 	          TRELLIS_FF:      73/  24288     0%
+Info: 	        TRELLIS_COMB:      49/  24288     0%
+Info: 	        TRELLIS_RAMW:       0/   3036     0%
+
+Info: Placed 0 cells based on constraints.
+Info: Creating initial analytic placement for 58 cells, random placement wirelen = 3933.
+Info:     at initial placer iter 0, wirelen = 199
+Info:     at initial placer iter 1, wirelen = 169
+Info:     at initial placer iter 2, wirelen = 169
+Info:     at initial placer iter 3, wirelen = 170
+Info: Running main analytical placer, max placement attempts per cell = 10000.
+Info:     at iteration #1, type ALL: wirelen solved = 169, spread = 302, legal = 324; time = 0.00s
+Info:     at iteration #2, type ALL: wirelen solved = 160, spread = 255, legal = 304; time = 0.00s
+Info:     at iteration #3, type ALL: wirelen solved = 161, spread = 293, legal = 334; time = 0.00s
+Info:     at iteration #4, type ALL: wirelen solved = 194, spread = 285, legal = 371; time = 0.00s
+Info:     at iteration #5, type ALL: wirelen solved = 189, spread = 260, legal = 292; time = 0.00s
+Info:     at iteration #6, type ALL: wirelen solved = 190, spread = 262, legal = 297; time = 0.00s
+Info:     at iteration #7, type ALL: wirelen solved = 179, spread = 252, legal = 293; time = 0.00s
+Info:     at iteration #8, type ALL: wirelen solved = 162, spread = 247, legal = 274; time = 0.00s
+Info:     at iteration #9, type ALL: wirelen solved = 163, spread = 244, legal = 281; time = 0.00s
+Info:     at iteration #10, type ALL: wirelen solved = 162, spread = 244, legal = 277; time = 0.00s
+Info:     at iteration #11, type ALL: wirelen solved = 162, spread = 244, legal = 280; time = 0.00s
+Info:     at iteration #12, type ALL: wirelen solved = 203, spread = 251, legal = 280; time = 0.00s
+Info:     at iteration #13, type ALL: wirelen solved = 181, spread = 244, legal = 280; time = 0.00s
+Info: HeAP Placer Time: 0.02s
+Info:   of which solving equations: 0.00s
+Info:   of which spreading cells: 0.00s
+Info:   of which strict legalisation: 0.00s
+
+Info: Running simulated annealing placer for refinement.
+Info:   at iteration #1: temp = 0.000000, timing cost = 11, wirelen = 274
+Info:   at iteration #5: temp = 0.000000, timing cost = 14, wirelen = 173
+Info:   at iteration #10: temp = 0.000000, timing cost = 13, wirelen = 170
+Info:   at iteration #15: temp = 0.000000, timing cost = 13, wirelen = 164
+Info:   at iteration #16: temp = 0.000000, timing cost = 13, wirelen = 164 
+Info: SA placement time 0.01s
+
+Info: Max frequency for clock '$glbnet$clk$TRELLIS_IO_IN': 352.61 MHz (PASS at 12.00 MHz)
+
+Info: Max delay <async>                           -> posedge $glbnet$clk$TRELLIS_IO_IN: 5.12 ns
+Info: Max delay posedge $glbnet$clk$TRELLIS_IO_IN -> <async>                          : 4.92 ns
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ 80497,  80589) |*** 
+Info: [ 80589,  80681) |*** 
+Info: [ 80681,  80773) |** 
+Info: [ 80773,  80865) |*** 
+Info: [ 80865,  80957) |** 
+Info: [ 80957,  81049) |*** 
+Info: [ 81049,  81141) |*** 
+Info: [ 81141,  81233) |** 
+Info: [ 81233,  81325) |*** 
+Info: [ 81325,  81417) | 
+Info: [ 81417,  81509) | 
+Info: [ 81509,  81601) | 
+Info: [ 81601,  81693) |* 
+Info: [ 81693,  81785) | 
+Info: [ 81785,  81877) |** 
+Info: [ 81877,  81969) |* 
+Info: [ 81969,  82061) |******* 
+Info: [ 82061,  82153) | 
+Info: [ 82153,  82245) |******* 
+Info: [ 82245,  82337) |****************************** 
+Info: Checksum: 0x26167846
+Info: Routing globals...
+Info:     routing clock net $glbnet$clk$TRELLIS_IO_IN using global 0
+
+Info: Routing..
+Info: Setting up routing queue.
+Info: Routing 234 arcs.
+Info:            |   (re-)routed arcs  |   delta    | remaining|       time spent     |
+Info:    IterCnt |  w/ripup   wo/ripup |  w/r  wo/r |      arcs| batch(sec) total(sec)|
+Info:        300 |       65        215 |   65   215 |         0|       0.03       0.03|
+Info: Routing complete.
+Info: Router1 time 0.03s
+Info: Checksum: 0xdea25e59
+
+Info: Critical path report for clock '$glbnet$clk$TRELLIS_IO_IN' (posedge -> posedge):
+Info:       type curr  total name
+Info:   clk-to-q  0.52  0.52 Source src_b_TRELLIS_FF_Q_1.Q
+Info:    routing  1.10  1.62 Net src_b[0] (67,7) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1$CCU2_COMB0.B
+Info:                          Defined in:
+Info:                               path_adder.v:11.14-11.19
+Info:      logic  0.45  2.07 Source sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.07 Net sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1$CCU2_FCI_INT (67,8) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.07 Source sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.07 Net sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1_COUT (67,8) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.14 Source sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.14 Net sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1$CCU2_FCI_INT (67,8) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.14 Source sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.14 Net sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1_COUT (67,8) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.21 Source sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.21 Net sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1$CCU2_FCI_INT (67,8) -> (67,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.21 Source sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.21 Net sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1_COUT (67,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.28 Source sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.28 Net sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1$CCU2_FCI_INT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.28 Source sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.28 Net sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1_COUT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.36 Source sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.36 Net sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1$CCU2_FCI_INT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.36 Source sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.36 Net sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1_COUT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.43 Source sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.43 Net sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1$CCU2_FCI_INT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.43 Source sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.43 Net sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1_COUT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.50 Source sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.50 Net sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1$CCU2_FCI_INT (68,8) -> (68,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.50 Source sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.50 Net sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1_COUT (68,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_DI_CCU2C_S0$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.57 Source sum_q_TRELLIS_FF_Q_DI_CCU2C_S0$CCU2_COMB0.FCO
+Info:    routing  0.00  2.57 Net sum_q_TRELLIS_FF_Q_DI_CCU2C_S0$CCU2_FCI_INT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_DI_CCU2C_S0$CCU2_COMB1.FCI
+Info:      logic  0.00  2.57 Source sum_q_TRELLIS_FF_Q_DI_CCU2C_S0$CCU2_COMB1.FCO
+Info:    routing  0.00  2.57 Net sum_q_TRELLIS_FF_Q_DI_CCU2C_S0_COUT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.64 Source sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0$CCU2_COMB0.FCO
+Info:    routing  0.00  2.64 Net sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0$CCU2_FCI_INT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0$CCU2_COMB1.FCI
+Info:      logic  0.00  2.64 Source sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0$CCU2_COMB1.FCO
+Info:    routing  0.00  2.64 Net sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0_COUT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.71 Source sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0$CCU2_COMB0.FCO
+Info:    routing  0.00  2.71 Net sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0$CCU2_FCI_INT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0$CCU2_COMB1.FCI
+Info:      logic  0.00  2.71 Source sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0$CCU2_COMB1.FCO
+Info:    routing  0.00  2.71 Net sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0_COUT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.78 Source sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0$CCU2_COMB0.FCO
+Info:    routing  0.00  2.78 Net sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0$CCU2_FCI_INT (69,8) -> (69,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0$CCU2_COMB1.FCI
+Info:      logic  0.00  2.78 Source sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0$CCU2_COMB1.FCO
+Info:    routing  0.00  2.78 Net sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0_COUT (69,8) -> (70,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.07  2.85 Source sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1$CCU2_COMB0.FCO
+Info:    routing  0.00  2.85 Net sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1$CCU2_FCI_INT (70,8) -> (70,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1$CCU2_COMB1.FCI
+Info:      logic  0.00  2.85 Source sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1$CCU2_COMB1.FCO
+Info:    routing  0.00  2.85 Net sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1_COUT (70,8) -> (70,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_10_DI_CCU2C_S0$CCU2_COMB0.FCI
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4
+Info:                               <yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13
+Info:      logic  0.44  3.30 Source sum_q_TRELLIS_FF_Q_10_DI_CCU2C_S0$CCU2_COMB0.F
+Info:    routing  0.13  3.42 Net sum_q_TRELLIS_FF_Q_10_DI (70,8) -> (70,8)
+Info:                          Sink sum_q_TRELLIS_FF_Q_10.DI
+Info:      setup  0.00  3.42 Source sum_q_TRELLIS_FF_Q_10.DI
+Info: 2.20 ns logic, 1.23 ns routing
+
+Info: Critical path report for cross-domain path '<async>' -> 'posedge $glbnet$clk$TRELLIS_IO_IN':
+Info:       type curr  total name
+Info:     source  0.00  0.00 Source d$tr_io.O
+Info:    routing  3.13  3.13 Net d$TRELLIS_IO_IN (29,0) -> (67,7)
+Info:                          Sink d_LUT4_D.D
+Info:                          Defined in:
+Info:                               path_adder.v:7.15-7.16
+Info:      logic  0.24  3.37 Source d_LUT4_D.F
+Info:    routing  0.13  3.50 Net d_LUT4_D_Z (67,7) -> (67,7)
+Info:                          Sink src_b_TRELLIS_FF_Q_1.DI
+Info:      setup  0.00  3.50 Source src_b_TRELLIS_FF_Q_1.DI
+Info: 0.24 ns logic, 3.26 ns routing
+
+Info: Critical path report for cross-domain path 'posedge $glbnet$clk$TRELLIS_IO_IN' -> '<async>':
+Info:       type curr  total name
+Info:   clk-to-q  0.52  0.52 Source sum_q_TRELLIS_FF_Q_7.Q
+Info:    routing  1.12  1.64 Net sum_q[20] (69,8) -> (70,8)
+Info:                          Sink q_LUT4_Z_D_PFUMX_Z_C0_LUT4_Z.A
+Info:                          Defined in:
+Info:                               path_adder.v:12.14-12.19
+Info:      logic  0.24  1.88 Source q_LUT4_Z_D_PFUMX_Z_C0_LUT4_Z.F
+Info:    routing  0.67  2.54 Net q_LUT4_Z_D_PFUMX_Z_C0[4] (70,8) -> (70,9)
+Info:                          Sink q_LUT4_Z_D_PFUMX_Z_BLUT_LUT4_Z.M
+Info:                          Defined in:
+Info:                               <yosys-share>/lattice/cells_map_trellis.v:108.23-108.24
+Info:      logic  0.26  2.80 Source q_LUT4_Z_D_PFUMX_Z_BLUT_LUT4_Z.OFX
+Info:    routing  0.84  3.64 Net q_LUT4_Z_D[3] (70,9) -> (69,9)
+Info:                          Sink q_LUT4_Z.D
+Info:                          Defined in:
+Info:                               <yosys-share>/lattice/cells_map_trellis.v:108.23-108.24
+Info:      logic  0.24  3.88 Source q_LUT4_Z.F
+Info:    routing  1.15  5.03 Net q$TRELLIS_IO_OUT (69,9) -> (72,8)
+Info:                          Sink q$tr_io.I
+Info:                          Defined in:
+Info:                               path_adder.v:8.15-8.16
+Info: 1.25 ns logic, 3.78 ns routing
+
+Info: Max frequency for clock '$glbnet$clk$TRELLIS_IO_IN': 291.97 MHz (PASS at 12.00 MHz)
+
+Info: Max delay <async>                           -> posedge $glbnet$clk$TRELLIS_IO_IN: 3.50 ns
+Info: Max delay posedge $glbnet$clk$TRELLIS_IO_IN -> <async>                          : 5.03 ns
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ 79908,  80033) |**** 
+Info: [ 80033,  80158) |** 
+Info: [ 80158,  80283) |***** 
+Info: [ 80283,  80408) |*** 
+Info: [ 80408,  80533) |**** 
+Info: [ 80533,  80658) |*** 
+Info: [ 80658,  80783) |*** 
+Info: [ 80783,  80908) | 
+Info: [ 80908,  81033) | 
+Info: [ 81033,  81158) | 
+Info: [ 81158,  81283) | 
+Info: [ 81283,  81408) |* 
+Info: [ 81408,  81533) | 
+Info: [ 81533,  81658) | 
+Info: [ 81658,  81783) |* 
+Info: [ 81783,  81908) |****** 
+Info: [ 81908,  82033) |* 
+Info: [ 82033,  82158) |******** 
+Info: [ 82158,  82283) | 
+Info: [ 82283,  82408) |******************************* 
+
+Info: Program finished normally.

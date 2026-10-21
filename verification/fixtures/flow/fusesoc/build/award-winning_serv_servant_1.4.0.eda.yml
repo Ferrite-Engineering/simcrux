@@ -1,0 +1,171 @@
+version: 0.2.1
+name: award-winning_serv_servant_1.4.0
+toplevel: service
+dependencies:
+  award-winning:serv:serv:1.4.0: []
+  fusesoc:utils:generators:0.1.7: []
+  award-winning:serv:servile:1.4.0:
+  - award-winning:serv:serv:1.4.0
+  award-winning:serv:servant:1.4.0:
+  - award-winning:serv:servile:1.4.0
+  - fusesoc:utils:generators:0.1.7
+  - award-winning:serv:servant-ice40pll:1.4.0
+  award-winning:serv:servant-ice40pll:1.4.0: []
+cores:
+  award-winning:serv:serv:1.4.0:
+    core_file: ../../../../../../../../../../..<work>/serv/serv.core
+    dependencies: []
+    license: ISC
+  fusesoc:utils:generators:0.1.7:
+    core_file: ../../../../../../../../../../..<work>/fusesoc-cores/fusesoc_utils/generators-0.1.7.core
+    dependencies: []
+    license: null
+  award-winning:serv:servile:1.4.0:
+    core_file: ../../../../../../../../../../..<work>/serv/servile.core
+    dependencies:
+    - award-winning:serv:serv:1.4.0
+    license: ISC
+  award-winning:serv:servant:1.4.0:
+    core_file: ../../../../../../../../../../..<work>/serv/servant.core
+    dependencies:
+    - award-winning:serv:servile:1.4.0
+    - fusesoc:utils:generators:0.1.7
+    - award-winning:serv:servant-ice40pll:1.4.0
+    license: ISC
+  award-winning:serv:servant-ice40pll:1.4.0:
+    core_file: generator_cache/award-winning_serv_servant-ice40pll_1.4.0-2a295b9cdf653ce1435367e15d18830fed6e7b37fb4a1bc37a62580a65ec6533/servant-ice40pll.core
+    dependencies: []
+    license: null
+parameters:
+  RISCV_FORMAL:
+    datatype: bool
+    paramtype: vlogdefine
+  SERV_CLEAR_RAM:
+    datatype: bool
+    paramtype: vlogdefine
+  memfile:
+    datatype: file
+    paramtype: vlogparam
+    description: Preload RAM with a hex file at compile-time
+  memsize:
+    datatype: int
+    paramtype: vlogparam
+    description: Memory size in bytes for RAM (default 8kiB)
+    default: 8192
+  PLL:
+    datatype: str
+    paramtype: vlogparam
+    description: PLL type to use for main clock generation
+    default: ICE40_PAD
+tool_options:
+  icestorm:
+    nextpnr_options:
+    - --up5k
+    - --freq
+    - 16
+    pnr: next
+filters: []
+flow_options: {}
+hooks: {}
+files:
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_bufreg.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_bufreg2.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_alu.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_csr.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_ctrl.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_decode.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_immdec.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_mem_if.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_rf_if.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_rf_ram_if.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_rf_ram.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_state.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_debug.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_top.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_rf_top.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_aligner.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_serv_1.4.0/rtl/serv_compdec.v
+  core: award-winning:serv:serv:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servile_1.4.0/servile/servile_rf_mem_if.v
+  core: award-winning:serv:servile:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servile_1.4.0/servile/servile_mux.v
+  core: award-winning:serv:servile:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servile_1.4.0/servile/servile_arbiter.v
+  core: award-winning:serv:servile:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servile_1.4.0/servile/servile.v
+  core: award-winning:serv:servile:1.4.0
+- file_type: user
+  name: blinky.hex
+  core: award-winning:serv:servant:1.4.0
+- file_type: user
+  name: zephyr_hello.hex
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/servant_timer.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/servant_gpio.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/servant_mux.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/servant_ram.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/servant.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/ice40_pll.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/service_clock_gen.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: verilogSource
+  name: src/award-winning_serv_servant_1.4.0/servant/service.v
+  core: award-winning:serv:servant:1.4.0
+- file_type: PCF
+  name: src/award-winning_serv_servant_1.4.0/data/icebreaker.pcf
+  core: award-winning:serv:servant:1.4.0
+- is_include_file: true
+  file_type: verilogSource
+  name: src/award-winning_serv_servant-ice40pll_1.4.0/pll.vh
+  core: award-winning:serv:servant-ice40pll:1.4.0
+vpi: []

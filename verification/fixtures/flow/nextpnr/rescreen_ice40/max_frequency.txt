@@ -1,0 +1,2 @@
+Info: Max frequency for clock 'clk$SB_IO_IN_$glb_clk': 43.17 MHz (FAIL at 100.00 MHz)
+ERROR: Max frequency for clock 'clk$SB_IO_IN_$glb_clk': 41.86 MHz (FAIL at 100.00 MHz)

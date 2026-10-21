@@ -1,0 +1,2 @@
+Info: Max frequency for clock 'clk_IBUF_I_O': 211.95 MHz (FAIL at 1000.00 MHz)
+ERROR: Max frequency for clock 'clk_IBUF_I_O': 197.04 MHz (FAIL at 1000.00 MHz)

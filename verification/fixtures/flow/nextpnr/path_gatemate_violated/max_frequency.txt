@@ -1,0 +1,2 @@
+Info: Max frequency for clock '$iopadmap$clk': 307.41 MHz (FAIL at 1000.00 MHz)
+ERROR: Max frequency for clock '$iopadmap$clk': 204.75 MHz (FAIL at 1000.00 MHz)

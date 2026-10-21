@@ -1,0 +1,299 @@
+Info: Using uarch 'gowin' for device 'GW1NR-LV9QN88PC6/I5'
+
+Info: Reading constraints...
+Info: Create constant nets...
+Info: Modify LUTs...
+Info: Pack IOBs...
+Info: Pack I3C IOs...
+Info: Pack MIPI IOs...
+Info: Pack diff IOBs...
+Info: Pack FFs into IO cells...
+Info: Pack IODELAY...
+Info: Pack Input Edge Monitors...
+Info: Pack IO logic...
+Info: Pack DESER16 logic...
+Info: Pack GSR...
+Info: Pack HCLK cells...
+Info: Pack DLLDLYs...
+Info: Pack wide LUTs...
+Info: Packed MUX2_LUT8:0, MUX2_LU7:0, MUX2_LUT6:1, MUX2_LUT5:3
+Info: Pack ALUs...
+Info: Pack SSRAMs...
+Info: Constrained 1 LUTFF pairs.
+Info: Pack PLL...
+Info: Pack ADC...
+Info: Pack GW JTAG...
+Info: Pack BSRAMs...
+Info: Pack DSP...
+Info: Pack INV...
+Info: Pack buffered nets...
+Info: Pack EMCU and UserFlash cells...
+Info: Pack UserFlash cells...
+Info: Pack DQCE cells...
+Info: Pack DCS cells...
+Info: Checksum: 0x2a3b7c8f
+
+Info: Device utilisation:
+Info: 	                 VCC:       1/      1   100%
+Info: 	                 IOB:       3/    276     1%
+Info: 	                LUT4:      40/   8640     0%
+Info: 	              OSER16:       0/     80     0%
+Info: 	              IDES16:       0/     80     0%
+Info: 	            IOLOGICI:       0/    276     0%
+Info: 	            IOLOGICO:       0/    276     0%
+Info: 	           MUX2_LUT5:       5/   4320     0%
+Info: 	           MUX2_LUT6:       1/   2160     0%
+Info: 	           MUX2_LUT7:       0/   1080     0%
+Info: 	           MUX2_LUT8:       0/   1080     0%
+Info: 	                 ALU:      26/   6480     0%
+Info: 	                 GND:       1/      1   100%
+Info: 	                 DFF:      73/   6480     1%
+Info: 	           RAM16SDP4:       0/    270     0%
+Info: 	               BSRAM:       0/     26     0%
+Info: 	              ALU54D:       0/     10     0%
+Info: 	     MULTADDALU18X18:       0/     10     0%
+Info: 	        MULTALU18X18:       0/     10     0%
+Info: 	        MULTALU36X18:       0/     10     0%
+Info: 	           MULT36X36:       0/      5     0%
+Info: 	           MULT18X18:       0/     20     0%
+Info: 	             MULT9X9:       0/     40     0%
+Info: 	              PADD18:       0/     20     0%
+Info: 	               PADD9:       0/     40     0%
+Info: 	                 GSR:       1/      1   100%
+Info: 	                 OSC:       0/      1     0%
+Info: 	                rPLL:       0/      2     0%
+Info: 	           FLASH608K:       0/      1     0%
+Info: 	                BUFG:       0/     22     0%
+Info: 	                DQCE:       0/     24     0%
+Info: 	                 DCS:       0/      8     0%
+Info: 	               DHCEN:       0/     24     0%
+Info: 	              CLKDIV:       0/      8     0%
+Info: 	             CLKDIV2:       0/     16     0%
+Info: 	           MIPI_IBUF:       0/     22     0%
+Info: 	           MIPI_OBUF:       0/     20     0%
+
+Info: Running custom HCLK placer...
+Info: Placed 0 cells based on constraints.
+Info: Creating initial analytic placement for 81 cells, random placement wirelen = 3662.
+Info:     at initial placer iter 0, wirelen = 179
+Info:     at initial placer iter 1, wirelen = 176
+Info:     at initial placer iter 2, wirelen = 178
+Info:     at initial placer iter 3, wirelen = 168
+Info: Running main analytical placer, max placement attempts per cell = 10000.
+Info:     at iteration #1, type ALL: wirelen solved = 168, spread = 335, legal = 326; time = 0.00s
+Info:     at iteration #2, type ALL: wirelen solved = 118, spread = 320, legal = 306; time = 0.00s
+Info:     at iteration #3, type ALL: wirelen solved = 117, spread = 293, legal = 304; time = 0.00s
+Info:     at iteration #4, type ALL: wirelen solved = 135, spread = 351, legal = 317; time = 0.00s
+Info:     at iteration #5, type ALL: wirelen solved = 121, spread = 213, legal = 246; time = 0.00s
+Info:     at iteration #6, type ALL: wirelen solved = 151, spread = 214, legal = 246; time = 0.00s
+Info:     at iteration #7, type ALL: wirelen solved = 152, spread = 214, legal = 253; time = 0.00s
+Info:     at iteration #8, type ALL: wirelen solved = 155, spread = 234, legal = 257; time = 0.00s
+Info:     at iteration #9, type ALL: wirelen solved = 164, spread = 308, legal = 337; time = 0.00s
+Info:     at iteration #10, type ALL: wirelen solved = 121, spread = 236, legal = 289; time = 0.00s
+Info: HeAP Placer Time: 0.02s
+Info:   of which solving equations: 0.01s
+Info:   of which spreading cells: 0.00s
+Info:   of which strict legalisation: 0.00s
+
+Info: Running simulated annealing placer for refinement.
+Info:   at iteration #1: temp = 0.000000, timing cost = 3, wirelen = 246
+Info:   at iteration #5: temp = 0.000000, timing cost = 2, wirelen = 212
+Info:   at iteration #8: temp = 0.000000, timing cost = 2, wirelen = 202 
+Info: SA placement time 0.01s
+
+Info: Max frequency for clock 'clk_IBUF_I_O': 211.95 MHz (PASS at 12.00 MHz)
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ 78615,  78809) |** 
+Info: [ 78809,  79003) |*** 
+Info: [ 79003,  79197) |** 
+Info: [ 79197,  79391) |* 
+Info: [ 79391,  79585) |** 
+Info: [ 79585,  79779) |**** 
+Info: [ 79779,  79973) |* 
+Info: [ 79973,  80167) |** 
+Info: [ 80167,  80361) |*** 
+Info: [ 80361,  80555) | 
+Info: [ 80555,  80749) |*** 
+Info: [ 80749,  80943) |* 
+Info: [ 80943,  81137) | 
+Info: [ 81137,  81331) | 
+Info: [ 81331,  81525) |** 
+Info: [ 81525,  81719) | 
+Info: [ 81719,  81913) | 
+Info: [ 81913,  82107) |***** 
+Info: [ 82107,  82301) |*********** 
+Info: [ 82301,  82495) |****************************** 
+Info: Checksum: 0x59a1e561
+Info: Routing globals...
+Info:     'clk_IBUF_I_O' net was routed using global resources only.
+
+Info: Routing..
+Info: Setting up routing queue.
+Info: Routing 318 arcs.
+Info:            |   (re-)routed arcs  |   delta    | remaining|       time spent     |
+Info:    IterCnt |  w/ripup   wo/ripup |  w/r  wo/r |      arcs| batch(sec) total(sec)|
+Info:        345 |       27        281 |   27   281 |         0|       0.03       0.03|
+Info: Routing complete.
+Info: Router1 time 0.03s
+Info: Checksum: 0x6efae5d0
+
+Info: Critical path report for clock 'clk_IBUF_I_O' (posedge -> posedge):
+Info:       type curr  total name
+Info:   clk-to-q  0.46  0.46 Source src_a_DFF_Q_21.Q
+Info:    routing  0.81  1.26 Net src_a[2] (1,1) -> (1,2)
+Info:                          Sink sum_q_DFF_Q_22_D_ALU_SUM.I0
+Info:                          Defined in:
+Info:                               path_adder.v:10.14-10.19
+Info:      logic  0.96  2.22 Source sum_q_DFF_Q_22_D_ALU_SUM.COUT
+Info:    routing  0.00  2.22 Net sum_q_DFF_Q_22_D_ALU_SUM_COUT (1,2) -> (1,2)
+Info:                          Sink sum_q_DFF_Q_21_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.28 Source sum_q_DFF_Q_21_D_ALU_SUM.COUT
+Info:    routing  0.00  2.28 Net sum_q_DFF_Q_21_D_ALU_SUM_COUT (1,2) -> (1,2)
+Info:                          Sink sum_q_DFF_Q_20_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.34 Source sum_q_DFF_Q_20_D_ALU_SUM.COUT
+Info:    routing  0.00  2.34 Net sum_q_DFF_Q_20_D_ALU_SUM_COUT (1,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_19_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.39 Source sum_q_DFF_Q_19_D_ALU_SUM.COUT
+Info:    routing  0.00  2.39 Net sum_q_DFF_Q_19_D_ALU_SUM_COUT (2,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_18_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.45 Source sum_q_DFF_Q_18_D_ALU_SUM.COUT
+Info:    routing  0.00  2.45 Net sum_q_DFF_Q_18_D_ALU_SUM_COUT (2,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_17_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.51 Source sum_q_DFF_Q_17_D_ALU_SUM.COUT
+Info:    routing  0.00  2.51 Net sum_q_DFF_Q_17_D_ALU_SUM_COUT (2,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_16_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.56 Source sum_q_DFF_Q_16_D_ALU_SUM.COUT
+Info:    routing  0.00  2.56 Net sum_q_DFF_Q_16_D_ALU_SUM_COUT (2,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_15_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.62 Source sum_q_DFF_Q_15_D_ALU_SUM.COUT
+Info:    routing  0.00  2.62 Net sum_q_DFF_Q_15_D_ALU_SUM_COUT (2,2) -> (2,2)
+Info:                          Sink sum_q_DFF_Q_14_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.68 Source sum_q_DFF_Q_14_D_ALU_SUM.COUT
+Info:    routing  0.00  2.68 Net sum_q_DFF_Q_14_D_ALU_SUM_COUT (2,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_13_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.73 Source sum_q_DFF_Q_13_D_ALU_SUM.COUT
+Info:    routing  0.00  2.73 Net sum_q_DFF_Q_13_D_ALU_SUM_COUT (3,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_12_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.79 Source sum_q_DFF_Q_12_D_ALU_SUM.COUT
+Info:    routing  0.00  2.79 Net sum_q_DFF_Q_12_D_ALU_SUM_COUT (3,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_11_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.85 Source sum_q_DFF_Q_11_D_ALU_SUM.COUT
+Info:    routing  0.00  2.85 Net sum_q_DFF_Q_11_D_ALU_SUM_COUT (3,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_10_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.90 Source sum_q_DFF_Q_10_D_ALU_SUM.COUT
+Info:    routing  0.00  2.90 Net sum_q_DFF_Q_10_D_ALU_SUM_COUT (3,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_9_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  2.96 Source sum_q_DFF_Q_9_D_ALU_SUM.COUT
+Info:    routing  0.00  2.96 Net sum_q_DFF_Q_9_D_ALU_SUM_COUT (3,2) -> (3,2)
+Info:                          Sink sum_q_DFF_Q_8_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  3.02 Source sum_q_DFF_Q_8_D_ALU_SUM.COUT
+Info:    routing  0.00  3.02 Net sum_q_DFF_Q_8_D_ALU_SUM_COUT (3,2) -> (4,2)
+Info:                          Sink sum_q_DFF_Q_7_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.06  3.08 Source sum_q_DFF_Q_7_D_ALU_SUM.COUT
+Info:    routing  0.00  3.08 Net sum_q_DFF_Q_7_D_ALU_SUM_COUT (4,2) -> (4,2)
+Info:                          Sink sum_q_DFF_Q_6_D_ALU_SUM.CIN
+Info:                          Defined in:
+Info:                               path_adder.v:16.14-16.27
+Info:                               <yosys-share>/gowin/arith_map.v:57.7-63.5
+Info:                               <yosys-share>/gowin/cells_sim.v:1033.25-1033.29
+Info:      logic  0.56  3.64 Source sum_q_DFF_Q_6_D_ALU_SUM.SUM
+Info:    routing  0.41  4.05 Net sum_q_DFF_Q_6_D (4,2) -> (5,2)
+Info:                          Sink sum_q_DFF_Q_6_passthrough_lut$.I3
+Info:      logic  0.62  4.68 Source sum_q_DFF_Q_6_passthrough_lut$.F
+Info:    routing  0.00  4.68 Net sum_q_DFF_Q_6$conn$D (5,2) -> (5,2)
+Info:                          Sink sum_q_DFF_Q_6.D
+Info:      setup  0.40  5.07 Source sum_q_DFF_Q_6.D
+Info: 3.86 ns logic, 1.22 ns routing
+
+Info: Max frequency for clock 'clk_IBUF_I_O': 197.04 MHz (PASS at 12.00 MHz)
+
+Info: Slack histogram:
+Info:  legend: times are in ps
+Info:          * represents 1 endpoint(s)
+Info:          + represents [1,1) endpoint(s)
+Info: [ 78258,  78422) |* 
+Info: [ 78422,  78586) | 
+Info: [ 78586,  78750) |* 
+Info: [ 78750,  78914) | 
+Info: [ 78914,  79078) |*** 
+Info: [ 79078,  79242) |*** 
+Info: [ 79242,  79406) |* 
+Info: [ 79406,  79570) |*** 
+Info: [ 79570,  79734) |*** 
+Info: [ 79734,  79898) |** 
+Info: [ 79898,  80062) |*** 
+Info: [ 80062,  80226) |** 
+Info: [ 80226,  80390) |* 
+Info: [ 80390,  80554) |** 
+Info: [ 80554,  80718) |*** 
+Info: [ 80718,  80882) | 
+Info: [ 80882,  81046) |******** 
+Info: [ 81046,  81210) |**** 
+Info: [ 81210,  81374) | 
+Info: [ 81374,  81538) |******************************** 
+
+Info: Program finished normally.
