@@ -215,7 +215,10 @@ void main() {
             ),
           ),
         );
-        expect(recorder.spawns.single.executable, '/opt/oss-cad-suite/bin/sby');
+        expect(
+          recorder.spawns.single.executable,
+          p.join('/opt/oss-cad-suite/bin', 'sby'),
+        );
       },
     );
 

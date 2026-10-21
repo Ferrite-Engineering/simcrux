@@ -124,8 +124,12 @@ const List<CruxDeleteAllowlistEntry> _deleteAllowlist = [];
 /// `-wal`), passes no `version:`, and catches only `DatabaseException`.
 /// It moves onto `crux_sqlite`'s read-only foreign-file open when that
 /// exists, and the pin goes with it.
+///
+/// Spelled with the host's separator: the guard matches a pin against the
+/// scanned file's own `.path` with `endsWith`, which is `lib\services\...` on
+/// Windows, so a posix literal never matched there.
 final Set<String> _pinnedDirectOpens = <String>{
-  'lib/services/formal/sby_status_database.dart',
+  p.join('lib', 'services', 'formal', 'sby_status_database.dart'),
 };
 
 /// **The G5b allowlist: empty, and it cannot be otherwise here.**

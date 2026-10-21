@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
 import 'package:simcrux/domain/models/formal_config.dart';
@@ -11,6 +10,8 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/simulator/sby_driver.dart';
+
+import '../../support/posix_keyed_files.dart';
 
 // The general `formal:` block: four inheritance levels, completeness, the
 // single-segment task rule, and the project-tooling gate with one test per
@@ -103,15 +104,17 @@ suites:
 ''',
       };
       final config = await ConfigLoader(
-        readFile: (path) async => files[path]!,
+        readFile: readFromPosixKeyed(files),
       ).load('/p/simcrux.yaml');
       final t = config.suites.firstWhere((s) => s.name == 's').tests.single;
-      expect(t.formal!.sbyFile, p.normalize('/p/b.sby'));
+      // The loader absolutises through package:path (`D:\p\b.sby` on
+      // Windows); compare the posix form.
+      expect(posixKey(t.formal!.sbyFile!), '/p/b.sby');
       expect(t.formal!.task, 'prove');
       expect(t.formal!.mode, FormalRunMode.normal);
-      expect(t.formal!.projectRoot, '/p');
+      expect(posixKey(t.formal!.projectRoot!), '/p');
       final u = config.suites.firstWhere((s) => s.name == 'inc').tests.single;
-      expect(u.formal!.sbyFile, p.normalize('/p/a.sby'), reason: 'inherited');
+      expect(posixKey(u.formal!.sbyFile!), '/p/a.sby', reason: 'inherited');
       expect(u.formal!.task, 'cover', reason: "the included file's own");
     });
 
