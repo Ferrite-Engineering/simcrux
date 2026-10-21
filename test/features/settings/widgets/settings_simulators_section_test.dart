@@ -74,6 +74,11 @@ void main() {
     final registry = container.read(simulatorDriverRegistryProvider);
     expect(registry.simulatorIds, isNotEmpty);
     for (final id in registry.simulatorIds) {
+      // Formal and flow engines have their own groups (Settings > Engines).
+      if (kEngineIdsOutsideSimulators.contains(id)) {
+        expect(find.text(id), findsNothing, reason: id);
+        continue;
+      }
       expect(find.text(id), findsOneWidget, reason: id);
       expect(_fieldFor(id), findsOneWidget, reason: id);
     }

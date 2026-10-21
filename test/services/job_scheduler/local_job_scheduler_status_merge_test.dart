@@ -75,4 +75,49 @@ void main() {
           'signal they wanted; its verdict stands on its own',
     );
   });
+
+  group('a formal verdict that is not a proof', () {
+    for (final token in ['FAIL', 'UNKNOWN', 'TIMEOUT', 'ERROR', 'NO_OUTCOME']) {
+      test('$token is never turned into a pass by any detector', () {
+        for (final config in [configured, const ExitCodePassFailConfig()]) {
+          expect(
+            LocalJobScheduler.resolveFinalStatus(
+              classified: TestStatus.pass,
+              driverStatus: TestStatus.fail,
+              config: config,
+              driverMetrics: {'formal.verdict': token},
+            ),
+            TestStatus.fail,
+            reason:
+                'the string_match detector reads DONE (PASS in the log; the '
+                "driver's reconciled verdict is the conservative fact",
+          );
+        }
+      });
+    }
+
+    test('a token this build cannot read is not a proof either', () {
+      expect(
+        LocalJobScheduler.resolveFinalStatus(
+          classified: TestStatus.pass,
+          driverStatus: TestStatus.fail,
+          config: configured,
+          driverMetrics: const {'formal.verdict': 'PROVEN_SOMEHOW'},
+        ),
+        TestStatus.fail,
+      );
+    });
+
+    test('PASS leaves the detector deciding', () {
+      expect(
+        LocalJobScheduler.resolveFinalStatus(
+          classified: TestStatus.pass,
+          driverStatus: TestStatus.pass,
+          config: configured,
+          driverMetrics: const {'formal.verdict': 'PASS'},
+        ),
+        TestStatus.pass,
+      );
+    });
+  });
 }

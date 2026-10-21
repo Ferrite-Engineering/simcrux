@@ -4750,7 +4750,140 @@ gated feature.
 
 ### 26.8 The `sby` driver
 
-Not yet built.
+**What it does.** `simulator: sby` runs one SymbiYosys task per SimCrux test
+(`lib/services/simulator/sby_driver.dart`). The RISC-V track's
+`riscv_formal` driver (§18) is the same driver plus the RISC-V layer: its
+`riscv.formal:` block, its `riscv.formal.*` metric names, its demo corpus
+and its toolchain guidance. Its command line is unchanged.
+
+```yaml
+suites:
+  formal:
+    tests:
+      - name: prove_bug
+        top: handshake
+        simulator: sby
+        formal:
+          sby_file: formal/handshake.sby   # relative to this file
+          task: prove_bug                  # the [tasks] name; names the task dir
+```
+
+Keys: `sby_file`, `task`, `mode` (`normal` or `demo`), `demo_outputs`,
+`demo_case`, and the gated `sby_binary`, `tools.<tool>` (`yosys`, `abc`,
+`smtbmc`, `witness`, `suprove`, `aigbmc`, `avy`, `rIC3`, `btormc`,
+`itp-bmc`, `pono`), `command` and `extra_args`. The block is inherited like
+`riscv:`: an including file's `defaults.formal`, the project's
+`defaults.formal`, the suite's `formal:`, the test's `formal:`. Any other
+key is an error.
+
+**The spawn.** `sby -f -d <work dir>/<task> --live jsonl [--<tool> <path>]
+[extra args] <file.sby> <task>`, in the `.sby` file's directory. The binary
+is `formal.sby_binary` when project tooling is allowed, else the Settings >
+Engines binary path, else `sby` on PATH.
+
+**Where the verdict comes from.** Three sources, in this order of authority:
+
+1. The task log's `DONE (<TOKEN>, rc=<n>)` line, read by `SbyLogReader`: the
+   task verdict. The exit code is recorded in `formal.process_exit_code` and
+   decides nothing; an exit 0 under any verdict but `PASS` is withheld from
+   the scheduler.
+2. The `--live jsonl` records on the same stream (`SbyStatusReader`): the
+   primary per-property source. A base-case `FAIL` wins over any `PASS`; an
+   induction `FAIL` (its trace is `trace_induct.*`, it has no step) is
+   undecided, never a counterexample; a `.yw` witness is mapped to the VCD
+   beside it.
+3. The task directory's `status.sqlite`, read after `sby` exits
+   (`SbyStatusDatabase`): the property list (including properties no record
+   mentions) and a second set of statuses. It is opened read-only with the
+   URI flag `immutable=1`, so no `-shm` or `-wal` file is written beside it.
+
+**The agreement rule** (`FormalReconciliation`). Only the kinds the mode
+checks count: covers in `cover` mode, everything but covers, assumptions and
+fairness constraints otherwise.
+
+| Task verdict | Properties | Row verdict | `formal.verdict_disagreement` |
+|---|---|---|---|
+| `PASS` | all proved or reached | `PASS` | `0` |
+| `PASS` | any counterexample or unreached cover | `FAIL` | `1` |
+| `PASS` | any with no status at all (Did not run) | `NO_OUTCOME` | `1` |
+| `PASS` | any undecided | `UNKNOWN` | `1` |
+| anything else | anything | the task verdict, never `PASS` | `1` when the buckets differ |
+| any | none at all | the task verdict | absent |
+
+Where the stream and `status.sqlite` give one property different statuses,
+the more conservative one is kept and the disagreement recorded. A
+detector never turns a `formal.verdict` other than `PASS` into a pass, so a
+`string_match` on `DONE (PASS` cannot undo the rule.
+
+**Metrics.** `formal.tool`, `formal.run_mode`, `formal.task`, `formal.mode`,
+`formal.verdict`, `formal.rc`, `formal.process_exit_code`,
+`formal.depth_configured`, `formal.depth_reached`, `formal.wall_time_ms`,
+`formal.wall_time_source`, `formal.engine`, `formal.solver`,
+`formal.trace_count`, `formal.trace_unresolved`, and, when there is
+per-property data, `formal.properties`, `formal.properties_failed`,
+`formal.properties_undecided`, `formal.verdict_disagreement`. Each property
+is a row of indexed keys, `formal.property.<n>.kind`, `.location`,
+`.status` (`proved`, `reached`, `counterexample`, `not_reached`,
+`inconclusive`, `did_not_run`), `.label`, `.step`, `.trace` (relative to the
+task directory) and `.id` (the label, when the frontend kept one), for at
+most 256 properties (`formal.properties_truncated=1` beyond). A property's
+location is project-root-relative when its source, mapped back through the
+`.sby` file's `[files]`, lies inside the project; otherwise it is as `sby`
+spelled it. RISC-V rows carry these keys in addition to `riscv.formal.*`.
+
+**Containment.** The task directory is `<work dir>/<task>`, or the job
+file's basename when no task is named, and must be one safe path segment:
+no separator in either spelling, not absolute in either spelling, not `.`
+or `..`, no colon, no NUL, no line break. The loader refuses such a
+`formal.task` or `formal.demo_case`, and the driver refuses again before
+anything is spawned or staged, because `sby -f` deletes that directory.
+`extra_args` may not pass `-d`, `--prefix`, `-f`, `-b`, `-t`, `-T`,
+`--setup` or `--statusreset`. A trace is attached only when it resolves to
+a file inside the task directory with symlinks resolved; otherwise the
+spelling goes to `formal.trace_unresolved` and the run log (and stderr)
+says why.
+
+**Project tooling.** With project tooling not allowed, `formal.sby_binary`
+and every `formal.tools.<tool>` are dropped with one advisory naming them
+all, and `formal.command` or `formal.extra_args` refuses the load. Allowed
+in Settings > Engines or with `--allow-project-tooling`.
+
+**Demo mode.** `mode: demo` spawns nothing. `demo_outputs/<demo_case or
+test name>/case.json` names the captured `log`, the `traces` to stage into
+the task directory, an optional `status_db` and the `exit_code`; the
+capture goes through the same readers and the same rule.
+
+**Edge cases.**
+
+- `abc pdr` decides properties one by one: a task that ends `FAIL` can carry
+  `PASS` for other properties and no record at all for the rest, which are
+  undecided, not Did not run.
+- `status.sqlite` declares a design's cover statements in a `prove` task;
+  they are not checked there and are not counted.
+- An `sby` without `--live` (older than the three measured builds) fails
+  its argument parsing and the run is `NO_OUTCOME`, never a pass.
+- A killed `sby` can leave statuses in an uncheckpointed `-wal`, which the
+  immutable read does not see: the read can only miss statuses, never invent
+  one.
+
+**Tier-gate scenarios.** None: the driver, its verdicts and every metric are
+open core under both `kBetaPeriod` values.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| Command line, Settings binary path, refusals before spawn, the exit-code rule, the agreement rule through the scheduler, trace containment, demo replay | `[Coverage: UNIT]` | `test/services/simulator/sby_driver_test.dart` |
+| Status stream records, precedence, induction, bounds | `[Coverage: UNIT]` | `test/services/formal/sby_status_reader_test.dart` |
+| `status.sqlite` read with nothing written beside it, task filter | `[Coverage: UNIT]` | `test/services/formal/sby_status_database_test.dart` |
+| Agreement rule, checked kinds, labels, location mapping | `[Coverage: UNIT]` | `test/services/formal/formal_reconciliation_test.dart` |
+| Safe segments and contained paths, adversarial and Windows-shaped | `[Coverage: UNIT]` | `test/services/formal/formal_containment_test.dart` |
+| Every corpus expectation reproduced by the readers | `[Coverage: UNIT]` | `test/services/formal/formal_corpus_readers_test.dart` |
+| The `formal:` block, inheritance and the tooling gate per key | `[Coverage: UNIT]` | `test/services/config/config_loader_formal_test.dart` |
+| No detector undoes a non-`PASS` formal verdict | `[Coverage: UNIT]` | `test/services/job_scheduler/local_job_scheduler_status_merge_test.dart` |
+| Registered in both registries | `[Coverage: UNIT]` | `test/static/sby_driver_reachability_test.dart` |
+| Ungated at Open Core after the beta, identical at Pro and Enterprise | `[Coverage: UNIT]` | `test/services/simulator/sby_ungated_verdict_test.dart` |
+| SbyDriver against a real `sby` matches every expectation | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/sby_driver_live_test.dart` |
 
 ### 26.9 Importing a `.sby` project and the formal CLI
 

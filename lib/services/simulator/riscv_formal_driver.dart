@@ -1,14 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/formal_verdict.dart';
-import 'package:simcrux/domain/enums/hdl_language.dart';
-import 'package:simcrux/domain/enums/kill_signal.dart';
 import 'package:simcrux/domain/enums/riscv_host_platform.dart';
 import 'package:simcrux/domain/enums/riscv_run_mode.dart';
 import 'package:simcrux/domain/enums/riscv_toolchain_component.dart';
@@ -16,15 +10,27 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
 import 'package:simcrux/domain/models/sby_outcome.dart';
-import 'package:simcrux/domain/models/sby_script.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
-import 'package:simcrux/services/simulator/process_backed_simulator_driver.dart';
-import 'package:simcrux/services/simulator/python_traceback_reducer.dart';
+import 'package:simcrux/services/formal/formal_containment.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
 import 'package:simcrux/services/simulator/riscv_toolchain_probe.dart';
+import 'package:simcrux/services/simulator/sby_driver.dart';
 
 /// [SimulatorDriver] that runs **one riscv-formal
-/// bounded proof per job**.
+/// bounded proof per job**: the general [SbyDriver] plus the RISC-V layer.
+///
+/// ## What the RISC-V layer is
+///
+/// Everything that is not SymbiYosys: the `riscv.formal:` block it reads,
+/// the `riscv.formal.*` metric names (emitted **in addition to** the
+/// general `formal.*` set, never instead), `riscv.mode` / `riscv.isa`, the
+/// RVFI check / group / channel, its own demo corpus and its toolchain
+/// guidance through [RiscvToolchainProbe]. The spawn, the log and status
+/// readers, the agreement rule, trace containment and the exit-code rule
+/// are [SbyDriver]'s. Its command line is the shipped one: no
+/// `--live jsonl`, so an older `sby` a riscv-formal checkout pins still
+/// runs, and the per-property statuses come from the task's
+/// `status.sqlite` when there is one.
 ///
 /// ## Why this maps onto the existing job model unchanged
 ///
@@ -32,72 +38,33 @@ import 'package:simcrux/services/simulator/riscv_toolchain_probe.dart';
 /// instrumented core: *N* independent bounded proofs, each pass/fail,
 /// each with a counterexample VCD on failure. That is structurally a
 /// regression run, so nothing about scheduling, timeouts, cancellation,
-/// retry or persistence needs a parallel mechanism.
-///
-/// The one impedance mismatch is the same one `riscv_arch` has: the job model has
-/// **no fan-out** — one `TestSpec` yields exactly one
-/// `TestExecutionFinished` and exactly one `TestResult` — while `sby`
-/// naturally reports many proofs per `make`. It is resolved *before* the
-/// scheduler by [RiscvFormalCheckImporter], which enumerates the generated
-/// `.sby` files into one inspectable SimCrux test each. This driver then
-/// runs exactly one of them, reusing [ProcessBackedSimulatorDriver]'s
-/// process-tree reaping, timeout escalation and cancellation. No new
-/// subprocess handling is written here.
+/// retry or persistence needs a parallel mechanism. The fan-out is resolved
+/// *before* the scheduler by [RiscvFormalCheckImporter], which enumerates
+/// the generated `.sby` files into one inspectable SimCrux test each.
 ///
 /// ## The verdict comes from the log, never from the exit code
 ///
 /// `sby` states its own conclusion on a `DONE (…)` line, and that is what
-/// [SbyLogReader] reads. Classifying from the exit code instead would
-/// make an `sby` that exits 0 without ever producing a verdict — a killed
-/// pipeline, a wrapper that swallows the status, a mis-set `expect` —
-/// report a proof that never happened as **pass**. That is the exit-0 trap
-/// in its formal form, and [FormalVerdict.noOutcome] is what catches
-/// it.
-///
-/// **Every non-`PASS` outcome is [TestStatus.fail]**, including
-/// `UNKNOWN` and `TIMEOUT`. The reasoning, including why
-/// [TestStatus.timeout] was considered and rejected, is on
-/// [FormalVerdict]. `unknown` and `vacuous` are unreachable by
-/// construction: `unknown` would hand the verdict back to the driver's
-/// own exit code, and `vacuous` is success-equivalent to the scheduler —
-/// no retry, and the work directory holding the counterexample VCD is
-/// deleted.
+/// [SbyLogReader] reads. An `sby` that exits 0 without ever producing a
+/// verdict is [FormalVerdict.noOutcome], never a pass. **Every non-`PASS`
+/// outcome is [TestStatus.fail]**, including `UNKNOWN` and `TIMEOUT`; the
+/// reasoning is on [FormalVerdict].
 ///
 /// ## Where the counterexample VCD goes
 ///
-/// Straight onto [TestExecutionFinished.waveformPath], which the
-/// scheduler already forwards to `TestResult.waveformPath` and which
-/// already round-trips NDJSON as `waveform_path`. **No new result field
-/// is needed**, and the existing "Debug in WaveCrux" / CXP producer path
-/// consumes it unchanged — which is the whole hand-off to WaveCrux.
-///
-/// It survives on disk because `sby -d` is pointed at the test's working
-/// directory and the scheduler only sweeps **successful** work dirs. A
-/// failing proof is not successful, so its evidence stays. A *passing*
-/// proof's work dir is swept, and the scheduler's existing
-/// archive-or-drop rule keeps the recorded path from dangling — so a
-/// cover trace from a passing run is dropped rather than pointing at a
-/// deleted file. That is correct, and it is why this driver hands the
-/// path over rather than special-casing it.
-///
-/// ## Toolchain posture
-///
-/// Detect and guide, never bundle. SymbiYosys is
-/// [RiscvToolchainComponent.formalEngine] in the existing
-/// [RiscvToolchainProbe], which covers it so the diagnostics
-/// panel shows one coherent RISC-V picture; this driver **consumes** that
-/// probe and does not extend it.
+/// Straight onto [TestExecutionFinished.waveformPath], which the scheduler
+/// forwards to `TestResult.waveformPath` and the "Debug in WaveCrux" / CXP
+/// producer path consumes unchanged. It survives on disk because `sby -d`
+/// is pointed at the test's working directory and the scheduler only
+/// sweeps **successful** work dirs.
 ///
 /// ## Tiering
 ///
 /// **Never gated.** Not by `LicenseTier`, not by `FeatureGate`, not by a
-/// row cap, and not after `kBetaPeriod` flips to `false` — identical to
-/// `riscv_arch` and for the identical reason. The property-level pass/fail is
-/// correctness and is free; the Pro formal dashboard is the analysis
-/// layer over an ungated result set. The deliberate asymmetry with the
-/// config loader's `_parameterizationUnlocked` sweep gate is recorded at
-/// `config_loader_riscv.dart` and on [RiscvConfig].
-class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
+/// row cap, and not after `kBetaPeriod` flips to `false`. The property-level
+/// pass/fail is correctness and is free; the Pro formal dashboard is the
+/// analysis layer over an ungated result set.
+class RiscvFormalDriver extends SbyDriver {
   /// Creates a [RiscvFormalDriver].
   ///
   /// [platform] overrides the host OS the toolchain guidance is phrased
@@ -128,13 +95,13 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   /// Metric key: the RVFI channel index from a `…_chN` check name.
   static const String kMetricChannel = 'riscv.formal.channel';
 
-  /// Metric key: `sby`'s own outcome token, verbatim — `PASS`, `FAIL`,
-  /// `UNKNOWN`, `ERROR`, `TIMEOUT` or `NO_OUTCOME`.
+  /// Metric key: the reconciled outcome token — `PASS`, `FAIL`,
+  /// `UNKNOWN`, `ERROR`, `TIMEOUT` or `NO_OUTCOME`. The same value as
+  /// `formal.verdict`.
   ///
-  /// **This is where the honest distinction lives.** Every non-`PASS`
-  /// outcome is a `TestStatus.fail`, so "a counterexample was found" and
-  /// "the solver gave up" are the same status — and different values of
-  /// this key.
+  /// Every non-`PASS` outcome is a `TestStatus.fail`, so "a counterexample
+  /// was found" and "the solver gave up" are the same status — and
+  /// different values of this key.
   static const String kMetricVerdict = 'riscv.formal.verdict';
 
   /// Metric key: `sby`'s `rc=` value, for provenance.
@@ -142,10 +109,6 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
 
   /// Metric key: a process exit code of **0** that was withheld from
   /// [TestExecutionFinished.exitCode] because the verdict was not `PASS`.
-  ///
-  /// See the note on that suppression in [buildTerminalEvent]: the value
-  /// is not discarded, it is moved somewhere that cannot be mistaken for
-  /// a verdict.
   static const String kMetricProcessExitCode = 'riscv.formal.process_exit_code';
 
   /// Metric key: the proof mode from the `.sby` (`bmc` / `prove` /
@@ -155,11 +118,9 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   /// Metric key: the bound the `.sby` configured.
   static const String kMetricDepthConfigured = 'riscv.formal.depth_configured';
 
-  /// Metric key: the deepest step the engine reported reaching.
-  ///
-  /// Reported beside [kMetricDepthConfigured] rather than alone, because
-  /// "reached 12 of a configured 20" and "reached 12 of a configured 12"
-  /// are different facts about a proof.
+  /// Metric key: the deepest step the engine reported reaching, beside
+  /// [kMetricDepthConfigured]: "reached 12 of a configured 20" and "reached
+  /// 12 of a configured 12" are different facts about a proof.
   static const String kMetricDepthReached = 'riscv.formal.depth_reached';
 
   /// Metric key: wall time in milliseconds. See [kMetricWallTimeSource].
@@ -167,28 +128,20 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
 
   /// Metric key: `engine` when the wall time is `sby`'s own reported
   /// elapsed clock time, `measured` when it is this driver's stopwatch
-  /// around the job.
-  ///
-  /// Two sources, never conflated: an exported report that says "this
-  /// proof took 4 seconds" must be able to say whether that is what the
-  /// solver reported or what the job took. In `mode: demo` the replayed
-  /// log's own elapsed time is the honest number — a stopwatch there
-  /// would report how long it took to read a file.
+  /// around the job. In `mode: demo` the replayed log's own elapsed time is
+  /// the number a stopwatch could not give.
   static const String kMetricWallTimeSource = 'riscv.formal.wall_time_source';
 
   /// [kMetricWallTimeSource] value meaning the figure is `sby`'s own
-  /// reported elapsed clock time — the **proof's** wall time.
-  ///
-  /// A named constant rather than a bare literal because the Pro formal
-  /// dashboard has to render the two sources differently, and a reader
-  /// that spelled `'engine'` itself would be a second literal for one
-  /// shared convention — the drift `GoldenComparator` and
-  /// [SbyLogReader.kPassMarker] both exist to prevent.
-  static const String kWallTimeSourceEngine = 'engine';
+  /// reported elapsed clock time — the **proof's** wall time. A named
+  /// constant because the Pro formal dashboard renders the two sources
+  /// differently.
+  static const String kWallTimeSourceEngine = SbyDriver.kWallTimeSourceEngine;
 
   /// [kMetricWallTimeSource] value meaning the figure is this driver's
   /// stopwatch around the job, used when `sby` reported no elapsed time.
-  static const String kWallTimeSourceMeasured = 'measured';
+  static const String kWallTimeSourceMeasured =
+      SbyDriver.kWallTimeSourceMeasured;
 
   /// Metric key: the engine specification, e.g. `smtbmc boolector`.
   static const String kMetricEngine = 'riscv.formal.engine';
@@ -199,17 +152,12 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   static const String kMetricTraceCount = 'riscv.formal.trace_count';
 
   /// Metric key: a trace `sby` announced that could not be resolved to a
-  /// file on disk, recorded verbatim so the mismatch is diagnosable
-  /// instead of silently becoming "no counterexample".
+  /// file inside the task directory, recorded verbatim so the mismatch is
+  /// diagnosable instead of silently becoming "no counterexample".
   static const String kMetricTraceUnresolved = 'riscv.formal.trace_unresolved';
 
-  /// Metric key: which of the two modes produced this row. Present so a
-  /// demo-mode row can never be mistaken for a real proof in an exported
-  /// report.
-  ///
-  /// Shared with the `riscv_arch` driver **by reference, not by a second
-  /// literal** — a report that mixes the two flows must not end up with
-  /// two spellings of the same fact.
+  /// Metric key: which of the two modes produced this row. Shared with the
+  /// `riscv_arch` driver **by reference, not by a second literal**.
   static const String kMetricMode = RiscvArchDriver.kMetricMode;
 
   /// Metric key: the ISA string the config claimed. Descriptive only, and
@@ -218,7 +166,7 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
 
   /// Filename the demo corpus gives its captured log when `case.json`
   /// does not name one.
-  static const String kDefaultDemoLogName = 'sby.log';
+  static const String kDefaultDemoLogName = SbyDriver.kDefaultDemoLogName;
 
   @override
   String get id => kId;
@@ -226,48 +174,20 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   @override
   String get displayName => 'riscv-formal (SymbiYosys)';
 
-  /// Declares **no HDL languages**, deliberately — the same call as
-  /// `riscv_arch`, for a different reason.
-  ///
-  /// SymbiYosys certainly reads HDL, but not from `TestSpec.sources`: the
-  /// `.sby` job file declares its own `[files]` and `[script]`. Claiming
-  /// a language set here would make `MixedLanguageValidator` police a
-  /// list this driver never consumes. See the note in
-  /// `config_loader_riscv.dart`.
-  ///
-  /// [supportsVcd] is true and means exactly one thing: this driver can
-  /// hand back a VCD. It is the **counterexample** trace `sby` emits on
-  /// failure, not a user-requested dump — `TestSpec.waveform` is not
-  /// consulted, because a proof either produces a trace or has nothing to
-  /// show.
   @override
-  SimulatorCapabilities get capabilities => SimulatorCapabilities(
-    supportedLanguages: const <HdlLanguage>{},
-    supportsVcd: true,
-    supportsFst: false,
-    supportsCocotb: false,
-    // `sby` does everything in one invocation: read, elaborate, solve.
-    // There is no artifact for a separate compile stage to produce.
-    requiresSeparateCompileStep: false,
-    emitsStructuredOutput: false,
-  );
+  String get logTag => kId;
+
+  /// The shipped command line, unchanged: no `--live jsonl`.
+  @override
+  bool get liveStatus => false;
 
   /// Builds a probe phrased for this driver's platform, spawning through
   /// the base class's non-throwing [detectVersionOf].
-  ///
-  /// **Consumes** the existing probe, which already covers
-  /// [RiscvToolchainComponent.formalEngine] with per-platform
-  /// guidance, so there is nothing to extend here.
   RiscvToolchainProbe probeFor() =>
       RiscvToolchainProbe(versionProbe: detectVersionOf, platform: _platform);
 
   /// Returns the SymbiYosys version line for the diagnostics panel, or
   /// null when `sby` was not found. Non-throwing, per the interface.
-  ///
-  /// Reports only its own component rather than the four-component
-  /// summary `RiscvArchDriver.detectVersion` returns: the panel already
-  /// renders the whole toolchain report once, and a second copy of the
-  /// cross-compiler's state under a formal-engine heading would be noise.
   @override
   Future<String?> detectVersion(SimulatorBinaryConfig config) async {
     try {
@@ -278,280 +198,76 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     }
   }
 
-  /// No-op: `sby` reads, elaborates and solves in a single invocation, so
-  /// there is no prerequisite artifact for a compile stage to produce.
-  ///
-  /// [capabilities] declares `requiresSeparateCompileStep: false` and the
-  /// scheduler honors that, but the interface still requires the method.
-  /// Reporting success with no artifact is the honest answer, and it is
-  /// what `DemoSimulatorDriver` does for the same reason.
   @override
-  Future<CompileResult> compile(CompileRequest request) async =>
-      const CompileResult(
-        success: true,
-        artifactPath: null,
-        stdout: '',
-        stderr: '',
-      );
-
-  // ── execute ────────────────────────────────────────────────────────
+  String demoNotConfiguredMessage() =>
+      'riscv_formal: `riscv.formal.demo_outputs` is not set, so there '
+      'is no captured corpus to replay.';
 
   @override
-  Future<void> runExecute(
-    ExecuteRequest request,
-    StreamController<TestExecutionEvent> controller,
-  ) async {
+  SbyJob prepareJob(ExecuteRequest request) {
     final cfg = request.test.riscv ?? const RiscvConfig();
-    final startedAt = DateTime.now().toUtc();
-    final stopwatch = Stopwatch()..start();
-
+    final formal = cfg.formal ?? const RiscvFormalConfig();
+    final subject = formal.check ?? 'the check';
     // Before either path touches the disk: demo mode copies traces into
     // the task directory and the real path hands it to `sby -f`, which
-    // deletes it. The loader refuses a check name that escapes the work
-    // dir, so reaching this means a programmatically-built spec.
+    // deletes it.
     final (path: taskDir, :problem) = _taskDirectory(
       cfg,
       request.workingDirectory,
     );
     if (problem != null) {
-      await _failBeforeRunning(controller, startedAt, problem);
-      return;
+      return SbyJob(taskDirectory: taskDir, problem: problem, subject: subject);
     }
-
     if (cfg.effectiveMode == RiscvRunMode.demo) {
-      await _runDemo(request, cfg, taskDir, controller, startedAt, stopwatch);
-      return;
+      return SbyJob(
+        taskDirectory: taskDir,
+        task: formal.task,
+        demo: true,
+        demoCaseDir: demoCaseDir(cfg, request.test.name),
+        subject: subject,
+      );
     }
-
     final problems = cfg.validateForRun(simulatorId: kId);
     if (problems.isNotEmpty) {
-      // The loader refuses this configuration, so reaching here means a
-      // programmatically-built spec. Fail loudly rather than passing.
-      await _failBeforeRunning(controller, startedAt, problems.join(' '));
-      return;
+      return SbyJob(
+        taskDirectory: taskDir,
+        validationProblems: problems,
+        subject: subject,
+      );
     }
-
-    final formal = cfg.formal ?? const RiscvFormalConfig();
     final sbyFile = resolvedSbyFile(cfg);
-    final script = _readScript(sbyFile);
-    final argv = buildArgv(
-      cfg: cfg,
-      workingDirectory: request.workingDirectory,
-      testName: request.test.name,
-    );
-
-    final reader = SbyLogReader();
-    // SymbiYosys is Python. A crash arrives as a multi-frame traceback,
-    // and the reducer is generic for exactly this reuse — one
-    // reducer in the codebase, wired to the same `onLine` hook.
-    final reducer = PythonTracebackReducer();
-
-    await runProcessStreaming(
-      request: request,
-      executable: argv.first,
-      args: argv.skip(1).toList(growable: false),
-      environment: request.binaryConfig.extraEnv,
-      startedAt: startedAt,
-      controller: controller,
-      unavailableBinaryLabel: argv.first,
-      // The actionable remediation, not an errno. This is the same
-      // unlocalized-English channel as
-      // `SimulatorNotAvailableException.remediation`: it
-      // reaches logs and `failureMessage`, and no widget renders it.
+    return SbyJob(
+      taskDirectory: taskDir,
+      sbyFile: sbyFile,
+      task: formal.task,
+      // `sby` must run in the directory holding the `.sby` file:
+      // riscv-formal's `genchecks.py` writes `[files]` entries relative to
+      // `checks/`, and its own Makefile runs `sby` from there.
+      spawnDirectory: _spawnDirectory(formal, sbyFile),
+      argv: buildArgv(
+        cfg: cfg,
+        workingDirectory: request.workingDirectory,
+        testName: request.test.name,
+      ),
+      subject: subject,
       unavailableMessage: probeFor().remediationFor(
         RiscvToolchainComponent.formalEngine,
         cfg,
       ),
-      // `sby` must run in the directory holding the `.sby` file:
-      // riscv-formal's `genchecks.py` writes `[files]` entries relative
-      // to `checks/`, and its own Makefile runs `sby` from there. The
-      // artifacts still land in the test's working directory, because
-      // `-d` is pointed at it.
-      workingDirectoryOverride: _spawnDirectory(formal, sbyFile),
-      onLine: (line, {required fromStderr}) {
-        reader.addLine(line);
-        reducer.addLine(line);
-      },
-      buildFinished: (exitCode, process) async {
-        stopwatch.stop();
-        return await buildTerminalEvent(
-          cfg: cfg,
-          outcome: reader.outcome,
-          script: script,
-          taskDirectory: taskDir,
-          spawnDirectory: _spawnDirectory(formal, sbyFile),
-          exitCode: exitCode,
-          startedAt: startedAt,
-          measured: stopwatch.elapsed,
-          killSignal: process.killSignal,
-          tracebackSummary: reducer.summary,
-        );
-      },
     );
   }
 
-  /// Ends the run as a `fail` before anything is spawned or staged.
-  Future<void> _failBeforeRunning(
-    StreamController<TestExecutionEvent> controller,
-    DateTime startedAt,
-    String message,
-  ) async {
-    controller.add(
-      TestExecutionFinished(
-        status: TestStatus.fail,
-        exitCode: null,
-        startedAt: startedAt,
-        finishedAt: DateTime.now().toUtc(),
-        failureMessage: message,
-      ),
-    );
-    await controller.close();
-  }
-
-  /// Demo execute: replay a committed SymbiYosys log. No spawn.
-  ///
-  /// **Only the spawn is skipped.** The captured log is fed line by line
-  /// into the same [SbyLogReader] the real path feeds from
-  /// `runProcessStreaming`'s `onLine` hook, every line still reaches the
-  /// stream as a `TestLogLine` (so the `string_match` detector the
-  /// importer emits sees exactly the text it would see in production),
-  /// and the terminal event is built by the same [buildTerminalEvent].
-  /// Config-declared, never environment-gated — explicitly not the
-  /// `SIMCRUX_DEMO_RUNNER` / `DemoSimulatorDriver` pattern, which would
-  /// make CI exercise a different code path than production.
-  Future<void> _runDemo(
-    ExecuteRequest request,
-    RiscvConfig cfg,
-    String taskDir,
-    StreamController<TestExecutionEvent> controller,
-    DateTime startedAt,
-    Stopwatch stopwatch,
-  ) async {
-    final caseDir = demoCaseDir(cfg, request.test.name);
-    final reader = SbyLogReader();
-    final reducer = PythonTracebackReducer();
-    var exitCode = 0;
-    SbyScript? script;
-
-    if (caseDir == null) {
-      controller.add(
-        TestLogLine(
-          line:
-              'riscv_formal: `riscv.formal.demo_outputs` is not set, so there '
-              'is no captured corpus to replay.',
-          fromStderr: true,
-          timestamp: DateTime.now().toUtc(),
-        ),
-      );
-    } else {
-      final manifest = await _demoManifest(caseDir);
-      // Checked before anything is staged or replayed: a manifest that
-      // names a trace outside its directories is refused as a whole, so a
-      // passing log beside it cannot turn the case green.
-      final traceProblem = _demoTraceProblem(manifest, caseDir, taskDir);
-      if (traceProblem != null) {
-        controller.add(
-          TestLogLine(
-            line: traceProblem,
-            fromStderr: true,
-            timestamp: DateTime.now().toUtc(),
-          ),
-        );
-        await _failBeforeRunning(controller, startedAt, traceProblem);
-        return;
-      }
-      script = SbyScript(
-        proofMode: manifest.proofMode,
-        depth: manifest.depth,
-      );
-      exitCode = manifest.exitCode;
-      controller.add(
-        TestLogLine(
-          line:
-              'riscv_formal: mode=demo — replaying captured SymbiYosys output '
-              'from $caseDir (no SymbiYosys, no subprocess).',
-          fromStderr: false,
-          timestamp: DateTime.now().toUtc(),
-        ),
-      );
-      await _stageDemoTraces(manifest, caseDir, taskDir, controller);
-      final logPath = _containedPath(caseDir, manifest.log);
-      final log = logPath == null ? null : await _readOrNull(logPath);
-      if (log == null) {
-        controller.add(
-          TestLogLine(
-            line:
-                'riscv_formal: demo corpus has no ${manifest.log} at '
-                '$caseDir — the run proceeds and reports the absence of a '
-                'verdict, exactly as a real run that produced none would.',
-            fromStderr: true,
-            timestamp: DateTime.now().toUtc(),
-          ),
-        );
-      } else {
-        for (final line in const LineSplitter().convert(log)) {
-          reader.addLine(line);
-          reducer.addLine(line);
-          controller.add(
-            TestLogLine(
-              line: line,
-              fromStderr: false,
-              timestamp: DateTime.now().toUtc(),
-            ),
-          );
-        }
-      }
-    }
-
-    stopwatch.stop();
-    controller.add(
-      await buildTerminalEvent(
-        cfg: cfg,
-        outcome: reader.outcome,
-        script: script,
-        taskDirectory: taskDir,
-        spawnDirectory: caseDir,
-        exitCode: exitCode,
-        startedAt: startedAt,
-        measured: stopwatch.elapsed,
-        killSignal: null,
-        tracebackSummary: reducer.summary,
-      ),
-    );
-    await controller.close();
-  }
-
-  // ── the shared tail: classify, resolve the trace, emit ─────────────
-
-  /// Builds the terminal event from a parsed [outcome].
-  ///
-  /// **Every mode reaches this unchanged**, which is what makes the
-  /// demo-mode tests evidence about the production path.
-  ///
-  /// The status is always `pass` or `fail` — never `unknown` (which hands
-  /// the verdict back to this driver's own exit code, so an `sby` that
-  /// exited 0 without proving anything would report pass) and never
-  /// `vacuous` (which the scheduler treats as success-equivalent: no
-  /// retry, and the work directory holding the counterexample VCD is
-  /// deleted).
-  Future<TestExecutionFinished> buildTerminalEvent({
-    required RiscvConfig cfg,
-    required SbyOutcome outcome,
-    required SbyScript? script,
-    required String taskDirectory,
-    required String? spawnDirectory,
-    required int? exitCode,
-    required DateTime startedAt,
-    required Duration measured,
-    required KillSignal? killSignal,
-    required String? tracebackSummary,
-  }) async {
+  /// The `riscv.*` metrics, in the shipped order, before the `formal.*`
+  /// set the base class appends.
+  @override
+  Map<String, String> trackMetrics(ExecuteRequest request, SbyRunFacts facts) {
+    final cfg = request.test.riscv ?? const RiscvConfig();
     final formal = cfg.formal ?? const RiscvFormalConfig();
-    final verdict = outcome.verdict;
-
+    final outcome = facts.outcome;
+    final script = facts.script;
     final metrics = <String, String>{
       kMetricMode: cfg.effectiveMode.wireName,
-      kMetricVerdict: verdict.wireName,
+      kMetricVerdict: facts.verdict.wireName,
       kMetricCheck: ?formal.check,
       kMetricGroup: ?formal.effectiveGroup,
       kMetricChannel: ?formal.channel,
@@ -574,109 +290,17 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
       metrics[kMetricWallTimeMs] = '${outcome.elapsedSeconds! * 1000}';
       metrics[kMetricWallTimeSource] = kWallTimeSourceEngine;
     } else {
-      metrics[kMetricWallTimeMs] = '${measured.inMilliseconds}';
+      metrics[kMetricWallTimeMs] = '${facts.measured.inMilliseconds}';
       metrics[kMetricWallTimeSource] = kWallTimeSourceMeasured;
     }
-
-    // The hand-off to WaveCrux. `waveformPath` already round-trips through
-    // the scheduler, NDJSON (`waveform_path`), the bundle writer, the
-    // JSON exporter and the web reader, and the "Debug in WaveCrux"
-    // dispatcher consumes it — so no new result field is needed, and the
-    // CXP producer gets the coordinate it expects.
-    String? waveformPath;
     if (outcome.traces.isNotEmpty) {
       metrics[kMetricTraceCount] = '${outcome.traces.length}';
-      waveformPath = await _resolveTrace(
-        outcome.traces,
-        taskDirectory: taskDirectory,
-        spawnDirectory: spawnDirectory,
-      );
-      if (waveformPath == null) {
-        metrics[kMetricTraceUnresolved] = outcome.traces.first;
+      if (facts.traceUnresolved != null) {
+        metrics[kMetricTraceUnresolved] = facts.traceUnresolved!;
       }
     }
-
-    var status = verdict.status;
-    var failureMessage = _describe(verdict, outcome, formal);
-
-    // `sby` said PASS but the process did not exit cleanly: something
-    // downstream of the verdict went wrong, and a contradicted pass is
-    // not a pass.
-    if (verdict.proved && exitCode != null && exitCode != 0) {
-      status = TestStatus.fail;
-      failureMessage =
-          'SymbiYosys reported PASS but exited $exitCode — the proof result '
-          'is contradicted by the process outcome.';
-    }
-
-    // **The driver never hands the scheduler an exit code that
-    // contradicts its own verdict.**
-    //
-    // A detector that returns a decisive answer overrides the driver's
-    // status, and `0` is the one value every exit-code-shaped classifier
-    // reads as a pass — including `ExitCodePassFailConfig`, which is what
-    // a `TestSpec` gets when no `pass_fail:` block is declared. An `sby`
-    // that exited 0 having proved nothing (the exit-0 trap in its formal
-    // form) would then report green no matter how carefully this driver
-    // classified it. Reporting `null` instead makes `ExitCodeDetector`
-    // return `unknown`, which falls back to the status computed above —
-    // the honest one. The suppressed value is preserved in
-    // [kMetricProcessExitCode] rather than discarded.
-    var reportedExitCode = exitCode;
-    if (!verdict.proved && exitCode == 0) {
-      metrics[kMetricProcessExitCode] = '0';
-      reportedExitCode = null;
-    }
-    // A reduced Python traceback is the most informative single line we
-    // have, so it wins over the generic phrasing.
-    if (tracebackSummary != null && status != TestStatus.pass) {
-      failureMessage = tracebackSummary;
-    }
-
-    return TestExecutionFinished(
-      status: status,
-      exitCode: reportedExitCode,
-      startedAt: startedAt,
-      finishedAt: DateTime.now().toUtc(),
-      waveformPath: waveformPath,
-      failureMessage: failureMessage,
-      killSignal: killSignal,
-      metrics: metrics,
-    );
-  }
-
-  String? _describe(
-    FormalVerdict verdict,
-    SbyOutcome outcome,
-    RiscvFormalConfig formal,
-  ) {
-    final check = formal.check ?? 'the check';
-    final depth = outcome.depthReached;
-    switch (verdict) {
-      case FormalVerdict.pass:
-        return null;
-      case FormalVerdict.fail:
-        return depth == null
-            ? 'property violated: SymbiYosys found a counterexample for $check'
-            : 'property violated at step $depth: SymbiYosys found a '
-                  'counterexample for $check';
-      case FormalVerdict.unknown:
-        // Deliberately not the word "pass" in any form. The solver did
-        // not decide, so nothing was proven.
-        return 'inconclusive: SymbiYosys returned UNKNOWN for $check'
-            '${depth == null ? '' : ' (reached step $depth)'} — the property '
-            'was neither proved nor refuted.';
-      case FormalVerdict.timeout:
-        return 'inconclusive: SymbiYosys hit its own solver timeout for $check'
-            '${depth == null ? '' : ' at step $depth'} — the property was not '
-            'proved.';
-      case FormalVerdict.error:
-        return outcome.errorLine ??
-            'SymbiYosys errored out for $check — the proof did not run.';
-      case FormalVerdict.noOutcome:
-        return 'SymbiYosys produced no verdict for $check — no '
-            '`DONE (…)` line was reported, so nothing was proved.';
-    }
+    if (facts.exitCodeWithheld) metrics[kMetricProcessExitCode] = '0';
+    return metrics;
   }
 
   // ── argv + paths ───────────────────────────────────────────────────
@@ -700,7 +324,8 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   /// VCD is still on disk when the Pro dashboard or the CXP producer asks
   /// for it.
   ///
-  /// Throws an [ArgumentError] unless the result is strictly inside
+  /// Throws an [ArgumentError] unless the name is one safe path segment
+  /// ([FormalContainment.segmentProblem]) and the result is strictly inside
   /// [workingDirectory]. `sby -f` deletes its task directory before it
   /// runs, so a name that joins to anywhere else — `../..`, an absolute
   /// path (which `p.join` lets win outright), `.` or an empty name — would
@@ -714,7 +339,8 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   }
 
   /// [taskDirectoryFor] without the throw: the path, and why it may not be
-  /// used when it is not strictly inside [workingDirectory].
+  /// used when it is not one safe segment strictly inside
+  /// [workingDirectory].
   ({String path, String? problem}) _taskDirectory(
     RiscvConfig cfg,
     String workingDirectory,
@@ -726,7 +352,8 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
         check ??
         (sbyFile == null ? 'proof' : p.basenameWithoutExtension(sbyFile));
     final taskDir = p.join(workingDirectory, name);
-    if (p.isWithin(workingDirectory, taskDir)) {
+    if (FormalContainment.segmentProblem(name) == null &&
+        p.isWithin(workingDirectory, taskDir)) {
       return (path: taskDir, problem: null);
     }
     final key = check != null ? 'riscv.formal.check' : 'riscv.formal.sby_file';
@@ -792,40 +419,6 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     ];
   }
 
-  // ── trace resolution ───────────────────────────────────────────────
-
-  /// Resolves the first trace `sby` announced to an absolute path that
-  /// exists, or null when none of them does.
-  ///
-  /// Returning null rather than a best guess is deliberate: the "Debug in
-  /// WaveCrux" dispatcher and the CXP producer both open the recorded
-  /// path, and a recorded path that does not exist is worse than an
-  /// honest absence — the unresolved spelling is kept in
-  /// [kMetricTraceUnresolved] so the mismatch stays diagnosable.
-  ///
-  /// `sby` spells traces two ways depending on which line reported them:
-  /// relative to the task directory (`engine_0/trace.vcd`) or relative to
-  /// its own invocation directory (`<task>/engine_0/trace.vcd`). Both are
-  /// tried, plus absolute.
-  Future<String?> _resolveTrace(
-    List<String> traces, {
-    required String taskDirectory,
-    required String? spawnDirectory,
-  }) async {
-    for (final trace in traces) {
-      for (final candidate in <String>[
-        if (p.isAbsolute(trace)) trace,
-        p.join(taskDirectory, trace),
-        p.join(p.dirname(taskDirectory), trace),
-        if (spawnDirectory != null) p.join(spawnDirectory, trace),
-      ]) {
-        final normalized = p.normalize(p.absolute(candidate));
-        if (File(normalized).existsSync()) return normalized;
-      }
-    }
-    return null;
-  }
-
   // ── demo corpus ────────────────────────────────────────────────────
 
   /// The corpus subdirectory this test replays, or null when no corpus is
@@ -835,145 +428,4 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
     if (root == null || root.isEmpty) return null;
     return p.join(root, cfg.demoCase ?? testName);
   }
-
-  Future<_DemoCase> _demoManifest(String caseDir) async {
-    const fallback = _DemoCase(log: kDefaultDemoLogName);
-    try {
-      final file = File(p.join(caseDir, 'case.json'));
-      if (!file.existsSync()) return fallback;
-      final decoded = jsonDecode(await file.readAsString());
-      if (decoded is! Map<String, Object?>) return fallback;
-      final log = decoded['log'];
-      final traces = decoded['traces'];
-      final trace = decoded['trace'];
-      return _DemoCase(
-        log: log is String && log.isNotEmpty ? log : fallback.log,
-        traces: <String>[
-          if (trace is String && trace.isNotEmpty) trace,
-          if (traces is List)
-            for (final t in traces)
-              if (t is String && t.isNotEmpty) t,
-        ],
-        exitCode: decoded['exit_code'] is int
-            ? decoded['exit_code']! as int
-            : 0,
-        proofMode: decoded['proof_mode'] is String
-            ? decoded['proof_mode']! as String
-            : null,
-        depth: decoded['depth'] is int ? decoded['depth']! as int : null,
-      );
-    } on Object {
-      return fallback;
-    }
-  }
-
-  /// [relative] joined onto [root], or null unless the result is strictly
-  /// inside [root].
-  ///
-  /// `case.json` is data a shared project carries, so every name it supplies
-  /// is treated as untrusted: `../` segments, an absolute path (which `p.join`
-  /// lets win outright) and the root itself are all refused. The same rule
-  /// [taskDirectoryFor] applies to the SymbiYosys task name, for the same
-  /// reason — a path that escapes is a path SimCrux would read or write
-  /// somewhere it never created.
-  static String? _containedPath(String root, String relative) {
-    final path = p.normalize(p.absolute(p.join(root, relative)));
-    return p.isWithin(p.normalize(p.absolute(root)), path) ? path : null;
-  }
-
-  /// Why the case must be refused, or null when every trace entry in
-  /// [manifest] reads from inside [caseDir] and writes inside
-  /// [taskDirectory].
-  ///
-  /// The manifest names the files, and the manifest is not trusted to name
-  /// where they go: a `../` entry or an absolute path would copy a file to
-  /// somewhere SimCrux never created. The reason names the first such entry.
-  String? _demoTraceProblem(
-    _DemoCase manifest,
-    String caseDir,
-    String taskDirectory,
-  ) {
-    for (final relative in manifest.traces) {
-      if (_containedPath(caseDir, relative) != null &&
-          _containedPath(taskDirectory, relative) != null) {
-        continue;
-      }
-      return 'riscv_formal: demo case refused: case.json trace entry '
-          '"$relative" resolves outside the case directory $caseDir or the '
-          'task directory $taskDirectory. Trace entries must be relative '
-          'paths inside the case, e.g. `engine_0/trace.vcd`.';
-    }
-    return null;
-  }
-
-  /// Copies the case's committed trace files into the task directory, so
-  /// the same resolution the real path performs finds the same files.
-  ///
-  /// [_demoTraceProblem] has already refused any case whose trace entries
-  /// escape; the containment check here is a second layer and skips
-  /// silently.
-  Future<void> _stageDemoTraces(
-    _DemoCase manifest,
-    String caseDir,
-    String taskDirectory,
-    StreamController<TestExecutionEvent> controller,
-  ) async {
-    for (final relative in manifest.traces) {
-      final fromPath = _containedPath(caseDir, relative);
-      final toPath = _containedPath(taskDirectory, relative);
-      if (fromPath == null || toPath == null) continue;
-      final from = File(fromPath);
-      if (!from.existsSync()) continue;
-      try {
-        final to = File(toPath);
-        await to.parent.create(recursive: true);
-        await to.writeAsBytes(await from.readAsBytes());
-      } on FileSystemException catch (e) {
-        controller.add(
-          TestLogLine(
-            line: 'riscv_formal: could not stage demo trace $relative: $e',
-            fromStderr: true,
-            timestamp: DateTime.now().toUtc(),
-          ),
-        );
-      }
-    }
-  }
-
-  SbyScript? _readScript(String sbyFile) {
-    if (sbyFile.isEmpty) return null;
-    try {
-      final file = File(sbyFile);
-      if (!file.existsSync()) return null;
-      return SbyScript.parse(file.readAsStringSync());
-    } on Object {
-      return null;
-    }
-  }
-
-  Future<String?> _readOrNull(String path) async {
-    try {
-      final file = File(path);
-      if (!file.existsSync()) return null;
-      return await file.readAsString();
-    } on FileSystemException {
-      return null;
-    }
-  }
-}
-
-class _DemoCase {
-  const _DemoCase({
-    required this.log,
-    this.traces = const <String>[],
-    this.exitCode = 0,
-    this.proofMode,
-    this.depth,
-  });
-
-  final String log;
-  final List<String> traces;
-  final int exitCode;
-  final String? proofMode;
-  final int? depth;
 }

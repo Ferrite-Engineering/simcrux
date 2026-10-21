@@ -3,6 +3,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
+import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/resource_lock.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
@@ -43,6 +44,7 @@ class TestSpec {
     Map<String, List<String>>? parameterSweeps,
     this.parentSpecId,
     this.riscv,
+    this.formal,
   }) : sources = List<String>.unmodifiable(sources ?? const []),
        includeDirs = List<String>.unmodifiable(includeDirs ?? const []),
        defines = Map<String, String>.unmodifiable(defines ?? const {}),
@@ -199,6 +201,13 @@ class TestSpec {
   /// `kBetaPeriod` flips — see the class doc on [RiscvConfig].
   final RiscvConfig? riscv;
 
+  /// The flattened general `formal:` block (the `sby` driver), or null.
+  ///
+  /// Carried exactly like [riscv]: this field, its lines in [copyWith],
+  /// [operator ==] and [hashCode], and the same four inheritance sites in
+  /// the config loader. **Never tier-gated** — see [FormalConfig].
+  final FormalConfig? formal;
+
   /// Explicit per-source language overrides. Keys are source paths
   /// (as they appear in [sources]); values are the user-declared
   /// [HdlLanguage].
@@ -275,6 +284,7 @@ class TestSpec {
     Map<String, List<String>>? parameterSweeps,
     String? parentSpecId,
     RiscvConfig? riscv,
+    FormalConfig? formal,
     bool clearSeeds = false,
     bool clearParameterSweeps = false,
   }) {
@@ -303,6 +313,7 @@ class TestSpec {
       // materializes every swept child via copyWith, propagates the
       // `riscv:` block instead of silently dropping it.
       riscv: riscv ?? this.riscv,
+      formal: formal ?? this.formal,
     );
   }
 
@@ -328,7 +339,8 @@ class TestSpec {
         _nullableListEq(other.seeds, seeds) &&
         _nullableMapOfListEq(other.parameterSweeps, parameterSweeps) &&
         other.parentSpecId == parentSpecId &&
-        other.riscv == riscv;
+        other.riscv == riscv &&
+        other.formal == formal;
   }
 
   @override
@@ -364,6 +376,7 @@ class TestSpec {
           ),
     parentSpecId,
     riscv,
+    formal,
   );
 }
 

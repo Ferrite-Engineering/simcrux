@@ -32,6 +32,7 @@ import 'package:simcrux/services/simulator/ghdl_driver.dart';
 import 'package:simcrux/services/simulator/icarus_driver.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
+import 'package:simcrux/services/simulator/sby_driver.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 import 'package:simcrux/services/simulator/verilator_driver.dart';
 
@@ -151,6 +152,7 @@ class SimcruxCli {
       'cocotb': CocotbDriver(reaper: reaper),
       RiscvArchDriver.kId: RiscvArchDriver(reaper: reaper),
       RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
+      SbyDriver.kId: SbyDriver(reaper: reaper),
     });
   }
 

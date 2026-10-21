@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:crux_io/crux_io.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/enums/kill_signal.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
@@ -975,6 +976,7 @@ class LocalJobScheduler implements JobScheduler {
       classified: classified,
       driverStatus: driverStatus,
       config: spec.passFail,
+      driverMetrics: driverMetrics,
     );
     // A failure the driver could not explain gets the first line of its own
     // output that does (the detector's fail string, or an ERROR/assertion/
@@ -1015,12 +1017,29 @@ class LocalJobScheduler implements JobScheduler {
   /// `pass` the exit code alone produced. A configured detector (a regex, a
   /// string match, cocotb's summary) still decides on its own: the user
   /// named it because the exit code was not the signal they wanted.
+  ///
+  /// **And one exception for any detector: a formal verdict that is not a
+  /// proof.** A formal driver records its verdict in `formal.verdict` after
+  /// reconciling the tool's `DONE (…)` line with every property's status,
+  /// and that verdict can be more conservative than the line (a property
+  /// that failed under a task that said `PASS`). The `string_match`
+  /// detector the formal importers emit keys on `DONE (PASS` in the log, so
+  /// it would read the line and say pass. A detector never turns a formal
+  /// verdict that is not `PASS` (including one this build cannot parse)
+  /// into a pass.
   @visibleForTesting
   static TestStatus resolveFinalStatus({
     required TestStatus classified,
     required TestStatus driverStatus,
     required PassFailConfig config,
+    Map<String, String>? driverMetrics,
   }) {
+    final formalVerdict = driverMetrics?[kFormalVerdictMetric];
+    if (formalVerdict != null &&
+        classified == TestStatus.pass &&
+        FormalVerdict.fromWireName(formalVerdict) != FormalVerdict.pass) {
+      return TestStatus.fail;
+    }
     if (classified == TestStatus.unknown) return driverStatus;
     if (config is ExitCodePassFailConfig &&
         classified == TestStatus.pass &&

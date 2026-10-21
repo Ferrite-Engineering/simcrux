@@ -20,6 +20,7 @@ import 'package:simcrux/services/simulator/ghdl_driver.dart';
 import 'package:simcrux/services/simulator/icarus_driver.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
+import 'package:simcrux/services/simulator/sby_driver.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 import 'package:simcrux/services/simulator/verilator_driver.dart';
 
@@ -80,6 +81,9 @@ final Provider<SimulatorDriverRegistry> simulatorDriverRegistryProvider =
           // property's pass/fail is correctness and is never gated. The
           // Pro formal dashboard is the analysis layer over these rows.
           RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
+          // General SymbiYosys, the driver the RISC-V track is built on.
+          // Never gated, for the same reason.
+          SbyDriver.kId: SbyDriver(reaper: reaper),
         };
         // The hidden no-op demo runner, off unless the
         // `SIMCRUX_DEMO_RUNNER` gate is set. It spawns no process, so a

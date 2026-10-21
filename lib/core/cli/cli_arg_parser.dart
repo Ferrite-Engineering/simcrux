@@ -182,10 +182,11 @@ class CliArgParser {
             "Honor the project file's tooling keys: simulators.<id>.path "
             'and .env; the riscv target/riscof/compile/formal command '
             'lists; and riscv reference.path, toolchain.path and .prefix, '
-            'riscof.binary and formal.sby_binary. Each chooses what this '
-            'run executes or its environment, so without this flag a '
-            'command fails the load and the rest are ignored with a '
-            'warning. Pass it only for project files you trust. The app '
+            "riscof.binary and formal.sby_binary; and the formal block's "
+            'command, extra_args, sby_binary and tools. Each chooses what '
+            'this run executes or its environment, so without this flag a '
+            'command or extra_args fails the load and the rest are ignored '
+            'with a warning. Pass it only for project files you trust. The app '
             'has the same decision in Settings > Engines.',
         negatable: false,
       )

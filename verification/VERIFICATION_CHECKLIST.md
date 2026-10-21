@@ -1118,6 +1118,22 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] A live run of sby, eqy and yosys on build 20261021 matches every hand expectation — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`formal_fixtures_live_test.dart`)
 - [ ] The status stream, `status.sqlite` and EQY work-dir shapes in guide §26.4 still hold on the newest build — `[Coverage: MANUAL]` (regenerate, then the `jq` and `diff` commands in §26.4)
 
+### The `sby` driver (guide §26.8)
+
+- [ ] `simulator: sby` spawns `sby -f -d <work dir>/<task> --live jsonl [--<tool> <path>] [extra args] <file.sby> <task>` in the `.sby` file's directory — `[Coverage: UNIT]` (`sby_driver_test.dart`)
+- [ ] A task or job-file name that is not one safe path segment (`..`, a separator in either spelling, absolute in either spelling, a colon, NUL, empty) is refused at load and again before spawn; `extra_args` may not pass `-d`, `--prefix`, `-f`, `-b`, `-t` or `-T` — `[Coverage: UNIT]` (`formal_containment_test.dart`, `sby_driver_test.dart`, `config_loader_formal_test.dart`)
+- [ ] A trace `sby` announces is used only when it resolves inside the task directory, symlinks resolved; otherwise no counterexample is attached, `formal.trace_unresolved` names it and the run log says why — `[Coverage: UNIT]` (`formal_containment_test.dart`, `sby_driver_test.dart`)
+- [ ] The verdict comes from the `DONE (…)` line; an exit 0 with no verdict is `NO_OUTCOME` and the 0 is withheld from the scheduler; the exit code is recorded in `formal.process_exit_code` and decides nothing — `[Coverage: UNIT]` (`sby_driver_test.dart`)
+- [ ] Agreement rule: a task `PASS` with any property not proved becomes that property's more conservative verdict with `formal.verdict_disagreement=1`, a task that did not pass keeps its verdict, a property with no status under a `PASS` is Did not run, and no detector turns a non-`PASS` formal verdict into a pass — `[Coverage: UNIT]` (`formal_reconciliation_test.dart`, `sby_driver_test.dart`, `local_job_scheduler_status_merge_test.dart`)
+- [ ] An induction failure is never a counterexample, in the status stream or the log summary — `[Coverage: UNIT]` (`sby_status_reader_test.dart`, `formal_corpus_readers_test.dart`)
+- [ ] `status.sqlite` is read only after `sby` exits, read-only and immutable, and nothing (`-shm`, `-wal`) is written beside it — `[Coverage: UNIT]` (`sby_status_database_test.dart`) and `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sby_driver_live_test.dart`)
+- [ ] Every hand expectation of the committed corpus is reproduced by the readers, with and without `status.sqlite` — `[Coverage: UNIT]` (`formal_corpus_readers_test.dart`)
+- [ ] The same expectations hold for SbyDriver against a real `sby` on build 20261021 — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sby_driver_live_test.dart`)
+- [ ] `formal.sby_binary` and each `formal.tools.<tool>` are dropped with one advisory, and `formal.command` and `formal.extra_args` refuse the load, unless project tooling is allowed — `[Coverage: UNIT]` (`config_loader_formal_test.dart`)
+- [ ] RISC-V formal rows are unchanged on the seven-case corpus and carry `formal.*` in addition to `riscv.formal.*` — `[Coverage: UNIT]` (`riscv_formal_driver_demo_test.dart`, `sby_ungated_verdict_test.dart`)
+- [ ] `sby` is registered in the desktop and the headless registries — `[Coverage: UNIT]` (`sby_driver_reachability_test.dart`)
+- [ ] At Open Core with the beta period over, every `sby` verdict, property row, metric and counterexample path is produced exactly as at Pro and Enterprise — `[Coverage: UNIT]` (`sby_ungated_verdict_test.dart`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)

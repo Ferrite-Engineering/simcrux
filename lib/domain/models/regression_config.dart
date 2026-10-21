@@ -3,6 +3,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/output_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
@@ -29,6 +30,7 @@ class RegressionConfig {
     this.defaultPassFail,
     this.defaultWaveform,
     this.defaultRiscv,
+    this.defaultFormal,
     this.output = const OutputConfig(),
     this.projectId,
     List<ConfigLoaderError>? loadWarnings,
@@ -94,6 +96,10 @@ class RegressionConfig {
   /// of the four inheritance levels.
   final RiscvConfig? defaultRiscv;
 
+  /// Project-level `defaults.formal` block, kept for the same two reasons
+  /// as [defaultRiscv].
+  final FormalConfig? defaultFormal;
+
   /// Project-level `output:` block. Defaults to an unset
   /// [OutputConfig] (no streaming). The CI runner promotes the
   /// effective value to `streaming: true` when `--ci` is set.
@@ -121,6 +127,7 @@ class RegressionConfig {
     PassFailConfig? defaultPassFail,
     WaveformPolicy? defaultWaveform,
     RiscvConfig? defaultRiscv,
+    FormalConfig? defaultFormal,
     OutputConfig? output,
     List<ConfigLoaderError>? loadWarnings,
   }) {
@@ -134,6 +141,7 @@ class RegressionConfig {
       defaultPassFail: defaultPassFail ?? this.defaultPassFail,
       defaultWaveform: defaultWaveform ?? this.defaultWaveform,
       defaultRiscv: defaultRiscv ?? this.defaultRiscv,
+      defaultFormal: defaultFormal ?? this.defaultFormal,
       output: output ?? this.output,
       loadWarnings: loadWarnings ?? this.loadWarnings,
     );
@@ -150,6 +158,7 @@ class RegressionConfig {
     if (other.defaultPassFail != defaultPassFail) return false;
     if (other.defaultWaveform != defaultWaveform) return false;
     if (other.defaultRiscv != defaultRiscv) return false;
+    if (other.defaultFormal != defaultFormal) return false;
     if (other.output != output) return false;
     if (other.suites.length != suites.length) return false;
     for (var i = 0; i < suites.length; i++) {
@@ -181,6 +190,7 @@ class RegressionConfig {
     defaultPassFail,
     defaultWaveform,
     defaultRiscv,
+    defaultFormal,
     output,
     Object.hashAll(loadWarnings),
   );

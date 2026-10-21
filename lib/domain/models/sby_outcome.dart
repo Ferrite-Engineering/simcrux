@@ -182,12 +182,25 @@ class SbyLogReader {
 
   /// `##   0:00:01  Writing trace to VCD file: engine_0/trace.vcd` and
   /// `summary: counterexample trace: insn_add_ch0/engine_0/trace.vcd`.
+  ///
+  /// A `prove` run names the step it came from:
+  /// `summary: counterexample trace [basecase]: …` and
+  /// `summary: counterexample trace [induction]: …`. The induction trace is
+  /// not a trace of the design (it starts from an arbitrary state), so it is
+  /// never collected, from either line.
   static final RegExp _traceWritten = RegExp(
     r'Writing trace to VCD file:\s*(\S+)',
   );
   static final RegExp _traceSummary = RegExp(
-    r'summary:\s*(?:counterexample|cover)\s+trace:\s*(\S+)',
+    r'summary:\s*(?:counterexample|cover)\s+trace(?:\s*\[(\w+)\])?:\s*(\S+)',
   );
+
+  static bool _isInductionTrace(String trace) {
+    final slash = trace.replaceAll(r'\', '/').lastIndexOf('/');
+    return (slash < 0 ? trace : trace.substring(slash + 1)).startsWith(
+      'trace_induct',
+    );
+  }
 
   FormalVerdict? _verdict;
   int? _returnCode;
@@ -240,12 +253,17 @@ class SbyLogReader {
     if (elapsed != null) _elapsedSeconds ??= int.tryParse(elapsed.group(1)!);
 
     final written = _traceWritten.firstMatch(line);
-    if (written != null && !_written.contains(written.group(1))) {
+    if (written != null &&
+        !_isInductionTrace(written.group(1)!) &&
+        !_written.contains(written.group(1))) {
       _written.add(written.group(1)!);
     }
     final summarized = _traceSummary.firstMatch(line);
-    if (summarized != null && !_summarized.contains(summarized.group(1))) {
-      _summarized.add(summarized.group(1)!);
+    if (summarized != null &&
+        summarized.group(1) != 'induction' &&
+        !_isInductionTrace(summarized.group(2)!) &&
+        !_summarized.contains(summarized.group(2))) {
+      _summarized.add(summarized.group(2)!);
     }
 
     if (_errorLine == null && line.startsWith('ERROR:')) {

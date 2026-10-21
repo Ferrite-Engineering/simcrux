@@ -129,7 +129,7 @@ RiscvConfig? _readRiscvConfig(
       );
     }
   }
-  final gate = _RiscvExecutableGate(allowTooling: allowTooling);
+  final gate = _ProjectExecutableGate(allowTooling: allowTooling);
   final config = RiscvConfig(
     isa: _readRiscvString(node, 'isa', label, filePath, errors),
     reference: _readRiscvReference(node, label, filePath, errors, gate),
@@ -186,8 +186,10 @@ const List<String> _kRiscvCommandBlocks = <String>[
   'formal',
 ];
 
-/// The project-tooling gate over the `riscv:` block's **executable-naming
-/// scalars** — the keys that decide argv[0] without being a whole command:
+/// The project-tooling gate over a block's **executable-naming scalars** —
+/// the keys that decide argv[0] without being a whole command. Shared by
+/// the `riscv:` block and the general `formal:` block
+/// (`config_loader_formal.dart`); in `riscv:` they are:
 ///
 /// - `reference.path` — the reference model `riscv_arch` spawns
 ///   (`RiscvToolchainProbe.referenceModelBinary`);
@@ -203,8 +205,8 @@ const List<String> _kRiscvCommandBlocks = <String>[
 /// advisory per `riscv:` block names every key dropped. Dropped rather than
 /// refused because, unlike a `command:`, each has a safe default that does
 /// the same job with the user's own install.
-class _RiscvExecutableGate {
-  _RiscvExecutableGate({required this.allowTooling});
+class _ProjectExecutableGate {
+  _ProjectExecutableGate({required this.allowTooling});
 
   final bool allowTooling;
 
@@ -258,7 +260,7 @@ RiscvReferenceConfig? _readRiscvReference(
   String label,
   String filePath,
   List<ConfigLoaderError> errors,
-  _RiscvExecutableGate gate,
+  _ProjectExecutableGate gate,
 ) {
   final node = _riscvSubMap(parent, 'reference', label, filePath, errors);
   if (node == null) return null;
@@ -322,7 +324,7 @@ RiscvToolchainConfig? _readRiscvToolchain(
   String label,
   String filePath,
   List<ConfigLoaderError> errors,
-  _RiscvExecutableGate gate,
+  _ProjectExecutableGate gate,
 ) {
   final node = _riscvSubMap(parent, 'toolchain', label, filePath, errors);
   if (node == null) return null;
@@ -403,7 +405,7 @@ RiscvRiscofConfig? _readRiscvRiscof(
   String label,
   String filePath,
   List<ConfigLoaderError> errors,
-  _RiscvExecutableGate gate,
+  _ProjectExecutableGate gate,
 ) {
   final node = _riscvSubMap(parent, 'riscof', label, filePath, errors);
   if (node == null) return null;
@@ -486,7 +488,7 @@ RiscvFormalConfig? _readRiscvFormal(
   String label,
   String filePath,
   List<ConfigLoaderError> errors,
-  _RiscvExecutableGate gate,
+  _ProjectExecutableGate gate,
 ) {
   final node = _riscvSubMap(parent, 'formal', label, filePath, errors);
   if (node == null) return null;
@@ -622,20 +624,10 @@ String? _readRiscvCheckName(
   return null;
 }
 
-/// Why [value] is not a single safe path segment, or null when it is.
-String? _riscvCheckNameProblem(String value) {
-  if (value.contains('\u0000')) return 'it contains a NUL byte';
-  if (p.posix.isAbsolute(value) || p.windows.isAbsolute(value)) {
-    return 'it is an absolute path';
-  }
-  if (value == '.' || value == '..') {
-    return 'it names the working directory or its parent';
-  }
-  if (value.contains('/') || value.contains(r'\')) {
-    return 'it contains a path separator';
-  }
-  return null;
-}
+/// Why [value] is not a single safe path segment, or null when it is. The
+/// one rule every formal task directory obeys, in [FormalContainment].
+String? _riscvCheckNameProblem(String value) =>
+    FormalContainment.segmentProblem(value);
 
 /// Appends one error per completeness problem on the **flattened** config.
 ///

@@ -3,6 +3,11 @@
 
 import 'package:simcrux/domain/enums/test_status.dart';
 
+/// The metric key every formal driver records its reconciled verdict
+/// under: a [FormalVerdict.wireName]. The scheduler reads it so that no
+/// pass/fail detector can turn a verdict that is not `PASS` into a pass.
+const String kFormalVerdictMetric = 'formal.verdict';
+
 /// The outcome a formal tool (SymbiYosys, and EQY with the same tokens)
 /// reported for one task, and how SimCrux maps it onto a [TestStatus].
 ///

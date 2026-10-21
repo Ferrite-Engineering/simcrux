@@ -17,6 +17,7 @@ import 'package:simcrux/domain/enums/riscv_run_mode.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
 import 'package:simcrux/domain/enums/waveform_format.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/output_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
@@ -33,6 +34,7 @@ import 'package:simcrux/services/config/filelist_expander.dart';
 import 'package:simcrux/services/config/mixed_language_validator.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
 import 'package:simcrux/services/config/test_spec_expander.dart';
+import 'package:simcrux/services/formal/formal_containment.dart';
 import 'package:yaml/yaml.dart';
 
 // The id rule is domain vocabulary shared with the headless CLI; re-exported
@@ -51,12 +53,14 @@ export 'package:simcrux/domain/models/project_identity.dart';
 //   - config_loader_sections.dart  — `output:` / `waveform:` /
 //                                     `simulators:` / `resources:`
 //   - config_loader_riscv.dart     — `riscv:`
+//   - config_loader_formal.dart    — `formal:` (the `sby` driver)
 part 'config_loader_readers.dart';
 part 'config_loader_sources.dart';
 part 'config_loader_sweeps.dart';
 part 'config_loader_pass_fail.dart';
 part 'config_loader_sections.dart';
 part 'config_loader_riscv.dart';
+part 'config_loader_formal.dart';
 
 /// Default upper bound on the cartesian-product fan-out one
 /// parameterized [TestSpec] template may produce.
@@ -190,6 +194,9 @@ class ConfigLoader {
   /// - `riscv.reference.path`, `riscv.toolchain.path`,
   ///   `riscv.toolchain.prefix`, `riscv.riscof.binary`,
   ///   `riscv.formal.sby_binary` — dropped, with an advisory;
+  /// - `formal.command`, `formal.extra_args` — the load is refused;
+  /// - `formal.sby_binary`, `formal.tools.<tool>` — dropped, with an
+  ///   advisory;
   /// - `output.results_path`, `output.summary_path` outside the project
   ///   directory — the load is refused.
   ///
@@ -358,6 +365,7 @@ class ConfigLoader {
     WaveformPolicy? inheritedWaveform,
     Duration? inheritedTimeout,
     RiscvConfig? inheritedRiscv,
+    FormalConfig? inheritedFormal,
   }) async {
     if (visited.contains(absPath)) {
       throw ConfigLoaderException([
@@ -379,6 +387,7 @@ class ConfigLoader {
       inheritedWaveform: inheritedWaveform,
       inheritedTimeout: inheritedTimeout,
       inheritedRiscv: inheritedRiscv,
+      inheritedFormal: inheritedFormal,
     );
     final includes = _readIncludesList(content, absPath);
 
@@ -394,6 +403,8 @@ class ConfigLoader {
     // Inheritance level 1 of 4: this file's flattened
     // `defaults.riscv` becomes the included files' inherited baseline.
     final mergedRiscv = root.defaultRiscv ?? inheritedRiscv;
+    // The same first level for the general `formal:` block.
+    final mergedFormal = root.defaultFormal ?? inheritedFormal;
 
     final includeConfigs = <RegressionConfig>[];
     for (final inc in includes) {
@@ -407,6 +418,7 @@ class ConfigLoader {
           inheritedWaveform: mergedWaveform,
           inheritedTimeout: mergedTimeout,
           inheritedRiscv: mergedRiscv,
+          inheritedFormal: mergedFormal,
         ),
       );
     }
@@ -602,6 +614,29 @@ class ConfigLoader {
       includeDirs: test.includeDirs.map(resolve).toList(growable: false),
       sourceLanguages: resolvedLanguages,
       riscv: _resolveRiscvDemoCorpora(test.riscv, resolve),
+      formal: _resolveFormalPaths(test.formal, resolve, projectRoot),
+    );
+  }
+
+  /// Resolves the general `formal:` block's project paths (`sby_file`,
+  /// `demo_outputs`) against the project file's directory and records that
+  /// directory as the root property locations are reported against.
+  ///
+  /// `sby_binary` and `tools` are install locations and stay verbatim, for
+  /// the reason given on [_resolveRiscvDemoCorpora]; `command` and
+  /// `extra_args` are placeholder-bearing and are expanded at spawn time.
+  FormalConfig? _resolveFormalPaths(
+    FormalConfig? formal,
+    String Function(String) resolve,
+    String projectRoot,
+  ) {
+    if (formal == null) return null;
+    final sbyFile = formal.sbyFile;
+    final demoOutputs = formal.demoOutputs;
+    return formal.copyWith(
+      sbyFile: sbyFile == null ? null : resolve(sbyFile),
+      demoOutputs: demoOutputs == null ? null : resolve(demoOutputs),
+      projectRoot: p.normalize(projectRoot),
     );
   }
 
@@ -707,6 +742,7 @@ class ConfigLoader {
     WaveformPolicy? inheritedWaveform,
     Duration? inheritedTimeout,
     RiscvConfig? inheritedRiscv,
+    FormalConfig? inheritedFormal,
   }) {
     final errors = <ConfigLoaderError>[];
 
@@ -787,6 +823,16 @@ class ConfigLoader {
           allowTooling: _allowProjectDefinedTooling,
         )?.mergeOnto(inheritedRiscv) ??
         inheritedRiscv;
+    // Level 2 of 4 for the general `formal:` block.
+    final defaultFormal =
+        _readFormalConfig(
+          root,
+          ['defaults', 'formal'],
+          path,
+          errors,
+          allowTooling: _allowProjectDefinedTooling,
+        )?.mergeOnto(inheritedFormal) ??
+        inheritedFormal;
 
     if (defaultsRaw != null && defaultsRaw is! YamlMap) {
       errors.add(
@@ -866,6 +912,7 @@ class ConfigLoader {
           inheritedWaveform: defaultWaveform,
           inheritedTimeout: defaultTimeoutValue,
           inheritedRiscv: defaultRiscv,
+          inheritedFormal: defaultFormal,
         );
         if (suite != null) suites.add(suite);
       }
@@ -887,6 +934,7 @@ class ConfigLoader {
       defaultPassFail: defaultPassFail,
       defaultWaveform: defaultWaveform,
       defaultRiscv: defaultRiscv,
+      defaultFormal: defaultFormal,
       output: output,
       loadWarnings: warnings,
     );
@@ -902,6 +950,7 @@ class ConfigLoader {
     required WaveformPolicy? inheritedWaveform,
     required Duration inheritedTimeout,
     required RiscvConfig? inheritedRiscv,
+    required FormalConfig? inheritedFormal,
   }) {
     final description = _readString(suiteNode, ['description']);
     final suiteSimulatorId =
@@ -930,6 +979,16 @@ class ConfigLoader {
           allowTooling: _allowProjectDefinedTooling,
         )?.mergeOnto(inheritedRiscv) ??
         inheritedRiscv;
+    // Level 3 of 4 for the general `formal:` block.
+    final suiteFormal =
+        _readFormalConfig(
+          suiteNode,
+          ['formal'],
+          path,
+          errors,
+          allowTooling: _allowProjectDefinedTooling,
+        )?.mergeOnto(inheritedFormal) ??
+        inheritedFormal;
     final suiteSourcesParsed = _readSourceEntries(
       suiteNode,
       ['sources'],
@@ -1053,6 +1112,26 @@ class ConfigLoader {
           suiteRiscv;
       _validateRiscvForTest(
         riscv: testRiscv,
+        simulatorId: testSimulatorId,
+        suiteName: suiteName,
+        testName: testName,
+        filePath: path,
+        testNode: testNode,
+        errors: errors,
+      );
+      // Level 4 of 4 for the general `formal:` block, validated on the
+      // flattened result like `riscv:`.
+      final testFormal =
+          _readFormalConfig(
+            testNode,
+            ['formal'],
+            path,
+            errors,
+            allowTooling: _allowProjectDefinedTooling,
+          )?.mergeOnto(suiteFormal) ??
+          suiteFormal;
+      _validateFormalForTest(
+        formal: testFormal,
         simulatorId: testSimulatorId,
         suiteName: suiteName,
         testName: testName,
@@ -1246,6 +1325,7 @@ class ConfigLoader {
         // Set on the *template*, so every child the expander materializes
         // below inherits it through `TestSpec.copyWith`.
         riscv: testRiscv,
+        formal: testFormal,
       );
 
       if (!template.isParameterized) {

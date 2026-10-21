@@ -75,17 +75,24 @@ void main() {
   L10N l10nOf(WidgetTester tester) =>
       L10N.of(tester.element(find.byType(Scaffold)));
 
-  testWidgets('the shipped build shows one card, Simulators, and no empty '
-      'Formal tools or Implementation flow card', (tester) async {
+  testWidgets('the shipped build shows Simulators and Formal tools (sby), and '
+      'no empty Implementation flow card', (tester) async {
     final container = await makeContainer();
     await pump(tester, container);
     final l10n = l10nOf(tester);
 
-    expect(find.byType(CruxSettingsSectionCard), findsOneWidget);
+    expect(find.byType(CruxSettingsSectionCard), findsNWidgets(2));
     expect(find.text(l10n.settingsSimulatorsSection), findsOneWidget);
-    expect(find.text(l10n.settingsFormalToolsSection), findsNothing);
+    expect(find.text(l10n.settingsFormalToolsSection), findsOneWidget);
     expect(find.text(l10n.settingsImplementationFlowSection), findsNothing);
     expect(find.byType(SettingsSimulatorsSection), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(SettingsFormalToolsSection),
+        matching: find.text('sby'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('a formal or flow engine gets its row in its own group, never '
@@ -143,14 +150,15 @@ void main() {
     );
   });
 
-  testWidgets('the shipped registry lists no formal or flow engine yet, so '
-      'nothing moved out of Simulators', (tester) async {
+  testWidgets('the shipped registry holds sby as its one formal engine and no '
+      'flow engine yet', (tester) async {
     final container = await makeContainer();
     final shipped = container
         .read(simulatorDriverRegistryProvider)
         .simulatorIds
         .toSet();
-    expect(shipped.intersection(kEngineIdsOutsideSimulators), isEmpty);
+    expect(shipped.intersection(kEngineIdsOutsideSimulators), {'sby'});
+    expect(shipped.intersection(kImplementationFlowEngineIds.toSet()), isEmpty);
   });
 
   testWidgets('every locale names the category and its groups, without '

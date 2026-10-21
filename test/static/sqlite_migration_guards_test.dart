@@ -113,7 +113,20 @@ const List<CruxDeleteAllowlistEntry> _deleteAllowlist = [];
 ///
 /// Adding an entry back is not a fix for a failing guard — it is a decision
 /// to run a second open path, and it needs the reason written next to it.
-final Set<String> _pinnedDirectOpens = <String>{};
+///
+/// **One entry, and it is not a SimCrux store.** `sby_status_database.dart`
+/// reads the `status.sqlite` SymbiYosys writes in a formal task directory:
+/// a database another program owns, with its own schema and no migrations
+/// of ours. `CruxSqliteOpenPolicy.open` would run the trend store's
+/// migration machinery against it and write `schema_meta` into it, which is
+/// exactly what must not happen to a file we only read. So it opens
+/// read-only with the URI flag `immutable=1` (no lock, no `-shm`, no
+/// `-wal`), passes no `version:`, and catches only `DatabaseException`.
+/// It moves onto `crux_sqlite`'s read-only foreign-file open when that
+/// exists, and the pin goes with it.
+final Set<String> _pinnedDirectOpens = <String>{
+  'lib/services/formal/sby_status_database.dart',
+};
 
 /// **The G5b allowlist: empty, and it cannot be otherwise here.**
 ///
@@ -224,9 +237,12 @@ void main() {
       // shows up: SimCrux has exactly one open path, and it is
       // `SqlTrendStore.open`, which is an open-reaching call because its
       // body goes through `CruxSqliteOpenPolicy.open` and for no other
-      // reason.
+      // reason. The second is not a SimCrux store: `SbyStatusDatabase.read`
+      // opens the `status.sqlite` SymbiYosys owns, read-only and immutable
+      // (the pin on `_pinnedDirectOpens` says why), with typed catches only.
       expect(cruxOpenReachingEntryPoints(sources: libSources), {
         'SqlTrendStore.open',
+        'SbyStatusDatabase.read',
       });
     });
 
