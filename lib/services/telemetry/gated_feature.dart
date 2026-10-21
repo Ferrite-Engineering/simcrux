@@ -88,4 +88,60 @@ enum SimcruxGatedFeature {
 
   /// Cross-project search (`crossProjectSearchOpenerProvider`).
   crossProjectSearch,
+
+  // Formal. Each value is a priced capability, never a menu item: one
+  // capability may be reached from several controls, and they all report
+  // the one id. Every verdict, counterexample and per-property status stays
+  // ungated; these name the analysis over them.
+
+  /// The formal properties dashboard: rollups by task, kind and bucket
+  /// (`formalPropertiesOpenerProvider`).
+  formalDashboard,
+
+  /// Proof history, verdict-flip regressions and engine comparison across
+  /// runs (`formalHistoryOpenerProvider`).
+  formalHistory,
+
+  /// Pre-trace `$past` analysis and vacuity
+  /// (`pretraceAnalysisOpenerProvider`).
+  formalPretrace,
+
+  /// The EQY partition explorer, for RTL and flow-netlist equivalence alike
+  /// (`eqyExplorerOpenerProvider`).
+  eqyExplorer,
+
+  // Flow. The same rule: running a flow, its verdict, metrics, worst paths,
+  // RTL mapping, the CI gate and functional gate-level simulation are never
+  // gated.
+
+  /// Metric trends across flow runs (`FlowTrendsOpener`).
+  flowTrends,
+
+  /// Comparing any two flow runs (`FlowCompareOpener`).
+  flowCompare,
+
+  /// The PPA dashboard (`FlowPpaOpener`).
+  flowPpaDashboard,
+
+  /// Regression alerts on flow metrics.
+  flowAlerts,
+
+  /// The design-space sweep view over existing runs (`FlowSweepOpener`).
+  flowSweep,
+
+  /// Writing and managing a flow baseline (`FlowBaselineWriter`). Gating a
+  /// run against a baseline file stays free.
+  flowBaseline,
+
+  /// The organization-wide flow rollup from the team database. The one
+  /// Enterprise value in this group.
+  flowOrgDashboard,
+
+  /// Gate-level simulation triage: first divergence, X-classification detail
+  /// and GLS history, one capability (`FlowGlsTriageOpener`).
+  flowGlsTriage,
+
+  /// Delay-annotated gate-level simulation with SDF, no timing checks
+  /// (`FlowSdfGlsRunner`).
+  flowSdfGls,
 }

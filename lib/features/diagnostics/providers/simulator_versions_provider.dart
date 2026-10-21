@@ -27,7 +27,7 @@ import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 /// when the probe resolves). It is never warmed at startup — an app launch
 /// must not pay four process spawns for a report the user may never file.
 ///
-/// Honors the per-simulator binary overrides from Settings → Simulators, so a
+/// Honors the per-simulator binary overrides from Settings → Engines, so a
 /// user pointing SimCrux at a non-`$PATH` Verilator gets *that* build's
 /// version in the report rather than the system one's.
 final FutureProvider<Map<String, String>> simulatorVersionsProvider =

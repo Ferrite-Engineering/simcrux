@@ -284,9 +284,9 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
   ///    cross-run queries).
   /// 6. Mark `isFinished` on the final [RegressionFinished].
   ///
-  /// [trigger] is telemetry-only: it names *what* asked for this run so
-  /// `regression.completed` can answer whether auto-reload is used at all.
-  /// Nothing in the scheduler reads it.
+  /// [trigger] names *what* asked for this run, so `regression.completed`
+  /// can answer whether auto-reload is used at all and the trend store's run
+  /// row can record it. Nothing in the scheduler reads it.
   Future<void> start(
     RegressionConfig config, {
     int concurrency = 4,
@@ -362,7 +362,7 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
     );
   }
 
-  /// Folds the user's Settings → Simulators per-simulator binary-path
+  /// Folds the user's Settings → Engines per-simulator binary-path
   /// overrides into [config] so a run actually honors them. Precedence:
   /// a project `simulators:` entry that names a binary (`source: custom`
   /// with a `path`) wins; otherwise a non-empty settings override is applied
@@ -751,6 +751,9 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
           // Carried so the per-suite trend view can find this result; the
           // store has no other source for the suite.
           suiteName: spec?.suiteName,
+          // Carried so the run row records what started it
+          // (`runs.trigger_kind`) instead of `unknown`.
+          trigger: _activeTrigger,
         ),
       );
     }

@@ -72,7 +72,7 @@ Things worth knowing before you deploy it:
   logs a warning when it meets one.
 - **It does not pin binaries.** It decides which simulator *ids* may run, not
   which executable runs for an allowed id. That is still the engineer's
-  Settings > Simulators path, or a project file's `simulators:` block when the
+  Settings > Engines path (Settings > Simulators before 1.2), or a project file's `simulators:` block when the
   engineer has allowed project-defined tooling. If you need to fix the
   executable itself, [tell us](mailto:support@ferriteengineering.com).
 - **A refused test fails the load rather than being skipped.** A skipped test

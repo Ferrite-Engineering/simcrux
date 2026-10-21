@@ -122,7 +122,7 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
     you cloned or downloaded is not automatically yours. So SimCrux honors
     them only once you say so:
 
-    - In the app, turn on **Settings → Simulators → Let project files choose
+    - In the app, turn on **Settings → Engines → Let project files choose
       simulator binaries and environment**. Until then each advisory or error
       names the file and line.
     - Headless, pass `--allow-project-tooling`.
@@ -141,8 +141,10 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
     you turned on **Settings → General → Run the regression when a config is
     opened**, so read a project you did not write before you press Run.
 
-!!! note "Settings → Simulators"
-    The desktop app's **Settings → Simulators → Binary path** override is
+!!! note "Settings → Engines"
+    From 1.2 the binary paths are under **Settings → Engines**; earlier
+    versions call the category **Simulators**.
+    The desktop app's **Settings → Engines → Binary path** override is
     applied to runs started from the app as a `source: custom` binary, unless
     the project's `simulators:` entry for that simulator names its own binary
     (`source: custom` with a `path`) — then the project file wins. An entry that

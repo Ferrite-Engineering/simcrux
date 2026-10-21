@@ -731,7 +731,7 @@ class LocalJobScheduler implements JobScheduler {
         state,
         spec,
         'Install ${e.simulatorId} on the host PATH or configure a custom '
-        'binary path in Settings → Simulators → ${e.simulatorId}.',
+        'binary path in Settings → Engines → ${e.simulatorId}.',
         fromStderr: true,
       );
       if (e.cause != null) {

@@ -34,7 +34,7 @@ import 'package:simcrux/services/simulator/riscv_toolchain_probe.dart';
 /// The trigger is normally "press Run", but a user who turned on
 /// `autoRunOnOpen` never presses anything. So the loader honors these
 /// only when a human decided to trust project files on this machine —
-/// the Settings → Simulators [kAllowProjectToolingControlLabel] switch,
+/// the Settings → Engines [kAllowProjectToolingControlLabel] switch,
 /// or `--allow-project-tooling` on the CLI.
 void main() {
   // Deny by default — the constructor takes no argument here on purpose.

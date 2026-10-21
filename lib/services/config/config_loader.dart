@@ -82,14 +82,18 @@ const int kDefaultMaxExpansionSize = 10000;
 /// compares each with its `app_en.arb` value: a diagnostic that names a
 /// control the Settings screen does not have is a dead end for the user
 /// it is written for.
-const String kSettingsSimulatorsRoute = 'Settings → Simulators';
+///
+/// The rail category, not the group inside it: every engine's binary path
+/// and the project-tooling switch are in Settings → Engines, whichever of
+/// its groups (Simulators, Formal tools, Implementation flow) holds them.
+const String kSettingsEnginesRoute = 'Settings → Engines';
 
-/// The Settings → Simulators switch that lets project files choose
-/// binaries and environment (`settingsAllowProjectDefinedToolingLabel`).
+/// The Settings → Engines switch that lets project files choose binaries
+/// and environment (`settingsAllowProjectDefinedToolingLabel`).
 const String kAllowProjectToolingControlLabel =
     'Let project files choose simulator binaries and environment';
 
-/// The per-simulator Settings → Simulators path field
+/// The per-engine Settings → Engines path field
 /// (`settingsSimulatorBinaryLabel`).
 const String kSimulatorBinaryPathControlLabel = 'Binary path';
 
@@ -97,7 +101,7 @@ const String kSimulatorBinaryPathControlLabel = 'Binary path';
 /// sentence every gate diagnostic ends with.
 const String kProjectToolingRemedy =
     'To trust project files on this machine, turn on '
-    '$kSettingsSimulatorsRoute → "$kAllowProjectToolingControlLabel" in '
+    '$kSettingsEnginesRoute → "$kAllowProjectToolingControlLabel" in '
     'the app, or pass `--allow-project-tooling` to the CLI.';
 
 /// Loads a `simcrux.yaml` project file into a [RegressionConfig].
@@ -201,7 +205,7 @@ class ConfigLoader {
   /// Verilator C++ harness, a `.sby` job), which is why opening a file never
   /// runs it unless the user asked for that (`autoRunOnOpen`, default off).
   ///
-  /// The app passes the user's Settings → Simulators
+  /// The app passes the user's Settings → Engines
   /// [kAllowProjectToolingControlLabel] switch (default off); the CLI,
   /// which has no Settings to read, passes `--allow-project-tooling`.
   /// Either way a human made the decision, which is the whole point.

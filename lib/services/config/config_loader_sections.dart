@@ -124,7 +124,7 @@ String? _readOutputPath(
 /// one arrives by double-click, by clone, or by download. So the
 /// values are honored only when [allowTooling] says a human made that
 /// decision: the [kAllowProjectToolingControlLabel] switch in
-/// Settings → Simulators (default off), or `--allow-project-tooling` on
+/// Settings → Engines (default off), or `--allow-project-tooling` on
 /// the CLI, which has no Settings to read. Otherwise they are dropped and the
 /// entry degrades to `source: system` with a load advisory naming the
 /// keys, the file, and where to turn it on.
@@ -219,7 +219,7 @@ Map<String, SimulatorBinaryConfig> _readSimulatorBinaries(
               'Ignored ${gated.join(' and ')} on simulator `$simulatorId`: a '
               'project file may not choose which binary SimCrux runs or what '
               'environment it runs under. Falling back to source=system; set '
-              'a binary for this machine in $kSettingsSimulatorsRoute → '
+              'a binary for this machine in $kSettingsEnginesRoute → '
               '"$kSimulatorBinaryPathControlLabel". $kProjectToolingRemedy',
         ),
       );
@@ -228,7 +228,7 @@ Map<String, SimulatorBinaryConfig> _readSimulatorBinaries(
       toolingDropped = true;
       // `custom` without a path resolves to the bare binary name anyway;
       // say so in the model rather than leaving a lying `source`, and
-      // so the Settings → Simulators override still applies (the runner
+      // so the Settings → Engines override still applies (the runner
       // skips simulators the project declared `custom`).
       if (source == SimulatorBinarySource.custom) {
         source = SimulatorBinarySource.system;

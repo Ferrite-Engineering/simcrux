@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
 import 'package:simcrux/services/trend_store/sql_trend_store_io.dart';
@@ -49,6 +50,40 @@ void main() {
     test('starts with empty tables', () async {
       expect(await store.runRowCount(), equals(0));
       expect(await store.resultRowCount(), equals(0));
+    });
+  });
+
+  group('the run row records its trigger', () {
+    Future<String?> triggerOf(String runId) async {
+      final rows = await store.debugRawQuery(
+        'SELECT trigger_kind FROM runs WHERE id = ?',
+        <Object?>[runId],
+      );
+      return rows.single['trigger_kind'] as String?;
+    }
+
+    test('every RegressionTrigger is stored as its own name', () async {
+      for (final trigger in RegressionTrigger.values) {
+        await store.recordTrendPoints([
+          TrendPoint(
+            runId: 'r-${trigger.name}',
+            testId: 'cpu/alu',
+            status: TestStatus.pass,
+            runtime: const Duration(milliseconds: 1),
+            startedAt: DateTime.utc(2026, 10, 21),
+            trigger: trigger,
+          ),
+        ]);
+        expect(await triggerOf('r-${trigger.name}'), trigger.name);
+      }
+      // Ingested flow runs and gate-level reruns are among them.
+      expect(await triggerOf('r-ingest'), 'ingest');
+      expect(await triggerOf('r-gls'), 'gls');
+    });
+
+    test('a point with no trigger records unknown, never manual', () async {
+      await store.recordTrendPoint(point(runId: 'r1', testId: 'cpu/alu'));
+      expect(await triggerOf('r1'), 'unknown');
     });
   });
 

@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
+import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
@@ -30,6 +31,7 @@ import 'package:simcrux/services/re_run_query/re_run_query_service_provider.dart
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
+import 'package:simcrux/services/trend_store/sql_trend_store_io.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
 
 import '../../../support/answered_telemetry.dart';
@@ -422,6 +424,25 @@ void main() {
       },
     );
 
+    test('the trend store run row records what started the run', () async {
+      // It recorded `unknown` for every run while the trend point carried no
+      // trigger; history could not tell a watcher rerun from a hand-started
+      // one.
+      final config = _config([_spec('unit/alu')]);
+      final runner = container.read(regressionRunnerProvider.notifier)
+        ..runIdFactory = () => 'run-auto';
+      await runner.start(config, trigger: RegressionTrigger.auto);
+      await waitForFinish();
+      await Future<void>.delayed(Duration.zero);
+      final store =
+          await container.read(trendStoreProvider.future) as SqlTrendStore;
+      final rows = await store.debugRawQuery(
+        'SELECT trigger_kind FROM runs WHERE id = ?',
+        <Object?>['run-auto'],
+      );
+      expect(rows.single['trigger_kind'], 'auto');
+    });
+
     test(
       're-running the same test records a fresh trend point and '
       'invalidates testTrendProvider so the inspector sees the new point',
@@ -484,7 +505,7 @@ void main() {
     );
   });
 
-  group('Settings > Simulators binary path', () {
+  group('Settings > Engines binary path', () {
     /// Runs one icarus test under [yamlBinaries] with a Settings override
     /// of `/opt/settings/iverilog`, returning the binary config the driver
     /// was handed.

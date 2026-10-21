@@ -186,7 +186,7 @@ class CliArgParser {
             'run executes or its environment, so without this flag a '
             'command fails the load and the rest are ignored with a '
             'warning. Pass it only for project files you trust. The app '
-            'has the same decision in Settings > Simulators.',
+            'has the same decision in Settings > Engines.',
         negatable: false,
       )
       ..addFlag(

@@ -39,6 +39,19 @@
 - [ ] First point implicitly creates the run row; first-time test reports `previousStatus = null`; batch insert fires one `dataChanged`; empty batch is a no-op — `[Coverage: AUTOMATED — flutter test]`
 - [ ] Store opens at the latest schema version, migrating older files — `[Coverage: AUTOMATED — flutter test (sql_migrations_test.dart)]`
 
+### Trend-store schema v5: formal and flow tables, the run trigger (Guide §3.5)
+
+- [ ] A v4 `trends.db` upgrades to v5: the six formal and flow tables and their four indexes exist and are empty, and every earlier run and result row reads back field by field — `[Coverage: AUTOMATED — flutter test (sql_migrations_test.dart 'upgrade from v4 to v5', sql_migrations_data_preserving_test.dart)]`
+- [ ] The upgrade writes the `.pre-v4-` backup first and records v5 in `schema_meta` as applied by this build; v1 to v4 keep their recorded entries — `[Coverage: AUTOMATED — flutter test (sql_pre_upgrade_backup_test.dart, sql_schema_meta_test.dart 'an existing v4 trends.db')]`
+- [ ] v5's schema fingerprint is recorded once, and no earlier migration changed — `[Coverage: AUTOMATED — flutter test (sqlite_migration_guards_test.dart G1, G2)]`
+- [ ] A run's row records what started it (`manual`, `auto`, `ci`, `ingest`, `gls`); a point with no trigger records `unknown`, never `manual` — `[Coverage: AUTOMATED — flutter test (sql_trend_store_test.dart 'the run row records its trigger', regression_runner_test.dart 'the trend store run row records what started the run')]`
+
+### Settings > Engines (Guide §3.6)
+
+- [ ] The third rail category reads **Engines** in all five locales, with a **Simulators** group holding the binary paths, the simulator budget and the project-tooling switch — `[Coverage: AUTOMATED — flutter test (settings_engines_section_test.dart)]`
+- [ ] Formal tools and Implementation flow show no card while this build registers none of their engines; `sby`, `eqy`, `librelane` and `nextpnr`, once registered, appear in their own group and never under Simulators — `[Coverage: AUTOMATED — flutter test (settings_engines_section_test.dart)]`
+- [ ] Every diagnostic that sends the user to Settings names **Settings → Engines** — `[Coverage: AUTOMATED — flutter test (config_loader_settings_labels_test.dart, simulator_not_available_exception_test.dart)]`
+
 ### Empty-canvas launch surface
 
 - [ ] Cold boot with no project lands on the empty-canvas state (0 tabs; "No recent projects" when empty) — `[Coverage: AUTOMATED — flutter test --tags integration (empty_canvas_boot_test.dart)]`
@@ -52,7 +65,7 @@
 ### SimulatorDriver contract (Icarus + Verilator)
 
 - [ ] Icarus pass/fail fixtures compile (`iverilog`) + run (`vvp`) and drive green/red dashboard rows — `[Coverage: AUTOMATED — flutter test + integration (icarus_driver_test.dart, fixture_pipeline_test.dart)]`
-- [ ] Missing binary → `SimulatorNotAvailableException` surfaces as a `fail` row with a Settings → Simulators remediation hint (not an opaque `?`) — `[Coverage: AUTOMATED — flutter test]`
+- [ ] Missing binary → `SimulatorNotAvailableException` surfaces as a `fail` row with a Settings → Engines remediation hint (not an opaque `?`) — `[Coverage: AUTOMATED — flutter test]`
 - [ ] `cancel` kills the in-flight process and escalates SIGTERM→SIGKILL after grace — `[Coverage: AUTOMATED — flutter test (verilator_driver_test.dart)]`
 - [ ] Verilator: `-Wall -Wno-fatal` (warnings never fail the build), `--timing` + event-driven `sim_main.cpp` on Verilator 5, `simulators.verilator.options.args` appended; `verilator_timing` fixture passes — `[Coverage: AUTOMATED — flutter test (verilator_driver_test.dart) + --tags integration (fixture_pipeline_test.dart)]`
 
@@ -225,7 +238,7 @@
 - [ ] A tab's dialogs (full log, test search) and the Tab Diagnostics drawer sit on the tab's own navigator, under its one scope: a per-tab change while one is open logs no "markNeedsBuild() called during build"; a dialog covers only its tab, stays with it across a tab switch (another tab opens its own), and closes with its tab; the drawer follows the active tab and closes with the last tab — `[Coverage: AUTOMATED — flutter test (test/features/workspace/services/active_tab_dialog_test.dart, mutation-verified)]` + `[Coverage: MANUAL]` (guide §6.4a)
 - [ ] Cross-suite AutoReloadMode setting applies to every open tab — `[Coverage: MANUAL]`
 - [ ] Each tab has its own `regressionRunnerProvider` notifier instance — `[Coverage: AUTOMATED — flutter test (per_tab_scheduler_isolation_test.dart)]`
-- [ ] Each run executes at most its own concurrency (4 in the app, `--max-parallel` under `--ci`), and every in-app run draws on the shared budget in Settings → Simulators (default 4, 1 to 64), so two tabs together never exceed it — `[Coverage: AUTOMATED — flutter test (local_job_scheduler_test.dart 'two runs share the process-wide budget', simulator_budget_test.dart, settings_simulators_section_test.dart); see VERIFICATION_GUIDE.md 6.8]`
+- [ ] Each run executes at most its own concurrency (4 in the app, `--max-parallel` under `--ci`), and every in-app run draws on the shared budget in Settings → Engines (default 4, 1 to 64), so two tabs together never exceed it — `[Coverage: AUTOMATED — flutter test (local_job_scheduler_test.dart 'two runs share the process-wide budget', simulator_budget_test.dart, settings_simulators_section_test.dart); see VERIFICATION_GUIDE.md 6.8]`
 
 ### Split-pane SimcruxAction values
 
@@ -628,9 +641,9 @@ the user opted in. Tests:
 - [ ] **A config with a `riscv` executable path (`formal.sby_binary`, `reference.path`, `toolchain.path` / `.prefix`, `riscof.binary`) loads, the path is ignored, and an advisory names the key, file and line**; `riscv_formal` then spawns `sby` from `PATH` — `[Coverage: AUTOMATED]`
 - [ ] A config with `riscv.formal.command` **fails to load**, like `target.command` — `[Coverage: AUTOMATED]`
 - [ ] Every gate diagnostic names the switch by its on-screen label, held to `app_en.arb` — `[Coverage: AUTOMATED]`
-- [ ] A dropped `source: custom` falls back to `system`, so **Settings → Simulators → Binary path** now applies to that simulator — `[Coverage: AUTOMATED]` (real spawn MANUAL)
+- [ ] A dropped `source: custom` falls back to `system`, so **Settings → Engines → Binary path** now applies to that simulator — `[Coverage: AUTOMATED]` (real spawn MANUAL)
 - [ ] A config with `riscv.target.command` **fails to load**, naming the setting and the CLI flag — `[Coverage: AUTOMATED]`
-- [ ] Settings → Simulators → "Let project files choose simulator binaries and environment" is present and **off** by default — `[Coverage: AUTOMATED]`
+- [ ] Settings → Engines → "Let project files choose simulator binaries and environment" is present and **off** by default — `[Coverage: AUTOMATED]`
 - [ ] Turning it on makes the same three configs load and honour their keys — `[Coverage: AUTOMATED]` (real spawn MANUAL)
 - [ ] The setting persists as `simcrux.allowProjectDefinedTooling`, absent ⇒ off — `[Coverage: AUTOMATED]`
 - [ ] `simcrux --ci` without `--allow-project-tooling` refuses the same way; with it, honours them — `[Coverage: AUTOMATED]`

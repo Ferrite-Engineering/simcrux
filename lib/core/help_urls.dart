@@ -53,7 +53,7 @@ abstract final class HelpUrls {
   static const String appearanceAndThemes =
       'https://docs.simcrux.app/appearance-and-themes#presets';
 
-  /// Docs — the simcrux.yaml schema, including the Settings → Simulators
+  /// Docs — the simcrux.yaml schema, including the Settings → Engines
   /// binary path.
   static const String projectsAndSimulators =
       'https://docs.simcrux.app/projects-and-simulators#schema';

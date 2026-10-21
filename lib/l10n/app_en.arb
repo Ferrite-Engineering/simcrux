@@ -875,7 +875,19 @@
   },
   "settingsSimulatorsSection": "Simulators",
   "@settingsSimulatorsSection": {
-    "description": "Settings page section header for per-simulator binary configuration."
+    "description": "Heading of the Simulators group inside the Settings > Engines category: per-simulator binary paths, the simulator budget and the project-tooling switch."
+  },
+  "settingsEnginesSection": "Engines",
+  "@settingsEnginesSection": {
+    "description": "Settings rail category that holds the engine binaries: the Simulators, Formal tools and Implementation flow groups. NetCrux and LintCrux use the same title."
+  },
+  "settingsFormalToolsSection": "Formal tools",
+  "@settingsFormalToolsSection": {
+    "description": "Heading of the Formal tools group inside Settings > Engines: binary paths for the formal verification engines (sby, eqy)."
+  },
+  "settingsImplementationFlowSection": "Implementation flow",
+  "@settingsImplementationFlowSection": {
+    "description": "Heading of the Implementation flow group inside Settings > Engines: binary paths for the place-and-route and implementation-flow engines (LibreLane, nextpnr)."
   },
   "settingsEditorsSection": "Editors",
   "@settingsEditorsSection": {
@@ -935,7 +947,7 @@
   },
   "settingsMaxTotalSimulatorsLabel": "Simulator processes at once, across all tabs",
   "@settingsMaxTotalSimulatorsLabel": {
-    "description": "Label of the numeric field in Settings > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
+    "description": "Label of the numeric field in Settings > Engines > Simulators that caps how many simulator processes the whole app runs at once, summed over every tab's regression."
   },
   "settingsMaxTotalSimulatorsDescription": "Each run uses up to 4 slots of its own; this is the total every run shares, so several regressions at once cannot swamp the machine. 1 to 64, default 4. Headless runs use --max-parallel instead.",
   "@settingsMaxTotalSimulatorsDescription": {
@@ -943,11 +955,11 @@
   },
   "settingsAllowProjectDefinedToolingLabel": "Let project files choose simulator binaries and environment",
   "@settingsAllowProjectDefinedToolingLabel": {
-    "description": "Settings \u2192 Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
+    "description": "Settings \u2192 Engines \u2192 Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
   },
   "settingsAllowProjectDefinedToolingDescription": "Off by default. A project file can name the program SimCrux runs and the environment it runs under, which is code execution chosen by whoever wrote that file. While this is off those keys are ignored and the binary path above is used instead. Turn it on only for project files you trust.",
   "@settingsAllowProjectDefinedToolingDescription": {
-    "description": "Explanatory text under the Settings \u2192 Simulators project-defined tooling toggle."
+    "description": "Explanatory text under the Settings \u2192 Engines \u2192 Simulators project-defined tooling toggle."
   },
   "diagnosticsTabConfigInfo": "Config info",
   "@diagnosticsTabConfigInfo": {

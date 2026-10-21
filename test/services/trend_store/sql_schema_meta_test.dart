@@ -58,17 +58,20 @@ void main() {
     await db.close();
   }
 
-  test('the trend store is at schema v4 and v4 is the shared shape', () {
+  test('the trend store is at schema v5 and v4 is the shared shape', () {
     expect(
       SqlTrendStore.latestSchemaVersion,
-      4,
+      5,
+      reason:
+          'the formal and flow tables landed as the next migration after '
+          'schema_meta',
+    );
+    expect(
+      simcruxTrendStoreMigrations[3].description,
+      contains('schema_meta'),
       reason:
           'schema_meta landed as the next migration after the '
           'runs(started_at) index',
-    );
-    expect(
-      simcruxTrendStoreMigrations.last.description,
-      contains('schema_meta'),
     );
   });
 
@@ -78,12 +81,12 @@ void main() {
 
     final history = await store.schemaHistory(ledgerLimit: -1);
     final meta = history.meta!;
-    expect(meta.schemaVersion, 4);
+    expect(meta.schemaVersion, 5);
     expect(meta.product, 'simcrux');
     expect(meta.appVersion, SimCruxBuildInfo.productVersion);
     expect(meta.lastOpenedByAppVersion, SimCruxBuildInfo.productVersion);
     expect(meta.createdAt, isNotNull);
-    expect(history.ledger.map((r) => r.version), <int>[4, 3, 2, 1]);
+    expect(history.ledger.map((r) => r.version), <int>[5, 4, 3, 2, 1]);
     expect(history.ledger.every((r) => r.appliedAt != null), isTrue);
   });
 
@@ -104,7 +107,7 @@ void main() {
 
       final history = await store.schemaHistory(ledgerLimit: -1);
       final meta = history.meta!;
-      expect(meta.schemaVersion, 4);
+      expect(meta.schemaVersion, 5);
       expect(meta.appVersion, SimCruxBuildInfo.productVersion);
       expect(meta.lastMigratedAt, isNotNull);
       expect(
@@ -124,10 +127,39 @@ void main() {
             'v1-v3 certainly ran — the file was at v3 — but nothing recorded '
             'when, or by which build',
       );
+      for (final watched in const <int>[4, 5]) {
+        expect(
+          history.ledger
+              .firstWhere((r) => r.version == watched)
+              .appliedByAppVersion,
+          SimCruxBuildInfo.productVersion,
+          reason: 'v4 and v5 are the migrations this build watched',
+        );
+      }
+    });
+  });
+
+  group('an existing v4 trends.db', () {
+    test('keeps its regression history across the v5 upgrade', () async {
+      await seedAtVersion(4, runs: 3);
+
+      final store = await SqlTrendStore.open(path: dbPath());
+      addTearDown(store.close);
+      expect(await store.runRowCount(), 3);
+
+      final history = await store.schemaHistory(ledgerLimit: -1);
+      expect(history.meta!.schemaVersion, 5);
+      final v5 = history.ledger.firstWhere((r) => r.version == 5);
+      expect(v5.isBackfilled, isFalse);
+      expect(v5.appliedByAppVersion, SimCruxBuildInfo.productVersion);
       expect(
-        history.ledger.firstWhere((r) => r.version == 4).appliedByAppVersion,
-        SimCruxBuildInfo.productVersion,
-        reason: 'v4 is the one migration this build watched',
+        history.ledger
+            .where((r) => r.version < 5)
+            .every(
+              (r) => r.appliedByAppVersion == '0.7.0',
+            ),
+        isTrue,
+        reason: 'v1 to v4 ran under the build that seeded the file',
       );
     });
 
@@ -162,11 +194,11 @@ void main() {
 
       final info = await store.schemaInfo();
       expect(info.isRecorded, isTrue);
-      expect(info.schemaVersion, 4);
+      expect(info.schemaVersion, 5);
       expect(info.migratedByAppVersion, SimCruxBuildInfo.productVersion);
       expect(info.lastOpenedByAppVersion, SimCruxBuildInfo.productVersion);
-      expect(info.ledger, hasLength(4));
-      expect(info.ledger.first.version, 4);
+      expect(info.ledger, hasLength(5));
+      expect(info.ledger.first.version, 5);
     });
 
     test(

@@ -78,7 +78,7 @@ Future<TestProcess> _refuseToSpawn(
 /// loader refuses that key, because an arbitrary downloaded project file
 /// may not choose what SimCrux executes. These cases are about what the
 /// importer emits, so they load as a user who has trusted the file they
-/// just generated (Settings → Simulators → "Let project files choose
+/// just generated (Settings → Engines → "Let project files choose
 /// simulator binaries and environment", or `--allow-project-tooling`). The
 /// gate itself is
 /// `test/services/config/config_loader_project_tooling_test.dart`.

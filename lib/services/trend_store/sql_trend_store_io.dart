@@ -300,14 +300,14 @@ INSERT OR IGNORE INTO runs (
         point.runId,
         point.startedAt.toUtc().millisecondsSinceEpoch,
         '',
-        // 'unknown', not 'manual'. A `TrendPoint` carries no trigger, so this
-        // row cannot know one — and this is the path every run row actually
-        // takes, `recordRun` having no production caller. Writing 'manual'
-        // made a default look like evidence: the App Diagnostics rebuild
-        // replays *CI* archives through here, and each replayed run came back
-        // labelled a manual one, contradicting the recovery card's own
-        // promise that the trigger cannot be recovered.
-        'unknown',
+        // The point's own trigger, or 'unknown' when it carries none — never
+        // a default 'manual'. This is the path every run row actually takes,
+        // `recordRun` having no production caller. Writing 'manual' made a
+        // default look like evidence: the App Diagnostics rebuild replays
+        // *CI* archives through here with no trigger, and each replayed run
+        // came back labelled a manual one, contradicting the recovery card's
+        // own promise that the trigger cannot be recovered.
+        point.trigger?.name ?? 'unknown',
         0,
         '{}',
       ],

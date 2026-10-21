@@ -10,12 +10,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
+import 'package:simcrux/features/settings/widgets/settings_engine_rows.dart';
+import 'package:simcrux/features/settings/widgets/settings_formal_tools_section.dart';
+import 'package:simcrux/features/settings/widgets/settings_implementation_flow_section.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 
-/// Per-simulator binary path override section. Lists every simulator
-/// the driver registry advertises and lets the user supply an
-/// absolute path to a non-PATH binary.
+/// The engine ids that have their own group in Settings > Engines, and so
+/// are left out of the Simulators group.
+const Set<String> kEngineIdsOutsideSimulators = <String>{
+  ...kFormalToolEngineIds,
+  ...kImplementationFlowEngineIds,
+};
+
+/// The Simulators group of Settings > Engines: a binary path override for
+/// every registered simulator, the app-wide simulator budget, and the
+/// project-tooling consent switch.
+///
+/// Lists every driver id the registry advertises except the formal and
+/// implementation-flow engines ([kEngineIdsOutsideSimulators]), which get
+/// their rows in their own groups.
 class SettingsSimulatorsSection extends ConsumerWidget {
   /// Creates a [SettingsSimulatorsSection].
   const SettingsSimulatorsSection({required this.settings, super.key});
@@ -31,38 +45,8 @@ class SettingsSimulatorsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final id in registry.simulatorIds)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: Text(id),
-                ),
-                Expanded(
-                  child: _BinaryPathField(
-                    simulatorId: id,
-                    initial: settings.simulatorBinaryOverrides[id] ?? '',
-                    onSubmit: (value) {
-                      final next = Map<String, String>.from(
-                        settings.simulatorBinaryOverrides,
-                      );
-                      if (value.isEmpty) {
-                        next.remove(id);
-                      } else {
-                        next[id] = value;
-                      }
-                      unawaited(
-                        ref
-                            .read(appSettingsProvider.notifier)
-                            .updateSimulatorBinaryOverrides(next),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          if (!kEngineIdsOutsideSimulators.contains(id))
+            SettingsBinaryPathRow(engineId: id, settings: settings),
         Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Row(
@@ -161,45 +145,6 @@ class SettingsSimulatorsSection extends ConsumerWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _BinaryPathField extends StatefulWidget {
-  const _BinaryPathField({
-    required this.simulatorId,
-    required this.initial,
-    required this.onSubmit,
-  });
-
-  final String simulatorId;
-  final String initial;
-  final ValueChanged<String> onSubmit;
-
-  @override
-  State<_BinaryPathField> createState() => _BinaryPathFieldState();
-}
-
-class _BinaryPathFieldState extends State<_BinaryPathField> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.initial,
-  );
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      decoration: const InputDecoration(
-        isDense: true,
-        hintText: r'/usr/local/bin (leave empty to use $PATH)',
-      ),
-      onSubmitted: widget.onSubmit,
     );
   }
 }

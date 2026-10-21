@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
+import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/simulator/simulator_not_available_exception.dart';
 
 SimulatorNotAvailableException _ex(SimulatorBinarySource source) =>
@@ -17,7 +18,17 @@ void main() {
     test('system points at PATH and the Settings override', () {
       final message = _ex(SimulatorBinarySource.system).remediation;
       expect(message, contains('PATH'));
-      expect(message, contains('Settings → Simulators'));
+      // The route the Settings screen actually has, held to its strings by
+      // config_loader_settings_labels_test.dart.
+      expect(message, contains(kSettingsEnginesRoute));
+    });
+
+    test('every source names a Settings route that exists', () {
+      for (final source in SimulatorBinarySource.values) {
+        final message = _ex(source).remediation;
+        if (!message.contains('Settings')) continue;
+        expect(message, contains(kSettingsEnginesRoute), reason: '$source');
+      }
     });
 
     test('system warns about the macOS Finder PATH trap', () {

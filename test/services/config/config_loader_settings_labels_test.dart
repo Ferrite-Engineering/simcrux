@@ -15,7 +15,7 @@ import 'package:simcrux/services/config/config_loader.dart';
 /// actually renders.
 ///
 /// The diagnostics once said "Settings → Simulators → Allow project-defined
-/// tooling" while the switch read "Let project files choose simulator
+/// tooling" (the category was titled Simulators then) while the switch read "Let project files choose simulator
 /// binaries and environment": a user following the message looked for a
 /// control that did not exist.
 void main() {
@@ -37,15 +37,15 @@ void main() {
     );
   });
 
-  test('the route names the Settings title and its Simulators section', () {
+  test('the route names the Settings title and its Engines category', () {
     expect(
-      kSettingsSimulatorsRoute,
-      '${arb['settingsTitle']} → ${arb['settingsSimulatorsSection']}',
+      kSettingsEnginesRoute,
+      '${arb['settingsTitle']} → ${arb['settingsEnginesSection']}',
     );
   });
 
   test('the remedy sentence carries the route, the label and the flag', () {
-    expect(kProjectToolingRemedy, contains(kSettingsSimulatorsRoute));
+    expect(kProjectToolingRemedy, contains(kSettingsEnginesRoute));
     expect(kProjectToolingRemedy, contains(kAllowProjectToolingControlLabel));
     expect(kProjectToolingRemedy, contains('--allow-project-tooling'));
   });

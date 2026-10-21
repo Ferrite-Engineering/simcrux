@@ -143,6 +143,53 @@ Fixture families:
 
 **Automation assessment.** Steps 1 to 5: `test/features/workspace/widgets/empty_canvas_content_test.dart` (rows in order, remove, Clear, missing file greyed, opening a missing file drops it) and `test/core/shortcuts/simcrux_action_handlers_test.dart` ("Clear Recent Projects"). Step 6: `test/features/settings/providers/app_settings_provider_test.dart` and `test/services/settings/simcrux_settings_codec_test.dart` (the list round-trips as the JSON string it has always been). Manual sign-off for the cold relaunch and the file-menu entry.
 
+### 3.5 Trend-store schema v5: formal and flow tables, and the run trigger
+
+**What it does (plain language).** Schema v5 of `trends.db` adds the tables formal verification and the implementation flow keep their history in: `flow_steps`, `flow_metrics` (index `idx_flow_metrics_base`), `formal_runs` (`idx_formal_runs_test`), `formal_properties`, `formal_property_results` (`idx_formal_property_results_key`) and `flow_gls_results` (`idx_flow_gls_test`). It is one additive migration (`lib/services/trend_store/sql_migrations.dart`); nothing earlier changes. The tables start empty: the features that write them arrive separately. In the same change each run row starts recording what started it. `runs.trigger_kind` was always written as `unknown`, because a trend point carried no trigger; the regression runner now passes its trigger (`manual`, `auto`, `ci`, and for flow work `ingest` and `gls`), and only a point replayed from an archive, which cannot know, still records `unknown`.
+
+**Setup.** A `trends.db` written by the previous release, with a few runs in it. Its location is in App Diagnostics.
+
+**Step-by-step expected behavior.**
+
+1. Quit SimCrux, copy `trends.db` aside, and launch the new build.
+2. A `trends.db.pre-v4-<timestamp>.bak` appears beside the database: the pre-upgrade snapshot, taken before the migration ran.
+3. App Diagnostics shows the trend store at schema v5, migrated by this build, with v1 to v4 still listed under the build that applied them.
+4. Earlier runs are all still in the trend charts and history.
+5. Run a regression from the toolbar, then save `simcrux.yaml` with auto-reload on. In a SQLite browser, `SELECT id, trigger_kind FROM runs ORDER BY started_at DESC LIMIT 2` shows `auto` and `manual`.
+
+**Edge cases.**
+
+- Opening the v5 file with the previous release is refused with the version-skew message naming this build; nothing is modified or deleted.
+- A fresh install records v1 to v5 as applied at creation; none is backfilled.
+- A trend store rebuilt from archives in App Diagnostics records `unknown` for every run, as before.
+
+**Tier-gate scenarios.** N/A. The schema is open core; the Pro per-project store at `<project>/.simcrux/trends.db` runs the same migration list.
+
+**Automation Assessment.** `test/services/trend_store/sql_migrations_test.dart` ('upgrade from v4 to v5 adds the formal and flow tables, empty, and their indexes'), `sql_migrations_data_preserving_test.dart` (a fixture per version, v1 to v5, upgraded to HEAD), `sql_pre_upgrade_backup_test.dart` (the `.pre-v` backup at latest minus one), `sql_schema_meta_test.dart` ('an existing v4 trends.db'), `test/static/sqlite_migration_guards_test.dart` (G1 holds v5's fingerprint in `test/static/sqlite_schema_manifests/simcrux_trend_store.fingerprints`), `sql_trend_store_test.dart` ('the run row records its trigger') and `regression_runner_test.dart` ('the trend store run row records what started the run'). `Coverage: AUTOMATED — flutter test`. Manual sign-off: steps 1 to 4 on a real upgraded file.
+
+### 3.6 Settings > Engines
+
+**What it does (plain language).** The third Settings category is titled **Engines**, the name NetCrux and LintCrux give the same slot. It holds one card per group. **Simulators** has what the category held before: a binary path per simulator, the number of simulator processes at once across all tabs, and the project-tooling switch. **Formal tools** and **Implementation flow** list the formal engines (`sby`, `eqy`) and the implementation-flow engines (`librelane`, `nextpnr`); each group shows only the engines this build has, and shows nothing at all when it has none, so there is never an empty card. An engine appears in exactly one group. Every message that sends you to Settings (a missing simulator, a project file's dropped tooling key, `simcrux --help`) names **Settings → Engines**.
+
+**Setup.** Any build. No project needed.
+
+**Step-by-step expected behavior.**
+
+1. Open Settings. The rail reads General, Appearance, (Privacy,) Engines, Editors, CXP Cross-Probe, Detectors, Keyboard Shortcuts, in that order.
+2. Choose **Engines**. One card titled **Simulators** lists `icarus`, `verilator`, `ghdl`, `cocotb`, `riscv_arch` and `riscv_formal`, each with a **Binary path** field, then the simulator budget and the switch "Let project files choose simulator binaries and environment".
+3. No Formal tools or Implementation flow card is shown while this build registers none of their engines.
+4. Rename `iverilog` off the `PATH` and run an Icarus test: the failure row's remedy says to set an explicit path in **Settings → Engines**.
+5. Switch the language to each of the other four locales: the category and group titles are translated, and nothing overflows.
+
+**Edge cases.**
+
+- A binary path set before the rename is kept: the setting is keyed by engine id, not by the category title.
+- The rail order guard holds ids, not titles, so the rename does not move the category.
+
+**Tier-gate scenarios.** N/A. Open core, every tier.
+
+**Automation Assessment.** `test/features/settings/widgets/settings_engines_section_test.dart` (the group titles, the partition of engine ids between groups, no empty cards, the locale sweep), `test/features/settings/widgets/settings_simulators_section_test.dart` (the Simulators group's fields), `test/static/settings_rail_canonical_order_test.dart` (rail order), `test/services/config/config_loader_settings_labels_test.dart` (the route constant against the ARB strings) and `test/services/simulator/simulator_not_available_exception_test.dart`. `Coverage: AUTOMATED — flutter test`. Manual sign-off: steps 1 and 2 in the desktop app.
+
 ## 4. Icarus + Verilator + Dashboard
 
 > **Status.** Shipped: the `SimulatorDriver` contract with the Icarus and Verilator process-backed drivers, the `LocalJobScheduler` happy path (bounded concurrency, resource locks, timeout, retry), the regression dashboard (pass/fail/skip counts + inspector drill-in), and the `simcrux.yaml` config load path.
@@ -151,13 +198,13 @@ Fixture families:
 
 **What it does (plain language).** `SimulatorDriver` (`lib/domain/interfaces/simulator_driver.dart`) is the driver contract: `id`, `displayName`, `capabilities`, `detectVersion`, `compile`, `execute` (a stream of `TestExecutionEvent`), `cancel`. `IcarusDriver` (`lib/services/simulator/icarus_driver.dart`) wraps `iverilog` + `vvp`; `VerilatorDriver` (`verilator_driver.dart`) wraps `verilator`. Both extend the shared `process_backed_simulator_driver.dart`. A missing binary throws `SimulatorNotAvailableException` (`simulator_not_available_exception.dart`), which the scheduler catches and surfaces as a `fail` row with a remediation hint — never an opaque `?`.
 
-**Setup.** `iverilog` + `vvp` (Icarus) or `verilator` on `$PATH`, or a custom path via Settings → Simulators.
+**Setup.** `iverilog` + `vvp` (Icarus) or `verilator` on `$PATH`, or a custom path via Settings → Engines.
 
 **Step-by-step expected behavior.**
 
 1. Open `test/fixtures/projects/iverilog_pass/` → the driver compiles (`iverilog`), runs (`vvp`), and the dashboard row goes green.
 2. `iverilog_fail` → the run exits nonzero → the row goes red.
-3. Rename/uninstall the binary → the row reads `fail` with `"… binary \`iverilog\` not available (system)."` plus "Install … on the host PATH or configure a custom binary path in Settings → Simulators".
+3. Rename/uninstall the binary → the row reads `fail` with `"… binary \`iverilog\` not available (system)."` plus "Install … on the host PATH or configure a custom binary path in Settings → Engines".
 
 **Diagnostics-assisted verification.** The inspector's log viewer streams stdout/stderr as `TestLogLine` events; the failure message names the missing binary and its `source`.
 
@@ -165,7 +212,7 @@ Fixture families:
 
 - `iverilog` present but `vvp` missing → the driver emits a finished event with `unknown`.
 - `cancel` kills the in-flight `vvp` / `verilator` process and escalates `SIGTERM` → `SIGKILL` after a grace period.
-- **Settings → Simulators path vs the project file.** A project `simulators:` entry with `source: custom` + `path` wins; an entry that only sets `options:` / `env:` keeps them and takes the Settings path; no entry takes the Settings path. **Manual check:** set a Settings path for cocotb, add `simulators: {cocotb: {options: {sim: icarus}}}`, run — the log shows the Settings `make`. (`Coverage: AUTOMATED — regression_runner_test.dart → Settings > Simulators binary path`)
+- **Settings → Engines path vs the project file.** A project `simulators:` entry with `source: custom` + `path` wins; an entry that only sets `options:` / `env:` keeps them and takes the Settings path; no entry takes the Settings path. **Manual check:** set a Settings path for cocotb, add `simulators: {cocotb: {options: {sim: icarus}}}`, run — the log shows the Settings `make`. (`Coverage: AUTOMATED — regression_runner_test.dart → Settings > Engines binary path`)
 - **Verilator warnings, delays and flags.** Open `test/fixtures/projects/verilator_timing/` with Verilator 5: its testbench uses `#` delays, has a module name that differs from its file name and an unused wire, and reads a define that only `simulators.verilator.options.args` supplies. Expected: the log shows the `%Warning-DECLFILENAME` / `%Warning-UNUSEDSIGNAL` lines and the row is green (the driver passes `--timing -Wall -Wno-fatal` and the args). With Verilator 4 no `--timing` is passed. A Verilator 5 testbench that runs out of events without `$finish` exits `1` with `simulation ran out of events before $finish`. (`Coverage: AUTOMATED — verilator_driver_test.dart; flutter test --tags integration (fixture_pipeline_test.dart, verilator_timing)`)
 
 **Tier-gate scenarios.** N/A — Open Core.
@@ -387,7 +434,7 @@ Composable through `CompositePassFailConfig` — common pattern is `all_of: [exi
 - Zero-result runs: the writer still emits the `meta` + `summary` lines on completion.
 - Calling `recordRow` before `start()` or after `recordRunCompletion()` throws `StateError`.
 - Custom paths via `output: { results_path: '…', summary_path: '…' }`, resolved against the directory holding `simcrux.yaml`.
-- A custom path must stay inside that directory, because `--ci` creates and truncates both files. `results_path: ../../victim.txt`, an absolute path elsewhere, or `build/results.ndjson` where `build` is a symbolic link out of the project each stop the load with the file, line and column of the value; the same project loads with `--allow-project-tooling` (or the Settings → Simulators project-tooling switch) and writes where it says. The writer re-checks both paths immediately before opening each, so a config built in code, or a directory that became a link after the load, fails the run with nothing created or truncated.
+- A custom path must stay inside that directory, because `--ci` creates and truncates both files. `results_path: ../../victim.txt`, an absolute path elsewhere, or `build/results.ndjson` where `build` is a symbolic link out of the project each stop the load with the file, line and column of the value; the same project loads with `--allow-project-tooling` (or the Settings → Engines project-tooling switch) and writes where it says. The writer re-checks both paths immediately before opening each, so a config built in code, or a directory that became a link after the load, fails the run with nothing created or truncated.
 
 **Automation Assessment.** `Coverage: AUTOMATED — flutter test` (`streaming_results_writer_test.dart` covers writer, reader, hydrator, bounded-memory and project-containment cases; `ci_runner_test.dart` verifies the writer is invoked under `--ci`, where the paths resolve and what `--allow-project-tooling` lifts; `config_loader_output_paths_test.dart` and `project_output_path_test.dart` cover the load-time refusal for the `../`, absolute and symbolic-link shapes).
 
@@ -4299,7 +4346,7 @@ registered with Launch Services the same way), a project directory with a
    not the default until chosen. Choose it, **Change All…**, then
    double-click: SimCrux opens it.
 8. Open a project whose `simulators:` entry sets `path:`, with
-   **Settings → Simulators → Let project files choose simulator binaries and
+   **Settings → Engines → Let project files choose simulator binaries and
    environment** off: the project loads with the advisory naming the key and
    the switch, and nothing runs.
 

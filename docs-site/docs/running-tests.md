@@ -44,7 +44,8 @@ SimCrux runs tests concurrently with proper output isolation — each test gets
 its own working directory, and its `stdout`/`stderr` are captured separately,
 so parallel logs never interleave. A run started from the app uses 4 parallel
 slots, and every run in the app draws those slots from one shared budget,
-**Settings → Simulators → Simulator processes at once, across all tabs**
+**Settings → Engines → Simulator processes at once, across all tabs**
+(from 1.2; earlier versions call the category **Simulators**)
 (default 4, 1 to 64), so several regressions running in separate tabs cannot
 together spawn more simulators than the machine can take. Concurrency is not a
 `simcrux.yaml` key. Headless runs have one regression per process; set it on

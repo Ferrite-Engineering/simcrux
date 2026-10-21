@@ -117,6 +117,112 @@ WHERE type='index'
       },
     );
 
+    test(
+      'upgrade from v4 to v5 adds the formal and flow tables, empty, and '
+      'their indexes',
+      () async {
+        final db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+        addTearDown(db.close);
+        await runner.upgrade(db, 0, 4);
+        await db.insert('runs', <String, Object?>{
+          'id': 'r1',
+          'started_at': 1,
+          'config_hash': 'h',
+          'trigger_kind': 'manual',
+          'total_tests': 1,
+          'metadata': '{}',
+        });
+
+        await runner.upgrade(db, 4, 5);
+
+        Future<List<String>> columnsOf(String table) async => [
+          for (final row in await db.rawQuery('PRAGMA table_info($table)'))
+            row['name']! as String,
+        ];
+        expect(await columnsOf('flow_steps'), <String>[
+          'run_id',
+          'test_id',
+          'ordinal',
+          'step_id',
+          'tool',
+          'status',
+          'runtime_ms',
+        ]);
+        expect(await columnsOf('flow_metrics'), <String>[
+          'run_id',
+          'test_id',
+          'key',
+          'base',
+          'modifiers',
+          'value_real',
+          'value_text',
+          'aggregated',
+        ]);
+        expect(await columnsOf('flow_gls_results'), <String>[
+          'run_id',
+          'test_id',
+          'flow_run_id',
+          'netlist',
+          'delays',
+          'outcome',
+          'real_diffs',
+          'x_diffs',
+          'first_diff_ps',
+        ]);
+        expect(
+          await columnsOf('formal_runs'),
+          containsAll(<String>[
+            'run_id',
+            'test_id',
+            'tool',
+            'task',
+            'verdict',
+            'depth_configured',
+            'depth_reached',
+            'verdict_disagreement',
+          ]),
+        );
+        expect(
+          await columnsOf('formal_properties'),
+          containsAll(<String>['test_id', 'property_key', 'key_scheme']),
+        );
+        expect(
+          await columnsOf('formal_property_results'),
+          containsAll(<String>[
+            'run_id',
+            'test_id',
+            'property_key',
+            'location',
+            'status',
+          ]),
+        );
+        for (final table in const [
+          'flow_steps',
+          'flow_metrics',
+          'flow_gls_results',
+          'formal_runs',
+          'formal_properties',
+          'formal_property_results',
+        ]) {
+          expect(await db.query(table), isEmpty, reason: table);
+        }
+        final indexes = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type='index'",
+        );
+        expect(
+          indexes.map((r) => r['name']),
+          containsAll(<String>[
+            'idx_flow_metrics_base',
+            'idx_flow_gls_test',
+            'idx_formal_runs_test',
+            'idx_formal_property_results_key',
+          ]),
+        );
+        // The run written at v4 is untouched.
+        expect((await db.query('runs')).single['id'], 'r1');
+      },
+    );
+
     test('upgrade rejects downgrade', () async {
       final db = await databaseFactory.openDatabase(inMemoryDatabasePath);
       addTearDown(db.close);

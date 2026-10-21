@@ -22,8 +22,9 @@ import 'package:simcrux/services/trend_store/sql_trend_store_io.dart';
 /// would corrupt.
 ///
 /// `runs` and `test_results` (plus their indexes) have not changed shape
-/// since v1 — versions 2 and 3 only add indexes, and v4 only adds the
-/// `schema_meta` / `schema_migrations` tables — so one seed/assert shape
+/// since v1 — versions 2 and 3 only add indexes, v4 only adds the
+/// `schema_meta` / `schema_migrations` tables, and v5 only adds the formal
+/// and flow tables — so one seed/assert shape
 /// covers every version; what differs per version is which indexes and
 /// ledger rows must already/not-yet exist.
 Map<String, Object?> _runRow(String id, int startedAt) => <String, Object?>{
@@ -72,6 +73,10 @@ const Set<String> _headTestResultsIndexes = {
 };
 const Set<String> _headRunsIndexes = {'idx_runs_started'};
 
+/// The version whose migration created the `schema_meta` ledger. A file built
+/// at or above it has recorded every migration as it ran.
+const int _schemaMetaVersion = 4;
+
 CruxMigrationFixture _fixture(int version) {
   final runId = 'run-v$version';
   final resultId = 'result-v$version';
@@ -114,25 +119,29 @@ CruxMigrationFixture _fixture(int version) {
         containsAll(_headRunsIndexes),
       );
 
-      // The ledger backfill: versions at or below the
-      // fixture's starting version predate the ledger and are recorded with
-      // NULL applied_at/applied_by_app_version; versions above it were
-      // watched by this upgrade and carry both.
+      // The ledger backfill: for a fixture that predates the ledger (it
+      // started below the schema_meta version), versions at or below its
+      // starting version are recorded with NULL
+      // applied_at/applied_by_app_version; versions above it were watched by
+      // this upgrade and carry both.
       //
-      // The v(latestVersion) fixture is the one exception, and asserting it
-      // separately is the point of this whole check (a case a copy-pasted,
-      // hard-coded "N-1 to head" test would never exercise): building it is
-      // a single onCreate(0, latestVersion) pass, so schema_meta is created
-      // AND fully populated in that one pass with oldVersion == 0 throughout
-      // — there is no "old file" for anything to predate, so every entry
-      // gets a real timestamp and none are backfilled. Reopening it at HEAD
-      // afterwards is a no-op (already current) that changes nothing.
+      // A fixture at or above the schema_meta version is the exception, and
+      // asserting it separately is the point of this whole check (a case a
+      // copy-pasted, hard-coded "N-1 to head" test would never exercise):
+      // building it is a single onCreate(0, version) pass, so schema_meta is
+      // created AND fully populated in that one pass with oldVersion == 0
+      // throughout — there is no "old file" for anything to predate, so
+      // every entry it wrote gets a real timestamp, and every entry the
+      // upgrade to HEAD adds is watched too. None are backfilled. For the
+      // v(latestVersion) fixture, reopening at HEAD is a no-op (already
+      // current) that changes nothing.
       final history = await readCruxSchemaHistory(migrated, ledgerLimit: -1);
       expect(history.isPresent, isTrue);
       expect(history.meta!.schemaVersion, SqlTrendStore.latestSchemaVersion);
       final noUpgradeRan = version == SqlTrendStore.latestSchemaVersion;
+      final predatesLedger = version < _schemaMetaVersion;
       for (final entry in history.ledger) {
-        if (!noUpgradeRan && entry.version <= version) {
+        if (predatesLedger && entry.version <= version) {
           expect(
             entry.isBackfilled,
             isTrue,
@@ -145,10 +154,10 @@ CruxMigrationFixture _fixture(int version) {
           expect(
             entry.isBackfilled,
             isFalse,
-            reason: noUpgradeRan
+            reason: noUpgradeRan || entry.version <= version
                 ? 'v${entry.version} was written by the single onCreate(0, '
-                      '4) pass that built this fixture, with no "old file" '
-                      'to predate — it must carry a real timestamp'
+                      '$version) pass that built this fixture, with no "old '
+                      'file" to predate — it must carry a real timestamp'
                 : 'v${entry.version} ran DURING this very upgrade and '
                       'must be recorded as such',
           );

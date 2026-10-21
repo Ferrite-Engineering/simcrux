@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:meta/meta.dart';
+import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/domain/models/trend_aggregate.dart';
@@ -285,6 +286,7 @@ class TrendPoint {
     required this.startedAt,
     this.waveformPath,
     this.suiteName,
+    this.trigger,
   });
 
   /// The parent run id.
@@ -318,6 +320,14 @@ class TrendPoint {
   /// point that drops it on ingest belongs to no suite, and a suite's chart
   /// built from such points stays empty however many runs are recorded.
   final String? suiteName;
+
+  /// What started the run this point belongs to.
+  ///
+  /// Optional, and null when the producer cannot know it: a point replayed
+  /// from an archive by the App Diagnostics rebuild carries no trigger, and
+  /// its run row records `unknown` rather than a guess. The first point of a
+  /// run creates the run row, so it is that point's trigger the row keeps.
+  final RegressionTrigger? trigger;
 }
 
 /// A "status changed in the latest run vs. the previous run" record.

@@ -215,7 +215,7 @@ class CliArgs {
   /// full list.
   ///
   /// Default false, matching the app, where the same decision is the
-  /// Settings → Simulators switch named by `kAllowProjectToolingControlLabel`.
+  /// Settings → Engines switch named by `kAllowProjectToolingControlLabel`.
   /// The CLI has no Settings to read, so the flag is the whole decision:
   /// typing it is a user saying "I trust this project file". Without it
   /// the loader drops the paths and `env:` with an advisory and refuses a

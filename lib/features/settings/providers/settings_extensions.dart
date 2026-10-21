@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// categories into the open-core `SettingsScreen` rail.
 ///
 /// **Open-core default.** Returns an empty list — only the built-in
-/// categories (General, Appearance, Simulators, Editors, CXP Cross-Probe,
+/// categories (General, Appearance, Engines, Editors, CXP Cross-Probe,
 /// Detectors, Keyboard Shortcuts) appear. The Pro overlay overrides this
 /// provider in `proOverrides` with Flaky Test Detection, Parameterization,
 /// Plugins, and Retention.

@@ -574,7 +574,7 @@ Future<void> _runCiInvocation(
       // `--allow-project-tooling`. Off unless the user typed it: a
       // project file may not choose which binary this run spawns, or
       // its environment, on its own. The interactive app takes the
-      // same decision from Settings → Simulators; a `--ci` run has no
+      // same decision from Settings → Engines; a `--ci` run has no
       // Settings and must never block on a dialog, so the flag is it.
       allowProjectDefinedTooling: parsedArgs.allowProjectTooling,
     ),

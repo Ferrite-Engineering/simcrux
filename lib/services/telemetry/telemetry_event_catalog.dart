@@ -376,7 +376,10 @@ int telemetryCount(int value) =>
 ///
 /// The first six are the built-in driver ids registered by
 /// `simulatorDriverRegistryProvider`, which are already lowercase-with-
-/// underscores and so pass the Worker's value class as they stand. `demo` is
+/// underscores and so pass the Worker's value class as they stand. `sby`,
+/// `eqy`, `librelane` and `nextpnr` are the formal and implementation-flow
+/// engine ids, in the same spelling. Gate-level simulation adds no token: it
+/// runs on `icarus` or `verilator` and reports as that engine. `demo` is
 /// the hidden `SIMCRUX_DEMO_RUNNER` driver — it is in the list because it can
 /// legitimately appear in a run, and leaving it out would silently drop the
 /// property on every demo walkthrough.
@@ -394,6 +397,10 @@ const List<String> kSimcruxSimulatorTokens = <String>[
   'cocotb',
   'riscv_arch',
   'riscv_formal',
+  'sby',
+  'eqy',
+  'librelane',
+  'nextpnr',
   'demo',
   'plugin',
 ];
@@ -410,7 +417,8 @@ const List<String> kSimcruxRegressionSimulatorTokens = <String>[
   'mixed',
 ];
 
-/// What started a regression: the user, the file watcher, or a headless run.
+/// What started a regression: the user, the file watcher, a headless run, an
+/// ingested flow run, or a gate-level rerun.
 ///
 /// Derived from `RegressionTrigger` by `telemetryEnumToken`; the conformance
 /// test re-derives it from the enum so a new trigger cannot be added without
@@ -419,6 +427,8 @@ const List<String> kSimcruxRegressionTriggerTokens = <String>[
   'manual',
   'auto',
   'ci',
+  'ingest',
+  'gls',
 ];
 
 /// How a project came to be opened.
@@ -600,6 +610,19 @@ const List<String> kSimcruxGatedFeatureTokens = <String>[
   'close_all_projects',
   'pin_project',
   'cross_project_search',
+  'formal_dashboard',
+  'formal_history',
+  'formal_pretrace',
+  'eqy_explorer',
+  'flow_trends',
+  'flow_compare',
+  'flow_ppa_dashboard',
+  'flow_alerts',
+  'flow_sweep',
+  'flow_baseline',
+  'flow_org_dashboard',
+  'flow_gls_triage',
+  'flow_sdf_gls',
 ];
 
 /// The tiers a gate may demand: `pro` or `enterprise`, and nothing else.

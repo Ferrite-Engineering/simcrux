@@ -52,7 +52,8 @@ Dock. A test selects its simulator with the `simulator:` key.
 | GHDL | `ghdl` | `ghdl` | Any backend your GHDL build uses (mcode, LLVM or GCC). |
 | Cocotb | `cocotb` | `make` in the test's working directory, with your cocotb testbench `Makefile` | Tested against cocotb 1.9 through 2.1. Cocotb 2.1 requires Python 3.9 or newer and no longer ships 32-bit builds. Cocotb wraps Icarus, Verilator or GHDL underneath. |
 
-To pin a specific install on your machine, use **Settings → Simulators**: it
+To pin a specific install on your machine, use **Settings → Engines** (from
+1.2; earlier versions call it **Settings → Simulators**): it
 lists every simulator id with a **Binary path** field (leave it empty to use
 `PATH`). It applies to runs started from the app. Give a directory for Icarus,
 which runs both `iverilog` and `vvp` from it.
@@ -67,7 +68,7 @@ simulators:
 ```
 
 That is a project file choosing which program SimCrux runs, so it is off until
-you allow it. Until you turn on **Settings → Simulators → Let project files
+you allow it. Until you turn on **Settings → Engines → Let project files
 choose simulator binaries and environment** (or pass `--allow-project-tooling`
 to `simcrux --ci`), SimCrux ignores `path:` and `env:` with a load advisory and
 uses your **Binary path** instead. Once allowed, a project entry with

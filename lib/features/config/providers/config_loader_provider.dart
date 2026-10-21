@@ -39,7 +39,7 @@ final Provider<ConfigLoader> configLoaderProvider = Provider<ConfigLoader>(
       licenseTier: tier,
       // A project file may not choose which binary SimCrux spawns, or
       // its environment, unless the user has said so in
-      // Settings → Simulators. Default off; see
+      // Settings → Engines. Default off; see
       // `AppSettings.allowProjectDefinedTooling`.
       allowProjectDefinedTooling:
           settings.value?.allowProjectDefinedTooling ?? false,

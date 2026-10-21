@@ -95,7 +95,7 @@ class AppSettings {
   ///
   /// Default **false**. With it off the loader drops `path:` / `env:`
   /// with a load advisory and refuses a `command:` outright; the user's
-  /// own `Settings → Simulators → Binary path` override
+  /// own `Settings → Engines → Binary path` override
   /// ([simulatorBinaryOverrides]) is unaffected, because that value came
   /// from the user rather than from the file.
   ///

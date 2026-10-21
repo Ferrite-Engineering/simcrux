@@ -10,9 +10,9 @@ import 'package:simcrux/features/settings/providers/settings_extensions.dart';
 import 'package:simcrux/features/settings/widgets/color_theme_section.dart';
 import 'package:simcrux/features/settings/widgets/settings_detectors_section.dart';
 import 'package:simcrux/features/settings/widgets/settings_editor_section.dart';
+import 'package:simcrux/features/settings/widgets/settings_engines_section.dart';
 import 'package:simcrux/features/settings/widgets/settings_general_section.dart';
 import 'package:simcrux/features/settings/widgets/settings_remote_control_section.dart';
-import 'package:simcrux/features/settings/widgets/settings_simulators_section.dart';
 import 'package:simcrux/features/settings/widgets/shortcuts_settings_section.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -22,7 +22,9 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 ///
 /// - General: auto-reload mode, default log preview line count.
 /// - Appearance: color-theme preset (brightness follows the preset).
-/// - Simulators: per-simulator binary path override + default options.
+/// - Engines: per-engine binary path overrides in the Simulators, Formal
+///   tools and Implementation flow groups, plus the simulator budget and
+///   project-tooling consent.
 /// - Editors: editor command template + presets.
 ///
 /// On desktop the menu / shortcut dispatch hosts [SettingsBody]
@@ -117,17 +119,18 @@ class SettingsBody extends ConsumerWidget {
               content: const TelemetrySettingsSection(),
             ),
           // The third rail slot is the suite's shared `productDefaults` — one id,
-          // four product titles. SimCrux titles it "Simulators"; WaveCrux
-          // titles the same slot "Waveform defaults". There is deliberately no
-          // `simulators` id: shared code must not carry a single-product
-          // domain noun.
+          // four product titles. SimCrux titles it "Engines", as NetCrux and
+          // LintCrux do, with Simulators, Formal tools and Implementation flow
+          // as its groups; WaveCrux titles the same slot "Waveform defaults".
+          // There is deliberately no `engines` id: shared code must not carry
+          // a single-product domain noun. The groups bring their own cards.
           CruxSettingsCategory(
             id: CruxSettingsCategoryId.productDefaults,
             // memory is the suite's engines/simulators icon (NetCrux and
             // LintCrux Engines use it) — external engine binaries either way.
             icon: Icons.memory,
-            title: l10n.settingsSimulatorsSection,
-            content: _card(SettingsSimulatorsSection(settings: settings)),
+            title: l10n.settingsEnginesSection,
+            content: SettingsEnginesSection(settings: settings),
           ),
           CruxSettingsCategory(
             id: CruxSettingsCategoryId.editors,

@@ -50,17 +50,17 @@ class SimulatorNotAvailableException implements Exception {
     switch (source) {
       case SimulatorBinarySource.system:
         return 'Install $simulatorId and make sure `$binary` is on your '
-            'PATH, or set an explicit path in Settings → Simulators. '
+            'PATH, or set an explicit path in Settings → Engines. '
             'On macOS, an app launched from Finder does not inherit your '
             "shell's PATH — a Homebrew install can be invisible even "
             'though `which $binary` works in a terminal.';
       case SimulatorBinarySource.bundled:
         return 'This build has no bundled $simulatorId. Install it and put '
             '`$binary` on your PATH, or set an explicit path in '
-            'Settings → Simulators.';
+            'Settings → Engines.';
       case SimulatorBinarySource.custom:
         return 'The configured path for $simulatorId does not point at a '
-            'runnable `$binary`. Check the Settings → Simulators override '
+            'runnable `$binary`. Check the Settings → Engines override '
             'or the `simulators:` block in your simcrux.yaml.';
     }
   }

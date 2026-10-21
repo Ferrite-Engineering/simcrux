@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 /// **This is not binary pinning.** [allowedSimulatorIds] constrains which
 /// simulator *ids* a project's tests may name. It does not decide which
 /// executable runs for an allowed id: that is still the user's
-/// Settings > Simulators path, or the project file's own `simulators:` block
+/// Settings > Engines path, or the project file's own `simulators:` block
 /// when project-defined tooling is allowed.
 @immutable
 final class SimulatorPolicy {
