@@ -121,4 +121,119 @@ mode prove
       expect(SbyScript.parse(bmc).hashCode, SbyScript.parse(bmc).hashCode);
     });
   });
+
+  // The corpus's own multi-task file: a task in a group, a scope by group,
+  // and a negated scope. Expectations are what the file says, read by hand.
+  const handshake = '''
+[tasks]
+prove
+prove_bug prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+depth 12
+
+[engines]
+prove: smtbmc yices
+cover: smtbmc yices
+
+[script]
+prove_bug: read -formal -DBUG_ACK_LATE handshake_imm.sv
+~prove_bug: read -formal handshake_imm.sv
+prep -top handshake_imm
+
+[files]
+handshake_imm.sv
+''';
+
+  group('[engines] and [script]', () {
+    test('engine lines are read in order, scope stripped', () {
+      expect(SbyScript.parse(bmc).engines, ['smtbmc boolector']);
+      expect(SbyScript.parse(handshake).engines, [
+        'smtbmc yices',
+        'smtbmc yices',
+      ]);
+    });
+
+    test('script lines are read in order, scope stripped', () {
+      expect(SbyScript.parse(bmc).script, [
+        'read -formal democore.v',
+        'prep -top rvfi_testbench',
+      ]);
+    });
+
+    test('a task sees its own lines, its group lines, and a negated scope '
+        'that does not name it', () {
+      final script = SbyScript.parse(handshake);
+      expect(script.scriptFor('prove_bug'), [
+        'read -formal -DBUG_ACK_LATE handshake_imm.sv',
+        'prep -top handshake_imm',
+      ]);
+      expect(script.scriptFor('prove'), [
+        'read -formal handshake_imm.sv',
+        'prep -top handshake_imm',
+      ]);
+      expect(script.scriptFor('cover'), [
+        'read -formal handshake_imm.sv',
+        'prep -top handshake_imm',
+      ]);
+    });
+
+    test('a [tasks] line names its groups', () {
+      final script = SbyScript.parse(handshake);
+      expect(script.tasks, ['prove', 'prove_bug', 'cover']);
+      expect(script.taskGroups['prove_bug'], ['prove']);
+      expect(script.taskGroups['prove'], isEmpty);
+    });
+  });
+
+  group('modeFor', () {
+    test('a task takes the mode scoped to it or to its group', () {
+      final script = SbyScript.parse(handshake);
+      expect(script.modeFor('prove'), 'prove');
+      expect(script.modeFor('prove_bug'), 'prove');
+      expect(script.modeFor('cover'), 'cover');
+    });
+
+    test('a file without scopes gives every task its one mode', () {
+      expect(SbyScript.parse(bmc).modeFor(null), 'bmc');
+      expect(SbyScript.parse('$bmc\n[tasks]\na\n').modeFor('a'), 'bmc');
+    });
+  });
+
+  group('assertionsDisabledFor', () {
+    test("Yosys's -noassert is reported as noassert", () {
+      final script = SbyScript.parse(
+        '[script]\nread -formal -noassert top.sv\nprep -top top\n',
+      );
+      expect(script.assertionsDisabledFor(null), 'noassert');
+      expect(script.assertionsDisabled, 'noassert');
+    });
+
+    test("yosys-slang's --ignore-assertions is reported as "
+        'ignore_assertions', () {
+      final script = SbyScript.parse(
+        '[script]\nread_slang top.sv --top top --ignore-assertions\n',
+      );
+      expect(script.assertionsDisabledFor(null), 'ignore_assertions');
+    });
+
+    test('only the task whose script turns them off reports it', () {
+      final script = SbyScript.parse(
+        '[tasks]\nfast\nfull\n\n[script]\n'
+        'fast: read -formal -noassert top.sv\n'
+        'full: read -formal top.sv\n',
+      );
+      expect(script.assertionsDisabledFor('fast'), 'noassert');
+      expect(script.assertionsDisabledFor('full'), isNull);
+      expect(script.assertionsDisabled, 'noassert');
+    });
+
+    test('a script that keeps its assertions reports nothing', () {
+      expect(SbyScript.parse(bmc).assertionsDisabled, isNull);
+      expect(SbyScript.parse(handshake).assertionsDisabled, isNull);
+    });
+  });
 }

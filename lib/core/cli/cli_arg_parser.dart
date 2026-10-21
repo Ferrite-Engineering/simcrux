@@ -3,6 +3,7 @@
 
 import 'package:args/args.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
+import 'package:simcrux/domain/enums/formal_import_kind.dart';
 import 'package:simcrux/domain/enums/riscv_import_kind.dart';
 import 'package:simcrux/services/export/result_exporter.dart';
 
@@ -220,12 +221,13 @@ class CliArgParser {
   ///
   /// A sub-command owns its own `ArgParser` (`DashboardBundleWriter` for
   /// `export-dashboard`, `RiscvImportCli` for the two RISC-V imports,
-  /// `LicenseCli` for `license`), so the words are matched *before* the
-  /// primary option parser runs and everything after one is forwarded
-  /// verbatim.
+  /// `FormalImportCli` for `import-sby`, `LicenseCli` for `license`), so the
+  /// words are matched *before* the primary option parser runs and
+  /// everything after one is forwarded verbatim.
   static List<String> get kSubcommands => <String>[
     kExportDashboardSubcommand,
     ...RiscvImportKind.subcommands,
+    ...FormalImportKind.subcommands,
     kLicenseSubcommand,
   ];
 

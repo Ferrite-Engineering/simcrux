@@ -2323,5 +2323,242 @@
   "fileWatcherIgnore": "無視",
   "@fileWatcherIgnore": {
     "description": "Button on the source-changed prompt that dismisses it without re-running. Same key and meaning as WaveCrux."
+  },
+  "actionImportFormalProject": "形式検証プロジェクトをインポート…",
+  "@actionImportFormalProject": {
+    "description": "File menu and command palette action that opens the Import Formal Project dialog, which reads a SymbiYosys .sby job file into one test per task."
+  },
+  "actionOpenFormalProperties": "形式検証プロパティ…",
+  "@actionOpenFormalProperties": {
+    "description": "View menu and command palette action that opens the Pro formal properties dashboard."
+  },
+  "dashboardColumnVerdict": "判定",
+  "@dashboardColumnVerdict": {
+    "description": "Header of the results-table column that shows a formal row's verdict (Proved, Counterexample, Inconclusive, Did not run). Blank for simulation rows."
+  },
+  "formalVerdictProved": "証明済み",
+  "@formalVerdictProved": {
+    "description": "Verdict of an unbounded formal proof (prove or live mode) that held."
+  },
+  "formalVerdictProvedOverSteps": "{count, plural, =1{1 ステップで証明済み} other{{count} ステップで証明済み}}",
+  "@formalVerdictProvedOverSteps": {
+    "description": "Verdict of a bounded model check (BMC) that held over {count} steps. A bounded result is never called a bare proof.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formalVerdictProvedBounded": "設定された範囲で証明済み",
+  "@formalVerdictProvedBounded": {
+    "description": "Verdict of a passing formal check whose mode or bound was not recorded. Worded as bounded, never as an unbounded proof."
+  },
+  "formalVerdictReached": "到達",
+  "@formalVerdictReached": {
+    "description": "Verdict of a formal cover task whose cover statements were all reached."
+  },
+  "formalVerdictNoPropertiesChecked": "合格（検査したプロパティなし）",
+  "@formalVerdictNoPropertiesChecked": {
+    "description": "Verdict of a formal task that passed while checking no property at all, so nothing was proved."
+  },
+  "formalVerdictCounterexample": "反例",
+  "@formalVerdictCounterexample": {
+    "description": "Verdict of a formal check that found a counterexample trace."
+  },
+  "formalVerdictNotReached": "未到達",
+  "@formalVerdictNotReached": {
+    "description": "Verdict of a formal cover task that left a cover statement unreached."
+  },
+  "formalVerdictInconclusive": "結論なし",
+  "@formalVerdictInconclusive": {
+    "description": "Verdict of a formal check that learned nothing (the engine gave up or ran out of time). Not a failure of the design."
+  },
+  "formalVerdictDidNotRun": "未実行",
+  "@formalVerdictDidNotRun": {
+    "description": "Verdict of a formal check that never ran because of a tooling problem."
+  },
+  "formalVerdictUnrecognized": "認識できない判定",
+  "@formalVerdictUnrecognized": {
+    "description": "Verdict of a stored formal result whose verdict this version cannot read."
+  },
+  "importFormalTitle": "形式検証プロジェクトをインポート",
+  "@importFormalTitle": {
+    "description": "Title of the Import Formal Project dialog."
+  },
+  "importFormalIntro": "SymbiYosys のジョブファイルをタスクごとに 1 つのテストとして読み込み、編集可能な simcrux.yaml を書き出します。何も実行されません。",
+  "@importFormalIntro": {
+    "description": "One-line explanation at the top of the Import Formal Project dialog."
+  },
+  "importFormalJobFileLabel": "ジョブファイル",
+  "@importFormalJobFileLabel": {
+    "description": "Label of the row that shows the chosen SymbiYosys .sby job file."
+  },
+  "importFormalJobFileNone": ".sby ファイルが選択されていません",
+  "@importFormalJobFileNone": {
+    "description": "Shown in the job file row before a file is chosen."
+  },
+  "importFormalProjectFileLabel": "プロジェクトファイル",
+  "@importFormalProjectFileLabel": {
+    "description": "Label of the row that shows where the generated simcrux.yaml is written."
+  },
+  "importFormalProjectFileNone": "先にジョブファイルを選択してください",
+  "@importFormalProjectFileNone": {
+    "description": "Shown in the project file row before a job file is chosen."
+  },
+  "importFormalChoose": "選択…",
+  "@importFormalChoose": {
+    "description": "Button that opens a file chooser in the Import Formal Project dialog."
+  },
+  "importFormalTasksHeading": "タスク",
+  "@importFormalTasksHeading": {
+    "description": "Heading of the list of [tasks] the job file declares, each with a check box."
+  },
+  "importFormalNoTasks": "このジョブファイルには [tasks] セクションがありません。1 つのテストが既定のタスクを実行します。",
+  "@importFormalNoTasks": {
+    "description": "Shown under Tasks when the job file declares no [tasks] section."
+  },
+  "importFormalCancel": "キャンセル",
+  "@importFormalCancel": {
+    "description": "Cancel button of the Import Formal Project dialog."
+  },
+  "importFormalImport": "インポート",
+  "@importFormalImport": {
+    "description": "Primary button of the Import Formal Project dialog: writes the project file and opens it."
+  },
+  "importFormalDiscardTitle": "このインポートを破棄しますか？",
+  "@importFormalDiscardTitle": {
+    "description": "Title of the confirmation shown when the Import Formal Project dialog is closed after a job file was chosen."
+  },
+  "importFormalDiscardBody": "選択したジョブファイルとタスクはインポートされません。",
+  "@importFormalDiscardBody": {
+    "description": "Body of the discard confirmation of the Import Formal Project dialog."
+  },
+  "importFormalDiscardKeep": "編集を続ける",
+  "@importFormalDiscardKeep": {
+    "description": "Safe choice of the discard confirmation: return to the dialog."
+  },
+  "importFormalDiscardConfirm": "破棄",
+  "@importFormalDiscardConfirm": {
+    "description": "Destructive choice of the discard confirmation: close the dialog without importing."
+  },
+  "importFormalFailed": "インポートに失敗しました: {message}",
+  "@importFormalFailed": {
+    "description": "Shown in the Import Formal Project dialog when the import failed. {message} is the importer's own explanation.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccess": "{count, plural, =1{1 件のテストを {filename} にインポートしました} other{{count} 件のテストを {filename} にインポートしました}}",
+  "@importFormalSuccess": {
+    "description": "Toast shown after a formal import wrote {filename} with {count} tests and opened it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccessWithWarnings": "{count, plural, =1{1 件のテストを {filename} にインポートしました。ファイル冒頭の警告をお読みください。} other{{count} 件のテストを {filename} にインポートしました。ファイル冒頭の警告をお読みください。}}",
+  "@importFormalSuccessWithWarnings": {
+    "description": "Toast shown after a formal import that raised warnings (for example a job file that turns its assertions off). The warnings are in the written file's header.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsCheck": "形式検証ツールを確認",
+  "@settingsFormalToolsCheck": {
+    "description": "Button in Settings > Engines > Formal tools that probes for sby, eqy, yosys, yosys-slang and the solvers."
+  },
+  "settingsFormalToolsChecking": "確認中…",
+  "@settingsFormalToolsChecking": {
+    "description": "Shown beside the Check formal tools button while the probe runs."
+  },
+  "settingsFormalToolsAllFound": "すべての形式検証ツールが見つかりました。",
+  "@settingsFormalToolsAllFound": {
+    "description": "Announced when the formal tools check found every tool."
+  },
+  "settingsFormalToolsSomeMissing": "{count, plural, =1{1 つの形式検証ツールが見つかりませんでした。} other{{count} 個の形式検証ツールが見つかりませんでした。}}",
+  "@settingsFormalToolsSomeMissing": {
+    "description": "Announced when the formal tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFormalToolsFound": "{tool}: 検出",
+  "@settingsFormalToolsFound": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it answered without a version.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsFoundVersion": "{tool}: {version}",
+  "@settingsFormalToolsFoundVersion": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) with the {version} banner it printed.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsMissing": "{tool}: 見つかりません",
+  "@settingsFormalToolsMissing": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it was not found.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithVerific": "{tool}: {version}（Verific あり）",
+  "@settingsFormalToolsYosysWithVerific": {
+    "description": "Formal tools report line for Yosys built with Verific, the commercial SystemVerilog front end. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithoutVerific": "{tool}: {version}（Verific なし）",
+  "@settingsFormalToolsYosysWithoutVerific": {
+    "description": "Formal tools report line for Yosys built without Verific. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsGuidanceLinux": "OSS CAD Suite には Yosys、SymbiYosys、EQY、yosys-slang とソルバーがまとめて含まれています。展開して上でその sby のパスを設定するか、bin ディレクトリを PATH に追加してください。すべての実行に sby と yosys が必要で、その他はそれを指定するジョブファイルでのみ必要です。",
+  "@settingsFormalToolsGuidanceLinux": {
+    "description": "Advice under the formal tools report on Linux when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceMacos": "OSS CAD Suite、または Homebrew の Yosys と SymbiYosys をインストールしてください。Finder から開いたアプリにはシェルの PATH が渡らないため、上で sby のパスを設定してください。他のツールはその隣で見つかります。",
+  "@settingsFormalToolsGuidanceMacos": {
+    "description": "Advice under the formal tools report on macOS when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceWindows": "OSS CAD Suite には Windows 版があります。WSL2 上で形式検証フローを実行する方法も一般的で、より充実したサポートがあります。",
+  "@settingsFormalToolsGuidanceWindows": {
+    "description": "Advice under the formal tools report on Windows when a tool is missing."
   }
 }

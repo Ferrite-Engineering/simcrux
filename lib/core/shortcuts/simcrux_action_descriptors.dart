@@ -35,6 +35,8 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   // per checkout rather than once per session.
   SimcruxAction.importRiscvArchTest ||
   SimcruxAction.importRiscvFormal ||
+  // Import Formal Project: the same shape, for the same reason.
+  SimcruxAction.importFormalProject ||
   SimcruxAction.reopenRecentProject ||
   // Clear Recent: File menu and palette, no toolbar button and no shortcut.
   // Always enabled; clearing an empty list is harmless and says so.
@@ -151,6 +153,8 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   // Every one of these renders a chart, table, or annotation payload
   // built from the result set; with none they are an empty shell.
   SimcruxAction.openSeedFailureHeatmap ||
+  // The formal properties dashboard rolls up the run's formal rows.
+  SimcruxAction.openFormalProperties ||
   SimcruxAction.showTrendChart ||
   SimcruxAction.showSuiteTrendChart ||
   SimcruxAction.showCalendarHeatmap ||

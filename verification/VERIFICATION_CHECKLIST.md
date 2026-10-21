@@ -1133,6 +1133,23 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] RISC-V formal rows are unchanged on the seven-case corpus and carry `formal.*` in addition to `riscv.formal.*` — `[Coverage: UNIT]` (`riscv_formal_driver_demo_test.dart`, `sby_ungated_verdict_test.dart`)
 - [ ] `sby` is registered in the desktop and the headless registries — `[Coverage: UNIT]` (`sby_driver_reachability_test.dart`)
 - [ ] At Open Core with the beta period over, every `sby` verdict, property row, metric and counterexample path is produced exactly as at Pro and Enterprise — `[Coverage: UNIT]` (`sby_ungated_verdict_test.dart`)
+- [ ] A task whose `[script]` reads with `-noassert` or `--ignore-assertions` records `formal.assertions_disabled` — `[Coverage: UNIT]` (`sby_script_test.dart`, `formal_events_test.dart`)
+
+### Importing a `.sby` project, the CLI, the probe and the Verdict column (guide §26.9)
+
+- [ ] A `.sby` file (or every `.sby` in a directory) imports as one `simulator: sby` test per task, the job file relative to the project file below it, and the emitted file loads with no error or warning — `[Coverage: UNIT]` (`sby_project_importer_test.dart`)
+- [ ] The riscv-formal importer splits tasks through the same code and its output is unchanged — `[Coverage: UNIT]` (`riscv_formal_check_importer_test.dart`, `formal_surfaces_reachability_test.dart`)
+- [ ] `simcrux import-sby -h` prints the usage on stdout and exits 0 before reading a file; an unknown flag or a bad path exits 2 with the reason on stderr; a good import prints the path on stdout and warnings on stderr — `[Coverage: UNIT]` (`formal_import_cli_test.dart`)
+- [ ] The standalone binary built in CI answers `--version` and `import-sby -h` — `[Coverage: CI]` (`ci.yml` build-cli)
+- [ ] File > Import Formal Project…: tasks ticked by default, a subset imports only those, a failure stays in the dialog, Escape asks before discarding a chosen job file, one copy per shortcut — `[Coverage: WIDGET]` (`import_formal_project_dialog_test.dart`)
+- [ ] The dialog's Tab walk matches its transcript and opening, filling and closing it serializes no orphan node — `[Coverage: WIDGET]` (`import_formal_project_focus_walk_test.dart`)
+- [ ] Settings > Engines > Formal tools > Check formal tools lists every tool in words, Verific yes or no, and per-platform advice for what is missing — `[Coverage: WIDGET]` (`settings_formal_tools_check_test.dart`, `formal_toolchain_probe_test.dart`)
+- [ ] The probe finds every tool of a real OSS CAD Suite beside its `sby`, without Verific, and an imported corpus job file loads and runs to every expected verdict — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`formal_toolchain_probe_live_test.dart`)
+- [ ] The Verdict column renders every bucket at Open Core with the beta period off: a BMC pass is "Proved over N steps", never a bare "Proved"; Inconclusive is never error red; the verdict is in the row's spoken label — `[Coverage: WIDGET]` (`dashboard_formal_verdict_test.dart`)
+- [ ] An `sby` row's counterexample goes to WaveCrux as a `source` element through Cross-probe Selection, and Debug in WaveCrux records `origin: formal` — `[Coverage: UNIT]` (`formal_handoff_test.dart`)
+- [ ] `formal.run.completed` (per run per tool, mode and engine, six properties), `formal.assertions.disabled` and `formal.import.completed` are recorded on the real paths and match the catalog — `[Coverage: UNIT]` (`formal_events_test.dart`, `telemetry_catalog_conformance_test.dart`)
+- [ ] View > Formal Properties… is a Pro action that answers "requires SimCrux Pro" in open core; the four formal opener seams are null at every tier — `[Coverage: UNIT]` (`simcrux_action_handlers_test.dart`, `formal_openers_test.dart`)
+- [ ] The engine canary is capped at 60 minutes, runs monthly and on dispatch on a pinned OSS CAD Suite from 2026-10-21 or newer, and fails on a missing tool — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`); green on dispatch — `[Coverage: CI]` (`engine-canary.yml`)
 
 ---
 

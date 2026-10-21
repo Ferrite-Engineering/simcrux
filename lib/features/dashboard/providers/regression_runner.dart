@@ -35,6 +35,7 @@ import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.
 import 'package:simcrux/services/re_run_query/re_run_query_service_provider.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
+import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 import 'package:simcrux/services/telemetry/simulator_telemetry_token.dart';
 import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
@@ -451,6 +452,7 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
             _recordRunTerminal(
               cancelled: cancelled,
               failed: _failureCount(store),
+              results: store.results,
             );
             // Also before the first await: everything the housekeeping below
             // needs from `ref`. Closing the tab disposes this notifier, and
@@ -995,7 +997,11 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
   ///
   /// Idempotent per run id: [cancel] and the `RegressionFinished` event are
   /// two paths to one ending, and a race between them must not double-count.
-  void _recordRunTerminal({required bool cancelled, int failed = 0}) {
+  void _recordRunTerminal({
+    required bool cancelled,
+    int failed = 0,
+    Iterable<TestResult> results = const <TestResult>[],
+  }) {
     final runId = _activeRunId;
     if (runId == null || runId == _terminalRecordedRunId) return;
     _terminalRecordedRunId = runId;
@@ -1036,6 +1042,23 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
           },
         ),
       );
+    }
+    if (!cancelled) {
+      // Per run per (tool, mode, engine), counts summed; see
+      // [formalRunCompletedProperties]. Nothing for a run with no formal row.
+      for (final properties in formalRunCompletedProperties(results)) {
+        telemetry.record(
+          TelemetryEvent('formal.run.completed', properties: properties),
+        );
+      }
+      for (final how in formalAssertionsDisabledTokens(results)) {
+        telemetry.record(
+          TelemetryEvent(
+            'formal.assertions.disabled',
+            properties: <String, Object?>{'how': how},
+          ),
+        );
+      }
     }
     for (final kind in _activeDetectorKinds) {
       telemetry.record(

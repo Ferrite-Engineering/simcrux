@@ -11,8 +11,10 @@ import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
+import 'package:simcrux/domain/enums/formal_import_kind.dart';
 import 'package:simcrux/domain/enums/riscv_import_kind.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
+import 'package:simcrux/domain/models/formal_import_result.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/riscv_import_result.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
@@ -21,6 +23,7 @@ import 'package:simcrux/services/cli/cli_args.dart' as launch_cli;
 import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/export/dashboard_bundle_writer.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
+import 'package:simcrux/services/import/formal_import_cli.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_import_cli.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
@@ -214,6 +217,16 @@ class SimcruxCli {
       );
     }
 
+    final formalKind = FormalImportKind.fromSubcommand(parsedArgs.subcommand);
+    if (formalKind != null) {
+      return await runFormalImport(
+        formalKind,
+        parsedArgs.subcommandArgs,
+        stdoutSink: stdoutSink,
+        stderrSink: stderrSink,
+      );
+    }
+
     if (parsedArgs.subcommand == CliArgParser.kExportDashboardSubcommand) {
       return await _runExportDashboard(
         parsedArgs.subcommandArgs,
@@ -241,8 +254,8 @@ class SimcruxCli {
     stderrSink(
       'simcrux: nothing to do headless — pass --ci <config>, '
       '--import-fusesoc, import-riscv-arch-test, import-riscv-formal, '
-      'export-dashboard, or license. The graphical workflows need the '
-      'SimCrux desktop app.',
+      'import-sby, export-dashboard, or license. The graphical workflows '
+      'need the SimCrux desktop app.',
     );
     stderrSink('');
     stderrSink(CliArgParser().usage);
@@ -295,6 +308,36 @@ class SimcruxCli {
       return 2;
     } on Object catch (e) {
       stderrSink('simcrux ${importKind.subcommand}: $e');
+      return 2;
+    }
+  }
+
+  /// Runs `simcrux import-sby` and returns its exit code: 0 when the file
+  /// was written or help was shown, 2 for a usage error or an input with
+  /// nothing to import (the `import-*` family's grandfathered code).
+  ///
+  /// Shared by this binary and the desktop app's headless branch, so the
+  /// two cannot answer the same command line differently.
+  static Future<int> runFormalImport(
+    FormalImportKind kind,
+    List<String> subcommandArgs, {
+    required void Function(String line) stdoutSink,
+    required void Function(String line) stderrSink,
+  }) async {
+    try {
+      await FormalImportCli(
+        stdoutWriter: stdoutSink,
+        stderrWriter: stderrSink,
+      ).run(kind, subcommandArgs);
+      return 0;
+    } on FormalImportCliException catch (e) {
+      stderrSink('$e');
+      return 2;
+    } on FormalImportException catch (e) {
+      stderrSink('simcrux ${kind.subcommand}: $e');
+      return 2;
+    } on Object catch (e) {
+      stderrSink('simcrux ${kind.subcommand}: $e');
       return 2;
     }
   }

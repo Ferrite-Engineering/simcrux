@@ -12,6 +12,11 @@ enum DashboardSortColumn {
   /// Status icon column — orders by [TestStatus.index].
   status,
 
+  /// Formal verdict column: Proved, Counterexample, Inconclusive or Did not
+  /// run, blank for a simulation row. Orders the most urgent bucket first,
+  /// simulation rows last.
+  verdict,
+
   /// Suite-name column.
   suite,
 

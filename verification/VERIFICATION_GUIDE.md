@@ -4810,6 +4810,11 @@ fairness constraints otherwise.
 | anything else | anything | the task verdict, never `PASS` | `1` when the buckets differ |
 | any | none at all | the task verdict | absent |
 
+When `status.sqlite` was read and lists no property the mode checks,
+`formal.properties=0` is recorded, so a `PASS` that checked nothing is
+shown as "Passed, no properties checked" (§26.9) and never as a proof. With
+no status data at all no count is claimed.
+
 Where the stream and `status.sqlite` give one property different statuses,
 the more conservative one is kept and the disagreement recorded. A
 detector never turns a `formal.verdict` other than `PASS` into a pass, so a
@@ -4819,8 +4824,10 @@ detector never turns a `formal.verdict` other than `PASS` into a pass, so a
 `formal.verdict`, `formal.rc`, `formal.process_exit_code`,
 `formal.depth_configured`, `formal.depth_reached`, `formal.wall_time_ms`,
 `formal.wall_time_source`, `formal.engine`, `formal.solver`,
-`formal.trace_count`, `formal.trace_unresolved`, and, when there is
-per-property data, `formal.properties`, `formal.properties_failed`,
+`formal.trace_count`, `formal.trace_unresolved`, `formal.assertions_disabled`
+(`noassert` or `ignore_assertions`, when the task's `[script]` reads the
+design with Yosys's `-noassert` or yosys-slang's `--ignore-assertions`),
+and, when there is per-property data, `formal.properties`, `formal.properties_failed`,
 `formal.properties_undecided`, `formal.verdict_disagreement`. Each property
 is a row of indexed keys, `formal.property.<n>.kind`, `.location`,
 `.status` (`proved`, `reached`, `counterexample`, `not_reached`,
@@ -4885,9 +4892,179 @@ open core under both `kBetaPeriod` values.
 | Ungated at Open Core after the beta, identical at Pro and Enterprise | `[Coverage: UNIT]` | `test/services/simulator/sby_ungated_verdict_test.dart` |
 | SbyDriver against a real `sby` matches every expectation | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/sby_driver_live_test.dart` |
 
-### 26.9 Importing a `.sby` project and the formal CLI
+### 26.9 Importing a `.sby` project, the formal CLI, the probe and the Verdict column
 
-Not yet built.
+**What it covers.** Everything between a SymbiYosys job file and a verdict a
+user reads, in open core: the importer, `simcrux import-sby`, File > Import
+Formal Project…, the formal toolchain probe in Settings > Engines > Formal
+tools, the Verdict column of the results table, the counterexample hand-off
+to WaveCrux, the formal counters, and the View > Formal Properties… seam.
+
+**The importer** (`lib/services/import/sby_project_importer.dart`). A `.sby`
+file, or every `.sby` directly inside a directory, becomes **one test per
+`[tasks]` name** (one test running the default task for a file without
+`[tasks]`), one suite per job file. The emitted `simcrux.yaml` has
+`defaults.simulator: sby`, the `string_match` detector on `DONE (PASS`
+(the constant the log reader parses), and per test `formal.sby_file`
+(relative to the project file when the job file lies below it, else
+absolute) and `formal.task`. `top:` is the test name. A job file whose
+`[script]` turns assertions off imports with an `assertions_disabled`
+warning in the header. The riscv-formal importer is built on the same split
+(`SbyProjectImporter.expandTasks`); its output on the committed fixtures is
+byte-identical to what it emitted before (three imports compared byte for
+byte when it moved: the check set, a group-filtered import with an ISA and
+an `sby_binary`, and the demo corpus).
+
+**The CLI.** `simcrux import-sby <file.sby|dir> [--task <name>]...
+[--out <path>] [--sby-binary <path>]`:
+
+| Invocation | stdout | stderr | Exit |
+|---|---|---|---|
+| `-h` or `--help` anywhere before `--` | usage | nothing | `0`, before any file is read |
+| an unknown flag, or not exactly one path | nothing | the reason and the usage | `2` |
+| a path with no job file, or a `--task` no file declares | nothing | the reason | `2` |
+| a good import | `simcrux: wrote <path> (N tests from M job files: ...)` | warnings, and the project-tooling note when `--sby-binary` was given | `0` |
+
+The usage code is `2` because every `simcrux import-*` sub-command shares
+SimCrux's grandfathered contract. `--task` repeats or takes a
+comma-separated list. The file goes to `./simcrux.yaml` unless `--out` says
+otherwise. The desktop app answers the same command line through the same
+handler (`SimcruxCli.runFormalImport`). CI runs `simcrux import-sby -h` and
+`simcrux --version` on the standalone binary.
+
+**File > Import Formal Project….** A workflow dialog
+(`lib/features/formal_import/`): Job file (Choose… opens a `.sby` picker),
+Project file (defaults to `simcrux.yaml` beside the job file; Choose…
+opens a save picker), then the job file's tasks, each a ticked check box.
+Import writes the file, opens it as a tab and reports in a toast (an error
+toast when the import raised warnings); a failure stays in the dialog and
+says why. The barrier does not dismiss it; Escape and Cancel close a clean
+form at once and ask before discarding a chosen job file; a repeated
+shortcut opens one copy. It reads no tab, so it is window-modal.
+
+**The probe** (`lib/services/formal/formal_toolchain_probe.dart`). Check
+formal tools in Settings > Engines > Formal tools reports, in words, `sby`,
+`eqy`, `yosys` (with whether it was built with Verific: `verific -cfg`
+succeeds only then), the yosys-slang plugin (whether Yosys loads it),
+`yices-smt2`, `boolector`, `bitwuzla`, `z3`, `yosys-abc` and `rIC3`. It
+starts from the `sby` path set above it and looks for every other tool
+beside that `sby` first (an OSS CAD Suite keeps them in one `bin/`), then
+on PATH with the platform's engine directories appended. Missing tools get
+per-platform advice: the OSS CAD Suite everywhere, Homebrew and the Finder
+PATH note on macOS, WSL2 on Windows. A tool a job file needs from elsewhere
+is set with `formal.tools.<tool>` in the project.
+
+**The Verdict column.** A column after Status, blank for simulation rows.
+A formal row (one carrying `formal.verdict` or `riscv.formal.verdict`) shows
+what its verdict may claim:
+
+| Verdict and facts | Shown | Glyph colour |
+|---|---|---|
+| `PASS`, mode `prove` or `live` | Proved | pass |
+| `PASS`, mode `bmc`, depth N | Proved over N steps | pass |
+| `PASS`, mode or depth not recorded | Proved over the configured bound | pass |
+| `PASS`, mode `cover` | Reached | pass |
+| `PASS`, `formal.properties` = 0 | Passed, no properties checked | warning |
+| `FAIL` (`cover`: Not reached) | Counterexample | fail |
+| `UNKNOWN`, `TIMEOUT` | Inconclusive | `onSurfaceVariant`, never error red |
+| `ERROR`, `NO_OUTCOME` | Did not run | warning |
+| a token this build cannot read | Unrecognized verdict | `onSurfaceVariant` |
+
+A bounded result is never worded as a bare proof, and the depth shown is
+the configured BMC bound, never a step count from an induction. On a
+finished formal row the status glyph and the row's spoken label use the
+same words instead of Pass or Fail; a timeout or cancel SimCrux imposed
+keeps its own status. Sorting by Verdict puts counterexamples first and
+simulation rows last.
+
+**The hand-off.** A formal row's counterexample trace is on
+`TestResult.waveformPath`, so the row's Cross-probe to submenu and
+Cross-probe Selection (Cmd/Ctrl+Shift+Enter) send it to WaveCrux as a
+`source` element, element only, as they do a simulation dump. The
+inspector's Debug in WaveCrux records `debug_in_wavecrux.used` with
+`origin` `formal` (or `eqy`, or `test` for a simulation row).
+
+**The counters.** At the end of a run (the GUI runner and the desktop
+`--ci`), one `formal.run.completed` per distinct (tool, mode, engine) with
+`tool`, `mode`, `engine` and the summed `properties`, `failed` and
+`undecided` (clamped), and one `formal.assertions.disabled{how}` per way a
+job file turned assertions off. The GUI importers record
+`formal.import.completed{kind, tasks}` and `project.opened{source: formal}`
+(the riscv-formal import records `kind: riscv_formal` beside its
+`project.opened{source: riscv}`). Never a name, a label, a path, a depth or
+a step. The standalone binary never transmits.
+
+**View > Formal Properties….** A Pro action. Open core answers "requires
+SimCrux Pro" in a toast; `formalPropertiesOpenerProvider` (and the history,
+pre-trace and EQY explorer seams beside it in
+`lib/features/dashboard/providers/formal_openers.dart`) is null in open core
+for every tier, and the overlay that overrides it owns the gate.
+
+**The engine canary** (`.github/workflows/engine-canary.yml`). Monthly and
+on dispatch, on Linux, with an OSS CAD Suite pinned by tag and SHA-256 (a
+build from 2026-10-21 or newer; earlier yosys-slang builds refuse
+`$onehot0`, `$rose`, `$stable`, `$fell` or `$changed`): the live fixture
+assertions, the `sby` driver against every corpus case, the probe, and the
+import-load-run round trip, all with `FORMAL_LIVE_REQUIRED=1`, so a missing
+tool fails it rather than skipping. 60-minute cap. Those test files are
+tagged `oss-cad-live`, which the CI `Test` job excludes, so the canary is
+the one CI run of them.
+
+**Setup.** An OSS CAD Suite unpacked anywhere; `OSS_CAD_SUITE=<its root>`
+for the live tests. For the GUI, set the `sby` path in Settings > Engines >
+Formal tools.
+
+**Expected behaviour (manual).**
+
+1. `simcrux import-sby verification/fixtures/formal/sby/handshake_imm
+   --out /tmp/hs/simcrux.yaml` writes three tests (`prove`, `prove_bug`,
+   `cover`). `simcrux import-sby -h` prints the usage and exits 0;
+   `simcrux import-sby x.sby --bogus` exits 2.
+2. File > Import Formal Project…, choose `handshake_imm.sby`, untick
+   `cover`, Import: a tab opens with two tests.
+3. Run it with `sby` set in Settings: Verdict reads Proved for `prove` and
+   Counterexample for `prove_bug`; the `prove_bug` row's Cross-probe to
+   WaveCrux opens its trace.
+4. Settings > Engines > Formal tools > Check formal tools lists every tool
+   with its version and "built without Verific".
+5. View > Formal Properties… in an open-core build shows the Pro toast.
+
+**Edge cases.**
+
+- A `--task` that only some job files of a directory declare imports those
+  files and skips the rest; one that none declares exits 2 and lists the
+  declared tasks.
+- Two job files whose names map to the same suite key get `_2`, `_3`.
+- A job file that turns assertions off still imports (it is the user's
+  file), with the warning in the header and, on the CLI, on stderr.
+- A pass with no property checked is shown as such, never as a proof; the
+  stored verdict is unchanged.
+
+**Tier-gate scenarios.** Everything here is open core under both
+`kBetaPeriod` values except View > Formal Properties…, whose open-core
+answer is the "requires SimCrux Pro" toast. The Verdict column test renders
+every bucket at Open Core with the beta period off and no Pro overrides.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| One test per task, subsets, directories, refusals, relative paths, the emitted file loads clean | `[Coverage: UNIT]` | `test/services/import/sby_project_importer_test.dart` |
+| `import-sby`: help first, usage errors, stdout and stderr, `--task`, through the binary, `IOOverrides` working directory | `[Coverage: UNIT]` | `test/services/import/formal_import_cli_test.dart` |
+| The sub-command word is dispatched | `[Coverage: UNIT]` | `test/core/cli/cli_arg_parser_test.dart` |
+| `[engines]`, `[script]`, task groups and scopes, `modeFor`, assertions off | `[Coverage: UNIT]` | `test/domain/models/sby_script_test.dart` |
+| Verdict wording, the keys, the sort | `[Coverage: UNIT]` | `test/domain/models/formal_result_summary_test.dart` |
+| The dialog: tasks, subset, failure, Escape and the discard guard, the modal guard, five locales; the flow writes, records and opens a tab | `[Coverage: WIDGET]` | `test/features/formal_import/import_formal_project_dialog_test.dart` |
+| The dialog's Tab walk transcript and no orphan semantics node | `[Coverage: WIDGET]` | `test/accessibility/import_formal_project_focus_walk_test.dart` |
+| The Verdict column at Open Core, beta off: wording, row label, never error red, sort, locales | `[Coverage: WIDGET]` | `test/features/dashboard/widgets/dashboard_formal_verdict_test.dart` |
+| The probe against a scripted runner, per-platform advice | `[Coverage: UNIT]` | `test/services/formal/formal_toolchain_probe_test.dart` |
+| Check formal tools in Settings | `[Coverage: WIDGET]` | `test/features/settings/widgets/settings_formal_tools_check_test.dart` |
+| The hand-off as a `source` element; the counter's origin | `[Coverage: UNIT]` | `test/features/remote/services/formal_handoff_test.dart` |
+| The formal counters on the real run path, aggregation, clamping | `[Coverage: UNIT]` | `test/services/telemetry/formal_events_test.dart` |
+| The four Pro seams are null in open core at every tier | `[Coverage: UNIT]` | `test/features/dashboard/providers/formal_openers_test.dart` |
+| Every surface above is called by the app | `[Coverage: UNIT]` | `test/static/formal_surfaces_reachability_test.dart` |
+| The canary's cap, schedule, pin and required-tools switch | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
+| The probe and the import-load-run round trip against a real OSS CAD Suite | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/formal_toolchain_probe_live_test.dart` |
 
 ### 26.10 SVA diagnostic and the pre-trace marker
 

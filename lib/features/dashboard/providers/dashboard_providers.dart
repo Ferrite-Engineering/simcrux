@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
@@ -547,6 +548,12 @@ void _sort(List<DashboardRow> rows, DashboardSort sort) {
   switch (sort.column) {
     case DashboardSortColumn.status:
       keyCmp = (a, b) => a.result.status.index.compareTo(b.result.status.index);
+    case DashboardSortColumn.verdict:
+      // Most urgent bucket first; simulation rows, which have no verdict,
+      // after every formal row.
+      int rank(DashboardRow row) =>
+          FormalResultSummary.fromMetrics(row.result.metrics)?.sortRank ?? 99;
+      keyCmp = (a, b) => rank(a).compareTo(rank(b));
     case DashboardSortColumn.suite:
       keyCmp = (a, b) => a.suiteName.compareTo(b.suiteName);
     case DashboardSortColumn.testName:

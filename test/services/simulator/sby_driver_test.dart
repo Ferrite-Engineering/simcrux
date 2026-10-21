@@ -378,6 +378,71 @@ void main() {
       expect(done.metrics['formal.properties'], '3');
       expect(done.metrics['formal.properties_failed'], '1');
     });
+
+    test('a PASS whose status.sqlite lists no checked property records zero '
+        'properties, so it is never shown as a proof', () async {
+      final recorder = _Recorder(
+        process: _FakeProcess(
+          stdoutLines: const ['SBY 1:00:00 [/w/other] DONE (PASS, rc=0)'],
+        ),
+        onSpawn: (args) {
+          final taskDir = Directory(args[args.indexOf('-d') + 1])
+            ..createSync(recursive: true);
+          File(
+            p.join(_corpus, 'captured', 'status.sqlite'),
+          ).copySync(p.join(taskDir.path, 'status.sqlite'));
+        },
+      );
+      final done = await finished(
+        SbyDriver(launcher: recorder.launch),
+        request(FormalConfig(sbyFile: sbyFile, task: 'other')),
+      );
+      expect(done.metrics['formal.verdict'], 'PASS');
+      expect(done.metrics['formal.properties'], '0');
+      expect(done.metrics.containsKey('formal.verdict_disagreement'), isFalse);
+    });
+
+    test(
+      'a PASS with no status data at all claims no property count',
+      () async {
+        final recorder = _Recorder(
+          process: _FakeProcess(
+            stdoutLines: const ['SBY 1:00:00 [/w/other] DONE (PASS, rc=0)'],
+          ),
+        );
+        final done = await finished(
+          SbyDriver(launcher: recorder.launch),
+          request(FormalConfig(sbyFile: sbyFile, task: 'other')),
+        );
+        expect(done.metrics.containsKey('formal.properties'), isFalse);
+      },
+    );
+
+    test(
+      'a task that reads with -noassert records formal.assertions_disabled',
+      () async {
+        File(sbyFile).writeAsStringSync(
+          '[tasks]\nquiet\nloud\n\n[options]\nmode prove\n\n[engines]\nsmtbmc\n'
+          '\n[script]\nquiet: read -formal -noassert handshake_imm.sv\n'
+          'loud: read -formal handshake_imm.sv\nprep -top handshake_imm\n',
+        );
+        Future<Map<String, String>> run(String task) async => (await finished(
+          SbyDriver(
+            launcher: _Recorder(
+              process: _FakeProcess(
+                stdoutLines: ['SBY 1:00:00 [/w/$task] DONE (PASS, rc=0)'],
+              ),
+            ).launch,
+          ),
+          request(FormalConfig(sbyFile: sbyFile, task: task)),
+        )).metrics;
+        expect((await run('quiet'))['formal.assertions_disabled'], 'noassert');
+        expect(
+          (await run('loud')).containsKey('formal.assertions_disabled'),
+          isFalse,
+        );
+      },
+    );
   });
 
   group('the agreement rule, through the real scheduler', () {

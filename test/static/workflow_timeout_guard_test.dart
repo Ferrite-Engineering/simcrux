@@ -125,6 +125,65 @@ void main() {
     });
   });
 
+  group('engine-canary.yml', () {
+    final file = File('.github/workflows/engine-canary.yml');
+
+    test('exists', () {
+      expect(file.existsSync(), isTrue, reason: 'missing engine-canary.yml');
+    });
+
+    test('the formal job is capped at 60 minutes', () {
+      expect(jobTimeouts(file.readAsStringSync())['formal'], 60);
+    });
+
+    test('runs monthly and on dispatch, on Linux', () {
+      final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+      final on = doc['on'] as YamlMap;
+      expect(on.containsKey('workflow_dispatch'), isTrue);
+      final cron = ((on['schedule'] as YamlList).single as YamlMap)['cron'];
+      // Minute, hour, a single day of the month, every month, any weekday.
+      expect(cron, matches(RegExp(r'^\d+ \d+ \d+ \* \*$')));
+      for (final job in (doc['jobs'] as YamlMap).values) {
+        expect((job as YamlMap)['runs-on'], startsWith('ubuntu'));
+      }
+    });
+
+    test('requires the live toolchain instead of skipping without it', () {
+      expect(file.readAsStringSync(), contains("FORMAL_LIVE_REQUIRED: '1'"));
+    });
+
+    test('pins an OSS CAD Suite build from 2026-10-21 or newer', () {
+      // Older builds' yosys-slang refuses $onehot0, $rose, $stable, $fell or
+      // $changed, which the corpus uses.
+      final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+      final tag = (doc['env'] as YamlMap)['OSS_CAD_SUITE_TAG'] as String;
+      expect(tag.compareTo('2026-10-21'), greaterThanOrEqualTo(0));
+      expect(
+        (doc['env'] as YamlMap)['OSS_CAD_SUITE_SHA256'],
+        matches(RegExp(r'^[0-9a-f]{64}$')),
+      );
+    });
+
+    test('runs every live formal test file it names, and they exist', () {
+      final text = file.readAsStringSync();
+      for (final test in const [
+        'test/integration/formal_fixtures_live_test.dart',
+        'test/integration/sby_driver_live_test.dart',
+        'test/integration/formal_toolchain_probe_live_test.dart',
+      ]) {
+        expect(text, contains(test));
+        expect(File(test).existsSync(), isTrue, reason: test);
+        // The CI Test job excludes the tag, so the canary is the one place
+        // these run with the tools present.
+        expect(
+          File(test).readAsStringSync(),
+          contains("'oss-cad-live'"),
+          reason: '$test must be tagged oss-cad-live',
+        );
+      }
+    });
+  });
+
   group('the checker itself', () {
     test('rejects a job with no timeout-minutes', () {
       const yaml = '''

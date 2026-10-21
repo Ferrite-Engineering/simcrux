@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
 
 /// SimCrux brand color tokens.
 ///
@@ -84,6 +85,33 @@ abstract final class SimcruxColors {
       TestStatus.running => scheme.primary,
       TestStatus.cancelled => scheme.onSurfaceVariant,
       TestStatus.unknown => scheme.outlineVariant,
+    };
+  }
+
+  /// The hue a formal verdict renders in, from its [FormalVerdictWording].
+  ///
+  /// A proof is the pass hue and a counterexample (or an unreached cover)
+  /// the fail hue. **Inconclusive and Unrecognised are neutral
+  /// (`onSurfaceVariant`), never error red**: nothing was learned, which is
+  /// not the same as something being wrong. Did not run is a tooling
+  /// problem and takes the warning hue, as does a pass that checked no
+  /// property, which proves nothing. Colour is never the only channel: every
+  /// surface that paints this also says the verdict in words.
+  static Color formalVerdictColor(
+    FormalVerdictWording wording,
+    ColorScheme scheme,
+  ) {
+    return switch (wording) {
+      FormalVerdictWording.proved ||
+      FormalVerdictWording.provedOverSteps ||
+      FormalVerdictWording.provedBounded ||
+      FormalVerdictWording.reached => statusPass,
+      FormalVerdictWording.counterexample ||
+      FormalVerdictWording.notReached => statusFail,
+      FormalVerdictWording.didNotRun ||
+      FormalVerdictWording.noPropertiesChecked => statusVacuous,
+      FormalVerdictWording.inconclusive ||
+      FormalVerdictWording.unrecognised => scheme.onSurfaceVariant,
     };
   }
 }

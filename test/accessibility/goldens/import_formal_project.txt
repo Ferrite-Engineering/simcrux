@@ -1,0 +1,7 @@
+# Tab walk: 6 stops, cycles
+1. Project file /designs/hs/simcrux.yaml Choose… button
+2. prove check box checked
+3. cover check box checked
+4. Cancel button
+5. Import button
+6. Job file /designs/hs/top.sby Choose… button

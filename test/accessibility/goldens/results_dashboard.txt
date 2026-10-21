@@ -1,4 +1,4 @@
-# Tab walk: 44 stops, cycles
+# Tab walk: 45 stops, cycles
 1. Passing button
 2. Filter by test name… edit
 3. Pass button
@@ -16,30 +16,31 @@
 15. verilator button
 16. [View grouping] Table button selected
 17. Status button
-18. Suite button
-19. Test button
-20. Simulator button
-21. Duration button
-22. Started button
-23. Pass: uart / tx_basic, icarus, ran in 1.2s check box not checked
-24. Fail: uart / rx_parity, icarus, ran in 350ms check box not checked
-25. Pass: spi / loopback, verilator, ran in 2.4s check box not checked
-26. [Details dock Details grouping — Select a test to inspect.] Hide Panel button
-27. [Panel dock grouping] Log button
-28. Statistics button collapsed
-29. [Toolbar grouping] Open Config… (Ctrl+O) button
-30. Close Project (Ctrl+Shift+W) button
-31. Search… (Ctrl+F) button
-32. Cross-Probe Panel (Ctrl+Shift+X) button
-33. Settings… (Ctrl+,) button
-34. Import FuseSoC .core File… (Ctrl+I) button
-35. Run Regression button
-36. [Active pane grouping] simcrux.yaml button selected — /kit/simcrux.yaml
-37. [simcrux.yaml button — /kit/simcrux.yaml] Close simcrux.yaml button
-38. [Browser dock Tests grouping] Hide Panel button
-39. uart button expanded
-40. tx_basic, Pass button
-41. rx_parity, Fail button
-42. spi button expanded
-43. loopback, Pass button
-44. Failures button
+18. Verdict button
+19. Suite button
+20. Test button
+21. Simulator button
+22. Duration button
+23. Started button
+24. Pass: uart / tx_basic, icarus, ran in 1.2s check box not checked
+25. Fail: uart / rx_parity, icarus, ran in 350ms check box not checked
+26. Pass: spi / loopback, verilator, ran in 2.4s check box not checked
+27. [Details dock Details grouping — Select a test to inspect.] Hide Panel button
+28. [Panel dock grouping] Log button
+29. Statistics button collapsed
+30. [Toolbar grouping] Open Config… (Ctrl+O) button
+31. Close Project (Ctrl+Shift+W) button
+32. Search… (Ctrl+F) button
+33. Cross-Probe Panel (Ctrl+Shift+X) button
+34. Settings… (Ctrl+,) button
+35. Import FuseSoC .core File… (Ctrl+I) button
+36. Run Regression button
+37. [Active pane grouping] simcrux.yaml button selected — /kit/simcrux.yaml
+38. [simcrux.yaml button — /kit/simcrux.yaml] Close simcrux.yaml button
+39. [Browser dock Tests grouping] Hide Panel button
+40. uart button expanded
+41. tx_basic, Pass button
+42. rx_parity, Fail button
+43. spi button expanded
+44. loopback, Pass button
+45. Failures button

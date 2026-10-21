@@ -451,14 +451,27 @@ void main() {
       }
     });
 
-    test('kSubcommands covers export-dashboard, both RISC-V imports and '
-        'license', () {
+    test('kSubcommands covers export-dashboard, both RISC-V imports, '
+        'import-sby and license', () {
       expect(CliArgParser.kSubcommands, [
         'export-dashboard',
         'import-riscv-arch-test',
         'import-riscv-formal',
+        'import-sby',
         'license',
       ]);
+    });
+
+    test('import-sby forwards its words verbatim, flags included', () {
+      final args = parser.parse(<String>[
+        'import-sby',
+        'job.sby',
+        '--task',
+        'prove',
+        '--bogus',
+      ]);
+      expect(args.subcommand, 'import-sby');
+      expect(args.subcommandArgs, ['job.sby', '--task', 'prove', '--bogus']);
     });
 
     test('license forwards its words verbatim', () {

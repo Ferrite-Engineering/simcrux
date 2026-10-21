@@ -31,6 +31,7 @@ import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/about/simcrux_about_dialog.dart';
 import 'package:simcrux/features/command_palette/widgets/command_palette_dialog.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
+import 'package:simcrux/features/dashboard/providers/formal_openers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
 import 'package:simcrux/features/dashboard/providers/seed_failure_heatmap_opener.dart';
 import 'package:simcrux/features/diagnostics/widgets/app_diagnostics_dialog.dart';
@@ -38,6 +39,7 @@ import 'package:simcrux/features/diagnostics/widgets/tab_diagnostics_drawer.dart
 import 'package:simcrux/features/dialogs/confirm_dialog.dart';
 import 'package:simcrux/features/export/export_results_flow.dart';
 import 'package:simcrux/features/flaky_detection/providers/flaky_tests_panel_opener.dart';
+import 'package:simcrux/features/formal_import/import_formal_project_flow.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
 import 'package:simcrux/features/projects/providers/cross_project_search_opener.dart';
@@ -63,6 +65,7 @@ import 'package:simcrux/services/lifecycle/app_exit_coordinator.dart';
 import 'package:simcrux/services/lifecycle/app_exit_provider.dart';
 import 'package:simcrux/services/pr_annotation/pr_annotation_action_openers.dart';
 import 'package:simcrux/services/telemetry/project_opened_event.dart';
+import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
 
 /// Builds and owns the `SimcruxAction → VoidCallback` dispatch table
 /// that the keyboard-shortcut manager, the native menu bar, and the
@@ -155,6 +158,18 @@ class SimcruxActionHandlers {
       SimcruxAction.importRiscvFormal: () => unawaited(
         _importRiscvFromPicker(builderContext, ref, RiscvImportKind.formal),
       ),
+      // A dialog, unlike the pickers above: a job file's tasks are a choice a
+      // file picker cannot ask for. Window-modal; it reads no tab.
+      SimcruxAction.importFormalProject: () {
+        final ctx = navigatorContext();
+        if (ctx == null) return;
+        unawaited(
+          runImportFormalProject(
+            ctx,
+            ProviderScope.containerOf(ctx, listen: false),
+          ),
+        );
+      },
       SimcruxAction.closeProject: () {
         final ws = ref.read(workspaceProvider).value;
         final id = ws?.activeTabId;
@@ -507,6 +522,17 @@ class SimcruxActionHandlers {
         final opener = ref.read(seedFailureHeatmapOpenerProvider);
         if (opener == null || ctx == null) {
           _snackProGated(ctx, SimcruxAction.openSeedFailureHeatmap);
+          return;
+        }
+        opener(ctx);
+      },
+      // View > Formal Properties…: the same seam shape. The Pro override
+      // owns the gate; open core answers "requires SimCrux Pro".
+      SimcruxAction.openFormalProperties: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(formalPropertiesOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openFormalProperties);
           return;
         }
         opener(ctx);
@@ -947,6 +973,20 @@ class SimcruxActionHandlers {
       // two near-identical rows on a dashboard for no decision either would
       // change.
       root.read(telemetryServiceProvider).record(projectOpenedEvent('riscv'));
+      if (kind == RiscvImportKind.formal) {
+        // The formal import counter, for the RISC-V track as for a `.sby`.
+        root
+            .read(telemetryServiceProvider)
+            .record(
+              TelemetryEvent(
+                'formal.import.completed',
+                properties: <String, Object?>{
+                  'kind': 'riscv_formal',
+                  'tasks': telemetryCount(imported.testCount),
+                },
+              ),
+            );
+      }
       await root
           .read(workspaceProvider.notifier)
           .openTab(

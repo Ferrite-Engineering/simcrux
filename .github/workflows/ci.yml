@@ -206,8 +206,10 @@ jobs:
       # eqy, which this job does not install (an OSS CAD Suite is a ~1 GB
       # download). Left in, each would skip, and 23 intentional skips would
       # drown the ceiling below, which exists to notice an engine that STOPPED
-      # being installed. They run in flow-live.yml, with the suite and
-      # FLOW_LIVE_REQUIRED=1, where a missing tool is a failure.
+      # being installed. They run with the suite installed, where a missing
+      # tool is a failure: the nextpnr ones in flow-live.yml
+      # (FLOW_LIVE_REQUIRED=1), the formal ones in engine-canary.yml
+      # (FORMAL_LIVE_REQUIRED=1).
       - name: Run tests
         run: flutter test -x oss-cad-live --reporter github --file-reporter json:build/test-results.json
 
@@ -340,6 +342,11 @@ jobs:
           cd "$alone"
           ./simcrux --help | tee usage.txt
           grep -q -- '--allow-project-tooling' usage.txt
+          ./simcrux --version | tee version.txt
+          grep -q '^simcrux ' version.txt
+          # Every sub-command answers -h on stdout before touching a file.
+          ./simcrux import-sby -h | tee import-sby.txt
+          grep -q -- '--task' import-sby.txt
 
   # ─────────────────────────────────────────────────────────────────────────
   # Desktop release builds — informational; surfaces build breakage early.

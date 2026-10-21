@@ -20,6 +20,9 @@ import 'package:simcrux/l10n/generated/app_localizations_zh.dart';
 /// the *compile-time* guard: a brand-new action can't ship without a tier.
 const _proActions = <SimcruxAction>{
   SimcruxAction.openSeedFailureHeatmap,
+  // The formal properties dashboard. Import Formal Project, the verdicts
+  // and the hand-off are open core and deliberately absent from this set.
+  SimcruxAction.openFormalProperties,
   SimcruxAction.showTrendChart,
   SimcruxAction.showSuiteTrendChart,
   SimcruxAction.showCalendarHeatmap,

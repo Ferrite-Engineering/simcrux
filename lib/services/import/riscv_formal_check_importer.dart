@@ -8,8 +8,8 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/riscv_run_mode.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
 import 'package:simcrux/domain/models/riscv_import_result.dart';
-import 'package:simcrux/domain/models/sby_outcome.dart';
-import 'package:simcrux/domain/models/sby_script.dart';
+import 'package:simcrux/services/import/import_yaml.dart';
+import 'package:simcrux/services/import/sby_project_importer.dart';
 
 /// Enumerates a riscv-formal check set into **one SimCrux `TestSpec` per
 /// bounded proof**, emitted as inspectable `simcrux.yaml`.
@@ -87,11 +87,22 @@ class RiscvFormalCheckImporter {
     bool Function(String path)? directoryExists,
   }) : _listDirectory = listDirectory ?? _defaultListDirectory,
        _readFile = readFile ?? _defaultReadFile,
-       _directoryExists = directoryExists ?? _defaultDirectoryExists;
+       _directoryExists = directoryExists ?? _defaultDirectoryExists {
+    _sby = SbyProjectImporter(
+      listDirectory: _listDirectory,
+      readFile: _readFile,
+      directoryExists: _directoryExists,
+    );
+  }
 
   final List<String> Function(String dir) _listDirectory;
   final String Function(String path) _readFile;
   final bool Function(String path) _directoryExists;
+
+  /// The general `.sby` importer this one is built on: it reads each job
+  /// file and splits it into tests, so both importers parse a `.sby` and
+  /// split its tasks the same way.
+  late final SbyProjectImporter _sby;
 
   /// Conventional subdirectory `genchecks.py` writes its jobs into.
   static const String kChecksSubdir = 'checks';
@@ -148,32 +159,30 @@ class RiscvFormalCheckImporter {
       final check = p.basenameWithoutExtension(entry);
       final group = RiscvFormalConfig.groupForCheck(check) ?? 'checks';
       if (wanted.isNotEmpty && !wanted.contains(group.toLowerCase())) continue;
-      final script = _parseScript(entry);
+      final script = _sby.readScript(entry);
       final file = p.basename(entry);
-      if (script.tasks.isEmpty) {
-        byGroup
-            .putIfAbsent(group, () => <_FormalCheck>[])
-            .add(_FormalCheck(name: check, sbyFile: file, group: group));
-        continue;
+      if (script.tasks.isNotEmpty) {
+        // One test per task: a multi-task `.sby` run in one invocation
+        // would emit several `DONE (…)` lines into one result row.
+        warnings.add(
+          RiscvImportWarning(
+            code: 'multi_task_sby',
+            message:
+                '`$file` declares ${script.tasks.length} tasks, so it was '
+                'expanded into one test per task. A single `sby` invocation '
+                'over all of them would report several verdicts into one '
+                'result row.',
+          ),
+        );
       }
-      // One test per task: a multi-task `.sby` run in one invocation
-      // would emit several `DONE (…)` lines into one result row.
-      warnings.add(
-        RiscvImportWarning(
-          code: 'multi_task_sby',
-          message:
-              '`$file` declares ${script.tasks.length} tasks, so it was '
-              'expanded into one test per task. A single `sby` invocation '
-              'over all of them would report several verdicts into one '
-              'result row.',
-        ),
-      );
-      for (final task in script.tasks) {
+      // The general importer's split, so the two cannot disagree about how
+      // a multi-task file becomes tests.
+      for (final task in SbyProjectImporter.expandTasks(script)) {
         byGroup
             .putIfAbsent(group, () => <_FormalCheck>[])
             .add(
               _FormalCheck(
-                name: '${check}_$task',
+                name: task == null ? check : '${check}_$task',
                 sbyFile: file,
                 group: group,
                 task: task,
@@ -296,14 +305,6 @@ class RiscvFormalCheckImporter {
 
   // ── reading ────────────────────────────────────────────────────────
 
-  SbyScript _parseScript(String path) {
-    try {
-      return SbyScript.parse(_readFile(path));
-    } on Object {
-      return const SbyScript();
-    }
-  }
-
   Map<String, Object?> _demoManifest(String caseDir) {
     try {
       final decoded = jsonDecode(_readFile(p.join(caseDir, 'case.json')));
@@ -357,16 +358,10 @@ class RiscvFormalCheckImporter {
       ..writeln("version: '1'")
       ..writeln()
       ..writeln('defaults:')
-      ..writeln('  simulator: ${RiscvConfig.kFormalSimulatorId}')
-      ..writeln('  pass_fail:')
-      // The detector's config is self-contained and never sees the
-      // `riscv:` block. A required pass string that never appears is a
-      // FAIL by the detector's documented semantics — never an `unknown`
-      // that would fall back to the driver's exit code. The literal is
-      // SbyLogReader.kPassMarker, the same constant the driver's parser
-      // keys off, so the two halves cannot drift.
-      ..writeln('    type: string_match')
-      ..writeln("    pass_string: '${SbyLogReader.kPassMarker}'");
+      ..writeln('  simulator: ${RiscvConfig.kFormalSimulatorId}');
+    // The detector's config is self-contained and never sees the `riscv:`
+    // block; the general importer writes the same one.
+    writeSbyPassDetector(buf);
     _emitRiscvBlock(buf, defaults, indent: '  ');
 
     buf
@@ -449,20 +444,9 @@ class RiscvFormalCheckImporter {
     }
   }
 
-  String _yamlSafeKey(String key) {
-    if (key.isEmpty) return 'imported';
-    return key.replaceAll(RegExp('[^A-Za-z0-9_-]'), '_');
-  }
+  String _yamlSafeKey(String key) => importYamlKey(key);
 
-  String _yamlSafeScalar(String value) {
-    if (value.isEmpty) return "''";
-    final needsQuote = RegExp(
-      '[:#&*!|>\'"%@`{}\\[\\],?\\s]|^-',
-    ).hasMatch(value);
-    if (!needsQuote) return value;
-    final escaped = value.replaceAll("'", "''");
-    return "'$escaped'";
-  }
+  String _yamlSafeScalar(String value) => importYamlScalar(value);
 }
 
 class _FormalCheck {

@@ -55,6 +55,10 @@ void main() {
       // sub-commands.
       SimcruxAction.importRiscvArchTest,
       SimcruxAction.importRiscvFormal,
+      // Import Formal Project — File menu / palette; `simcrux import-sby`.
+      SimcruxAction.importFormalProject,
+      // The Pro formal properties dashboard — View menu / palette only.
+      SimcruxAction.openFormalProperties,
       // Export Results — Tools menu / palette only, no chord.
       SimcruxAction.exportResults,
     };

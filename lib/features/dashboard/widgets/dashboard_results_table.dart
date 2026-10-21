@@ -6,13 +6,16 @@ import 'package:crux_table/crux_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/domain/enums/formal_bucket.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_row_extensions.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_no_rows.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
+import 'package:simcrux/features/dashboard/widgets/formal_verdict_label.dart';
 import 'package:simcrux/features/dashboard/widgets/test_display_name.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -34,12 +37,12 @@ const double _kStatusIconSize = 16;
 /// Narrowest width the table lays its columns out at; below this it scrolls
 /// horizontally instead of squeezing further.
 ///
-/// The check box takes 32 px, leaving 648 for the resizable columns —
+/// The check box takes 32 px, leaving 748 for the resizable columns —
 /// about 60 px per default weight unit, which is the point where
 /// "Simulator" still reads as a word. Without a floor the proportional
 /// columns kept shrinking with the pane until the headers were single
 /// letters and the sort arrow, being a fixed 18 px, overflowed its cell.
-const double _kMinTableWidth = 680;
+const double _kMinTableWidth = 780;
 
 /// The dashboard's centerpiece results table.
 ///
@@ -143,6 +146,7 @@ class _DashboardHeaderRow extends ConsumerWidget {
     final sort = ref.watch(dashboardSortProvider);
     final labels = <DashboardSortColumn, String>{
       DashboardSortColumn.status: l10n.dashboardColumnStatus,
+      DashboardSortColumn.verdict: l10n.dashboardColumnVerdict,
       DashboardSortColumn.suite: l10n.dashboardColumnSuite,
       DashboardSortColumn.testName: l10n.dashboardColumnTest,
       DashboardSortColumn.simulator: l10n.dashboardColumnSimulator,
@@ -230,10 +234,22 @@ class _DashboardResultRow extends ConsumerWidget {
       row.testName,
       row.seed,
     );
+    // A formal row is spoken and drawn by its verdict, not by the pass/fail
+    // status every non-proved verdict shares: "Inconclusive", not "Fail".
+    final summary = FormalResultSummary.fromMetrics(row.result.metrics);
+    final verdictText = summary == null
+        ? ''
+        : formalVerdictLabel(L10N.of(context), summary);
+    final statusFormal = formalSummaryForStatus(
+      row.result.status,
+      row.result.metrics,
+    );
     final spoken = L10N
         .of(context)
         .accessibilityResultRow(
-          testStatusLabel(L10N.of(context), row.result.status),
+          statusFormal == null
+              ? testStatusLabel(L10N.of(context), row.result.status)
+              : verdictText,
           row.suiteName,
           displayName,
           row.simulatorId,
@@ -310,9 +326,22 @@ class _DashboardResultRow extends ConsumerWidget {
                           child: DashboardStatusIcon(
                             status: row.result.status,
                             size: _kStatusIconSize,
+                            formal: statusFormal,
                           ),
                         ),
                       ),
+                    ),
+                    // Blank for a simulation row. The words carry the
+                    // verdict; the hue only repeats it, and Inconclusive is
+                    // never error red.
+                    CruxTableCell(
+                      text: verdictText,
+                      flex: layout.flexOf(DashboardSortColumn.verdict),
+                      style: summary == null
+                          ? null
+                          : theme.textTheme.bodySmall?.copyWith(
+                              color: _verdictTextColor(theme, summary),
+                            ),
                     ),
                     // crux_table's text cell: the full value as a hover-only
                     // tooltip (a long-press trigger would claim the row's
@@ -348,6 +377,18 @@ class _DashboardResultRow extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// The Verdict cell's text colour: the error colour for a counterexample,
+  /// `onSurfaceVariant` for a verdict that decided nothing, and the body
+  /// colour otherwise. Inconclusive is never error red.
+  Color? _verdictTextColor(ThemeData theme, FormalResultSummary summary) {
+    return switch (summary.bucket) {
+      FormalBucket.counterexample => theme.colorScheme.error,
+      FormalBucket.inconclusive ||
+      FormalBucket.unrecognised => theme.colorScheme.onSurfaceVariant,
+      FormalBucket.proved || FormalBucket.didNotRun => null,
+    };
   }
 
   String _formatDuration(Duration d) {

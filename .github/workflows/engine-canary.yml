@@ -1,0 +1,103 @@
+name: Engine canary
+
+# Re-runs the real formal engines (sby, eqy, yosys with yosys-slang) on every
+# committed formal fixture and fails when what they print no longer matches
+# the hand-written expectations under verification/fixtures/formal/, then runs
+# the sby driver end to end against the same engines. Monthly and on demand,
+# because the engines move and no push changes them. It installs its own OSS
+# CAD Suite: nothing here depends on a path on any developer machine.
+#
+# The suite is pinned by tag and by SHA-256 (the release digest). Builds
+# before 2026-10-21 cannot run the fixture corpus: their yosys-slang refuses
+# $onehot0, $rose, $stable, $fell or $changed. Bumping the pin is a deliberate
+# commit that also records the new tag in the fixtures' PROVENANCE.md.
+#
+# FORMAL_LIVE_REQUIRED turns a missing tool into a failure: locally the live
+# tests skip without an OSS CAD Suite, and a green canary must never be an
+# unrun one.
+on:
+  workflow_dispatch:
+  schedule:
+    # The second of each month, off the shared 05:00 slot.
+    - cron: '20 6 2 * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  OSS_CAD_SUITE_TAG: '2026-10-21'
+  OSS_CAD_SUITE_FILE: 'oss-cad-suite-linux-x64-20261021.tgz'
+  OSS_CAD_SUITE_SHA256: 'dde9f1700dece195a98a9b15845a4f4043b2aab1dacf9be498bbad0c3be1f247'
+
+jobs:
+  formal:
+    name: Formal engines
+    runs-on: ubuntu-latest
+    # Engine canary: 60 minutes. The corpus takes a few.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Cache OSS CAD Suite
+        id: suite-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite
+          key: oss-cad-suite-${{ env.OSS_CAD_SUITE_TAG }}-linux-x64
+
+      - name: Install OSS CAD Suite
+        if: steps.suite-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${OSS_CAD_SUITE_TAG}/${OSS_CAD_SUITE_FILE}"
+          curl --fail --location --retry 3 --output "${RUNNER_TEMP}/suite.tgz" "$url"
+          echo "${OSS_CAD_SUITE_SHA256}  ${RUNNER_TEMP}/suite.tgz" | sha256sum --check -
+          mkdir -p "${RUNNER_TEMP}/oss-cad-suite"
+          tar -xzf "${RUNNER_TEMP}/suite.tgz" -C "${RUNNER_TEMP}/oss-cad-suite"
+          rm "${RUNNER_TEMP}/suite.tgz"
+
+      - name: Report tool versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          suite="${RUNNER_TEMP}/oss-cad-suite/oss-cad-suite"
+          "${suite}/bin/sby" --version | tee "${RUNNER_TEMP}/versions.txt"
+          "${suite}/bin/eqy" --version | tee -a "${RUNNER_TEMP}/versions.txt"
+          "${suite}/bin/yosys" -V | tee -a "${RUNNER_TEMP}/versions.txt"
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Live-assert the formal fixtures
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FORMAL_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/integration/formal_fixtures_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/formal-fixtures-live.log"
+
+      - name: Run the sby driver against the real engines
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FORMAL_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/integration/sby_driver_live_test.dart test/integration/formal_toolchain_probe_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/sby-driver-live.log"

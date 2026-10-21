@@ -21,6 +21,7 @@ import 'package:crux_toolbar/crux_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simcrux/core/shortcuts/action_category.dart';
 import 'package:simcrux/core/shortcuts/action_tier_label.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action_context.dart';
@@ -352,6 +353,45 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  });
+
+  // ── The two Formal actions ──────────────────────────────────────────────
+  group('the Formal actions', () {
+    test('Import Formal Project is a File importer on the menu and the '
+        'palette, never the toolbar, enabled with nothing open', () {
+      const action = SimcruxAction.importFormalProject;
+      expect(action.category, ActionCategory.file);
+      expect(descriptorFor(action).surfaces, {
+        SimcruxActionSurface.menu,
+        SimcruxActionSurface.palette,
+      });
+      expect(
+        isActionEnabled(action, const SimcruxActionContext()),
+        isTrue,
+      );
+      expect(paletteActionsFor(const SimcruxActionContext()), contains(action));
+    });
+
+    test('View > Formal Properties is a Pro View action on the menu and the '
+        'palette, enabled once there are results', () {
+      const action = SimcruxAction.openFormalProperties;
+      expect(action.category, ActionCategory.view);
+      expect(descriptorFor(action).surfaces, {
+        SimcruxActionSurface.menu,
+        SimcruxActionSurface.palette,
+      });
+      expect(
+        isActionEnabled(
+          action,
+          const SimcruxActionContext(
+            hasOpenTab: true,
+            hasConfig: true,
+            hasResults: true,
+          ),
+        ),
+        isTrue,
+      );
+    });
   });
 
   // ── The guard is not vacuous ────────────────────────────────────────────

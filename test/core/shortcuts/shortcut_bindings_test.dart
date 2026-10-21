@@ -80,6 +80,12 @@ void main() {
     // `simcrux import-riscv-formal` rather than a keystroke.
     SimcruxAction.importRiscvArchTest,
     SimcruxAction.importRiscvFormal,
+    // Import Formal Project: the same once-per-job-file setup flow; the
+    // scripted path is `simcrux import-sby`.
+    SimcruxAction.importFormalProject,
+    // The Pro formal properties dashboard: a drill-down, like the
+    // seed-failure heatmap.
+    SimcruxAction.openFormalProperties,
     // Export Results. A Tools-menu / palette workflow reached
     // once at the end of a run, and it opens two modals before it does
     // anything — a headline chord would buy nothing. Cmd/Ctrl+E stays free.

@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
 import 'package:simcrux/services/remote/cxp/riscv_stream_coordinate.dart';
+import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 
 /// Product short-name string WaveCrux peers announce in their
 /// [PeerIdentity.productName]. Hardcoded by convention — every
@@ -222,6 +223,9 @@ class DebugInWaveCruxDispatcher {
             'debug_in_wavecrux.used',
             properties: <String, Object?>{
               'outcome': telemetryEnumToken(outcome.outcome),
+              // Which kind of row: a counterexample and a simulation dump
+              // ride the same hand-off. A token, never the row.
+              'origin': debugInWaveCruxOrigin(result),
             },
           ),
         );

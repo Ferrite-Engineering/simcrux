@@ -4,6 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:simcrux/core/theme/simcrux_colors.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
+import 'package:simcrux/features/dashboard/widgets/formal_verdict_label.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 /// The localized name of a [TestStatus].
@@ -38,6 +40,7 @@ class DashboardStatusIcon extends StatelessWidget {
     required this.status,
     super.key,
     this.size = 20,
+    this.formal,
   });
 
   /// The status to render.
@@ -46,10 +49,33 @@ class DashboardStatusIcon extends StatelessWidget {
   /// Icon size in logical pixels (matches the row's text scale).
   final double size;
 
+  /// A formal row's verdict, drawn in place of [status] when set (see
+  /// `formalSummaryForStatus`). Every non-proved formal verdict is
+  /// [TestStatus.fail], and the fail glyph would paint an Inconclusive row
+  /// error red; the verdict's own glyph and hue do not.
+  final FormalResultSummary? formal;
+
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final theme = Theme.of(context);
+
+    final formal = this.formal;
+    if (formal != null) {
+      final label = formalVerdictLabel(l10n, formal);
+      return Tooltip(
+        message: label,
+        child: Icon(
+          formalVerdictIcon(formal.wording),
+          color: SimcruxColors.formalVerdictColor(
+            formal.wording,
+            theme.colorScheme,
+          ),
+          size: size,
+          semanticLabel: label,
+        ),
+      );
+    }
 
     final color = SimcruxColors.statusColor(status, theme.colorScheme);
     final IconData icon;

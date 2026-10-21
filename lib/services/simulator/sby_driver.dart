@@ -207,6 +207,11 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
   /// directory, verbatim.
   static const String kMetricTraceUnresolved = 'formal.trace_unresolved';
 
+  /// Metric key: `noassert` or `ignore_assertions` when the task's
+  /// `[script]` reads the design with assertions turned off
+  /// ([SbyScript.assertionsDisabledFor]). Absent otherwise.
+  static const String kMetricAssertionsDisabled = 'formal.assertions_disabled';
+
   /// Metric key: how many properties the mode checks.
   static const String kMetricProperties = 'formal.properties';
 
@@ -805,7 +810,8 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         }
       }
     }
-    final mode = recordMode ?? facts.script?.proofMode;
+    final mode = recordMode ?? facts.script?.modeFor(job.task);
+    final assertionsDisabled = facts.script?.assertionsDisabledFor(job.task);
     final metrics = <String, String>{
       kMetricTool: 'sby',
       kMetricRunMode: job.demo ? 'demo' : 'normal',
@@ -831,6 +837,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       if (outcome.traces.isNotEmpty)
         kMetricTraceCount: '${outcome.traces.length}',
       kMetricTraceUnresolved: ?facts.traceUnresolved,
+      kMetricAssertionsDisabled: ?assertionsDisabled,
     };
     if (reconciliation.disagreement != null) {
       metrics[kMetricProperties] = '${reconciliation.properties.length}';
@@ -839,6 +846,11 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       metrics[kMetricVerdictDisagreement] = reconciliation.disagreement!
           ? '1'
           : '0';
+    } else if (database != null) {
+      // `status.sqlite` was read and lists no property the mode checks: the
+      // task checked nothing, which a PASS alone does not say. Recorded so
+      // the row can be shown as such instead of as a proof.
+      metrics[kMetricProperties] = '0';
     }
     if (reconciliation.truncated ||
         reconciliation.properties.length > kMaxPropertyRows) {

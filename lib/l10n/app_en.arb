@@ -2567,5 +2567,242 @@
   "fileWatcherIgnore": "Ignore",
   "@fileWatcherIgnore": {
     "description": "Button on the source-changed prompt that dismisses it without re-running. Same key and meaning as WaveCrux."
+  },
+  "actionImportFormalProject": "Import Formal Project…",
+  "@actionImportFormalProject": {
+    "description": "File menu and command palette action that opens the Import Formal Project dialog, which reads a SymbiYosys .sby job file into one test per task."
+  },
+  "actionOpenFormalProperties": "Formal Properties…",
+  "@actionOpenFormalProperties": {
+    "description": "View menu and command palette action that opens the Pro formal properties dashboard."
+  },
+  "dashboardColumnVerdict": "Verdict",
+  "@dashboardColumnVerdict": {
+    "description": "Header of the results-table column that shows a formal row's verdict (Proved, Counterexample, Inconclusive, Did not run). Blank for simulation rows."
+  },
+  "formalVerdictProved": "Proved",
+  "@formalVerdictProved": {
+    "description": "Verdict of an unbounded formal proof (prove or live mode) that held."
+  },
+  "formalVerdictProvedOverSteps": "{count, plural, =1{Proved over 1 step} other{Proved over {count} steps}}",
+  "@formalVerdictProvedOverSteps": {
+    "description": "Verdict of a bounded model check (BMC) that held over {count} steps. A bounded result is never called a bare proof.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formalVerdictProvedBounded": "Proved over the configured bound",
+  "@formalVerdictProvedBounded": {
+    "description": "Verdict of a passing formal check whose mode or bound was not recorded. Worded as bounded, never as an unbounded proof."
+  },
+  "formalVerdictReached": "Reached",
+  "@formalVerdictReached": {
+    "description": "Verdict of a formal cover task whose cover statements were all reached."
+  },
+  "formalVerdictNoPropertiesChecked": "Passed, no properties checked",
+  "@formalVerdictNoPropertiesChecked": {
+    "description": "Verdict of a formal task that passed while checking no property at all, so nothing was proved."
+  },
+  "formalVerdictCounterexample": "Counterexample",
+  "@formalVerdictCounterexample": {
+    "description": "Verdict of a formal check that found a counterexample trace."
+  },
+  "formalVerdictNotReached": "Not reached",
+  "@formalVerdictNotReached": {
+    "description": "Verdict of a formal cover task that left a cover statement unreached."
+  },
+  "formalVerdictInconclusive": "Inconclusive",
+  "@formalVerdictInconclusive": {
+    "description": "Verdict of a formal check that learned nothing (the engine gave up or ran out of time). Not a failure of the design."
+  },
+  "formalVerdictDidNotRun": "Did not run",
+  "@formalVerdictDidNotRun": {
+    "description": "Verdict of a formal check that never ran because of a tooling problem."
+  },
+  "formalVerdictUnrecognized": "Unrecognized verdict",
+  "@formalVerdictUnrecognized": {
+    "description": "Verdict of a stored formal result whose verdict this version cannot read."
+  },
+  "importFormalTitle": "Import Formal Project",
+  "@importFormalTitle": {
+    "description": "Title of the Import Formal Project dialog."
+  },
+  "importFormalIntro": "Reads a SymbiYosys job file into one test per task and writes a simcrux.yaml you own. Nothing is run.",
+  "@importFormalIntro": {
+    "description": "One-line explanation at the top of the Import Formal Project dialog."
+  },
+  "importFormalJobFileLabel": "Job file",
+  "@importFormalJobFileLabel": {
+    "description": "Label of the row that shows the chosen SymbiYosys .sby job file."
+  },
+  "importFormalJobFileNone": "No .sby file chosen",
+  "@importFormalJobFileNone": {
+    "description": "Shown in the job file row before a file is chosen."
+  },
+  "importFormalProjectFileLabel": "Project file",
+  "@importFormalProjectFileLabel": {
+    "description": "Label of the row that shows where the generated simcrux.yaml is written."
+  },
+  "importFormalProjectFileNone": "Choose a job file first",
+  "@importFormalProjectFileNone": {
+    "description": "Shown in the project file row before a job file is chosen."
+  },
+  "importFormalChoose": "Choose…",
+  "@importFormalChoose": {
+    "description": "Button that opens a file chooser in the Import Formal Project dialog."
+  },
+  "importFormalTasksHeading": "Tasks",
+  "@importFormalTasksHeading": {
+    "description": "Heading of the list of [tasks] the job file declares, each with a check box."
+  },
+  "importFormalNoTasks": "This job file has no [tasks] section: one test runs its default task.",
+  "@importFormalNoTasks": {
+    "description": "Shown under Tasks when the job file declares no [tasks] section."
+  },
+  "importFormalCancel": "Cancel",
+  "@importFormalCancel": {
+    "description": "Cancel button of the Import Formal Project dialog."
+  },
+  "importFormalImport": "Import",
+  "@importFormalImport": {
+    "description": "Primary button of the Import Formal Project dialog: writes the project file and opens it."
+  },
+  "importFormalDiscardTitle": "Discard this import?",
+  "@importFormalDiscardTitle": {
+    "description": "Title of the confirmation shown when the Import Formal Project dialog is closed after a job file was chosen."
+  },
+  "importFormalDiscardBody": "The job file and tasks you chose are not imported.",
+  "@importFormalDiscardBody": {
+    "description": "Body of the discard confirmation of the Import Formal Project dialog."
+  },
+  "importFormalDiscardKeep": "Keep editing",
+  "@importFormalDiscardKeep": {
+    "description": "Safe choice of the discard confirmation: return to the dialog."
+  },
+  "importFormalDiscardConfirm": "Discard",
+  "@importFormalDiscardConfirm": {
+    "description": "Destructive choice of the discard confirmation: close the dialog without importing."
+  },
+  "importFormalFailed": "Import failed: {message}",
+  "@importFormalFailed": {
+    "description": "Shown in the Import Formal Project dialog when the import failed. {message} is the importer's own explanation.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccess": "{count, plural, =1{Imported 1 test into {filename}} other{Imported {count} tests into {filename}}}",
+  "@importFormalSuccess": {
+    "description": "Toast shown after a formal import wrote {filename} with {count} tests and opened it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccessWithWarnings": "{count, plural, =1{Imported 1 test into {filename}. Read the warnings in its header.} other{Imported {count} tests into {filename}. Read the warnings in its header.}}",
+  "@importFormalSuccessWithWarnings": {
+    "description": "Toast shown after a formal import that raised warnings (for example a job file that turns its assertions off). The warnings are in the written file's header.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsCheck": "Check formal tools",
+  "@settingsFormalToolsCheck": {
+    "description": "Button in Settings > Engines > Formal tools that probes for sby, eqy, yosys, yosys-slang and the solvers."
+  },
+  "settingsFormalToolsChecking": "Checking…",
+  "@settingsFormalToolsChecking": {
+    "description": "Shown beside the Check formal tools button while the probe runs."
+  },
+  "settingsFormalToolsAllFound": "Every formal tool was found.",
+  "@settingsFormalToolsAllFound": {
+    "description": "Announced when the formal tools check found every tool."
+  },
+  "settingsFormalToolsSomeMissing": "{count, plural, =1{1 formal tool was not found.} other{{count} formal tools were not found.}}",
+  "@settingsFormalToolsSomeMissing": {
+    "description": "Announced when the formal tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFormalToolsFound": "{tool}: found",
+  "@settingsFormalToolsFound": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it answered without a version.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsFoundVersion": "{tool}: {version}",
+  "@settingsFormalToolsFoundVersion": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) with the {version} banner it printed.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsMissing": "{tool}: not found",
+  "@settingsFormalToolsMissing": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it was not found.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithVerific": "{tool}: {version}, built with Verific",
+  "@settingsFormalToolsYosysWithVerific": {
+    "description": "Formal tools report line for Yosys built with Verific, the commercial SystemVerilog front end. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithoutVerific": "{tool}: {version}, built without Verific",
+  "@settingsFormalToolsYosysWithoutVerific": {
+    "description": "Formal tools report line for Yosys built without Verific. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsGuidanceLinux": "The OSS CAD Suite ships Yosys, SymbiYosys, EQY, yosys-slang and the solvers together. Unpack it and set the path to its sby above, or put its bin directory on PATH. Every run needs sby and yosys; the others are needed only by the job files that name them.",
+  "@settingsFormalToolsGuidanceLinux": {
+    "description": "Advice under the formal tools report on Linux when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceMacos": "Install the OSS CAD Suite, or Homebrew Yosys and SymbiYosys. An app opened from Finder does not see your shell's PATH, so set the path to sby above; the other tools are then found beside it.",
+  "@settingsFormalToolsGuidanceMacos": {
+    "description": "Advice under the formal tools report on macOS when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceWindows": "The OSS CAD Suite has a Windows build. Running the formal flow under WSL2 is also common and better supported.",
+  "@settingsFormalToolsGuidanceWindows": {
+    "description": "Advice under the formal tools report on Windows when a tool is missing."
   }
 }

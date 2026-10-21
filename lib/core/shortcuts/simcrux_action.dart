@@ -40,6 +40,12 @@ enum SimcruxAction implements CruxAction {
   /// and open it.
   importRiscvFormal,
 
+  /// Import a SymbiYosys `.sby` job file through the Import Formal Project
+  /// dialog: one SimCrux test per task (all of them, or the ones the user
+  /// keeps ticked), written to a `simcrux.yaml` the user chooses, then
+  /// opened. `simcrux import-sby` is the same import headless.
+  importFormalProject,
+
   /// Close the currently open project.
   closeProject,
 
@@ -173,6 +179,15 @@ enum SimcruxAction implements CruxAction {
   /// open-core build the dispatcher resolves to a no-op (with the
   /// Pro tier badge surfacing the upgrade context in the menu UI).
   openSeedFailureHeatmap,
+
+  /// Open the Pro formal properties dashboard (View > Formal Properties…):
+  /// rollups by task, kind and verdict bucket over the run's formal rows.
+  ///
+  /// Open core registers the action so it is discoverable and badged; the
+  /// screen lives behind `formalPropertiesOpenerProvider`, which the Pro
+  /// overlay overrides and gates. The verdicts themselves are never behind
+  /// it: they are in the results table in every tier.
+  openFormalProperties,
 
   /// Open the Pro per-test trend chart screen.
   ///
@@ -370,6 +385,7 @@ enum SimcruxAction implements CruxAction {
       // Pro extension-point override; the tier badge/suffix communicates
       // the upgrade context.
       case SimcruxAction.openSeedFailureHeatmap:
+      case SimcruxAction.openFormalProperties:
       case SimcruxAction.showTrendChart:
       case SimcruxAction.showSuiteTrendChart:
       case SimcruxAction.showCalendarHeatmap:
@@ -405,6 +421,8 @@ enum SimcruxAction implements CruxAction {
       // standard.
       case SimcruxAction.importRiscvArchTest:
       case SimcruxAction.importRiscvFormal:
+      // A formal verdict is correctness, so the door to it is free too.
+      case SimcruxAction.importFormalProject:
       case SimcruxAction.closeProject:
       case SimcruxAction.runRegression:
       case SimcruxAction.reRunSelected:
@@ -458,6 +476,7 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.importFusesoc:
       case SimcruxAction.importRiscvArchTest:
       case SimcruxAction.importRiscvFormal:
+      case SimcruxAction.importFormalProject:
       case SimcruxAction.switchProject:
       case SimcruxAction.reopenRecentProject:
       case SimcruxAction.clearRecentProjects:
@@ -491,6 +510,8 @@ enum SimcruxAction implements CruxAction {
       // different menu in half the products.
       case SimcruxAction.openCrossProbePanel:
       case SimcruxAction.crossProbeSelection:
+      // A view onto the run's formal rows, as the plan's menu table puts it.
+      case SimcruxAction.openFormalProperties:
       case SimcruxAction.splitPaneRight:
       case SimcruxAction.closePane:
       case SimcruxAction.focusOtherPane:
@@ -549,6 +570,10 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionImportRiscvArchTest;
       case SimcruxAction.importRiscvFormal:
         return l10n.actionImportRiscvFormal;
+      case SimcruxAction.importFormalProject:
+        return l10n.actionImportFormalProject;
+      case SimcruxAction.openFormalProperties:
+        return l10n.actionOpenFormalProperties;
       case SimcruxAction.closeProject:
         return l10n.actionCloseProject;
       case SimcruxAction.closeTab:

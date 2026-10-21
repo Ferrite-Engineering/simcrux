@@ -24,6 +24,7 @@ import 'package:simcrux/services/export/exporter_registry.dart';
 import 'package:simcrux/services/export/result_exporter.dart';
 import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.dart';
 import 'package:simcrux/services/result_store/streaming_results_writer.dart';
+import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 import 'package:simcrux/services/telemetry/simulator_telemetry_token.dart';
 import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
 
@@ -450,7 +451,7 @@ class CiRunner {
 
   /// The headless half of the regression counters.
   ///
-  /// The same four events the GUI runner records, with `trigger: ci` — so a
+  /// The same events the GUI runner records, with `trigger: ci` — so a
   /// dashboard can ask "what fraction of regressions run in CI" without two
   /// vocabularies to reconcile. `regression.cancelled` has no counterpart
   /// here: nothing cancels a `--ci` run from inside SimCrux, and a job killed
@@ -480,6 +481,21 @@ class CiRunner {
         },
       ),
     );
+    // The formal counters, on the GUI runner's terms: per run per (tool,
+    // mode, engine), never per task.
+    for (final properties in formalRunCompletedProperties(results)) {
+      telemetry.record(
+        TelemetryEvent('formal.run.completed', properties: properties),
+      );
+    }
+    for (final how in formalAssertionsDisabledTokens(results)) {
+      telemetry.record(
+        TelemetryEvent(
+          'formal.assertions.disabled',
+          properties: <String, Object?>{'how': how},
+        ),
+      );
+    }
     // Per distinct kind and per distinct engine, not per test — the GUI
     // runner's reasoning applies with more force here, because a CI run is
     // where the thousand-test suites are.

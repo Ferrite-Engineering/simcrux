@@ -129,6 +129,8 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // FuseSoC import opens a file picker.
   SimcruxAction.importRiscvArchTest: _Dispatch.opensSurface,
   SimcruxAction.importRiscvFormal: _Dispatch.opensSurface,
+  // Opens the Import Formal Project dialog.
+  SimcruxAction.importFormalProject: _Dispatch.opensSurface,
   SimcruxAction.closeProject: _Dispatch.noProjectSnack,
   // Cmd/Ctrl+W (suite keyboard-parity pass) — same close-the-active-tab
   // implementation as closeProject, so the same no-project feedback.
@@ -183,6 +185,9 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   SimcruxAction.openDocumentation: _Dispatch.opensSurface,
   // ── Pro extension points (null openers in open-core) ────────────
   SimcruxAction.openSeedFailureHeatmap: _Dispatch.proGatedSnack,
+  // View > Formal Properties…: formalPropertiesOpenerProvider is null in
+  // open core.
+  SimcruxAction.openFormalProperties: _Dispatch.proGatedSnack,
   SimcruxAction.showTrendChart: _Dispatch.proGatedSnack,
   SimcruxAction.showSuiteTrendChart: _Dispatch.proGatedSnack,
   SimcruxAction.showCalendarHeatmap: _Dispatch.proGatedSnack,

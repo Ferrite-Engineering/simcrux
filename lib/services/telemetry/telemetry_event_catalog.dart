@@ -166,6 +166,39 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         'debug_in_wavecrux.used',
         enumeratedValues: <String, List<String>>{
           'outcome': kDebugInWaveCruxOutcomeTokens,
+          'origin': kDebugInWaveCruxOriginTokens,
+        },
+      ),
+
+      // ── formal verification (open core) ────────────────────────────────────
+      // One per run per distinct (tool, mode, engine), counts summed: a
+      // riscv-formal import is hundreds of tasks, and one event each would
+      // evict every other counter from the queue. Six properties, the
+      // Worker's cap today; `frontend` and `solver` are added when it takes
+      // eight. Never a property name, a label, a path, a depth or a step.
+      TelemetryCatalogEvent(
+        'formal.run.completed',
+        enumeratedValues: <String, List<String>>{
+          'tool': kFormalRunToolTokens,
+          'mode': kFormalRunModeTokens,
+          'engine': kFormalRunEngineTokens,
+        },
+        intProperties: <String>['properties', 'failed', 'undecided'],
+      ),
+      // Recorded by the GUI importers only, after the file was written.
+      TelemetryCatalogEvent(
+        'formal.import.completed',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFormalImportKindTokens,
+        },
+        intProperties: <String>['tasks'],
+      ),
+      // Once per run per way the job files turned assertions off. Which job
+      // file did is never sent.
+      TelemetryCatalogEvent(
+        'formal.assertions.disabled',
+        enumeratedValues: <String, List<String>>{
+          'how': kFormalAssertionsDisabledTokens,
         },
       ),
       TelemetryCatalogEvent(
@@ -434,11 +467,11 @@ const List<String> kSimcruxRegressionTriggerTokens = <String>[
 /// How a project came to be opened.
 ///
 /// `yaml` is a `simcrux.yaml` chosen from the file picker, `fusesoc` an
-/// imported `.core`, `riscv` either of the two RISC-V importers, `recent` a
-/// click in the empty canvas's recents list, `session` a `.simcrux-session`,
-/// and `cli` a path handed to the app on the command line. All six are entry
-/// points that exist today; the token names the *route in*, never the file at
-/// the end of it.
+/// imported `.core`, `riscv` either of the two RISC-V importers, `formal`
+/// File > Import Formal Project, `recent` a click in the empty canvas's
+/// recents list, `session` a `.simcrux-session`, and `cli` a path handed to
+/// the app on the command line. All seven are entry points that exist today;
+/// the token names the *route in*, never the file at the end of it.
 ///
 /// `recent`, `session` and `cli` are not new features — they are the routes a
 /// user most plausibly takes, and a vocabulary that omitted them would drop
@@ -448,6 +481,7 @@ const List<String> kSimcruxProjectSourceTokens = <String>[
   'yaml',
   'fusesoc',
   'riscv',
+  'formal',
   'recent',
   'session',
   'cli',
@@ -641,6 +675,59 @@ const List<String> kSimcruxGatedFeatureTokens = <String>[
 const List<String> kSimcruxRequiredTierTokens = <String>[
   'pro',
   'enterprise',
+];
+
+/// `formal.run.completed.tool`: the general SymbiYosys driver, the EQY
+/// driver, and the RISC-V track.
+const List<String> kFormalRunToolTokens = <String>[
+  'sby',
+  'eqy',
+  'riscv_formal',
+];
+
+/// `formal.run.completed.mode`: `sby`'s four modes, `eqy`'s equivalence,
+/// and `mixed`.
+const List<String> kFormalRunModeTokens = <String>[
+  'bmc',
+  'prove',
+  'cover',
+  'live',
+  'equiv',
+  'mixed',
+];
+
+/// `formal.run.completed.engine`: the first word of the engine line that
+/// decided; `other` for an engine outside this list.
+const List<String> kFormalRunEngineTokens = <String>[
+  'smtbmc',
+  'abc',
+  'aiger',
+  'btor',
+  'mixed',
+  'other',
+];
+
+/// `formal.import.completed.kind`: which importer wrote the project file.
+const List<String> kFormalImportKindTokens = <String>[
+  'sby',
+  'eqy',
+  'riscv_formal',
+];
+
+/// `formal.assertions.disabled.how`: Yosys's `-noassert` read option and
+/// yosys-slang's `--ignore-assertions`.
+const List<String> kFormalAssertionsDisabledTokens = <String>[
+  'noassert',
+  'ignore_assertions',
+];
+
+/// `debug_in_wavecrux.used.origin`: what kind of row was handed off. A
+/// counterexample trace and a simulation dump ride the same hand-off, and
+/// the funnel has to tell them apart.
+const List<String> kDebugInWaveCruxOriginTokens = <String>[
+  'test',
+  'formal',
+  'eqy',
 ];
 
 /// Every catalog event name, for the source-scanning conformance test.

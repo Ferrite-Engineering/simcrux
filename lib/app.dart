@@ -26,6 +26,7 @@ import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/cli_args_provider.dart';
+import 'package:simcrux/core/cli/simcrux_cli.dart';
 import 'package:simcrux/core/eula/simcrux_eula_storage.dart';
 import 'package:simcrux/core/issue_reporter/simcrux_issue_reporter_strings.dart';
 import 'package:simcrux/core/platform/linux_desktop_identity.dart';
@@ -40,6 +41,7 @@ import 'package:simcrux/core/theme/simcrux_color_theme_bootstrap.dart';
 import 'package:simcrux/core/theme/simcrux_theme.dart';
 import 'package:simcrux/core/theme/simcrux_theme_tokens.dart';
 import 'package:simcrux/core/update/simcrux_update_strings.dart';
+import 'package:simcrux/domain/enums/formal_import_kind.dart';
 import 'package:simcrux/domain/enums/riscv_import_kind.dart';
 import 'package:simcrux/domain/models/riscv_import_result.dart';
 import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_gate.dart';
@@ -274,6 +276,20 @@ Future<bool> bootstrap({
       stderr.writeln('simcrux ${importKind.subcommand}: $e');
       exitCode = 2;
     }
+    return true;
+  }
+
+  // `simcrux import-sby <file.sby|dir>`: the headless binary's own handler,
+  // so the app and the binary answer the same command line identically.
+  final formalKind = FormalImportKind.fromSubcommand(parsedArgs.subcommand);
+  if (formalKind != null) {
+    exitCode = await SimcruxCli.runFormalImport(
+      formalKind,
+      parsedArgs.subcommandArgs,
+      // The command's output is stdout, as the other imports print theirs.
+      stdoutSink: stdout.writeln,
+      stderrSink: stderr.writeln,
+    );
     return true;
   }
 

@@ -15,20 +15,35 @@ void main() {
 
   group('dashboardColumns', () {
     final defaults = dashboardColumns.defaults;
-    // 100 px per unit of weight: the default weights total 10.4.
-    const tableWidth = 1040.0;
+    // 100 px per unit of weight: the default weights total 12.2.
+    const tableWidth = 1220.0;
 
     test('every column has a default weight and the order is the table', () {
       expect(dashboardColumns.columns, [
         DashboardSortColumn.status,
+        DashboardSortColumn.verdict,
         DashboardSortColumn.suite,
         DashboardSortColumn.testName,
         DashboardSortColumn.simulator,
         DashboardSortColumn.duration,
         DashboardSortColumn.startedAt,
       ]);
-      expect(defaults.totalWeight, closeTo(10.4, 1e-9));
+      expect(defaults.totalWeight, closeTo(12.2, 1e-9));
       expect(defaults.isDefault, isTrue);
+    });
+
+    test('a layout saved before the Verdict column gives it its default', () {
+      // An earlier build stored six weights; the seventh column takes its
+      // default and the six keep theirs.
+      final layout = DashboardColumnLayout(dashboardColumns, const {
+        DashboardSortColumn.status: 1.2,
+        DashboardSortColumn.suite: 2.5,
+      });
+      expect(
+        layout.weights[DashboardSortColumn.verdict],
+        dashboardColumns.defaultWeights[DashboardSortColumn.verdict],
+      );
+      expect(layout.weights[DashboardSortColumn.suite], 2.5);
     });
 
     test('a missing or invalid weight takes its default', () {
@@ -48,14 +63,14 @@ void main() {
       );
     });
 
-    test('the status column resizes against Suite', () {
+    test('the status column resizes against Verdict', () {
       final after = defaults.resize(DashboardSortColumn.status, 50, tableWidth);
       expect(
         after.weights[DashboardSortColumn.status]! +
-            after.weights[DashboardSortColumn.suite]!,
+            after.weights[DashboardSortColumn.verdict]!,
         closeTo(
           defaults.weights[DashboardSortColumn.status]! +
-              defaults.weights[DashboardSortColumn.suite]!,
+              defaults.weights[DashboardSortColumn.verdict]!,
           1e-9,
         ),
       );

@@ -2323,5 +2323,242 @@
   "fileWatcherIgnore": "무시",
   "@fileWatcherIgnore": {
     "description": "Button on the source-changed prompt that dismisses it without re-running. Same key and meaning as WaveCrux."
+  },
+  "actionImportFormalProject": "정형 검증 프로젝트 가져오기…",
+  "@actionImportFormalProject": {
+    "description": "File menu and command palette action that opens the Import Formal Project dialog, which reads a SymbiYosys .sby job file into one test per task."
+  },
+  "actionOpenFormalProperties": "정형 검증 속성…",
+  "@actionOpenFormalProperties": {
+    "description": "View menu and command palette action that opens the Pro formal properties dashboard."
+  },
+  "dashboardColumnVerdict": "판정",
+  "@dashboardColumnVerdict": {
+    "description": "Header of the results-table column that shows a formal row's verdict (Proved, Counterexample, Inconclusive, Did not run). Blank for simulation rows."
+  },
+  "formalVerdictProved": "증명됨",
+  "@formalVerdictProved": {
+    "description": "Verdict of an unbounded formal proof (prove or live mode) that held."
+  },
+  "formalVerdictProvedOverSteps": "{count, plural, =1{1단계까지 증명됨} other{{count}단계까지 증명됨}}",
+  "@formalVerdictProvedOverSteps": {
+    "description": "Verdict of a bounded model check (BMC) that held over {count} steps. A bounded result is never called a bare proof.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formalVerdictProvedBounded": "설정된 범위까지 증명됨",
+  "@formalVerdictProvedBounded": {
+    "description": "Verdict of a passing formal check whose mode or bound was not recorded. Worded as bounded, never as an unbounded proof."
+  },
+  "formalVerdictReached": "도달함",
+  "@formalVerdictReached": {
+    "description": "Verdict of a formal cover task whose cover statements were all reached."
+  },
+  "formalVerdictNoPropertiesChecked": "통과, 검사한 속성 없음",
+  "@formalVerdictNoPropertiesChecked": {
+    "description": "Verdict of a formal task that passed while checking no property at all, so nothing was proved."
+  },
+  "formalVerdictCounterexample": "반례",
+  "@formalVerdictCounterexample": {
+    "description": "Verdict of a formal check that found a counterexample trace."
+  },
+  "formalVerdictNotReached": "도달하지 못함",
+  "@formalVerdictNotReached": {
+    "description": "Verdict of a formal cover task that left a cover statement unreached."
+  },
+  "formalVerdictInconclusive": "결론 없음",
+  "@formalVerdictInconclusive": {
+    "description": "Verdict of a formal check that learned nothing (the engine gave up or ran out of time). Not a failure of the design."
+  },
+  "formalVerdictDidNotRun": "실행되지 않음",
+  "@formalVerdictDidNotRun": {
+    "description": "Verdict of a formal check that never ran because of a tooling problem."
+  },
+  "formalVerdictUnrecognized": "인식할 수 없는 판정",
+  "@formalVerdictUnrecognized": {
+    "description": "Verdict of a stored formal result whose verdict this version cannot read."
+  },
+  "importFormalTitle": "정형 검증 프로젝트 가져오기",
+  "@importFormalTitle": {
+    "description": "Title of the Import Formal Project dialog."
+  },
+  "importFormalIntro": "SymbiYosys 작업 파일을 작업마다 하나의 테스트로 읽어 사용자 소유의 simcrux.yaml을 작성합니다. 아무것도 실행하지 않습니다.",
+  "@importFormalIntro": {
+    "description": "One-line explanation at the top of the Import Formal Project dialog."
+  },
+  "importFormalJobFileLabel": "작업 파일",
+  "@importFormalJobFileLabel": {
+    "description": "Label of the row that shows the chosen SymbiYosys .sby job file."
+  },
+  "importFormalJobFileNone": ".sby 파일을 선택하지 않음",
+  "@importFormalJobFileNone": {
+    "description": "Shown in the job file row before a file is chosen."
+  },
+  "importFormalProjectFileLabel": "프로젝트 파일",
+  "@importFormalProjectFileLabel": {
+    "description": "Label of the row that shows where the generated simcrux.yaml is written."
+  },
+  "importFormalProjectFileNone": "먼저 작업 파일을 선택하세요",
+  "@importFormalProjectFileNone": {
+    "description": "Shown in the project file row before a job file is chosen."
+  },
+  "importFormalChoose": "선택…",
+  "@importFormalChoose": {
+    "description": "Button that opens a file chooser in the Import Formal Project dialog."
+  },
+  "importFormalTasksHeading": "작업",
+  "@importFormalTasksHeading": {
+    "description": "Heading of the list of [tasks] the job file declares, each with a check box."
+  },
+  "importFormalNoTasks": "이 작업 파일에는 [tasks] 섹션이 없습니다. 테스트 하나가 기본 작업을 실행합니다.",
+  "@importFormalNoTasks": {
+    "description": "Shown under Tasks when the job file declares no [tasks] section."
+  },
+  "importFormalCancel": "취소",
+  "@importFormalCancel": {
+    "description": "Cancel button of the Import Formal Project dialog."
+  },
+  "importFormalImport": "가져오기",
+  "@importFormalImport": {
+    "description": "Primary button of the Import Formal Project dialog: writes the project file and opens it."
+  },
+  "importFormalDiscardTitle": "이 가져오기를 버리시겠습니까?",
+  "@importFormalDiscardTitle": {
+    "description": "Title of the confirmation shown when the Import Formal Project dialog is closed after a job file was chosen."
+  },
+  "importFormalDiscardBody": "선택한 작업 파일과 작업은 가져오지 않습니다.",
+  "@importFormalDiscardBody": {
+    "description": "Body of the discard confirmation of the Import Formal Project dialog."
+  },
+  "importFormalDiscardKeep": "편집 계속",
+  "@importFormalDiscardKeep": {
+    "description": "Safe choice of the discard confirmation: return to the dialog."
+  },
+  "importFormalDiscardConfirm": "버리기",
+  "@importFormalDiscardConfirm": {
+    "description": "Destructive choice of the discard confirmation: close the dialog without importing."
+  },
+  "importFormalFailed": "가져오기 실패: {message}",
+  "@importFormalFailed": {
+    "description": "Shown in the Import Formal Project dialog when the import failed. {message} is the importer's own explanation.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccess": "{count, plural, =1{테스트 1개를 {filename}에 가져왔습니다} other{테스트 {count}개를 {filename}에 가져왔습니다}}",
+  "@importFormalSuccess": {
+    "description": "Toast shown after a formal import wrote {filename} with {count} tests and opened it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccessWithWarnings": "{count, plural, =1{테스트 1개를 {filename}에 가져왔습니다. 파일 머리글의 경고를 읽어 보세요.} other{테스트 {count}개를 {filename}에 가져왔습니다. 파일 머리글의 경고를 읽어 보세요.}}",
+  "@importFormalSuccessWithWarnings": {
+    "description": "Toast shown after a formal import that raised warnings (for example a job file that turns its assertions off). The warnings are in the written file's header.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsCheck": "정형 검증 도구 확인",
+  "@settingsFormalToolsCheck": {
+    "description": "Button in Settings > Engines > Formal tools that probes for sby, eqy, yosys, yosys-slang and the solvers."
+  },
+  "settingsFormalToolsChecking": "확인 중…",
+  "@settingsFormalToolsChecking": {
+    "description": "Shown beside the Check formal tools button while the probe runs."
+  },
+  "settingsFormalToolsAllFound": "모든 정형 검증 도구를 찾았습니다.",
+  "@settingsFormalToolsAllFound": {
+    "description": "Announced when the formal tools check found every tool."
+  },
+  "settingsFormalToolsSomeMissing": "{count, plural, =1{정형 검증 도구 1개를 찾지 못했습니다.} other{정형 검증 도구 {count}개를 찾지 못했습니다.}}",
+  "@settingsFormalToolsSomeMissing": {
+    "description": "Announced when the formal tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFormalToolsFound": "{tool}: 찾음",
+  "@settingsFormalToolsFound": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it answered without a version.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsFoundVersion": "{tool}: {version}",
+  "@settingsFormalToolsFoundVersion": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) with the {version} banner it printed.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsMissing": "{tool}: 찾지 못함",
+  "@settingsFormalToolsMissing": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it was not found.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithVerific": "{tool}: {version}, Verific 포함",
+  "@settingsFormalToolsYosysWithVerific": {
+    "description": "Formal tools report line for Yosys built with Verific, the commercial SystemVerilog front end. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithoutVerific": "{tool}: {version}, Verific 미포함",
+  "@settingsFormalToolsYosysWithoutVerific": {
+    "description": "Formal tools report line for Yosys built without Verific. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsGuidanceLinux": "OSS CAD Suite에는 Yosys, SymbiYosys, EQY, yosys-slang과 솔버가 함께 들어 있습니다. 압축을 풀고 위에서 sby 경로를 설정하거나 bin 디렉터리를 PATH에 추가하세요. 모든 실행에 sby와 yosys가 필요하며, 나머지는 이를 지정하는 작업 파일에만 필요합니다.",
+  "@settingsFormalToolsGuidanceLinux": {
+    "description": "Advice under the formal tools report on Linux when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceMacos": "OSS CAD Suite 또는 Homebrew의 Yosys와 SymbiYosys를 설치하세요. Finder에서 연 앱은 셸의 PATH를 보지 못하므로 위에서 sby 경로를 설정하세요. 그러면 나머지 도구는 그 옆에서 찾습니다.",
+  "@settingsFormalToolsGuidanceMacos": {
+    "description": "Advice under the formal tools report on macOS when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceWindows": "OSS CAD Suite에는 Windows 빌드가 있습니다. WSL2에서 정형 검증 흐름을 실행하는 것도 흔하며 지원이 더 잘 되어 있습니다.",
+  "@settingsFormalToolsGuidanceWindows": {
+    "description": "Advice under the formal tools report on Windows when a tool is missing."
   }
 }

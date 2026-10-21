@@ -2323,5 +2323,242 @@
   "fileWatcherIgnore": "忽略",
   "@fileWatcherIgnore": {
     "description": "Button on the source-changed prompt that dismisses it without re-running. Same key and meaning as WaveCrux."
+  },
+  "actionImportFormalProject": "导入形式验证项目…",
+  "@actionImportFormalProject": {
+    "description": "File menu and command palette action that opens the Import Formal Project dialog, which reads a SymbiYosys .sby job file into one test per task."
+  },
+  "actionOpenFormalProperties": "形式验证属性…",
+  "@actionOpenFormalProperties": {
+    "description": "View menu and command palette action that opens the Pro formal properties dashboard."
+  },
+  "dashboardColumnVerdict": "判定",
+  "@dashboardColumnVerdict": {
+    "description": "Header of the results-table column that shows a formal row's verdict (Proved, Counterexample, Inconclusive, Did not run). Blank for simulation rows."
+  },
+  "formalVerdictProved": "已证明",
+  "@formalVerdictProved": {
+    "description": "Verdict of an unbounded formal proof (prove or live mode) that held."
+  },
+  "formalVerdictProvedOverSteps": "{count, plural, =1{在 1 步内已证明} other{在 {count} 步内已证明}}",
+  "@formalVerdictProvedOverSteps": {
+    "description": "Verdict of a bounded model check (BMC) that held over {count} steps. A bounded result is never called a bare proof.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formalVerdictProvedBounded": "在配置的界限内已证明",
+  "@formalVerdictProvedBounded": {
+    "description": "Verdict of a passing formal check whose mode or bound was not recorded. Worded as bounded, never as an unbounded proof."
+  },
+  "formalVerdictReached": "已到达",
+  "@formalVerdictReached": {
+    "description": "Verdict of a formal cover task whose cover statements were all reached."
+  },
+  "formalVerdictNoPropertiesChecked": "通过，但未检查任何属性",
+  "@formalVerdictNoPropertiesChecked": {
+    "description": "Verdict of a formal task that passed while checking no property at all, so nothing was proved."
+  },
+  "formalVerdictCounterexample": "反例",
+  "@formalVerdictCounterexample": {
+    "description": "Verdict of a formal check that found a counterexample trace."
+  },
+  "formalVerdictNotReached": "未到达",
+  "@formalVerdictNotReached": {
+    "description": "Verdict of a formal cover task that left a cover statement unreached."
+  },
+  "formalVerdictInconclusive": "无结论",
+  "@formalVerdictInconclusive": {
+    "description": "Verdict of a formal check that learned nothing (the engine gave up or ran out of time). Not a failure of the design."
+  },
+  "formalVerdictDidNotRun": "未运行",
+  "@formalVerdictDidNotRun": {
+    "description": "Verdict of a formal check that never ran because of a tooling problem."
+  },
+  "formalVerdictUnrecognized": "无法识别的判定",
+  "@formalVerdictUnrecognized": {
+    "description": "Verdict of a stored formal result whose verdict this version cannot read."
+  },
+  "importFormalTitle": "导入形式验证项目",
+  "@importFormalTitle": {
+    "description": "Title of the Import Formal Project dialog."
+  },
+  "importFormalIntro": "将 SymbiYosys 作业文件按每个任务一个测试读入，并写出一个归您所有的 simcrux.yaml。不会运行任何内容。",
+  "@importFormalIntro": {
+    "description": "One-line explanation at the top of the Import Formal Project dialog."
+  },
+  "importFormalJobFileLabel": "作业文件",
+  "@importFormalJobFileLabel": {
+    "description": "Label of the row that shows the chosen SymbiYosys .sby job file."
+  },
+  "importFormalJobFileNone": "未选择 .sby 文件",
+  "@importFormalJobFileNone": {
+    "description": "Shown in the job file row before a file is chosen."
+  },
+  "importFormalProjectFileLabel": "项目文件",
+  "@importFormalProjectFileLabel": {
+    "description": "Label of the row that shows where the generated simcrux.yaml is written."
+  },
+  "importFormalProjectFileNone": "请先选择作业文件",
+  "@importFormalProjectFileNone": {
+    "description": "Shown in the project file row before a job file is chosen."
+  },
+  "importFormalChoose": "选择…",
+  "@importFormalChoose": {
+    "description": "Button that opens a file chooser in the Import Formal Project dialog."
+  },
+  "importFormalTasksHeading": "任务",
+  "@importFormalTasksHeading": {
+    "description": "Heading of the list of [tasks] the job file declares, each with a check box."
+  },
+  "importFormalNoTasks": "此作业文件没有 [tasks] 部分：将用一个测试运行其默认任务。",
+  "@importFormalNoTasks": {
+    "description": "Shown under Tasks when the job file declares no [tasks] section."
+  },
+  "importFormalCancel": "取消",
+  "@importFormalCancel": {
+    "description": "Cancel button of the Import Formal Project dialog."
+  },
+  "importFormalImport": "导入",
+  "@importFormalImport": {
+    "description": "Primary button of the Import Formal Project dialog: writes the project file and opens it."
+  },
+  "importFormalDiscardTitle": "放弃此次导入？",
+  "@importFormalDiscardTitle": {
+    "description": "Title of the confirmation shown when the Import Formal Project dialog is closed after a job file was chosen."
+  },
+  "importFormalDiscardBody": "您选择的作业文件和任务将不会被导入。",
+  "@importFormalDiscardBody": {
+    "description": "Body of the discard confirmation of the Import Formal Project dialog."
+  },
+  "importFormalDiscardKeep": "继续编辑",
+  "@importFormalDiscardKeep": {
+    "description": "Safe choice of the discard confirmation: return to the dialog."
+  },
+  "importFormalDiscardConfirm": "放弃",
+  "@importFormalDiscardConfirm": {
+    "description": "Destructive choice of the discard confirmation: close the dialog without importing."
+  },
+  "importFormalFailed": "导入失败：{message}",
+  "@importFormalFailed": {
+    "description": "Shown in the Import Formal Project dialog when the import failed. {message} is the importer's own explanation.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccess": "{count, plural, =1{已将 1 个测试导入 {filename}} other{已将 {count} 个测试导入 {filename}}}",
+  "@importFormalSuccess": {
+    "description": "Toast shown after a formal import wrote {filename} with {count} tests and opened it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "importFormalSuccessWithWarnings": "{count, plural, =1{已将 1 个测试导入 {filename}。请阅读其文件头中的警告。} other{已将 {count} 个测试导入 {filename}。请阅读其文件头中的警告。}}",
+  "@importFormalSuccessWithWarnings": {
+    "description": "Toast shown after a formal import that raised warnings (for example a job file that turns its assertions off). The warnings are in the written file's header.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsCheck": "检查形式验证工具",
+  "@settingsFormalToolsCheck": {
+    "description": "Button in Settings > Engines > Formal tools that probes for sby, eqy, yosys, yosys-slang and the solvers."
+  },
+  "settingsFormalToolsChecking": "正在检查…",
+  "@settingsFormalToolsChecking": {
+    "description": "Shown beside the Check formal tools button while the probe runs."
+  },
+  "settingsFormalToolsAllFound": "已找到所有形式验证工具。",
+  "@settingsFormalToolsAllFound": {
+    "description": "Announced when the formal tools check found every tool."
+  },
+  "settingsFormalToolsSomeMissing": "{count, plural, =1{有 1 个形式验证工具未找到。} other{有 {count} 个形式验证工具未找到。}}",
+  "@settingsFormalToolsSomeMissing": {
+    "description": "Announced when the formal tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFormalToolsFound": "{tool}：已找到",
+  "@settingsFormalToolsFound": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it answered without a version.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsFoundVersion": "{tool}：{version}",
+  "@settingsFormalToolsFoundVersion": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) with the {version} banner it printed.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsMissing": "{tool}：未找到",
+  "@settingsFormalToolsMissing": {
+    "description": "Formal tools report line for {tool} (a program name, never translated) when it was not found.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithVerific": "{tool}：{version}，包含 Verific",
+  "@settingsFormalToolsYosysWithVerific": {
+    "description": "Formal tools report line for Yosys built with Verific, the commercial SystemVerilog front end. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsYosysWithoutVerific": "{tool}：{version}，不含 Verific",
+  "@settingsFormalToolsYosysWithoutVerific": {
+    "description": "Formal tools report line for Yosys built without Verific. {tool} is the program name.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFormalToolsGuidanceLinux": "OSS CAD Suite 一并提供 Yosys、SymbiYosys、EQY、yosys-slang 和求解器。解压后在上方设置其 sby 的路径，或将其 bin 目录加入 PATH。每次运行都需要 sby 和 yosys；其他工具仅在作业文件用到时才需要。",
+  "@settingsFormalToolsGuidanceLinux": {
+    "description": "Advice under the formal tools report on Linux when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceMacos": "安装 OSS CAD Suite，或通过 Homebrew 安装 Yosys 和 SymbiYosys。从访达打开的应用看不到 shell 的 PATH，因此请在上方设置 sby 的路径；随后会在其旁边找到其他工具。",
+  "@settingsFormalToolsGuidanceMacos": {
+    "description": "Advice under the formal tools report on macOS when a tool is missing."
+  },
+  "settingsFormalToolsGuidanceWindows": "OSS CAD Suite 提供 Windows 版本。在 WSL2 下运行形式验证流程也很常见，且支持更完善。",
+  "@settingsFormalToolsGuidanceWindows": {
+    "description": "Advice under the formal tools report on Windows when a tool is missing."
   }
 }

@@ -15,6 +15,7 @@ const CruxTableColumns<DashboardSortColumn> dashboardColumns =
     CruxTableColumns<DashboardSortColumn>(
       columns: [
         DashboardSortColumn.status,
+        DashboardSortColumn.verdict,
         DashboardSortColumn.suite,
         DashboardSortColumn.testName,
         DashboardSortColumn.simulator,
@@ -23,6 +24,7 @@ const CruxTableColumns<DashboardSortColumn> dashboardColumns =
       ],
       defaultWeights: {
         DashboardSortColumn.status: 1.2,
+        DashboardSortColumn.verdict: 1.8,
         DashboardSortColumn.suite: 2,
         DashboardSortColumn.testName: 3,
         DashboardSortColumn.simulator: 1.4,

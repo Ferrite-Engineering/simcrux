@@ -18,7 +18,7 @@ import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 /// ## Canonical group order
 ///
 /// - **File** — Open/Import | Projects | Close
-/// - **View** — Command Palette | Panels | Panes | Appearance
+/// - **View** — Command Palette | Panels | Result views | Panes | Appearance
 /// - **Navigate** — (empty until the focus actions ship)
 /// - **Search** — Find | Find across projects
 /// - **Tools** — Run | Analysis | Plugins | Diagnostics (last)
@@ -37,13 +37,15 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
   // ── File ──────────────────────────────────────────────────────────────────
   ActionCategory.file: [
     // Open leads, then every importer, in the order the ecosystems were
-    // wired: FuseSoC, then the two RISC-V flows. One group, because they
-    // are one job — "turn something that is not a simcrux.yaml into one".
+    // wired: FuseSoC, the two RISC-V flows, then a formal job file. One
+    // group, because they are one job — "turn something that is not a
+    // simcrux.yaml into one".
     [
       SimcruxAction.openProject,
       SimcruxAction.importFusesoc,
       SimcruxAction.importRiscvArchTest,
       SimcruxAction.importRiscvFormal,
+      SimcruxAction.importFormalProject,
     ],
     [
       SimcruxAction.switchProject,
@@ -74,6 +76,10 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.toggleLogPanel,
       SimcruxAction.openCrossProbePanel,
       SimcruxAction.crossProbeSelection,
+    ],
+    // The views onto the run's results that are screens, not panels.
+    [
+      SimcruxAction.openFormalProperties,
     ],
     [
       SimcruxAction.splitPaneRight,
