@@ -1,0 +1,8 @@
+oss-cad-suite 20261021
+yosys Yosys 0.70+186 (git sha1 3718f7f13, Release, Clang /usr/local/osxcross/target/bin/aarch64-apple-darwin25.5-clang++ 21.1.8)
+sby SBY v0.70-9-g79fc9ed
+eqy EQY v0.70-1-gfb8b211
+yosys-slang plugin sha256 9926fc4acdaaef1f, slang version 12.0.0+545f88b2e
+yices Yices 2.7.0
+bitwuzla 0.9.1
+boolector 3.2.4

@@ -1,0 +1,1 @@
+<repo>/verification/fixtures/formal/sva_matrix/probes/matrix/32_unbounded_rng.sv:2: ERROR: syntax error, unexpected '@'

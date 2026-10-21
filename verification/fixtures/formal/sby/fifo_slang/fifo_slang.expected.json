@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the RTL and the property text; never from sby output",
+  "sby_file": "fifo_slang.sby",
+  "frontend": "slang",
+  "step_rule": "A concurrent property clocked on posedge clk samples the values of step k on the edge into step k+1, so sby reports it at step k+1. $past(x, n) on that edge reads step k-n; for k-n < 0 it reads state from before the trace began, which no constraint covers. Step 0 is the initial state; m_rst holds rst high at step 0.",
+  "timeline": "W=8, D=4, count is 3 bits. Step 0 reset. Step 1: count=0, empty. One write per step from step 1 gives count=4 (full) at step 5.",
+  "tasks": {
+    "ok": {
+      "verdict": "PASS",
+      "why": "A write is accepted only when not full, so count never exceeds D. full and empty compare count against different constants. An accepted write without a read raises count by one. full can only rise on a step after a write. a_dis_ok is vacuous by construction (it is disabled exactly when its body is false), which is the check that disable iff is honoured.",
+      "properties": [
+        { "line": 38, "kind": "ASSERT", "label": "a_never_over", "result": "proved" },
+        { "line": 39, "kind": "ASSERT", "label": "a_full_empty", "result": "proved" },
+        { "line": 40, "kind": "ASSERT", "label": "a_cnt_up", "result": "proved" },
+        { "line": 41, "kind": "ASSERT", "label": "a_rose_full", "result": "proved" },
+        { "line": 42, "kind": "ASSERT", "label": "a_dis_ok", "result": "proved" }
+      ]
+    },
+    "bug": {
+      "verdict": "FAIL",
+      "why": "BUG_FULL accepts a write while full. Writes on steps 1 to 5 give count=5 at step 6, a_never_over samples it on the edge out of step 6, so the earliest failure is step 7. No shorter trace exists: count rises by at most one per step from 0 at step 1. abc pdr is not a bounded search and need not return the shortest counterexample, and sby replays only the last step of its witness, so the reported step may be later than 7; the trace must still show count above 4. Every other assertion still holds up to the first violation (a_cnt_up could only break on the 3-bit wrap at count=7).",
+      "properties": [
+        { "line": 38, "kind": "ASSERT", "label": "a_never_over", "result": "counterexample", "step_at_least": 7, "trace_check": { "signal": "count", "above": 4, "at_some_step": true } },
+        { "line": 39, "kind": "ASSERT", "label": "a_full_empty", "result": "not_failed" },
+        { "line": 40, "kind": "ASSERT", "label": "a_cnt_up", "result": "not_failed" },
+        { "line": 41, "kind": "ASSERT", "label": "a_rose_full", "result": "not_failed" },
+        { "line": 42, "kind": "ASSERT", "label": "a_dis_ok", "result": "not_failed" }
+      ]
+    },
+    "dis": {
+      "verdict": "FAIL",
+      "why": "CHECK_DISABLE adds a_dis_bad, the same body as a_dis_ok without disable iff. rst is high at step 0, so a_dis_bad fails on the first edge, at step 1. a_dis_ok must not fail: if it did, disable iff would have been dropped.",
+      "properties": [
+        { "line": 44, "kind": "ASSERT", "label": "a_dis_bad", "result": "counterexample", "step": 1, "trace_check": { "signal": "rst", "equals": 1, "at_step": 0 } },
+        { "line": 42, "kind": "ASSERT", "label": "a_dis_ok", "result": "not_failed" },
+        { "line": 38, "kind": "ASSERT", "label": "a_never_over", "result": "not_failed" },
+        { "line": 39, "kind": "ASSERT", "label": "a_full_empty", "result": "not_failed" },
+        { "line": 40, "kind": "ASSERT", "label": "a_cnt_up", "result": "not_failed" },
+        { "line": 41, "kind": "ASSERT", "label": "a_rose_full", "result": "not_failed" }
+      ]
+    },
+    "cov": {
+      "verdict": "PASS",
+      "why": "c_full: full is first possible at step 5, so it is reached at step 6. c_drain ($past(full, 4) && empty) is the pre-trace footgun. A witness that does not depend on pre-trace state needs full at step k-4 and empty at step k; full first holds at step 5 and four reads empty the FIFO by step 9, so a genuine witness cannot be reached before step 10. But on the edge out of step 1, $past(full, 4) reads step -3, which is unconstrained, and the FIFO is empty after reset, so the solver reaches c_drain at step 2 on a trace in which full is never 1. Reached here does not mean the FIFO ever drained from full.",
+      "properties": [
+        { "line": 46, "kind": "COVER", "label": "c_full", "result": "reached", "step": 6 },
+        {
+          "line": 47,
+          "kind": "COVER",
+          "label": "c_drain",
+          "result": "reached",
+          "step": 2,
+          "pretrace": { "past_depth": 4, "depends_on_state_before_trace": true, "earliest_genuine_step": 10 },
+          "trace_check": { "signal": "full", "never": 1 }
+        }
+      ]
+    }
+  }
+}

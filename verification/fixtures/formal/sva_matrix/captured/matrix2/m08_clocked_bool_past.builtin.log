@@ -1,0 +1,1 @@
+<repo>/verification/fixtures/formal/sva_matrix/probes/matrix2/m08_clocked_bool_past.sv:2: ERROR: syntax error, unexpected '@'

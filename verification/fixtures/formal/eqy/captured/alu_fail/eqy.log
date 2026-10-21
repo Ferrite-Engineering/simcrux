@@ -1,0 +1,26 @@
+EQY 15:27:05 [alu_fail] read_gold: starting process "yosys -ql alu_fail/gold.log alu_fail/gold.ys"
+EQY 15:27:05 [alu_fail] read_gold: finished (returncode=0)
+EQY 15:27:05 [alu_fail] read_gate: starting process "yosys -ql alu_fail/gate.log alu_fail/gate.ys"
+EQY 15:27:05 [alu_fail] read_gate: finished (returncode=0)
+EQY 15:27:05 [alu_fail] combine: starting process "yosys -ql alu_fail/combine.log alu_fail/combine.ys"
+EQY 15:27:05 [alu_fail] combine: finished (returncode=0)
+EQY 15:27:05 [alu_fail] partition: starting process "cd alu_fail; yosys -ql partition.log partition.ys"
+EQY 15:27:05 [alu_fail] partition: finished (returncode=0)
+EQY 15:27:05 [alu_fail] Warning: Partition alu.z contains 3 unused gold inputs.
+EQY 15:27:05 [alu_fail] Warning: Partition alu.z contains 1 unused gate inputs.
+EQY 15:27:05 [alu_fail] run: starting process "make -C alu_fail -f strategies.mk"
+EQY 15:27:05 [alu_fail] run: Running strategy 'sby' on 'alu.r'..
+EQY 15:27:05 [alu_fail] run: Could not prove equivalence of partition 'alu.r' using strategy 'sby': partitions not equivalent
+EQY 15:27:05 [alu_fail] run: Running strategy 'sby' on 'alu.y'..
+EQY 15:27:06 [alu_fail] run: Proved equivalence of partition 'alu.y' using strategy 'sby'
+EQY 15:27:06 [alu_fail] run: Running strategy 'sby' on 'alu.z'..
+EQY 15:27:06 [alu_fail] run: Could not prove equivalence of partition 'alu.z' using strategy 'sby': partitions not equivalent
+EQY 15:27:06 [alu_fail] run: /Applications/Xcode.app/Contents/Developer/usr/bin/make -f strategies.mk summary
+EQY 15:27:06 [alu_fail] run: finished (returncode=0)
+EQY 15:27:06 [alu_fail] Successfully proved equivalence of partition alu.y
+EQY 15:27:06 [alu_fail] Warning: Failed to prove equivalence for 2/3 partitions:
+EQY 15:27:06 [alu_fail] Failed to prove equivalence of partition alu.z
+EQY 15:27:06 [alu_fail] Failed to prove equivalence of partition alu.r
+EQY 15:27:06 [alu_fail] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+EQY 15:27:06 [alu_fail] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+EQY 15:27:06 [alu_fail] DONE (FAIL, rc=2)

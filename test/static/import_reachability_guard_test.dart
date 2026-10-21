@@ -118,6 +118,14 @@ const _driverPluginSdk =
 const _exemptions = <_Exemption>[
   // The cross-project search seam.
   _Exemption(
+    'lib/domain/enums/riscv_formal_verdict.dart',
+    _Consumer.proOverlay,
+    'the RiscvFormalVerdict typedef of FormalVerdict, kept for one minor '
+        'release because the Pro overlay still names it; open core uses '
+        'FormalVerdict. Delete this file and this exemption when the '
+        'overlay has moved',
+  ),
+  _Exemption(
     'lib/domain/enums/cross_project_search_scope.dart',
     _Consumer.proOverlay,
     _crossProjectSearch,

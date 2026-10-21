@@ -6,7 +6,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:simcrux/domain/enums/riscv_formal_verdict.dart';
+import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/sby_outcome.dart';
 
@@ -139,7 +139,7 @@ void main() {
               readJson(p.join(d.path, 'expected.json'))['verdict']! as String,
         )
         .toSet();
-    for (final verdict in RiscvFormalVerdict.values) {
+    for (final verdict in FormalVerdict.values) {
       expect(
         covered,
         contains(verdict.wireName),

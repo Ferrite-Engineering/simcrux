@@ -1,0 +1,18 @@
+[tasks]
+builtin
+slang
+
+[options]
+mode prove
+
+[engines]
+smtbmc yices
+
+[script]
+builtin: read -formal handshake.sv
+slang: plugin -i slang
+slang: read_slang handshake.sv --top handshake
+prep -top handshake
+
+[files]
+handshake.sv

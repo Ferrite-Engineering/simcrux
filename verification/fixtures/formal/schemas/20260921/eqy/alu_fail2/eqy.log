@@ -1,0 +1,21 @@
+EQY 15:27:10 [alu_fail2] read_gold: starting process "yosys -ql alu_fail2/gold.log alu_fail2/gold.ys"
+EQY 15:27:10 [alu_fail2] read_gold: finished (returncode=0)
+EQY 15:27:10 [alu_fail2] read_gate: starting process "yosys -ql alu_fail2/gate.log alu_fail2/gate.ys"
+EQY 15:27:10 [alu_fail2] read_gate: finished (returncode=0)
+EQY 15:27:10 [alu_fail2] combine: starting process "yosys -ql alu_fail2/combine.log alu_fail2/combine.ys"
+EQY 15:27:11 [alu_fail2] combine: finished (returncode=0)
+EQY 15:27:11 [alu_fail2] partition: starting process "cd alu_fail2; yosys -ql partition.log partition.ys"
+EQY 15:27:11 [alu_fail2] partition: finished (returncode=0)
+EQY 15:27:11 [alu_fail2] run: starting process "make -C alu_fail2 -f strategies.mk"
+EQY 15:27:11 [alu_fail2] run: Running strategy 'sby' on 'alu.y'..
+EQY 15:27:11 [alu_fail2] run: Could not prove equivalence of partition 'alu.y' using strategy 'sby': partitions not equivalent
+EQY 15:27:11 [alu_fail2] run: Running strategy 'sby' on 'alu.z'..
+EQY 15:27:11 [alu_fail2] run: Could not prove equivalence of partition 'alu.z' using strategy 'sby': partitions not equivalent
+EQY 15:27:11 [alu_fail2] run: /Applications/Xcode.app/Contents/Developer/usr/bin/make -f strategies.mk summary
+EQY 15:27:11 [alu_fail2] run: finished (returncode=0)
+EQY 15:27:11 [alu_fail2] Warning: Failed to prove equivalence for 2/2 partitions:
+EQY 15:27:11 [alu_fail2] Failed to prove equivalence of partition alu.z
+EQY 15:27:11 [alu_fail2] Failed to prove equivalence of partition alu.y
+EQY 15:27:11 [alu_fail2] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+EQY 15:27:11 [alu_fail2] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+EQY 15:27:11 [alu_fail2] DONE (FAIL, rc=2)

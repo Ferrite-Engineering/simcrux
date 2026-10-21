@@ -1,0 +1,103 @@
+probe	frontend	exit	cells
+matrix/01_imp_overlap	builtin	1	
+matrix/01_imp_overlap	slang	1	
+matrix/02_disable_iff	builtin	1	
+matrix/02_disable_iff	slang	1	
+matrix/03_imp_nonoverlap	builtin	1	
+matrix/03_imp_nonoverlap	slang	1	
+matrix/04_delay1	builtin	1	
+matrix/04_delay1	slang	1	
+matrix/05_delay_range	builtin	1	
+matrix/05_delay_range	slang	1	
+matrix/06_past	builtin	1	
+matrix/06_past	slang	1	
+matrix/07_rose	builtin	1	
+matrix/07_rose	slang	1	
+matrix/08_fell	builtin	1	
+matrix/08_fell	slang	1	
+matrix/09_stable	builtin	1	
+matrix/09_stable	slang	1	
+matrix/10_named_seq	builtin	1	
+matrix/10_named_seq	slang	1	
+matrix/11_named_prop	builtin	1	
+matrix/11_named_prop	slang	1	
+matrix/12_s_eventually	builtin	1	
+matrix/12_s_eventually	slang	1	
+matrix/13_eventually_rng	builtin	1	
+matrix/13_eventually_rng	slang	1	
+matrix/14_assume_prop	builtin	1	
+matrix/14_assume_prop	slang	1	
+matrix/15_cover_prop	builtin	1	
+matrix/15_cover_prop	slang	1	
+matrix/16_consec_rep	builtin	1	
+matrix/16_consec_rep	slang	1	
+matrix/17_goto_rep	builtin	1	
+matrix/17_goto_rep	slang	1	
+matrix/18_throughout	builtin	1	
+matrix/18_throughout	slang	1	
+matrix/19_until	builtin	1	
+matrix/19_until	slang	1	
+matrix/20_default_clk	builtin	1	
+matrix/20_default_clk	slang	1	
+matrix/21_default_dis	builtin	1	
+matrix/21_default_dis	slang	1	
+matrix/22_seq_and	builtin	1	
+matrix/22_seq_and	slang	1	
+matrix/23_onehot0	builtin	1	
+matrix/23_onehot0	slang	0	1
+matrix/24_imm_in_always	builtin	0	1
+matrix/24_imm_in_always	slang	0	1
+matrix/25_imm_past	builtin	0	1
+matrix/25_imm_past	slang	0	1
+matrix/26_initial_assume	builtin	0	1
+matrix/26_initial_assume	slang	1	
+matrix/27_initstate	builtin	0	1
+matrix/27_initstate	slang	1	
+matrix/28_always_assert_star	builtin	0	1
+matrix/28_always_assert_star	slang	0	1
+matrix/29_deferred_final	builtin	0	1
+matrix/29_deferred_final	slang	0	1
+matrix/30_strong_seq	builtin	1	
+matrix/30_strong_seq	slang	1	
+matrix/31_nexttime	builtin	1	
+matrix/31_nexttime	slang	1	
+matrix/32_unbounded_rng	builtin	1	
+matrix/32_unbounded_rng	slang	1	
+matrix/33_checker_label_action	builtin	1	
+matrix/33_checker_label_action	slang	1	
+matrix2/m01_clocked_bool	builtin	1	
+matrix2/m01_clocked_bool	slang	0	1
+matrix2/m02_clocked_dis_bool	builtin	1	
+matrix2/m02_clocked_dis_bool	slang	0	1
+matrix2/m03_unclocked_prop	builtin	0	1
+matrix2/m03_unclocked_prop	slang	0	1
+matrix2/m04_always_prop	builtin	0	1
+matrix2/m04_always_prop	slang	0	1
+matrix2/m05_always_prop_past	builtin	0	1
+matrix2/m05_always_prop_past	slang	0	1
+matrix2/m06_always_prop_rose	builtin	1	
+matrix2/m06_always_prop_rose	slang	1	
+matrix2/m07_always_imp	builtin	1	
+matrix2/m07_always_imp	slang	1	
+matrix2/m08_clocked_bool_past	builtin	1	
+matrix2/m08_clocked_bool_past	slang	0	1
+matrix2/m09_clocked_bool_rose	builtin	1	
+matrix2/m09_clocked_bool_rose	slang	0	1
+matrix2/m10_clocked_bool_stable	builtin	1	
+matrix2/m10_clocked_bool_stable	slang	0	1
+matrix2/m11_cover_clocked_bool	builtin	1	
+matrix2/m11_cover_clocked_bool	slang	0	1
+matrix2/m12_assume_clocked_bool	builtin	1	
+matrix2/m12_assume_clocked_bool	slang	0	1
+matrix2/m13_logical_imp	builtin	1	
+matrix2/m13_logical_imp	slang	0	1
+matrix2/m14_always_rose_bool	builtin	1	
+matrix2/m14_always_rose_bool	slang	0	1
+matrix2/m15_always_stable	builtin	0	1
+matrix2/m15_always_stable	slang	0	1
+matrix2/m16_always_fell	builtin	0	1
+matrix2/m16_always_fell	slang	0	1
+matrix2/m17_always_changed	builtin	0	1
+matrix2/m17_always_changed	slang	0	1
+matrix2/m18_always_cover_seqlike	builtin	0	1
+matrix2/m18_always_cover_seqlike	slang	0	1

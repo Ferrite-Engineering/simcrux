@@ -1,0 +1,21 @@
+[tasks]
+prove
+prove_bug prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+depth 12
+
+[engines]
+prove: smtbmc yices
+cover: smtbmc yices
+
+[script]
+prove_bug: read -formal -DBUG_ACK_LATE handshake_imm.sv
+~prove_bug: read -formal handshake_imm.sv
+prep -top handshake_imm
+
+[files]
+handshake_imm.sv

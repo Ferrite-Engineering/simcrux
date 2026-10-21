@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the RTL and the property text; never from sby output",
+  "sby_file": "handshake_slang.sby",
+  "frontend": "slang",
+  "step_rule": "A concurrent property clocked on posedge clk samples the values of step k on the edge into step k+1, so sby reports it at step k+1. $past(x) on that edge reads step k-1. Step 0 is the initial state; m_rst holds rst high at step 0.",
+  "timeline": "Step 0 reset. Step 1: req=0, start may rise. Step 2: req=1, cnt=0. Normal DELAY=2: step 3 cnt=1, step 4 ack=1 and req=0. f_wait counts steps with req high: 1 at step 3, 2 at step 4, then 0.",
+  "tasks": {
+    "prove": {
+      "verdict": "PASS",
+      "why": "Every assertion is an invariant of the normal design. a_resp: req is high for exactly two steps, so f_wait peaks at 2. a_pulse: the edge that sets ack clears req, so ack cannot be set again on the next edge. a_past: ack is only set from a step with req high. a_rose: ack rises on the same edge that drops req. a_stable is a tautology (req and $past(req) both high means req is stable). Labels survive the slang frontend.",
+      "properties": [
+        { "line": 42, "kind": "ASSERT", "label": "a_resp", "result": "proved" },
+        { "line": 43, "kind": "ASSERT", "label": "a_pulse", "result": "proved" },
+        { "line": 44, "kind": "ASSERT", "label": "a_past", "result": "proved" },
+        { "line": 45, "kind": "ASSERT", "label": "a_rose", "result": "proved" },
+        { "line": 46, "kind": "ASSERT", "label": "a_stable", "result": "proved" }
+      ]
+    },
+    "prove_bug": {
+      "verdict": "FAIL",
+      "why": "BUG_ACK_LATE sets DELAY=4, so req stays high from step 2 to step 5. f_wait is 3 at step 5, a_resp samples it on the edge out of step 5 and fails at step 6. Nothing else changes meaning: the late ack is still a pulse, still follows req, still rises as req falls.",
+      "properties": [
+        { "line": 42, "kind": "ASSERT", "label": "a_resp", "result": "counterexample", "step": 6, "trace_check": { "signal": "f_wait", "equals": 3, "at_step": 5 } },
+        { "line": 43, "kind": "ASSERT", "label": "a_pulse", "result": "not_failed" },
+        { "line": 44, "kind": "ASSERT", "label": "a_past", "result": "not_failed" },
+        { "line": 45, "kind": "ASSERT", "label": "a_rose", "result": "not_failed" },
+        { "line": 46, "kind": "ASSERT", "label": "a_stable", "result": "not_failed" }
+      ]
+    },
+    "prove_pdr": {
+      "verdict": "PASS",
+      "why": "The same design and properties as prove, decided by an unbounded engine (abc pdr) instead of k-induction. The answer cannot differ.",
+      "properties": [
+        { "line": 42, "kind": "ASSERT", "label": "a_resp", "result": "proved" },
+        { "line": 43, "kind": "ASSERT", "label": "a_pulse", "result": "proved" },
+        { "line": 44, "kind": "ASSERT", "label": "a_past", "result": "proved" },
+        { "line": 45, "kind": "ASSERT", "label": "a_rose", "result": "proved" },
+        { "line": 46, "kind": "ASSERT", "label": "a_stable", "result": "proved" }
+      ]
+    },
+    "cover": {
+      "verdict": "PASS",
+      "why": "c_ack (ack && $past(req)) is first true at step 4 and is reached at step 5. c_b2b ($past(ack) && $rose(req)) needs ack high at step k-1 and req rising at step k; the first ack is at step 4 and start may be high then, so req rises at step 5 and c_b2b is reached at step 6.",
+      "properties": [
+        { "line": 47, "kind": "COVER", "label": "c_ack", "result": "reached", "step": 5 },
+        { "line": 48, "kind": "COVER", "label": "c_b2b", "result": "reached", "step": 6 }
+      ]
+    }
+  }
+}

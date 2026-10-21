@@ -6,9 +6,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
 import 'package:simcrux/domain/enums/kill_signal.dart';
-import 'package:simcrux/domain/enums/riscv_formal_verdict.dart';
 import 'package:simcrux/domain/enums/riscv_host_platform.dart';
 import 'package:simcrux/domain/enums/riscv_run_mode.dart';
 import 'package:simcrux/domain/enums/riscv_toolchain_component.dart';
@@ -51,13 +51,13 @@ import 'package:simcrux/services/simulator/riscv_toolchain_probe.dart';
 /// make an `sby` that exits 0 without ever producing a verdict — a killed
 /// pipeline, a wrapper that swallows the status, a mis-set `expect` —
 /// report a proof that never happened as **pass**. That is the exit-0 trap
-/// in its formal form, and [RiscvFormalVerdict.noOutcome] is what catches
+/// in its formal form, and [FormalVerdict.noOutcome] is what catches
 /// it.
 ///
 /// **Every non-`PASS` outcome is [TestStatus.fail]**, including
 /// `UNKNOWN` and `TIMEOUT`. The reasoning, including why
 /// [TestStatus.timeout] was considered and rejected, is on
-/// [RiscvFormalVerdict]. `unknown` and `vacuous` are unreachable by
+/// [FormalVerdict]. `unknown` and `vacuous` are unreachable by
 /// construction: `unknown` would hand the verdict back to the driver's
 /// own exit code, and `vacuous` is success-equivalent to the scheduler —
 /// no retry, and the work directory holding the counterexample VCD is
@@ -646,34 +646,34 @@ class RiscvFormalDriver extends ProcessBackedSimulatorDriver {
   }
 
   String? _describe(
-    RiscvFormalVerdict verdict,
+    FormalVerdict verdict,
     SbyOutcome outcome,
     RiscvFormalConfig formal,
   ) {
     final check = formal.check ?? 'the check';
     final depth = outcome.depthReached;
     switch (verdict) {
-      case RiscvFormalVerdict.pass:
+      case FormalVerdict.pass:
         return null;
-      case RiscvFormalVerdict.fail:
+      case FormalVerdict.fail:
         return depth == null
             ? 'property violated: SymbiYosys found a counterexample for $check'
             : 'property violated at step $depth: SymbiYosys found a '
                   'counterexample for $check';
-      case RiscvFormalVerdict.unknown:
+      case FormalVerdict.unknown:
         // Deliberately not the word "pass" in any form. The solver did
         // not decide, so nothing was proven.
         return 'inconclusive: SymbiYosys returned UNKNOWN for $check'
             '${depth == null ? '' : ' (reached step $depth)'} — the property '
             'was neither proved nor refuted.';
-      case RiscvFormalVerdict.timeout:
+      case FormalVerdict.timeout:
         return 'inconclusive: SymbiYosys hit its own solver timeout for $check'
             '${depth == null ? '' : ' at step $depth'} — the property was not '
             'proved.';
-      case RiscvFormalVerdict.error:
+      case FormalVerdict.error:
         return outcome.errorLine ??
             'SymbiYosys errored out for $check — the proof did not run.';
-      case RiscvFormalVerdict.noOutcome:
+      case FormalVerdict.noOutcome:
         return 'SymbiYosys produced no verdict for $check — no '
             '`DONE (…)` line was reported, so nothing was proved.';
     }

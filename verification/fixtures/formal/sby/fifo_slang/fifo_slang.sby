@@ -1,0 +1,29 @@
+[tasks]
+ok
+bug
+dis
+cov
+
+[options]
+ok: mode prove
+bug: mode prove
+dis: mode prove
+cov: mode cover
+depth 16
+
+[engines]
+ok: abc pdr
+bug: abc pdr
+dis: abc pdr
+cov: smtbmc boolector
+
+[script]
+plugin -i slang
+ok: read_slang fifo_slang.sv --top fifo_slang
+bug: read_slang -DBUG_FULL fifo_slang.sv --top fifo_slang
+dis: read_slang -DCHECK_DISABLE fifo_slang.sv --top fifo_slang
+cov: read_slang fifo_slang.sv --top fifo_slang
+prep -top fifo_slang
+
+[files]
+fifo_slang.sv

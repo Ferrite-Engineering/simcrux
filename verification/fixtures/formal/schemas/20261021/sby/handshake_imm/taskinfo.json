@@ -1,0 +1,53 @@
+{
+  "prove": {
+    "mode": "prove",
+    "engines": {
+      "null": [
+        [
+          "smtbmc",
+          "yices"
+        ]
+      ]
+    },
+    "script": [
+      "read -formal handshake_imm.sv",
+      "prep -top handshake_imm",
+      ""
+    ],
+    "cancelledby": []
+  },
+  "prove_bug": {
+    "mode": "prove",
+    "engines": {
+      "null": [
+        [
+          "smtbmc",
+          "yices"
+        ]
+      ]
+    },
+    "script": [
+      "read -formal -DBUG_ACK_LATE handshake_imm.sv",
+      "prep -top handshake_imm",
+      ""
+    ],
+    "cancelledby": []
+  },
+  "cover": {
+    "mode": "cover",
+    "engines": {
+      "null": [
+        [
+          "smtbmc",
+          "yices"
+        ]
+      ]
+    },
+    "script": [
+      "read -formal handshake_imm.sv",
+      "prep -top handshake_imm",
+      ""
+    ],
+    "cancelledby": []
+  }
+}

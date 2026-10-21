@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the designs' meaning and an independent simulation oracle (oracle/); never from eqy output",
+  "designs": {
+    "alu.v": "gold: a registered 8-bit ALU, y <= r and z <= (r == 0), r = a+b, a-b, a&b or a^b by op",
+    "gate.v": "a gate-level netlist of alu.v (synth -flatten; abc -g AND,OR,XOR,MUX). It keeps an internal wire named r",
+    "gate_bad.v": "gate.v with one AND gate flipped to OR (line 147)"
+  },
+  "oracle": {
+    "what": "oracle/tb.v clocks every (op, a, b) vector, all 2^18 of them plus the reset vector, through a design with Icarus Verilog and prints y and z; oracle/compare.py diffs two such dumps",
+    "gate.v": "equal to alu.v on every vector",
+    "gate_bad.v": "differs from alu.v in y on some vectors and in z on some vectors, under every op"
+  },
+  "runs": {
+    "alu_pass": {
+      "eqy_file": "alu_pass.eqy",
+      "verdict": "FAIL",
+      "netlist_correct": true,
+      "why": "A false FAIL. gate.v is equivalent to alu.v (oracle), but with the default configuration eqy matches the gold r against the gate wire also named r and cuts the designs there. Gold computes z from r (z <= r == 0). ABC restructured the gate side: z's next value is _038_ & _055_ (gate.v line 184), internal nodes of the r logic, not r itself. So the gold z partition starts at the cut r while the gate z partition reaches back to the primary inputs, and with r free the two cannot be proved equal. The y partition is a plain register on r on both sides (gate.v lines 282 to 305) and proves; the r partition is the whole ALU on both sides and proves. The failure is in the configuration, not the design.",
+      "reason": "match_point_restructured",
+      "failing_outputs": ["z"]
+    },
+    "alu_pass2": {
+      "eqy_file": "alu_pass2.eqy",
+      "verdict": "PASS",
+      "netlist_correct": true,
+      "why": "The same correct netlist with [match alu] gold-nomatch r, so r is no longer a match point and the partitions run from the inputs to the registered outputs y and z. Equivalent by the oracle, so every partition proves.",
+      "reason": null
+    },
+    "alu_fail": {
+      "eqy_file": "alu_fail.eqy",
+      "verdict": "FAIL",
+      "netlist_correct": false,
+      "why": "The mutant differs from the gold in both y and z (oracle). Whatever the partitioning, a real difference cannot prove. With the default cut at r, the flipped gate sits inside the r partition, so r fails; z fails for the alu_pass reason and the mutation; y is a plain register on the cut r on both sides and proves.",
+      "reason": "genuine_mismatch",
+      "failing_outputs": ["r", "z"]
+    },
+    "alu_fail2": {
+      "eqy_file": "alu_fail2.eqy",
+      "verdict": "FAIL",
+      "netlist_correct": false,
+      "why": "With gold-nomatch r the partitions are the registered outputs. The flipped gate lies in the cone of r, which feeds both y and z, and the oracle shows both differ, so the partition for y and the partition for z both fail.",
+      "reason": "genuine_mismatch",
+      "failing_outputs": ["y", "z"]
+    }
+  }
+}

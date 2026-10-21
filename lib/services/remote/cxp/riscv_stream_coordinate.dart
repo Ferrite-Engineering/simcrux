@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_cxp/crux_cxp.dart';
-import 'package:simcrux/domain/enums/riscv_formal_verdict.dart';
+import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
@@ -90,10 +90,10 @@ CxpStreamCoordinate? riscvStreamCoordinateFor(TestResult result) {
   // `NO_OUTCOME` learned nothing, and `PASS` proved the property — emitting a
   // coordinate for any of them would imply a counterexample exists, which is
   // the one thing the Pro formal dashboard's card is built to never say.
-  final verdict = RiscvFormalVerdict.fromWireName(
+  final verdict = FormalVerdict.fromWireName(
     metrics[RiscvFormalDriver.kMetricVerdict],
   );
-  if (verdict != RiscvFormalVerdict.fail) return null;
+  if (verdict != FormalVerdict.fail) return null;
 
   // No resolvable trace, no coordinate. The formal driver leaves `waveformPath` null exactly
   // when `sby` announced a trace it could not resolve on disk
@@ -114,7 +114,7 @@ CxpStreamCoordinate? riscvStreamCoordinateFor(TestResult result) {
   final attributes = <String, String>{
     RiscvFormalDriver.kMetricCheck: ?metrics[RiscvFormalDriver.kMetricCheck],
     RiscvFormalDriver.kMetricGroup: ?metrics[RiscvFormalDriver.kMetricGroup],
-    RiscvFormalDriver.kMetricVerdict: RiscvFormalVerdict.fail.wireName,
+    RiscvFormalDriver.kMetricVerdict: FormalVerdict.fail.wireName,
     RiscvFormalDriver.kMetricDepthConfigured:
         ?metrics[RiscvFormalDriver.kMetricDepthConfigured],
     CxpStreamCoordinate.riscvIsaAttribute: ?metrics[RiscvArchDriver.kMetricIsa],

@@ -1,0 +1,25 @@
+[tasks]
+prove
+prove_bug prove
+prove_pdr
+cover
+
+[options]
+prove: mode prove
+prove_pdr: mode prove
+cover: mode cover
+depth 12
+
+[engines]
+prove: smtbmc bitwuzla
+prove_pdr: abc pdr
+cover: smtbmc bitwuzla
+
+[script]
+plugin -i slang
+prove_bug: read_slang -DBUG_ACK_LATE handshake_slang.sv --top handshake_slang
+~prove_bug: read_slang handshake_slang.sv --top handshake_slang
+prep -top handshake_slang
+
+[files]
+handshake_slang.sv

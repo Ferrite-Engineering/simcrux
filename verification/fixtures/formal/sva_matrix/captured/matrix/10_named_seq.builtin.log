@@ -1,0 +1,1 @@
+<repo>/verification/fixtures/formal/sva_matrix/probes/matrix/10_named_seq.sv:2: ERROR: syntax error, unexpected ';', expecting '(' or '['

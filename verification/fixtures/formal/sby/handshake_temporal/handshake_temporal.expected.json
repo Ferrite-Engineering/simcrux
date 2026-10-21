@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the property text and the frontends' documented SVA support; never from sby output",
+  "sby_file": "handshake_temporal.sby",
+  "refused_constructs": [
+    { "line": 33, "construct": "named sequence declaration", "class": "named_sequence" },
+    { "line": 38, "construct": "|-> ##[1:3]", "class": "delay" },
+    { "line": 40, "construct": "|=>", "class": "implication" },
+    { "line": 42, "construct": "|=>", "class": "implication" },
+    { "line": 44, "construct": "|->", "class": "implication" },
+    { "line": 45, "construct": "|->", "class": "implication" },
+    { "line": 47, "construct": "s_eventually", "class": "liveness_op" },
+    { "line": 49, "construct": "$initstate inside a concurrent assume", "class": "other" },
+    { "line": 51, "construct": "##[1:3] in a cover", "class": "delay" },
+    { "line": 52, "construct": "##1 in a cover", "class": "delay" }
+  ],
+  "tasks": {
+    "builtin": {
+      "verdict": "ERROR",
+      "frontend": "builtin",
+      "why": "handshake.sv uses a named sequence, |->, |=>, ##[1:3] and s_eventually. The built-in Verilog frontend implements immediate assertions only, so elaboration stops at the first of them, the named sequence on line 33, and no property is checked. This is Did not run, never Proved.",
+      "error_line": 33,
+      "properties": []
+    },
+    "slang": {
+      "verdict": "ERROR",
+      "frontend": "slang",
+      "why": "The yosys-slang plugin implements concurrent properties with boolean bodies only, and not $initstate. Every line in refused_constructs is outside that subset; elaboration stops with an ERROR naming one of them, and no property is checked. Which one it names first is the frontend's elaboration order, not something the source decides, so the expectation is only that the error names a line from refused_constructs.",
+      "error_line_in": "refused_constructs",
+      "properties": []
+    }
+  }
+}

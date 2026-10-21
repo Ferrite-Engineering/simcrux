@@ -1108,6 +1108,18 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 
 ---
 
+## Formal verification: corpus, verdict and output contracts (guide §26)
+
+- [ ] `FormalVerdict` keeps the six wire names and the `TestStatus` mapping of `RiscvFormalVerdict` (now a typedef of it); an unparseable token is Unrecognised, never Proved — `[Coverage: UNIT]` (`formal_verdict_test.dart`)
+- [ ] The corpus (four sby cases, 51 SVA probes, four EQY runs, three builds' schemas) is present with a hand-written expectation per case; a missing directory fails — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
+- [ ] Every capture has a provenance line naming its OSS CAD Suite build, each build has tool versions, and no capture carries a machine path — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
+- [ ] The committed captures agree with the hand expectations: verdicts, failing line, label and step, cover steps, trace values, EQY partitions, SVA acceptance and cell counts — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
+- [ ] The regenerator never touches a `*.expected.*` file (hash guard) — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
+- [ ] A live run of sby, eqy and yosys on build 20261021 matches every hand expectation — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`formal_fixtures_live_test.dart`)
+- [ ] The status stream, `status.sqlite` and EQY work-dir shapes in guide §26.4 still hold on the newest build — `[Coverage: MANUAL]` (regenerate, then the `jq` and `diff` commands in §26.4)
+
+---
+
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)
 
 - [ ] The nextpnr corpus (iCE40, ECP5, Gowin, GateMate; re-screen and designed-path cases) and the FuseSoC log-only run are present, under 5 MB each, scrubbed of machine paths and documented in `PROVENANCE.md`; a missing directory fails — `[Coverage: UNIT]` (`flow_nextpnr_fixtures_test.dart`)

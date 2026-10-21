@@ -1,0 +1,219 @@
+SBY 15:27:02 [handshake_imm_prove] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove'.
+SBY 15:27:02 [handshake_imm_prove] Copy '<work>/20261021/sby/handshake_imm/handshake_imm.sv' to '<work>/20261021/sby/handshake_imm/handshake_imm_prove/src/handshake_imm.sv'.
+SBY 15:27:02 [handshake_imm_prove] engine_0: smtbmc yices
+SBY 15:27:02 [handshake_imm_prove_bug] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_prove_bug'.
+SBY 15:27:02 [handshake_imm_prove_bug] Copy '<work>/20261021/sby/handshake_imm/handshake_imm.sv' to '<work>/20261021/sby/handshake_imm/handshake_imm_prove_bug/src/handshake_imm.sv'.
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0: smtbmc yices
+SBY 15:27:02 [handshake_imm_cover] Removing directory '<work>/20261021/sby/handshake_imm/handshake_imm_cover'.
+SBY 15:27:02 [handshake_imm_cover] Copy '<work>/20261021/sby/handshake_imm/handshake_imm.sv' to '<work>/20261021/sby/handshake_imm/handshake_imm_cover/src/handshake_imm.sv'.
+SBY 15:27:02 [handshake_imm_cover] engine_0: smtbmc yices
+SBY 15:27:02 [handshake_imm_prove] base: starting process "cd handshake_imm_prove/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 15:27:02 [handshake_imm_prove_bug] base: starting process "cd handshake_imm_prove_bug/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 15:27:02 [handshake_imm_cover] base: starting process "cd handshake_imm_cover/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 15:27:02 [handshake_imm_prove] base: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove_bug] base: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] prep: starting process "cd handshake_imm_prove/model; yosys -ql design_prep.log design_prep.ys"
+SBY 15:27:02 [handshake_imm_cover] base: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove_bug] prep: starting process "cd handshake_imm_prove_bug/model; yosys -ql design_prep.log design_prep.ys"
+SBY 15:27:02 [handshake_imm_cover] prep: starting process "cd handshake_imm_cover/model; yosys -ql design_prep.log design_prep.ys"
+SBY 15:27:02 [handshake_imm_prove] prep: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] smt2: starting process "cd handshake_imm_prove/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 15:27:02 [handshake_imm_prove_bug] prep: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove_bug] smt2: starting process "cd handshake_imm_prove_bug/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 15:27:02 [handshake_imm_cover] prep: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_cover] smt2: starting process "cd handshake_imm_cover/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 15:27:02 [handshake_imm_prove] smt2: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: starting process "cd handshake_imm_prove; yosys-smtbmc -s yices --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 15:27:02 [handshake_imm_prove_bug] smt2: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: starting process "cd handshake_imm_prove; yosys-smtbmc -s yices --presat --unroll -i --noprogress -t 12  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY 15:27:02 [handshake_imm_cover] smt2: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: starting process "cd handshake_imm_prove_bug; yosys-smtbmc -s yices --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: starting process "cd handshake_imm_prove_bug; yosys-smtbmc -s yices --presat --unroll -i --noprogress -t 12  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Solver: yices
+SBY 15:27:02 [handshake_imm_cover] engine_0: starting process "cd handshake_imm_cover; yosys-smtbmc -s yices --presat --unroll -c --noprogress -t 12  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Solver: yices
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Solver: yices
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Solver: yices
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 12..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 12..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 11..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 10..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 11..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 9..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 10..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 8..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 9..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 7..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 8..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Trying induction in step 6..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 7..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Temporal induction successful.
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: ##   0:00:00  Status: passed
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 6..
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 5..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.15, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  BMC failed!
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Assert failed in handshake_imm: handshake_imm.sv:45.15-45.38 (_witness_.check_handshake_imm_sv_45_assert_28)
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.15, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_imm_prove_bug/engine_0/trace.vcd", "depth": 6}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to VCD file: engine_0/trace.vcd
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 4..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 7..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 7..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 3..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 8..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 8..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_tb.v
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 2..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 9..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 9..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 1..
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to constraints file: engine_0/trace.smtc
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Trying induction in step 0..
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 10..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 10..
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] engine_0.induction: Status returned by engine for induction: pass
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Temporal induction failed!
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Assert failed in handshake_imm: handshake_imm.sv:45.15-45.38 (_witness_.check_handshake_imm_sv_45_assert_28)
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.16, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_imm_prove_bug/engine_0/trace_induct.vcd"}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to VCD file: engine_0/trace_induct.vcd
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.16, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_imm_prove_bug/engine_0/trace.yw", "depth": 6}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace.yw
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assumptions in step 11..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Checking assertions in step 11..
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: ##   0:00:00  Status: passed
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: ##   0:00:00  Status: failed
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace_induct_tb.v
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to constraints file: engine_0/trace_induct.smtc
+SBY 15:27:02 [handshake_imm_prove_bug] jsonl: {"time": 0.16, "task_name": "prove_bug", "mode": "prove", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "FAIL", "trace": "handshake_imm_prove_bug/engine_0/trace_induct.yw"}
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace_induct.yw
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_prove] engine_0.basecase: Status returned by engine for basecase: pass
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "task_status", "name": "handshake_imm._witness_.check_handshake_imm_sv_42_assert_24", "location": "handshake_imm.sv:42.23-42.36", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "task_status", "name": "handshake_imm._witness_.check_handshake_imm_sv_43_assert_26", "location": "handshake_imm.sv:43.16-43.35", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 15:27:02 [handshake_imm_prove] jsonl: {"time": 0.16, "task_name": "prove", "mode": "prove", "engine": "task_status", "name": "handshake_imm._witness_.check_handshake_imm_sv_45_assert_28", "location": "handshake_imm.sv:45.15-45.38", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 15:27:02 [handshake_imm_prove] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_prove] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_prove] summary: engine_0 (smtbmc yices) returned pass for basecase
+SBY 15:27:02 [handshake_imm_prove] summary: engine_0 (smtbmc yices) returned pass for induction
+SBY 15:27:02 [handshake_imm_prove] summary: engine_0 did not produce any traces
+SBY 15:27:02 [handshake_imm_prove] summary: successful proof by k-induction.
+SBY 15:27:02 [handshake_imm_prove] DONE (PASS, rc=0)
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: finished (returncode=1)
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.basecase: Status returned by engine for basecase: FAIL
+SBY 15:27:02 [handshake_imm_prove_bug] engine_0.induction: terminating process
+SBY 15:27:02 [handshake_imm_prove_bug] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_prove_bug] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_prove_bug] summary: engine_0 (smtbmc yices) returned FAIL for basecase
+SBY 15:27:02 [handshake_imm_prove_bug] summary: counterexample trace [basecase]: handshake_imm_prove_bug/engine_0/trace.vcd
+SBY 15:27:02 [handshake_imm_prove_bug] summary:   failed assertion handshake_imm._witness_.check_handshake_imm_sv_45_assert_28 at handshake_imm.sv:45.15-45.38 step 6
+SBY 15:27:02 [handshake_imm_prove_bug] summary: counterexample trace [induction]: handshake_imm_prove_bug/engine_0/trace_induct.vcd
+SBY 15:27:02 [handshake_imm_prove_bug] summary:   failed assertion handshake_imm._witness_.check_handshake_imm_sv_45_assert_28 at handshake_imm.sv:45.15-45.38
+SBY 15:27:02 [handshake_imm_prove_bug] DONE (FAIL, rc=2)
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Solver: yices
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN"}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 1}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 2}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.2, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 3}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "UNKNOWN", "depth": 4}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Reached cover statement in step 5 at handshake_imm: handshake_imm.sv:46.5-46.40 (_witness_.check_handshake_imm_sv_46_cover_30)
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.vcd", "depth": 5}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 15:27:02 [handshake_imm_cover] jsonl: {"time": 0.21, "task_name": "cover", "mode": "cover", "engine": "engine_0", "name": "handshake_imm._witness_.check_handshake_imm_sv_46_cover_30", "location": "handshake_imm.sv:46.5-46.40", "kind": "COVER", "status": "PASS", "trace": "handshake_imm_cover/engine_0/trace0.yw", "depth": 5}
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 15:27:02 [handshake_imm_cover] engine_0: ##   0:00:00  Status: passed
+SBY 15:27:02 [handshake_imm_cover] engine_0: finished (returncode=0)
+SBY 15:27:02 [handshake_imm_cover] engine_0: Status returned by engine: pass
+SBY 15:27:02 [handshake_imm_cover] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_cover] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 15:27:02 [handshake_imm_cover] summary: engine_0 (smtbmc yices) returned pass
+SBY 15:27:02 [handshake_imm_cover] summary: cover trace: handshake_imm_cover/engine_0/trace0.vcd
+SBY 15:27:02 [handshake_imm_cover] summary:   reached cover statement handshake_imm._witness_.check_handshake_imm_sv_46_cover_30 at handshake_imm.sv:46.5-46.40 step 5
+SBY 15:27:02 [handshake_imm_cover] DONE (PASS, rc=0)
+SBY 15:27:02 The following tasks failed: ['prove_bug']

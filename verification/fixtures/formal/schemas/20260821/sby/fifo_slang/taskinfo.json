@@ -1,0 +1,74 @@
+{
+  "ok": {
+    "mode": "prove",
+    "engines": {
+      "null": [
+        [
+          "abc",
+          "pdr"
+        ]
+      ]
+    },
+    "script": [
+      "plugin -i slang",
+      "read_slang fifo_slang.sv --top fifo_slang",
+      "prep -top fifo_slang",
+      ""
+    ],
+    "cancelledby": []
+  },
+  "bug": {
+    "mode": "prove",
+    "engines": {
+      "null": [
+        [
+          "abc",
+          "pdr"
+        ]
+      ]
+    },
+    "script": [
+      "plugin -i slang",
+      "read_slang -DBUG_FULL fifo_slang.sv --top fifo_slang",
+      "prep -top fifo_slang",
+      ""
+    ],
+    "cancelledby": []
+  },
+  "dis": {
+    "mode": "prove",
+    "engines": {
+      "null": [
+        [
+          "abc",
+          "pdr"
+        ]
+      ]
+    },
+    "script": [
+      "plugin -i slang",
+      "read_slang -DCHECK_DISABLE fifo_slang.sv --top fifo_slang",
+      "prep -top fifo_slang",
+      ""
+    ],
+    "cancelledby": []
+  },
+  "cov": {
+    "mode": "cover",
+    "engines": {
+      "null": [
+        [
+          "smtbmc",
+          "boolector"
+        ]
+      ]
+    },
+    "script": [
+      "plugin -i slang",
+      "read_slang fifo_slang.sv --top fifo_slang",
+      "prep -top fifo_slang",
+      ""
+    ],
+    "cancelledby": []
+  }
+}

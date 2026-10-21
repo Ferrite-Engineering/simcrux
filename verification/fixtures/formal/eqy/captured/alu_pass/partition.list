@@ -1,0 +1,3 @@
+alu alu.z xbits : z[0]
+alu alu.y xbits : y[7:0]
+alu alu.r : r[7:0]

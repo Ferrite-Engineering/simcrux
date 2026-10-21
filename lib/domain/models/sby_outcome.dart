@@ -4,7 +4,7 @@
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
-import 'package:simcrux/domain/enums/riscv_formal_verdict.dart';
+import 'package:simcrux/domain/enums/formal_verdict.dart';
 
 /// What one SymbiYosys run reported, distilled from its log.
 ///
@@ -34,9 +34,9 @@ class SbyOutcome {
     this.errorLine,
   });
 
-  /// What `sby` concluded. [RiscvFormalVerdict.noOutcome] when the log
+  /// What `sby` concluded. [FormalVerdict.noOutcome] when the log
   /// carried no `DONE (…)` line.
-  final RiscvFormalVerdict verdict;
+  final FormalVerdict verdict;
 
   /// The `rc=` value from the `DONE (…)` line, when present. Recorded for
   /// provenance; it is **not** what the verdict is derived from.
@@ -68,7 +68,7 @@ class SbyOutcome {
   final List<String> traces;
 
   /// The first `ERROR:` line, when one appeared. Used for the failure
-  /// message on [RiscvFormalVerdict.error].
+  /// message on [FormalVerdict.error].
   final String? errorLine;
 
   /// The counterexample trace, or null when none was announced.
@@ -189,7 +189,7 @@ class SbyLogReader {
     r'summary:\s*(?:counterexample|cover)\s+trace:\s*(\S+)',
   );
 
-  RiscvFormalVerdict? _verdict;
+  FormalVerdict? _verdict;
   int? _returnCode;
   int? _depth;
   String? _engine;
@@ -207,7 +207,7 @@ class SbyLogReader {
 
     final done = _done.firstMatch(line);
     if (done != null) {
-      final parsed = RiscvFormalVerdict.fromWireName(done.group(1));
+      final parsed = FormalVerdict.fromWireName(done.group(1));
       final rc = int.tryParse(done.group(2) ?? '');
       // Worst outcome wins. A multi-task `.sby` prints one DONE line per
       // task, and "one of several proofs passed" is not a pass. The
@@ -217,7 +217,7 @@ class SbyLogReader {
         _verdict = parsed;
         _returnCode = rc;
       } else if (parsed == null && _isWorseThanCurrent(null)) {
-        _verdict = RiscvFormalVerdict.error;
+        _verdict = FormalVerdict.error;
         _returnCode = rc;
         _errorLine ??= 'sby reported an unrecognized outcome: $line';
       }
@@ -257,20 +257,20 @@ class SbyLogReader {
   ///
   /// `pass` never overwrites a non-`pass`; anything else does. Null means
   /// "an unparseable DONE token", which is at least an error.
-  bool _isWorseThanCurrent(RiscvFormalVerdict? candidate) {
+  bool _isWorseThanCurrent(FormalVerdict? candidate) {
     final current = _verdict;
     if (current == null) return true;
-    if (candidate == RiscvFormalVerdict.pass) return false;
-    return current == RiscvFormalVerdict.pass;
+    if (candidate == FormalVerdict.pass) return false;
+    return current == FormalVerdict.pass;
   }
 
   /// The outcome distilled from everything fed so far.
   ///
-  /// Returns [RiscvFormalVerdict.noOutcome] when no `DONE (…)` line was
+  /// Returns [FormalVerdict.noOutcome] when no `DONE (…)` line was
   /// ever seen — which the driver treats as a failure regardless of the
   /// process's exit code.
   SbyOutcome get outcome => SbyOutcome(
-    verdict: _verdict ?? RiscvFormalVerdict.noOutcome,
+    verdict: _verdict ?? FormalVerdict.noOutcome,
     returnCode: _returnCode,
     depthReached: _depth,
     engine: _engine ?? _engineFallback,

@@ -18,7 +18,7 @@
 //                   sequence it describes is the thing under review.
 //   expected.json — the golden this script writes: what the real
 //                   SbyLogReader parses out of the log, and the status the
-//                   real RiscvFormalVerdict mapping turns it into.
+//                   real FormalVerdict mapping turns it into.
 //
 // The verdict is produced by running the **production** parser and the
 // **production** verdict→status mapping against the **committed** log —

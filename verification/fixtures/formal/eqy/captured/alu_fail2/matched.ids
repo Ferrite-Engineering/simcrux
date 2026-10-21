@@ -1,0 +1,9 @@
+# [alu] gold-nomatch r
+# [*] gold-match *
+alu a a
+alu b b
+alu clk clk
+alu op op
+alu rst rst
+alu y y
+alu z z

@@ -1,0 +1,2 @@
+verification/fixtures/formal/sva_matrix/probes/matrix/13_eventually_rng.sv:2: ERROR: encountered unsupported SVA feature
+ERROR: Design elaboration failed; see full log for details

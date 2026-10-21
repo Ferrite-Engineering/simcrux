@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the RTL and the property text; never from sby output",
+  "sby_file": "handshake_imm.sby",
+  "frontend": "builtin",
+  "step_rule": "A check inside always @(posedge clk) samples the values of step k on the edge into step k+1, so sby reports it at step k+1. Step 0 is the initial state; initial assume (rst) holds rst high at step 0.",
+  "timeline": "Step 0 reset. Step 1: req=0, start may rise. Step 2: req=1, cnt=0. Normal DELAY=2: step 3 cnt=1, step 4 ack=1 and req=0. f_wait counts steps with req high and no ack: 1 at step 3, 2 at step 4, then 0.",
+  "tasks": {
+    "prove": {
+      "verdict": "PASS",
+      "why": "All three assertions are invariants of the normal design: ack is a one-cycle pulse (ack forces req low on the same edge, so ack cannot be set again on the next one), ack is only set from a cycle with req high, and req stays high for exactly two cycles before ack, so f_wait never exceeds 2. Each one is also k-inductive within depth 12.",
+      "properties": [
+        { "line": 42, "kind": "ASSERT", "label": null, "result": "proved" },
+        { "line": 43, "kind": "ASSERT", "label": null, "result": "proved" },
+        { "line": 45, "kind": "ASSERT", "label": null, "result": "proved" }
+      ]
+    },
+    "prove_bug": {
+      "verdict": "FAIL",
+      "why": "BUG_ACK_LATE sets DELAY=4, so req stays high from step 2 to step 5 with no ack. f_wait is 1, 2, 3 at steps 3, 4, 5. The f_wait <= 2 check sees 3 on the edge out of step 5 and fails at step 6. The other two assertions still hold: the late ack is still a one-cycle pulse that follows a cycle with req high.",
+      "properties": [
+        { "line": 45, "kind": "ASSERT", "label": null, "result": "counterexample", "step": 6, "trace_check": { "signal": "f_wait", "equals": 3, "at_step": 5 } },
+        { "line": 42, "kind": "ASSERT", "label": null, "result": "not_failed" },
+        { "line": 43, "kind": "ASSERT", "label": null, "result": "not_failed" }
+      ]
+    },
+    "cover": {
+      "verdict": "PASS",
+      "why": "The single cover (f_past_valid && !rst && ack) is first true at step 4, the first step with ack high, so it is reached at step 5.",
+      "properties": [
+        { "line": 46, "kind": "COVER", "label": null, "result": "reached", "step": 5 }
+      ]
+    }
+  }
+}

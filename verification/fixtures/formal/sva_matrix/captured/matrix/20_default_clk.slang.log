@@ -1,0 +1,3 @@
+verification/fixtures/formal/sva_matrix/probes/matrix/20_default_clk.sv:2: ERROR: unsynthesizable timing control (ignore with '--ignore-timing')
+verification/fixtures/formal/sva_matrix/probes/matrix/20_default_clk.sv:3: ERROR: encountered unsupported SVA feature
+ERROR: Design elaboration failed; see full log for details

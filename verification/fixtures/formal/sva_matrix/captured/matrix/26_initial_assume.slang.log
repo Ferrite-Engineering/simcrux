@@ -1,0 +1,2 @@
+verification/fixtures/formal/sva_matrix/probes/matrix/26_initial_assume.sv:2: ERROR: reading net state during design initialization unsupported
+ERROR: Design elaboration failed; see full log for details

@@ -1,0 +1,62 @@
+usage: sby [options] [<jobname>.sby [tasknames] | <dirname>]
+
+positional arguments:
+  <jobname>.sby | <dirname>
+                        .sby file OR directory containing config.sby file
+  tasknames             tasks to run (only valid when <jobname>.sby is used)
+
+options:
+  -h, --help            show this help message and exit
+  -d <dirname>          set workdir name. default: <jobname> or
+                        <jobname>_<taskname>. When there is more than one
+                        task, use --prefix instead
+  --prefix <dirname>    set the workdir name prefix. `_<taskname>` will be
+                        appended to the path for each task
+  -f                    remove workdir if it already exists
+  -b                    backup workdir if it already exists
+  -t                    run in a temporary workdir (remove when finished)
+  -T <taskname>         add taskname (useful when sby file is read from stdin)
+  -E                    throw an exception (incl stack trace) for most errors
+  -j <N>                maximum number of processes to run in parallel
+  --sequential          run tasks in sequence, not in parallel
+  --live {csv,jsonl}    print live updates of property statuses during task
+                        execution, may be specified multiple times
+  --autotune            automatically find a well performing engine and engine
+                        configuration for each task
+  --autotune-config AUTOTUNE_CONFIG
+                        read an autotune configuration file (overrides the sby
+                        file's autotune options)
+  --yosys <path_to_executable>
+  --abc <path_to_executable>
+  --smtbmc <path_to_executable>
+  --witness <path_to_executable>
+  --suprove <path_to_executable>
+  --aigbmc <path_to_executable>
+  --avy <path_to_executable>
+  --rIC3 <path_to_executable>
+  --btormc <path_to_executable>
+  --itp-bmc <path_to_executable>
+  --pono <path_to_executable>
+                        configure which executable to use for the respective
+                        tool
+  --dumpcfg             print the pre-processed configuration file
+  --dumptags            print the list of task tags
+  --dumptasks           print the list of tasks
+  --dumpdefaults        print the list of default tasks
+  --dumptaskinfo        output a summary of tasks as JSON
+  --dumpfiles           print the list of source files
+  --setup               set up the working directory and exit
+  --link                make symbolic links to source files instead of copying
+                        them
+  --status              summarize the contents of the status database
+  --statusfmt {csv,jsonl}
+                        print the most recent status for each property in
+                        specified format
+  --latest              only check statuses from the most recent run of a task
+  --statusreset         reset the contents of the status database
+  --statuscancels       intertask cancellations can be triggered by the status
+                        database
+  --taskstatus          display the status of tasks in the status database
+  --init-config-file INIT_CONFIG_FILE
+                        create a default .sby config file
+  --version             show program's version number and exit

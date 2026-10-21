@@ -1,0 +1,15 @@
+[gold]
+read_verilog alu.v
+prep -top alu
+
+[gate]
+read_verilog gate_bad.v
+prep -top alu
+
+[match alu]
+gold-nomatch r
+
+[strategy sby]
+use sby
+depth 5
+engine smtbmc yices
