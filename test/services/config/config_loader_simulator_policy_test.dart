@@ -6,6 +6,8 @@ import 'package:simcrux/domain/models/config_loader_error.dart';
 import 'package:simcrux/domain/models/simulator_policy.dart';
 import 'package:simcrux/services/config/config_loader.dart';
 
+import '../../support/posix_keyed_files.dart';
+
 /// The organization's simulator policy as the loader applies it: the
 /// fallback simulator is the last level of the lookup, and the allow-list
 /// refuses any test whose simulator it does not name.
@@ -97,7 +99,9 @@ suites:
 ''',
         };
         final config = await ConfigLoader(
-          readFile: (p) async => files[p] ?? (throw StateError('no $p')),
+          // The loader absolutises through package:path, which on Windows
+          // gives `D:\proj\simcrux.yaml`; the map is keyed by the posix form.
+          readFile: readFromPosixKeyed(files),
           simulatorLanguages: const {},
           simulatorPolicy: const SimulatorPolicy(fallbackSimulatorId: 'icarus'),
         ).load('/proj/simcrux.yaml');
