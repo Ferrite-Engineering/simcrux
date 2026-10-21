@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Re-capture the FuseSoC/Edalize servant run under verification/fixtures/flow/fusesoc/.
 #
 # Usage: tool/flow/regen_fusesoc_fixture.sh [--suite <oss-cad-suite dir>] [--yosys-dir <dir>] [--out <dir>]

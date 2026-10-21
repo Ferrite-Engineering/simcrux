@@ -1,0 +1,12 @@
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
+# Declared so `flutter test -x <tag>` and `--tags` run without the runner's
+# "tag was used but not declared" warning.
+tags:
+  integration:
+  # Tests that drive the OSS CAD Suite (yosys, nextpnr, sby, eqy) and skip when
+  # it is absent. The CI `Test` job excludes the tag (`-x oss-cad-live`) so they
+  # do not count against its skip ceiling; flow-live.yml runs them with the
+  # suite installed and FLOW_LIVE_REQUIRED=1.
+  oss-cad-live:

@@ -13,7 +13,13 @@
 // Facts are compared, not bytes: exit status, nextpnr's own PASS or FAIL line,
 // the designed endpoints, and the report schema. Frequencies and placement move
 // with every nextpnr build and are not pinned.
+//
+// Tagged `oss-cad-live`. The CI `Test` job runs `flutter test -x oss-cad-live`,
+// because those runners have no OSS CAD Suite and every test here would count
+// against the skip ceiling that job enforces. flow-live.yml runs this file
+// without that exclusion, and with FLOW_LIVE_REQUIRED=1.
 
+@Tags(['oss-cad-live'])
 @Timeout(Duration(minutes: 25))
 library;
 

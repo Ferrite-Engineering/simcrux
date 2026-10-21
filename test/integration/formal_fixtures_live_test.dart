@@ -1,7 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-@Tags(['integration'])
+@Tags(['integration', 'oss-cad-live'])
 library;
 
 // Live assertion of the formal fixture corpus: runs the real sby, eqy and
@@ -17,6 +17,9 @@ library;
 // engine canary sets it). A disagreement means the tool changed or an
 // expectation was wrong; read PROVENANCE.md for how to decide which, and
 // never copy the tool's answer into the expectation.
+//
+// Tagged `oss-cad-live`: the CI `Test` job runs `flutter test -x oss-cad-live`
+// so these tool-gated skips do not count against its skip ceiling.
 
 import 'dart:io';
 

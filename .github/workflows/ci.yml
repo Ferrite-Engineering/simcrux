@@ -202,8 +202,14 @@ jobs:
           verilator --version
           "$g/bin/ghdl" --version
 
+      # `oss-cad-live` is excluded: those tests drive yosys, nextpnr, sby and
+      # eqy, which this job does not install (an OSS CAD Suite is a ~1 GB
+      # download). Left in, each would skip, and 23 intentional skips would
+      # drown the ceiling below, which exists to notice an engine that STOPPED
+      # being installed. They run in flow-live.yml, with the suite and
+      # FLOW_LIVE_REQUIRED=1, where a missing tool is a failure.
       - name: Run tests
-        run: flutter test --reporter github --file-reporter json:build/test-results.json
+        run: flutter test -x oss-cad-live --reporter github --file-reporter json:build/test-results.json
 
       # A narrowed glob, a lost test directory or a mass skip leaves every
       # remaining test green, so only the count notices. Parsed from the JSON

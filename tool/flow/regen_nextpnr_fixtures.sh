@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Re-capture the nextpnr fixture set under verification/fixtures/flow/nextpnr/.
 #
 # Usage: tool/flow/regen_nextpnr_fixtures.sh [--suite <oss-cad-suite dir>] [--out <dir>] [--case <name>]
