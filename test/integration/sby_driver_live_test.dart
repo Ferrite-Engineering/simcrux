@@ -1,7 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-@Tags(['integration'])
+@Tags(['integration', 'oss-cad-live'])
 library;
 
 // The `sby` driver against a real SymbiYosys: every task of the corpus's
@@ -15,6 +15,9 @@ library;
 // A disagreement means the tool changed or an expectation was wrong; read
 // the corpus PROVENANCE.md, and never copy the tool's answer into an
 // expectation.
+//
+// Tagged `oss-cad-live`: the CI `Test` job runs `flutter test -x oss-cad-live`
+// so these tool-gated skips do not count against its skip ceiling.
 
 import 'dart:io';
 
