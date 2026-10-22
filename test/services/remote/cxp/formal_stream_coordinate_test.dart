@@ -363,4 +363,23 @@ void main() {
       expect(formalRowReads(metrics, 'ount'), isFalse);
     });
   });
+
+  group('a property reads back its identity and its pre-trace depth', () {
+    test('both when recorded, neither when not', () {
+      final properties = formalPropertiesOf(<String, String>{
+        'formal.property.0.kind': 'ASSERT',
+        'formal.property.0.location': 'fifo.sv:38',
+        'formal.property.0.status': 'counterexample',
+        'formal.property.0.id': 'no_overflow',
+        'formal.property.0.pretrace': '2',
+        'formal.property.1.kind': 'COVER',
+        'formal.property.1.location': 'fifo.sv:52',
+        'formal.property.1.status': 'reached',
+      });
+      expect(properties.first.id, 'no_overflow');
+      expect(properties.first.pretraceDepth, 2);
+      expect(properties.last.id, isNull);
+      expect(properties.last.pretraceDepth, isNull);
+    });
+  });
 }

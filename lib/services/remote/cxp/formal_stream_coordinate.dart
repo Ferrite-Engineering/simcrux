@@ -23,7 +23,17 @@ class FormalPropertyRef {
     this.step,
     this.trace,
     this.reads = const <String>[],
+    this.id,
+    this.pretraceDepth,
   });
+
+  /// Its identity across runs (`formal.property.<n>.id`): the label, else
+  /// the `crux-fnv1a64/1` signature; null when neither was recorded.
+  final String? id;
+
+  /// The `$past` depth its result reaches back before the trace began, when
+  /// it does (`formal.property.<n>.pretrace`).
+  final int? pretraceDepth;
 
   /// `assert`, `assume` or `cover`, lower-cased; whatever else the solver
   /// wrote, lower-cased.
@@ -90,6 +100,8 @@ List<FormalPropertyRef> formalPropertiesOf(Map<String, String> metrics) {
         reads: reads == null || reads.isEmpty
             ? const <String>[]
             : List<String>.unmodifiable(reads.split(',')),
+        id: metrics['${prefix}id'],
+        pretraceDepth: int.tryParse(metrics['${prefix}pretrace'] ?? ''),
       ),
     );
   }

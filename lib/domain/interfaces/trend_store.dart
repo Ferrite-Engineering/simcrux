@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/flow_run_record.dart';
+import 'package:simcrux/domain/models/formal_run_record.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/domain/models/trend_aggregate.dart';
 import 'package:simcrux/domain/models/trend_schema_info.dart';
@@ -86,6 +87,29 @@ abstract class TrendStore {
   /// default is a no-op, so ephemeral and mock stores are unaffected; a
   /// decorating store delegates it.
   Future<void> recordFlowRun(FlowRunRecord record) async {}
+
+  /// Records one formal result row (`formal_runs`) and its properties
+  /// (`formal_properties`, `formal_property_results`) against the result row
+  /// with the same run and test id. A second record for the same pair
+  /// replaces the first; a property's identity row keeps the run it was
+  /// first seen in.
+  ///
+  /// Append-only history: nothing here rewrites another run's rows, and the
+  /// rows age out with their result row in [applyRetention]. The default is
+  /// a no-op, so ephemeral and mock stores are unaffected; a decorating store
+  /// delegates it.
+  Future<void> recordFormalRun(FormalRunRecord record) async {}
+
+  /// The formal records of the newest [runWindow] runs that have any, newest
+  /// run first, each with its properties and its run's start time. Narrowed
+  /// to one test by [testId].
+  ///
+  /// The default returns nothing, for the same reason [recordFormalRun] does
+  /// nothing; a decorating store delegates it.
+  Future<List<FormalRunRecord>> formalRuns({
+    String? testId,
+    int runWindow = 50,
+  }) async => const <FormalRunRecord>[];
 
   /// Return the most recent `limit` trend points for [testId], most
   /// recent first.

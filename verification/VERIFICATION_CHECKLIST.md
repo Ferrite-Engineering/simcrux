@@ -1195,6 +1195,12 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] A peer's signal with its design filters the formal rows to the properties that read it, shown as a chip under Cross-probe and cleared by Clear filters; without a design the test-name filter applies — `[Coverage: UNIT]` (`cxp_receive_filters_test.dart`, `dashboard_providers_test.dart`)
 - [ ] Two separately signed copies of SimCrux (a second bundle identifier, re-signed) see and cross-probe each other — `[Coverage: MANUAL]` (guide §26.12)
 
+### Formal history in the trend store (guide §26.13)
+
+- [ ] A formal record goes in against its result row and reads back newest first with its properties and its run's start time; a second record for one run and test replaces the first; an identity keeps its first-seen run — `[Coverage: UNIT]` (`sql_formal_runs_test.dart`)
+- [ ] The formal rows age out with their run, and an identity no surviving result names is dropped — `[Coverage: UNIT]` (`sql_formal_runs_test.dart`)
+- [ ] A property reads back its identity and its pre-trace depth — `[Coverage: UNIT]` (`formal_stream_coordinate_test.dart`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)

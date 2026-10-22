@@ -5472,6 +5472,42 @@ what its Pro cone needs.
 | Every producer and filter has a caller | `[Coverage: UNIT]` | `test/static/cxp_reachability_test.dart` |
 | The drive and the two-instance check above | `[Coverage: MANUAL]` | needs release builds of three products |
 
+### 26.13 Formal history in the trend store
+
+**What it covers.** The trend-store interface that keeps a formal result row
+and its properties across runs, in the v5 tables (`formal_runs`,
+`formal_properties`, `formal_property_results`). This build writes nothing to
+them on its own: the interface is a seam with a no-op default, and the history
+screens that write and read it are not part of this build. What this build
+does own is the storage contract.
+
+- **A record goes in against its result row.** `recordFormalRun` writes one
+  `formal_runs` row per run and test, one `formal_property_results` row per
+  property, and the property's identity row in `formal_properties` (its label,
+  else its `crux-fnv1a64/1` signature, with `key_scheme` saying which). A
+  second record for the same run and test replaces the first; an identity row
+  keeps the run it was first seen in.
+- **It reads back newest first.** `formalRuns` returns the newest runs that
+  have a formal record, each with its properties and its run's start time,
+  bounded by a run window and narrowed to one test on request. The verdict is
+  the stored token, verbatim.
+- **It ages out with its run.** When the retention pass deletes a run's
+  result rows, the formal rows keyed on them go too, and an identity no
+  surviving result names is dropped.
+- **A property reads back its identity.** `formal.property.<n>.id` and
+  `formal.property.<n>.pretrace` come back on each property a row's metrics
+  hold, beside its location, status, label, step, trace and reads.
+
+**Tier-gate scenarios.** None in this build: the interface writes only what a
+caller hands it.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| Record, read back with properties and start time, replace, window, narrowing, first-seen run, retention, the interface default | `[Coverage: UNIT]` | `test/services/trend_store/sql_formal_runs_test.dart` |
+| The identity and pre-trace depth on a property | `[Coverage: UNIT]` | `test/services/remote/cxp/formal_stream_coordinate_test.dart` |
+
 ---
 
 ## 27. Flow: FPGA place-and-route fixtures and the weekly live check

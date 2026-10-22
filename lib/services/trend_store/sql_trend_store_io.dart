@@ -11,6 +11,7 @@ import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
 import 'package:simcrux/domain/models/flow_run_record.dart';
+import 'package:simcrux/domain/models/formal_run_record.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/domain/models/trend_aggregate.dart';
 import 'package:simcrux/domain/models/trend_schema_info.dart';
@@ -434,6 +435,219 @@ DELETE FROM $table WHERE NOT EXISTS (
 )
 ''');
     }
+  }
+
+  @override
+  Future<void> recordFormalRun(FormalRunRecord record) async {
+    await _db.transaction((txn) async {
+      // One record per (run, test): a re-record replaces, never doubles.
+      await txn.rawDelete(
+        'DELETE FROM formal_runs WHERE run_id = ? AND test_id = ?',
+        <Object?>[record.runId, record.testId],
+      );
+      await txn.rawDelete(
+        'DELETE FROM formal_property_results WHERE run_id = ? AND test_id = ?',
+        <Object?>[record.runId, record.testId],
+      );
+      final batch = txn.batch()
+        ..rawInsert(
+          '''
+INSERT INTO formal_runs (
+  run_id, test_id, tool, task, mode, verdict, depth_configured, depth_reached,
+  wall_time_ms, wall_time_source, engine, solver, frontend, properties,
+  properties_failed, properties_undecided, verdict_disagreement
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+''',
+          <Object?>[
+            record.runId,
+            record.testId,
+            record.tool,
+            record.task,
+            record.mode,
+            record.verdict,
+            record.depthConfigured,
+            record.depthReached,
+            record.wallTimeMs,
+            record.wallTimeSource,
+            record.engine,
+            record.solver,
+            record.frontend,
+            record.propertyCount,
+            record.propertiesFailed,
+            record.propertiesUndecided,
+            if (record.verdictDisagreement) 1 else 0,
+          ],
+        );
+      for (final property in record.properties) {
+        // The identity row keeps the run a property was first seen in.
+        batch
+          ..rawInsert(
+            '''
+INSERT OR IGNORE INTO formal_properties (
+  test_id, property_key, key_scheme, task, kind, label, first_seen_run_id
+) VALUES (?, ?, ?, ?, ?, ?, ?)
+''',
+            <Object?>[
+              record.testId,
+              property.propertyKey,
+              property.keyScheme,
+              property.task,
+              property.kind,
+              property.label,
+              record.runId,
+            ],
+          )
+          ..rawInsert(
+            '''
+INSERT INTO formal_property_results (
+  run_id, test_id, property_key, location, status, steps, trace_path,
+  pretrace_exposed
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''',
+            <Object?>[
+              record.runId,
+              record.testId,
+              property.propertyKey,
+              property.location,
+              property.status,
+              property.steps,
+              property.tracePath,
+              if (property.pretraceExposed) 1 else 0,
+            ],
+          );
+      }
+      await batch.commit(noResult: true);
+    });
+    _notifyChanged();
+  }
+
+  @override
+  Future<List<FormalRunRecord>> formalRuns({
+    String? testId,
+    int runWindow = 50,
+  }) async {
+    if (runWindow <= 0) return const <FormalRunRecord>[];
+    // The newest runs that have a formal record, by their own start time;
+    // a record whose run row is missing sorts last rather than vanishing.
+    final runs = await _rawQuery(
+      '''
+SELECT f.*, r.started_at AS run_started_at
+FROM formal_runs f
+LEFT JOIN runs r ON r.id = f.run_id
+WHERE f.run_id IN (
+  SELECT f2.run_id FROM formal_runs f2
+  LEFT JOIN runs r2 ON r2.id = f2.run_id
+  ${testId == null ? '' : 'WHERE f2.test_id = ?'}
+  GROUP BY f2.run_id
+  ORDER BY COALESCE(MAX(r2.started_at), 0) DESC, f2.run_id DESC
+  LIMIT ?
+)
+${testId == null ? '' : 'AND f.test_id = ?'}
+ORDER BY COALESCE(r.started_at, 0) DESC, f.run_id DESC, f.test_id ASC
+''',
+      <Object?>[?testId, runWindow, ?testId],
+    );
+    if (runs.isEmpty) return const <FormalRunRecord>[];
+    final runIds = <String>{for (final row in runs) row['run_id']! as String};
+    final properties = <String, List<FormalPropertyRecord>>{};
+    final ids = runIds.toList();
+    for (var i = 0; i < ids.length; i += _kMaxInClauseArgs) {
+      final chunk = ids.sublist(
+        i,
+        i + _kMaxInClauseArgs > ids.length ? ids.length : i + _kMaxInClauseArgs,
+      );
+      final marks = List.filled(chunk.length, '?').join(', ');
+      final rows = await _rawQuery(
+        '''
+SELECT p.run_id, p.test_id, p.property_key, p.location, p.status, p.steps,
+  p.trace_path, p.pretrace_exposed, i.key_scheme, i.task, i.kind, i.label
+FROM formal_property_results p
+LEFT JOIN formal_properties i
+  ON i.test_id = p.test_id AND i.property_key = p.property_key
+WHERE p.run_id IN ($marks) ${testId == null ? '' : 'AND p.test_id = ?'}
+ORDER BY p.rowid ASC
+''',
+        <Object?>[...chunk, ?testId],
+      );
+      for (final row in rows) {
+        properties
+            .putIfAbsent(
+              '${row['run_id']}\u0000${row['test_id']}',
+              () => <FormalPropertyRecord>[],
+            )
+            .add(
+              FormalPropertyRecord(
+                propertyKey: row['property_key']! as String,
+                keyScheme:
+                    row['key_scheme'] as String? ??
+                    FormalPropertyRecord.kSchemeLocation,
+                kind: row['kind'] as String? ?? '',
+                task: row['task'] as String?,
+                label: row['label'] as String?,
+                location: row['location']! as String,
+                status: row['status']! as String,
+                steps: row['steps'] as int?,
+                tracePath: row['trace_path'] as String?,
+                pretraceExposed: row['pretrace_exposed'] == 1,
+              ),
+            );
+      }
+    }
+    return <FormalRunRecord>[
+      for (final row in runs)
+        FormalRunRecord(
+          runId: row['run_id']! as String,
+          testId: row['test_id']! as String,
+          tool: row['tool']! as String,
+          task: row['task'] as String?,
+          mode: row['mode'] as String?,
+          verdict: row['verdict']! as String,
+          depthConfigured: row['depth_configured'] as int?,
+          depthReached: row['depth_reached'] as int?,
+          wallTimeMs: row['wall_time_ms'] as int?,
+          wallTimeSource: row['wall_time_source'] as String?,
+          engine: row['engine'] as String?,
+          solver: row['solver'] as String?,
+          frontend: row['frontend'] as String?,
+          propertyCount: row['properties'] as int?,
+          propertiesFailed: row['properties_failed'] as int?,
+          propertiesUndecided: row['properties_undecided'] as int?,
+          verdictDisagreement: row['verdict_disagreement'] == 1,
+          startedAt: row['run_started_at'] == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(
+                  row['run_started_at']! as int,
+                  isUtc: true,
+                ),
+          properties:
+              properties['${row['run_id']}\u0000${row['test_id']}'] ??
+              const <FormalPropertyRecord>[],
+        ),
+    ];
+  }
+
+  /// Removes formal rows whose result row the retention pass deleted, and the
+  /// identity rows no surviving result names: the formal history ages out
+  /// with its run.
+  Future<void> _pruneOrphanedFormalRows() async {
+    for (final table in const <String>[
+      'formal_runs',
+      'formal_property_results',
+    ]) {
+      await _db.rawDelete('''
+DELETE FROM $table WHERE NOT EXISTS (
+  SELECT 1 FROM test_results t
+  WHERE t.run_id = $table.run_id AND t.test_name = $table.test_id
+)
+''');
+    }
+    await _db.rawDelete('''
+DELETE FROM formal_properties WHERE NOT EXISTS (
+  SELECT 1 FROM formal_property_results p
+  WHERE p.test_id = formal_properties.test_id
+    AND p.property_key = formal_properties.property_key
+)
+''');
   }
 
   /// Records a full run-level summary row in one shot. Useful for
@@ -956,6 +1170,7 @@ FROM test_results
     if (deleted > 0) {
       await _pruneOrphanedRuns();
       await _pruneOrphanedFlowRows();
+      await _pruneOrphanedFormalRows();
     }
 
     if (deleted > 0) {

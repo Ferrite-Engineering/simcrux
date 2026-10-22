@@ -482,6 +482,24 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         'flow.baseline.set',
         enumeratedValues: <String, List<String>>{'kind': kFlowKindTokens},
       ),
+
+      // ── Pro: formal analysis ────────────────────────────────────────────
+      // Recorded at each Pro formal opener after its gate passes; a denied
+      // open is `tier.gate_hit`. Which screen, and nothing about the run.
+      TelemetryCatalogEvent(
+        'formal.dashboard_opened',
+        enumeratedValues: <String, List<String>>{
+          'view': kFormalDashboardViewTokens,
+        },
+      ),
+      // Once per run per kind of regression the run raised against the
+      // previous recorded run. Never the property, the test or the times.
+      TelemetryCatalogEvent(
+        'formal.regression.raised',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFormalRegressionKindTokens,
+        },
+      ),
     ];
 
 /// The ingestion Worker's ceiling on an integer property value: anything with
@@ -816,6 +834,20 @@ const List<String> kFormalRunEngineTokens = <String>[
   'btor',
   'mixed',
   'other',
+];
+
+/// `formal.dashboard_opened.view`: the formal properties dashboard and the
+/// proof history (which carries the regressions and the engine comparison).
+const List<String> kFormalDashboardViewTokens = <String>[
+  'properties',
+  'history',
+];
+
+/// `formal.regression.raised.kind`: a property that was proved and now is
+/// not, and a task whose proof got markedly slower.
+const List<String> kFormalRegressionKindTokens = <String>[
+  'verdict_flip',
+  'proof_time',
 ];
 
 /// `formal.import.completed.kind`: which importer wrote the project file.
