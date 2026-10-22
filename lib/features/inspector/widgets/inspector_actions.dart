@@ -8,6 +8,7 @@ import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
@@ -22,7 +23,9 @@ import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart'
 import 'package:simcrux/features/remote/services/cross_probe_selection.dart';
 import 'package:simcrux/features/remote/services/cross_probe_to_product.dart';
 import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
+import 'package:simcrux/features/remote/services/debug_in_wavecrux_message.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 
 /// The most per-partition WaveCrux hand-offs the inspector offers for one
@@ -55,12 +58,12 @@ class InspectorActions extends ConsumerWidget {
           label: Text(l10n.inspectorActionOpenFullLog),
         ),
         OutlinedButton.icon(
-          onPressed: () => _rerun(ref, forceWaveform: false),
+          onPressed: () => _rerun(ref, context, forceWaveform: false),
           icon: const Icon(Icons.refresh),
           label: Text(l10n.inspectorActionRerun),
         ),
         OutlinedButton.icon(
-          onPressed: () => _rerun(ref, forceWaveform: true),
+          onPressed: () => _rerun(ref, context, forceWaveform: true),
           icon: const Icon(Icons.replay_circle_filled_outlined),
           label: Text(l10n.inspectorActionRerunWithWaveform),
         ),
@@ -118,6 +121,18 @@ class InspectorActions extends ConsumerWidget {
           ),
         // A flow result's hand-off to KLayout, OpenROAD or nextpnr's GUI.
         ...flowHandoffButtons(context, ref, selection),
+        // A gate-level result's port waveform, in WaveCrux: a free
+        // cross-probe, no badge.
+        if (GlsResultView.of(selection.result) != null)
+          OutlinedButton.icon(
+            key: const ValueKey('inspectorOpenGateLevelWaveform'),
+            onPressed: () => Actions.maybeInvoke<SimcruxActionIntent>(
+              context,
+              const SimcruxActionIntent(SimcruxAction.openGateLevelWaveform),
+            ),
+            icon: const Icon(Icons.show_chart),
+            label: Text(l10n.inspectorActionOpenGateLevelWaveform),
+          ),
       ],
     );
   }
@@ -158,41 +173,32 @@ class InspectorActions extends ConsumerWidget {
       partition: partition,
     );
     if (!context.mounted) return;
-    String message;
-    switch (result.outcome) {
-      case DebugInWaveCruxOutcome.dispatched:
-        message = l10n.debugInWavecruxDispatched(result.targetPeerId ?? '');
-      case DebugInWaveCruxOutcome.dispatchedWithLimitation:
-        // The peer's own words. Nothing local could describe what WaveCrux
-        // found in the trace, so the reason travels verbatim.
-        message = l10n.debugInWavecruxPartial(result.reason ?? '');
-      case DebugInWaveCruxOutcome.rejected:
-        message = l10n.debugInWavecruxRejected(result.reason ?? '');
-      case DebugInWaveCruxOutcome.unacknowledged:
-        message = l10n.debugInWavecruxUnacknowledged;
-      case DebugInWaveCruxOutcome.noPeer:
-        message = l10n.debugInWavecruxNoPeer;
-      case DebugInWaveCruxOutcome.serverDisabled:
-        message = l10n.debugInWavecruxServerDisabled;
-      case DebugInWaveCruxOutcome.noWaveform:
-        message = l10n.debugInWavecruxNoWaveform;
-      case DebugInWaveCruxOutcome.waveformMissing:
-        message = l10n.debugInWavecruxWaveformMissing;
-    }
+    final message = debugInWaveCruxMessage(l10n, result);
     // Only a clean ack is good news. A partly-honoured hand-off is reported
     // like a failure on purpose: the trace opened, but the thing the user
     // asked for — landing on the failure — did not happen, and the message
     // says which half worked.
-    if (result.outcome == DebugInWaveCruxOutcome.dispatched) {
+    if (debugInWaveCruxSucceeded(result)) {
       showCruxInfoSnack(context, message);
     } else {
       showCruxErrorSnack(context, message);
     }
   }
 
-  Future<void> _rerun(WidgetRef ref, {required bool forceWaveform}) async {
+  Future<void> _rerun(
+    WidgetRef ref,
+    BuildContext context, {
+    required bool forceWaveform,
+  }) async {
     final spec = selection.spec;
     if (spec == null) return;
+    // A gate-level row is one half of a pair: rerunning its gate spec alone
+    // would give a testbench verdict with no comparison, so the row says how
+    // to rerun it instead.
+    if (GlsResultView.of(selection.result) != null) {
+      showCruxInfoSnack(context, L10N.of(context).flowGlsRerunHint);
+      return;
+    }
     // Recorded before the submit rather than after it, because the submit's
     // future only completes when the *whole re-run* has been dispatched, and
     // the question here is "did the user reach for this button", not "did the

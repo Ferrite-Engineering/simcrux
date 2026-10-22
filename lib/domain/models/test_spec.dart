@@ -47,8 +47,10 @@ class TestSpec {
     this.riscv,
     this.formal,
     this.flow,
+    List<String>? extraTops,
   }) : sources = List<String>.unmodifiable(sources ?? const []),
        includeDirs = List<String>.unmodifiable(includeDirs ?? const []),
+       extraTops = List<String>.unmodifiable(extraTops ?? const []),
        defines = Map<String, String>.unmodifiable(defines ?? const {}),
        parameters = Map<String, String>.unmodifiable(parameters ?? const {}),
        resources = List<ResourceLock>.unmodifiable(resources ?? const []),
@@ -219,6 +221,16 @@ class TestSpec {
   /// **Never tier-gated**: a flow verdict is correctness.
   final FlowEntry? flow;
 
+  /// Further top-level modules the simulator elaborates beside [top]: one
+  /// more `-s <module>` each on an Icarus compile.
+  ///
+  /// Empty for every test the loader builds. Gate-level simulation sets it on
+  /// the specs it derives, to add a generated module that dumps the design's
+  /// top-level ports (and ties a power-aware netlist's supply) without
+  /// editing the user's testbench. Only the Icarus driver reads it; it is
+  /// carried through [copyWith], [operator ==] and [hashCode].
+  final List<String> extraTops;
+
   /// Explicit per-source language overrides. Keys are source paths
   /// (as they appear in [sources]); values are the user-declared
   /// [HdlLanguage].
@@ -297,6 +309,7 @@ class TestSpec {
     RiscvConfig? riscv,
     FormalConfig? formal,
     FlowEntry? flow,
+    List<String>? extraTops,
     bool clearSeeds = false,
     bool clearParameterSweeps = false,
   }) {
@@ -327,6 +340,7 @@ class TestSpec {
       riscv: riscv ?? this.riscv,
       formal: formal ?? this.formal,
       flow: flow ?? this.flow,
+      extraTops: extraTops ?? this.extraTops,
     );
   }
 
@@ -354,7 +368,8 @@ class TestSpec {
         other.parentSpecId == parentSpecId &&
         other.riscv == riscv &&
         other.formal == formal &&
-        other.flow == flow;
+        other.flow == flow &&
+        _listEq(other.extraTops, extraTops);
   }
 
   // `Object.hashAll` over a list: with [flow] the field count is past
@@ -395,6 +410,7 @@ class TestSpec {
     riscv,
     formal,
     flow,
+    Object.hashAll(extraTops),
   ]);
 }
 

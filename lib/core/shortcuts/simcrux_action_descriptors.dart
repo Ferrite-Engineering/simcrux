@@ -119,12 +119,19 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   SimcruxAction.openFlowCompare ||
   SimcruxAction.openFlowPpa ||
   SimcruxAction.openFlowSweep ||
-  SimcruxAction.writeFlowBaseline => const SimcruxActionDescriptor(
+  SimcruxAction.writeFlowBaseline ||
+  // The gate-level waveform and the Pro triage act on the selected
+  // gate-level result, and answer for themselves ("Select a gate-level
+  // result first") rather than greying out with no explanation.
+  SimcruxAction.openGateLevelWaveform ||
+  SimcruxAction.openGlsTriage => const SimcruxActionDescriptor(
     surfaces: _menuPalette,
     isEnabled: _requiresTab,
   ),
-  // Running an entry is a run: a config, and no regression in flight.
-  SimcruxAction.runFlowEntry => const SimcruxActionDescriptor(
+  // Running an entry, or its gate-level simulation, is a run: a config, and
+  // no regression in flight.
+  SimcruxAction.runFlowEntry ||
+  SimcruxAction.runGateLevelSimulation => const SimcruxActionDescriptor(
     surfaces: _menuPalette,
     isEnabled: _canStartRun,
   ),

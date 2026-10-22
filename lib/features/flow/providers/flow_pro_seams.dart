@@ -3,6 +3,11 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/domain/models/test_result.dart';
+import 'package:simcrux/domain/models/test_spec.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
+import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
+import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
 
 /// Opener callback for one of the Pro implementation-flow screens.
 ///
@@ -26,6 +31,56 @@ typedef FlowSweepOpener = FlowScreenOpener;
 
 /// Writes or manages a flow baseline. Gate `SimcruxGatedFeature.flowBaseline`.
 typedef FlowBaselineWriter = FlowScreenOpener;
+
+/// What the gate-level triage view opens on: one gate-level result, with the
+/// two port dumps its metrics name (`GlsResultView.rtlVcd` and `gateVcd`),
+/// the instance scope and the clock, so the view recomputes the per-signal
+/// per-cycle differences from the dumps with `GlsTraceComparator`.
+@immutable
+class GlsTriageTarget {
+  /// Creates the target.
+  const GlsTriageTarget({required this.result, required this.view});
+
+  /// The gate-level result row.
+  final TestResult result;
+
+  /// Its metrics, read.
+  final GlsResultView view;
+}
+
+/// Opens the gate-level mismatch triage for [target]. Gate
+/// `SimcruxGatedFeature.flowGlsTriage`.
+typedef FlowGlsTriageOpener =
+    void Function(BuildContext context, GlsTriageTarget target);
+
+/// What a gate-level simulation that reads delays runs against: the run, what
+/// the user asked, and the tests selected. The SDF seam below is handed this,
+/// so a runner that annotates the run's delays starts from exactly the
+/// functional simulation's inputs.
+@immutable
+class GlsRunRequest {
+  /// Creates the request.
+  const GlsRunRequest({
+    required this.info,
+    required this.options,
+    required this.tests,
+  });
+
+  /// The simulated run.
+  final GlsRunInfo info;
+
+  /// What the user asked: netlist, strict X, clock, test names.
+  final GlsOptions options;
+
+  /// The RTL tests selected.
+  final List<TestSpec> tests;
+}
+
+/// Runs a delay-annotated gate-level simulation of [request]. Gate
+/// `SimcruxGatedFeature.flowSdfGls`. Null in open core, and filled by the Pro
+/// overlay only where delay annotation is measured to work.
+typedef FlowSdfGlsRunner =
+    Future<void> Function(BuildContext context, GlsRunRequest request);
 
 // The five Pro Flow seams, in one file so every one is reachable from the
 // action handler that reads the first.
@@ -65,3 +120,14 @@ final Provider<FlowSweepOpener?> flowSweepOpenerProvider =
 /// Tools > Write Flow Baseline…
 final Provider<FlowBaselineWriter?> flowBaselineWriterProvider =
     Provider<FlowBaselineWriter?>((ref) => null, name: 'flowBaselineWriter');
+
+/// Tools > Open Gate-Level Triage…, and the gate-level row's menu. Null in
+/// open core: the outcome, the two counts and the waveform are free; the view
+/// of which signal differs at which cycle is the Pro analysis.
+final Provider<FlowGlsTriageOpener?> flowGlsTriageOpenerProvider =
+    Provider<FlowGlsTriageOpener?>((ref) => null, name: 'flowGlsTriageOpener');
+
+/// The delay-annotated gate-level runner. Null in open core and in every
+/// build until the Pro overlay fills it.
+final Provider<FlowSdfGlsRunner?> flowSdfGlsRunnerProvider =
+    Provider<FlowSdfGlsRunner?>((ref) => null, name: 'flowSdfGlsRunner');

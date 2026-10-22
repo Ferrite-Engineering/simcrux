@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
+import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
@@ -416,6 +417,7 @@ class _RecordingRunner extends RegressionRunner {
     List<TestSpec> specs, {
     int concurrency = 4,
     RegressionTrigger trigger = RegressionTrigger.manual,
+    JobScheduler Function(JobScheduler inner)? wrapScheduler,
   }) async {
     submitted.add(specs);
     concurrencies.add(concurrency);

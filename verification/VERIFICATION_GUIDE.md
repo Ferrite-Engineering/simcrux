@@ -6340,6 +6340,161 @@ the plain `final/nl` needs neither.
 |---|---|---|
 | Resolution from the record, rebasing, version warning, missing, outside, table, defines | `[Coverage: UNIT]` | `test/services/flow/gate_level/pdk_cell_models_test.dart` |
 
+### 27.14 Functional gate-level simulation: the runner, the comparison, the CLI and the app
+
+**What it covers.** Gate-level simulation reruns the regression tests an entry
+names under `gls: tests` against the netlist of a LibreLane run, and compares
+what the RTL and the gates do on the design's top-level ports. It is
+**Icarus-only** in this release: a Verilator test's gate-level request runs
+its RTL and its gate run both under Icarus (the app says so in a toast, and
+every row's simulator reads `icarus`); a comparison across two simulators
+cannot be built, because both specs take their simulator from one function
+(`glsSimulatorIdFor`) and their seed, defines and parameters from the test.
+
+- **Planner** (`GlsPlanner`): per selected test, a derived gate spec (the
+  testbench sources kept; the design sources the run's `resolved.json`
+  `VERILOG_FILES` names replaced by the run's `final/nl/<top>.nl.v` and the
+  cell models; `FUNCTIONAL` and `UNIT_DELAY=#1` added; `final/pnl` adds the
+  run's power define and a generated second top that ties `VPWR` and `VGND`)
+  and an RTL rerun with the same generated port-dump module, a second Icarus
+  top (`-s <tb> -s gls_portdump`) so the user's testbench is never edited.
+  The generated modules and the two port dumps live in SimCrux's own scratch
+  (`simcrux_gls` under the temporary directory, the newest three runs kept),
+  never in the run or the project. Nothing is synthesised and no netlist is
+  reshaped (`splitnets` is never run): a netlist whose ports the testbench
+  cannot bind is `did not run: port_shape`.
+- **Clock**: the entry's `gls: clock`, else the run's `CLOCK_PORT`, else the
+  netlist's only clock-like input, else the test does not run
+  (`clock_unknown` or `clock_ambiguous`, naming the inputs): the user names the
+  clock once in the entry.
+- **Runner** (`GlsScheduler`, a `JobScheduler` over the real scheduler): per
+  test, the RTL rerun first (a test that fails at RTL is not rerun, "did not
+  run: fails_at_rtl"; GHDL and VHDL tests are skipped with `rtl_language`),
+  then the gate run. The testbench's own verdict at each is the scheduler's
+  detector; the gate result is the gate run's with the outcome in its metrics.
+- **Comparator** (`GlsTraceComparator`): a streaming, pure-Dart VCD reader
+  limited to the DUT's port scope (byte, edge and variable caps; an identifier
+  outside the scope is dropped), sampling each port **immediately before each
+  rising clock edge**, never at the edge's timestamp (the RTL's registers
+  change in that timestep and unit-delay gates one unit later). A differing
+  bit is **X-asymmetry** when the RTL is X or Z and the gate is 0 or 1, and
+  **real** when both are known and unequal or the gate is X or Z where the RTL
+  is known. Counts are per port per sample (a port with a real bit and an
+  X bit at one edge is one real difference); the bit and sample counts and the
+  first difference's time are kept too.
+- **Outcome** (`GlsOutcome`): `differs` if the testbench fails at gate level or
+  any real difference exists; `x_only` if only X-asymmetry; `equal`;
+  `not_run` with a reason. `x_only` passes unless `strict_x` (or `--strict-x`);
+  both counts are always shown.
+- **Persistence**: the tests run as an ordinary run with the trigger `gls`
+  (`runs.trigger_kind`); each result carries `flow.gls.outcome`, `.netlist`,
+  `.delays=functional`, `.simulator`, `.real_diffs`, `.x_diffs`,
+  `.first_diff_ps`, `.flow_run` and the reason; one row per test goes to
+  `flow_gls_results` (a test that did not run too). No per-sample list is
+  stored: the two port dumps are kept (`flow.gls.rtl_vcd`, `.gate_vcd`) for a
+  triage view to recompute it.
+- **App**: Tools > Run Gate-Level Simulation (palette, the Flow Runs run
+  button and its context menu); the rows are in the results table with the
+  outcome and both counts in the Verdict cell and in the row's spoken name,
+  "X-asymmetry only" a neutral note, "Differs" a finding never painted error
+  red, and a reason for a test that did not run; the inspector's Gate level
+  section states the netlist, that the simulation is functional with unit
+  delays and no timing checks, the clock, the first difference, the banner for
+  a PDK not yet measured (gf180mcuD, ihp-sg13g2) and a warning when the PDK
+  version differs from the run's; Tools > Open Gate-Level Waveform in
+  WaveCrux… hands the port dump to WaveCrux (a free cross-probe, no badge);
+  Tools > Open Gate-Level Triage… is the Pro seam
+  (`flowGlsTriageOpenerProvider`, null in open core: "requires SimCrux Pro").
+  A run's end is spoken ("Gate-level simulation finished: 2 equal, ...").
+- **CLI**: `simcrux flow gls <run-dir> [--entry <name>] [--test <name>]...
+  [--netlist nl|pnl] [--strict-x] [--clock <port>] [--project <file>]
+  [--allow-project-tooling] [--junit <out>] [--json]`. Exit codes: 0 every
+  test that ran is equal, or X-asymmetry only without `--strict-x`; 1 one
+  differs (or is X-only under `--strict-x`); 2 no test could run; 64 usage; 65
+  a run record or port dump that cannot be read. `--json` and `--junit` carry
+  each outcome and both counts. Help first; diagnostics on stderr.
+- **Telemetry**: `flow.gls.completed` with exactly six properties (`outcome`,
+  `simulator`, `netlist`, `delays`, `target`, `tests`), and
+  `flow.tool.missing{tool=pdk_models}`. Never a count of differences, a signal
+  name or a cycle.
+
+**Setup.** None for the unit tests (a scripted scheduler stands in for the
+simulators). For the live check: an OSS CAD Suite (Icarus) and a sky130 PDK
+from ciel with its cell models, then `OSS_CAD_SUITE=<suite>
+FLOW_LIVE_REQUIRED=1 flutter test test/static/flow_gls_live_test.dart`. By
+hand: build a design with LibreLane, add the entry's `gls:` block
+(`tests: [<test name>]`) to `simcrux.yaml`, select the run in View > Flow
+Runs and choose Tools > Run Gate-Level Simulation.
+
+**Expected behaviour.**
+
+1. `flutter test test/services/flow/gate_level test/flow/ungated_gls_test.dart`
+   passes: hand-written VCDs classify as the rule says (a sample before the
+   edge, not at it; X in the RTL against a known gate is X-asymmetry; gate X
+   where the RTL is known is real; unknown on both sides is nothing); the
+   research MAC's Icarus dumps give one X-asymmetry sample and nothing real,
+   `parity` X-asymmetric on 199 samples under the `x*0` probe, and the
+   Verilator dumps nothing; every derived pair has one simulator and the
+   test's seed, parameters and defines; a power-aware netlist adds the supply
+   tie; a VHDL test, an unsupported simulator, a test with no design source, a
+   split-port netlist, missing models, a missing clock and an ambiguous clock
+   are `did not run` with their reason; a failing RTL is not rerun; a failing
+   gate testbench differs; the CLI exits 0, 1, 2, 64 and 65 as above, at Open
+   Core with the beta period over and no Pro overrides.
+2. `flutter test test/features/flow` passes: the rows, spoken names, glyphs
+   and notes above, in the five locales without overflow; the Flow Runs run
+   button and context menu.
+3. The live check passes: the MAC is X-asymmetry only (199 or more cycles
+   under the probe), a Verilator MAC test runs under Icarus, a register the RTL
+   initialises and its reset-less cell does not reset is a real difference at
+   10 ns though the testbench passes, a split-port netlist and a renamed port
+   are `port_shape` (exit 2), a failing RTL is `fails_at_rtl`, the committed
+   adder run is equal, and nothing is written into the run directory.
+4. By hand on a LibreLane run: the rows land in the results table with the
+   trigger `gls` in the run's history; Open Gate-Level Waveform opens the port
+   dump in WaveCrux; the inspector's Gate level section reads as above.
+
+**Edge cases.** A design that never leaves X in a four-state simulator (the
+adder: no reset, a feedback register) cannot be judged by Icarus: both sides
+are X for ever and the outcome is equal with no samples that differ. A
+PicoRV32 netlist shows X-asymmetry only (outputs the RTL never assigns, a
+`full_case` mux with an unknown select, `mem_addr` before the first fetch). A
+`tag:` selector matches nothing: SimCrux tests have no tags, so the unmatched
+name is reported (usage, 64, in the CLI). A cancelled run ends its remaining
+tests as cancelled. A run copied from another machine is matched to the
+project's sources by base name when the recorded file is not here.
+`final/pnl` needs its power define and the generated supply tie, and without
+them every output is X. gf180mcuD and ihp-sg13g2 results carry the banner: the
+models resolve and the netlist binds, but Icarus was measured only on the
+adder (X for ever) there and Verilator's gate runs failed.
+
+**Tier-gate scenarios.** Running, the outcome per test with both counts, the
+reasons and the waveform hand-off are Open Core in every tier and are tested at
+Open Core with `kBetaPeriod=false` and no `proOverrides`
+(`test/flow/ungated_gls_test.dart`, `test/features/flow/gls_results_table_test.dart`).
+The triage view is the Pro analysis over a result that is itself free: the
+action is Pro, enabled and badged on every surface, and in open core its seam is
+null and the action answers "requires SimCrux Pro" (the Pro build's entry
+tests it both ways).
+
+| Test | Coverage | File |
+|---|---|---|
+| Planner: derived pair, one simulator, copied seed and defines, supply tie, every skip reason, clock choice | `[Coverage: UNIT]` | `test/services/flow/gate_level/gls_runner_test.dart` |
+| Wrapper: outcomes, strict x, fails at RTL, port shape, tool missing, cancel, scratch retention | `[Coverage: UNIT]` | `test/services/flow/gate_level/gls_runner_test.dart` |
+| Comparator on hand-written VCDs and the research MAC dumps | `[Coverage: UNIT]` | `test/services/flow/gate_level/gls_trace_comparator_test.dart` |
+| Netlist ports, DUT scope | `[Coverage: UNIT]` | `test/services/flow/gate_level/gls_netlist_test.dart` |
+| `flow_gls_results` rows, interface default | `[Coverage: UNIT]` | `test/services/trend_store/sql_flow_gls_test.dart` |
+| Icarus `-s` for every extra top | `[Coverage: UNIT]` | `test/services/simulator/icarus_driver_test.dart` |
+| CLI exit codes, `--json`, `--junit`, help, Open Core | `[Coverage: UNIT]` | `test/flow/ungated_gls_test.dart` |
+| Telemetry, the result row and trigger through the regression runner | `[Coverage: UNIT]` | `test/services/telemetry/gls_events_test.dart` |
+| Rows, glyphs, spoken names, notes, five locales | `[Coverage: UNIT]` | `test/features/flow/gls_results_table_test.dart` |
+| Run button and context menu in the Flow Runs panel | `[Coverage: UNIT]` | `test/features/flow/flow_runs_panel_test.dart` |
+| Actions, menu, bindings, tiers | `[Coverage: UNIT]` | `test/core/shortcuts/` |
+| Vocabulary guard over the gate-level strings | `[Coverage: UNIT]` | `test/static/flow_vocabulary_guard_test.dart` |
+| Reachability of the runner, comparator, models, CLI, seams | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
+| The CLI against the real Icarus and cell models | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_gls_live_test.dart`, `.github/workflows/flow-live.yml` |
+| Tools > Run Gate-Level Simulation on a real LibreLane run, the waveform in WaveCrux | `[Coverage: MANUAL]` | needs LibreLane, Icarus, WaveCrux |
+
 ---
 
 ## 9+. Subsequent features

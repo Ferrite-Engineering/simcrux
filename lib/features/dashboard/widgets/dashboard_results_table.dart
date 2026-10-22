@@ -17,8 +17,11 @@ import 'package:simcrux/features/dashboard/widgets/dashboard_no_rows.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_status_icon.dart';
 import 'package:simcrux/features/dashboard/widgets/formal_verdict_label.dart';
 import 'package:simcrux/features/dashboard/widgets/test_display_name.dart';
+import 'package:simcrux/features/flow/gls_labels.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 
 /// Column widths (logical pixels) used by both the header row and
 /// each body row so the columns line up. The checkbox column is fixed; the
@@ -237,7 +240,13 @@ class _DashboardResultRow extends ConsumerWidget {
     // A formal row is spoken and drawn by its verdict, not by the pass/fail
     // status every non-proved verdict shares: "Inconclusive", not "Fail".
     final summary = FormalResultSummary.fromMetrics(row.result.metrics);
-    final verdictText = summary == null
+    // A gate-level row is spoken and drawn by its outcome and both counts:
+    // "Differs" is a finding, and "X-asymmetry only" a neutral note, never
+    // the error red a plain failing test gets.
+    final gls = GlsResultView.of(row.result);
+    final verdictText = gls != null
+        ? GlsLabels.verdict(L10N.of(context), gls)
+        : summary == null
         ? ''
         : formalVerdictLabel(L10N.of(context), summary);
     final statusFormal = formalSummaryForStatus(
@@ -247,17 +256,19 @@ class _DashboardResultRow extends ConsumerWidget {
     final pretraceMarker = summary?.pretrace == null
         ? null
         : L10N.of(context).formalPretraceMarker;
-    final spoken = L10N
-        .of(context)
-        .accessibilityResultRow(
-          statusFormal == null
-              ? testStatusLabel(L10N.of(context), row.result.status)
-              : formalVerdictSpoken(L10N.of(context), statusFormal),
-          row.suiteName,
-          displayName,
-          row.simulatorId,
-          _formatDuration(row.result.runtime),
-        );
+    final spoken = gls != null
+        ? GlsLabels.spoken(L10N.of(context), gls, displayName)
+        : L10N
+              .of(context)
+              .accessibilityResultRow(
+                statusFormal == null
+                    ? testStatusLabel(L10N.of(context), row.result.status)
+                    : formalVerdictSpoken(L10N.of(context), statusFormal),
+                row.suiteName,
+                displayName,
+                row.simulatorId,
+                _formatDuration(row.result.runtime),
+              );
 
     // The suite-shared "long-press = right-click" wrapper: right-click on
     // desktop, long-press on touch platforms. SimCrux is desktop- and
@@ -330,6 +341,7 @@ class _DashboardResultRow extends ConsumerWidget {
                             status: row.result.status,
                             size: _kStatusIconSize,
                             formal: statusFormal,
+                            gls: gls,
                           ),
                         ),
                       ),
@@ -342,11 +354,22 @@ class _DashboardResultRow extends ConsumerWidget {
                     // label, so the shape is never the only channel.
                     CruxTableCell(
                       text: verdictText,
-                      tooltip: pretraceMarker == null
+                      tooltip: gls?.outcome == GlsOutcome.xOnly
+                          ? '$verdictText. '
+                                '${L10N.of(context).glsOutcomeXOnlyTooltip}'
+                          : pretraceMarker == null
                           ? null
                           : '$verdictText. $pretraceMarker',
                       flex: layout.flexOf(DashboardSortColumn.verdict),
-                      style: summary == null
+                      style: gls != null
+                          ? theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  gls.outcome == GlsOutcome.xOnly ||
+                                      gls.outcome == GlsOutcome.notRun
+                                  ? theme.colorScheme.onSurfaceVariant
+                                  : null,
+                            )
+                          : summary == null
                           ? null
                           : theme.textTheme.bodySmall?.copyWith(
                               color: _verdictTextColor(theme, summary),

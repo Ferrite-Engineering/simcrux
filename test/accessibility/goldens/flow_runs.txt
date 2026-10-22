@@ -1,6 +1,7 @@
-# Tab walk: 5 stops, cycles
+# Tab walk: 6 stops, cycles
 1. Flow runs text Run counter, RUN_2, Violated, LibreLane
 2. Open in KLayout… button
 3. Open in OpenROAD… button
-4. [Run details grouping] Steps button selected
-5. Steps text Step 1, yosys-synthesis, Completed, 12.0 seconds
+4. Run Gate-Level Simulation button
+5. [Run details grouping] Steps button selected
+6. Steps text Step 1, yosys-synthesis, Completed, 12.0 seconds

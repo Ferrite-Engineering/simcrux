@@ -21,7 +21,7 @@ fixtures/
     ├── nextpnr/         # captured nextpnr runs (iCE40, ECP5, Gowin, GateMate) + the RTL; see its PROVENANCE.md
     ├── fusesoc/         # one FuseSoC/Edalize servant run with no nextpnr report; see its PROVENANCE.md
     ├── librelane/       # trimmed LibreLane runs per release (<version>/<case>/run) + designs; see its PROVENANCE.md and MAPPING-GATE.md
-    └── gate_level/      # self-checking testbenches for the LibreLane designs, the MAC case with port VCDs; see PROVENANCE.md and GLS-GATE.md
+    └── gate_level/      # self-checking testbenches for the LibreLane designs, the MAC case with port VCDs, a reset-less register (resetless/); see PROVENANCE.md and GLS-GATE.md
 ```
 
 Each corpus has a regenerator under `../../tool/`:

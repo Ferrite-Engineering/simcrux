@@ -86,6 +86,22 @@ enum SimcruxAction implements CruxAction {
   /// Regression, which runs flow entries too, and Esc cancels either.
   runFlowEntry,
 
+  /// Rerun the tests the selected LibreLane run's entry names under `gls:`
+  /// against the run's netlist (Tools > Run Gate-Level Simulation): functional
+  /// gate-level simulation under Icarus, unit delays, each test's RTL and gate
+  /// run compared on the design's top-level ports. Free in every tier.
+  runGateLevelSimulation,
+
+  /// Open the selected gate-level result's waveform, the design's top-level
+  /// ports at gate level, in WaveCrux (Tools > Open Gate-Level Waveform in
+  /// WaveCrux…). A cross-probe, free, no badge.
+  openGateLevelWaveform,
+
+  /// Open the Pro gate-level mismatch triage for the selected gate-level
+  /// result (`flowGlsTriageOpenerProvider`): which port differs at which
+  /// cycle. The outcome and both counts are free.
+  openGlsTriage,
+
   /// Hand the selected LibreLane run to KLayout (Tools > Open in KLayout…).
   openInKlayout,
 
@@ -451,6 +467,9 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.openFlowPpa:
       case SimcruxAction.openFlowSweep:
       case SimcruxAction.writeFlowBaseline:
+      // Which port differs at which cycle: the analysis on top of a
+      // gate-level result that is itself free.
+      case SimcruxAction.openGlsTriage:
       // Multi-project registry semantics. Open-core
       // ships `NoopProjectRegistry`: one project, no recents, no
       // pinning. Every action whose *meaning* is defined by the
@@ -491,6 +510,10 @@ enum SimcruxAction implements CruxAction {
       // reading them is not a paid capability.
       case SimcruxAction.toggleFlowRuns:
       case SimcruxAction.runFlowEntry:
+      // Whether the netlist behaves like the RTL is a correctness fact: the
+      // run, each test's outcome and both counts, and the waveform are free.
+      case SimcruxAction.runGateLevelSimulation:
+      case SimcruxAction.openGateLevelWaveform:
       case SimcruxAction.openInKlayout:
       case SimcruxAction.openInOpenroad:
       case SimcruxAction.openInNextpnrGui:
@@ -616,6 +639,9 @@ enum SimcruxAction implements CruxAction {
       // SimCrux has no Run menu: running and handing off a flow are Tools
       // verbs, beside Run Regression.
       case SimcruxAction.runFlowEntry:
+      case SimcruxAction.runGateLevelSimulation:
+      case SimcruxAction.openGateLevelWaveform:
+      case SimcruxAction.openGlsTriage:
       case SimcruxAction.openInKlayout:
       case SimcruxAction.openInOpenroad:
       case SimcruxAction.openInNextpnrGui:
@@ -719,6 +745,12 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionToggleFlowRuns;
       case SimcruxAction.runFlowEntry:
         return l10n.actionRunFlowEntry;
+      case SimcruxAction.runGateLevelSimulation:
+        return l10n.actionRunGateLevelSimulation;
+      case SimcruxAction.openGateLevelWaveform:
+        return l10n.actionOpenGateLevelWaveform;
+      case SimcruxAction.openGlsTriage:
+        return l10n.actionOpenGlsTriage;
       case SimcruxAction.openInKlayout:
         return l10n.actionOpenInKlayout;
       case SimcruxAction.openInOpenroad:

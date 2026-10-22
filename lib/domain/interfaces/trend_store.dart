@@ -88,6 +88,25 @@ abstract class TrendStore {
   /// decorating store delegates it.
   Future<void> recordFlowRun(FlowRunRecord record) async {}
 
+  /// Records one gate-level result (`flow_gls_results`): the outcome and
+  /// counts of one test simulated against one flow run's netlist. A second
+  /// record for the same run and test replaces the first.
+  ///
+  /// The rows age out with their result row in [applyRetention]. The default
+  /// is a no-op, so ephemeral and mock stores are unaffected; a decorating
+  /// store delegates it.
+  Future<void> recordFlowGls(FlowGlsRecord record) async {}
+
+  /// The newest [limit] gate-level results, newest run first, narrowed to
+  /// one test by [testId].
+  ///
+  /// The default returns nothing, for the same reason [recordFlowGls] does
+  /// nothing; a decorating store delegates it.
+  Future<List<FlowGlsRecord>> flowGlsResults({
+    String? testId,
+    int limit = 200,
+  }) async => const <FlowGlsRecord>[];
+
   /// Records one formal result row (`formal_runs`) and its properties
   /// (`formal_properties`, `formal_property_results`) against the result row
   /// with the same run and test id. A second record for the same pair

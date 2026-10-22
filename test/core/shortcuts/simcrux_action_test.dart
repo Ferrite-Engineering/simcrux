@@ -49,6 +49,10 @@ const _proActions = <SimcruxAction>{
   SimcruxAction.openFlowPpa,
   SimcruxAction.openFlowSweep,
   SimcruxAction.writeFlowBaseline,
+  // The gate-level triage over a result that is itself free: running gate
+  // level, each outcome and both counts, and the waveform are open core and
+  // deliberately absent from this set.
+  SimcruxAction.openGlsTriage,
 };
 
 void main() {

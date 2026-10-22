@@ -430,6 +430,44 @@ void main() {
       );
     });
 
+    test('Run Gate-Level Simulation is a Tools run verb beside Run Flow Entry: '
+        'open core, off while a run is in flight, never on the toolbar', () {
+      const action = SimcruxAction.runGateLevelSimulation;
+      expect(action.category, ActionCategory.tools);
+      expect(action.requiredTier, LicenseTier.openCore);
+      expect(
+        descriptorFor(action).surfaces,
+        isNot(contains(SimcruxActionSurface.toolbar)),
+      );
+      expect(isActionEnabled(action, running), isFalse);
+      expect(
+        isActionEnabled(
+          action,
+          const SimcruxActionContext(hasOpenTab: true, hasConfig: true),
+        ),
+        isTrue,
+      );
+      expect(
+        paletteActionsFor(
+          const SimcruxActionContext(hasOpenTab: true, hasConfig: true),
+        ),
+        contains(action),
+      );
+    });
+
+    test('the gate-level waveform is an open-core Tools command; the triage '
+        'is Pro, enabled and badged', () {
+      const waveform = SimcruxAction.openGateLevelWaveform;
+      expect(waveform.category, ActionCategory.tools);
+      expect(waveform.requiredTier, LicenseTier.openCore);
+      expect(isActionEnabled(waveform, withTab), isTrue);
+      const triage = SimcruxAction.openGlsTriage;
+      expect(triage.category, ActionCategory.tools);
+      expect(triage.requiredTier, LicenseTier.pro);
+      expect(isActionEnabled(triage, withTab), isTrue);
+      expect(paletteActionsFor(withTab), containsAll([waveform, triage]));
+    });
+
     test('the hand-off and ingest are open-core Tools commands; the five '
         'analyses are Pro, enabled and badged', () {
       for (final action in const [

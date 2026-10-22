@@ -6,7 +6,9 @@ import 'package:simcrux/core/theme/simcrux_colors.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/features/dashboard/widgets/formal_verdict_label.dart';
+import 'package:simcrux/features/flow/gls_labels.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 
 /// The localized name of a [TestStatus].
 ///
@@ -41,6 +43,7 @@ class DashboardStatusIcon extends StatelessWidget {
     super.key,
     this.size = 20,
     this.formal,
+    this.gls,
   });
 
   /// The status to render.
@@ -55,10 +58,29 @@ class DashboardStatusIcon extends StatelessWidget {
   /// error red; the verdict's own glyph and hue do not.
   final FormalResultSummary? formal;
 
+  /// A gate-level row's result, drawn in place of [status] when set. A
+  /// difference on a completed run is a finding, so the fail glyph and its
+  /// error red are not used: the outcome's own shape and hue are.
+  final GlsResultView? gls;
+
   @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final theme = Theme.of(context);
+
+    final gls = this.gls;
+    if (gls != null) {
+      final label = GlsLabels.verdict(l10n, gls);
+      return Tooltip(
+        message: label,
+        child: Icon(
+          GlsLabels.icon(gls.outcome),
+          color: GlsLabels.color(gls.outcome, theme.colorScheme),
+          size: size,
+          semanticLabel: label,
+        ),
+      );
+    }
 
     final formal = this.formal;
     if (formal != null) {

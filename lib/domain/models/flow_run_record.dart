@@ -90,3 +90,51 @@ class FlowMetricRow {
   /// it from the run.
   final bool aggregated;
 }
+
+/// One `flow_gls_results` row: one gate-level simulation of one test against
+/// one flow run's netlist.
+///
+/// The per-sample difference list is never stored; a triage view recomputes
+/// it from the two port dumps the result names.
+@immutable
+class FlowGlsRecord {
+  /// Creates the record.
+  const FlowGlsRecord({
+    required this.runId,
+    required this.testId,
+    required this.flowRunId,
+    required this.netlist,
+    required this.delays,
+    required this.outcome,
+    this.realDiffs,
+    this.xDiffs,
+    this.firstDiffPs,
+  });
+
+  /// `runs.id` of the gate-level run (trigger `gls`).
+  final String runId;
+
+  /// The gate-level test's id.
+  final String testId;
+
+  /// The id the simulated flow run is recorded under.
+  final String flowRunId;
+
+  /// `nl` or `pnl`.
+  final String netlist;
+
+  /// `functional` or `sdf`.
+  final String delays;
+
+  /// The `GlsOutcome` wire name.
+  final String outcome;
+
+  /// Port-samples with a real difference, when the test was compared.
+  final int? realDiffs;
+
+  /// Port-samples with only X-asymmetry, when the test was compared.
+  final int? xDiffs;
+
+  /// The time in picoseconds of the first difference, when there is one.
+  final int? firstDiffPs;
+}

@@ -22,11 +22,11 @@ comparison and trend screens listed under [Pro](#pro).
 | [Ingesting runs](flow-ingest.md) | Runs SimCrux did not launch, and zipped CI artifacts |
 | [The Flow Runs panel](flow-runs.md) | Run list, steps, metrics, worst paths, RTL mapping and fidelity labels |
 | [Hand-off to viewers](flow-handoff.md) | Opening a run in KLayout, OpenROAD or nextpnr's own viewer |
+| [Gate-level simulation](flow-gate-level.md) | Rerunning tests against a LibreLane run's netlist, the outcomes, `simcrux flow gls` |
 | [CI gate](flow-ci.md) | `simcrux flow`, thresholds, the exit-code table and recipes |
 | [Troubleshooting](flow-troubleshooting.md) | macOS `PATH`, Windows, `XDG_DATA_HOME` |
 
-LibreLane runs, and gate-level simulation of a run's netlist, are described
-separately. A LibreLane run that SimCrux lists is labelled **reader not
+A LibreLane run that SimCrux lists is labelled **reader not
 verified**: SimCrux reads the run directory best-effort and says so before the
 verdict, so read its result as such.
 

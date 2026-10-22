@@ -29,6 +29,9 @@ gf180mcuD and ihp-sg13g2 from ciel, as recorded in
 | `mac/net_splitports.v` | `net.v` with its bus ports split | `yosys`: `read_liberty -lib <tt lib>; read_verilog net.v; hierarchy -top dut; splitnets -ports; write_verilog -noattr -noexpr -nohex -nodec` |
 | `mac/vcd/{rtl,gate}.vcd`, `{rtl_x,gate_x}.vcd` | Icarus port dumps, without and with `XPROBE` | `iverilog -g2012 -s tb -s gls_portdump [-DXPROBE] -DOUT=... [-DFUNCTIONAL -DUNIT_DELAY=#1]` then `vvp -n` |
 | `mac/vcd/verilator_{rtl,gate}.vcd` | Verilator port dumps (the whole model is traced) | `verilator --binary --timing --trace -Wno-BLKANDNBLK --top-module tb ... gls_bind.v` |
+| `resetless/rl.v`, `resetless/tb.v` | a register with an RTL initial value, and a self-checking testbench that checks nothing before the first edge | written here; the expectation restates the RTL |
+| `resetless/rl.nl.v` | `rl.v` as synthesis would write it on sky130_fd_sc_hd: one `dfxtp_1`, which has no reset | hand-written structural netlist |
+| `resetless/rl_renamed.nl.v` | the same netlist with its output port renamed `qq`, so the testbench's `.q(q)` binds nothing | hand-edited copy of `rl.nl.v` |
 | `gls.expected.json` | the recorded outcomes, per design and simulator | hand-written from the RTL, the testbenches and the tools' own output records |
 
 The adder's netlist, power-aware netlist and SDF are not copied here: the
@@ -70,6 +73,12 @@ without any tool.
   RTL: the asynchronous reset starts asserted, so the RTL is x until the first
   edge while reset gate flops are 0; under `XPROBE` the RTL product `x*0` is x
   and the accumulator keeps it.
+- **resetless:** the RTL register starts at 0 by its initial value, the
+  `dfxtp_1` cell has no reset and starts at x, so before the first clock edge
+  the RTL port `q` is known and the gate-level one is not: a real difference by
+  the rule (gate X where the RTL is known), at 10 ns, while the testbench,
+  which checks only after each edge, passes on both. `rl_renamed.nl.v` binds
+  neither the testbench nor the port dump, whatever the simulator.
 - **Outcomes in `gls.expected.json`:** pass or fail per run is the
   testbench's own `TEST PASSED` and exit status; difference counts are
   `gls_compare.py`'s classification of the simulators' VCDs, a measurement

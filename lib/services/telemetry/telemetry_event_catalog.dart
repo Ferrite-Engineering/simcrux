@@ -270,6 +270,19 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         'flow.tool.missing',
         enumeratedValues: <String, List<String>>{'tool': kFlowToolTokens},
       ),
+      // One per gate-level run, recorded when it ends. Six properties, the
+      // Worker's cap. Never a count of differences, a signal name or a cycle.
+      TelemetryCatalogEvent(
+        'flow.gls.completed',
+        enumeratedValues: <String, List<String>>{
+          'outcome': kFlowGlsOutcomeTokens,
+          'simulator': kFlowGlsSimulatorTokens,
+          'netlist': kFlowGlsNetlistTokens,
+          'delays': kFlowGlsDelaysTokens,
+          'target': kFlowTargetTokens,
+        },
+        intProperties: <String>['tests'],
+      ),
       TelemetryCatalogEvent(
         'cxp.crossprobe',
         enumeratedValues: <String, List<String>>{
@@ -997,7 +1010,26 @@ const List<String> kFlowToolTokens = <String>[
   'nix',
   'docker',
   'pdk',
+  'pdk_models',
 ];
+
+/// `flow.gls.completed.outcome`: the `GlsOutcome` wire names.
+const List<String> kFlowGlsOutcomeTokens = <String>[
+  'equal',
+  'x_only',
+  'differs',
+  'not_run',
+];
+
+/// `flow.gls.completed.simulator`. Gate level runs under Icarus in this
+/// release; the closed set keeps the other name for the day it is measured.
+const List<String> kFlowGlsSimulatorTokens = <String>['icarus', 'verilator'];
+
+/// `flow.gls.completed.netlist`.
+const List<String> kFlowGlsNetlistTokens = <String>['nl', 'pnl'];
+
+/// `flow.gls.completed.delays`: functional (unit delays) or SDF-annotated.
+const List<String> kFlowGlsDelaysTokens = <String>['functional', 'sdf'];
 
 /// Every catalog event name, for the source-scanning conformance test.
 Set<String> get kSimcruxEventNames => <String>{

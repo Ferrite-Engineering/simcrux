@@ -128,6 +128,8 @@ class IcarusDriver extends ProcessBackedSimulatorDriver {
       artifact,
       '-s',
       request.test.top,
+      // A generated second top (gate level's port dump, its supply tie).
+      for (final extra in request.test.extraTops) ...<String>['-s', extra],
       for (final inc in request.test.includeDirs) '-I$inc',
       for (final entry in request.test.defines.entries)
         '-D${entry.key}=${entry.value}',

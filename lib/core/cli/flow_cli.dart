@@ -14,6 +14,7 @@ import 'package:simcrux/core/cli/flow_exit_code.dart';
 import 'package:simcrux/core/cli/flow_signal_reaper.dart';
 import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/regression_request.dart';
 import 'package:simcrux/domain/models/test_result.dart';
@@ -26,7 +27,13 @@ import 'package:simcrux/services/flow/flow_org_gate.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
+import 'package:simcrux/services/flow/gate_level/gls_export.dart';
+import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
+import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
+import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
+import 'package:simcrux/services/job_scheduler/gls_scratch.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
@@ -54,9 +61,13 @@ class FlowCli {
     this.orgGate,
     FlowSignalReaper Function()? signalReaper,
     String Function()? currentDirectory,
+    Map<String, String> Function()? environment,
+    String? Function()? glsScratchRoot,
   }) : _loaderFactory = loaderFactory ?? _defaultLoader,
        _signalReaper = signalReaper ?? FlowSignalReaper.new,
-       _cwd = currentDirectory ?? (() => Directory.current.path);
+       _cwd = currentDirectory ?? (() => Directory.current.path),
+       _environment = environment ?? (() => Platform.environment),
+       _glsScratchRoot = glsScratchRoot ?? (() => null);
 
   /// Receives one call per stdout line.
   final void Function(String line) stdoutSink;
@@ -86,6 +97,8 @@ class FlowCli {
   final ConfigLoader Function({required bool allowTooling}) _loaderFactory;
   final FlowSignalReaper Function() _signalReaper;
   final String Function() _cwd;
+  final Map<String, String> Function() _environment;
+  final String? Function() _glsScratchRoot;
 
   static ConfigLoader _defaultLoader({required bool allowTooling}) =>
       ConfigLoader(allowProjectDefinedTooling: allowTooling);
@@ -96,6 +109,7 @@ class FlowCli {
     'ingest',
     'gate',
     'export',
+    'gls',
   ];
 
   /// The `flow` usage block.
@@ -116,10 +130,17 @@ class FlowCli {
     '         [--sarif <out>] [--junit <out>] [--json]',
     '  export <run-dir|report.json> --format json|junit|sarif|html',
     '         --out <file>',
+    '  gls    <run-dir> [--entry <name>] [--test <name>]...',
+    '         [--netlist nl|pnl] [--strict-x] [--clock <port>]',
+    '         [--project <simcrux.yaml>] [--allow-project-tooling]',
+    '         [--junit <out>] [--json]',
+    "         Rerun regression tests against a LibreLane run's netlist:",
+    '         functional gate-level simulation under Icarus, unit delays.',
     '',
     'Exit codes: 0 met, 1 violated, 2 could not evaluate,',
     '3 organization threshold violated, 64 usage, 65 unreadable input,',
-    '130 or 143 interrupted.',
+    '130 or 143 interrupted. For gls: 0 equal or X-asymmetry only,',
+    '1 differs (or X-asymmetry only with --strict-x), 2 no test could run.',
     'nextpnr WNS is derived per clock as 1000/constraint - 1000/achieved ns.',
   ].join('\n');
 
@@ -145,6 +166,7 @@ class FlowCli {
         'ingest' => await _ingest(rest),
         'gate' => await _gate(rest),
         'export' => await _export(rest),
+        'gls' => await _gls(rest),
         _ => _usageError('unknown subcommand "${args.first}"'),
       };
     } on _UsageException catch (e) {
@@ -612,6 +634,222 @@ class FlowCli {
     await File(out).writeAsString(text);
     stdoutSink('$programName flow export: wrote $out');
     return FlowExitCode.met;
+  }
+
+  // ── gls: functional gate-level simulation of a run's netlist ───────────
+
+  Future<int> _gls(List<String> args) async {
+    final parser = ArgParser()
+      ..addOption('entry')
+      ..addMultiOption('test', splitCommas: false)
+      ..addOption('netlist', allowed: FlowGlsConfig.kNetlists)
+      ..addFlag('strict-x', negatable: false)
+      ..addOption('clock')
+      ..addOption('project')
+      ..addFlag('allow-project-tooling', negatable: false)
+      ..addOption('junit')
+      ..addFlag('json', negatable: false);
+    final results = _parse(parser, args);
+    if (results.rest.length != 1) {
+      throw const _UsageException('flow gls needs exactly one run directory');
+    }
+    final runDir = results.rest.first;
+    if (!Directory(runDir).existsSync()) {
+      throw _UsageException('no run directory at $runDir');
+    }
+    final project = results.option('project') ?? p.join(_cwd(), 'simcrux.yaml');
+    if (!File(project).existsSync()) {
+      throw _UsageException('no project file at $project');
+    }
+    final RegressionConfig config;
+    try {
+      config = await _loaderFactory(
+        allowTooling: results.flag('allow-project-tooling'),
+      ).load(project);
+    } on ConfigLoaderException catch (e) {
+      stderrSink('$programName flow gls: the project did not load:');
+      for (final error in e.errors) {
+        stderrSink('  $error');
+      }
+      return FlowExitCode.dataErr;
+    }
+    for (final warning in config.loadWarnings) {
+      stderrSink('warning: $warning');
+    }
+
+    // The entry whose `gls:` block supplies the defaults: the one named, else
+    // the project's only LibreLane entry.
+    final entries = <FlowEntry>[
+      for (final e in config.flow?.entries ?? const <FlowEntry>[])
+        if (e.kind == FlowKind.librelane) e,
+    ];
+    FlowEntry? entry;
+    final named = results.option('entry');
+    if (named != null) {
+      for (final e in entries) {
+        if (e.name == named) entry = e;
+      }
+      if (entry == null) {
+        throw _UsageException('no LibreLane flow entry named $named');
+      }
+    } else if (entries.length == 1) {
+      entry = entries.single;
+    }
+    final defaults = entry?.gls;
+    final typed = results.multiOption('test');
+    final options = GlsOptions(
+      netlist: results.option('netlist') ?? defaults?.netlist ?? 'nl',
+      strictX: results.flag('strict-x') || (defaults?.strictX ?? false),
+      clock: results.option('clock') ?? defaults?.clock,
+      tests: typed.isNotEmpty ? typed : (defaults?.tests ?? const <String>[]),
+    );
+    if (options.tests.isEmpty) {
+      throw const _UsageException(
+        "no tests selected: name them with --test, or in the entry's "
+        'gls: tests',
+      );
+    }
+    final candidates = <TestSpec>[
+      for (final suite in config.suites)
+        if (suite.name != FlowRunImporter.kFlowSuiteName) ...suite.tests,
+    ];
+    final selection = GlsPlanner.select(candidates, options.tests);
+    if (selection.unmatched.isNotEmpty) {
+      throw _UsageException(
+        'no test named ${selection.unmatched.join(', ')}',
+      );
+    }
+
+    final env = _environment();
+    final read = await GlsRunInfo.read(
+      runRoot: runDir,
+      netlist: options.netlist,
+      pdkRootFallback: env['PDK_ROOT'],
+      home: env['HOME'] ?? env['USERPROFILE'],
+    );
+    final info = read.info;
+    if (info == null) {
+      final reason = read.problem ?? GlsNotRunReason.runUnreadable;
+      stderrSink(
+        '$programName flow gls: $runDir: cannot be simulated '
+        '(${reason.wireName})',
+      );
+      return reason == GlsNotRunReason.runUnreadable
+          ? FlowExitCode.dataErr
+          : FlowExitCode.couldNotEvaluate;
+    }
+
+    final scratch = GlsScratch(root: _glsScratchRoot());
+    final runId = 'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}';
+    final planSet = await GlsPlanner.plan(
+      info: info,
+      options: options,
+      selected: selection.selected,
+      runDir: await scratch.allocateRun(runId),
+      scratch: scratch,
+    );
+    final scheduler = GlsScheduler(
+      inner:
+          schedulerFactory?.call(config) ??
+          LocalJobScheduler(
+            driverRegistry: driverRegistry,
+            config: config,
+            dumpRetentionPolicy: DumpRetentionPolicy.defaultPolicy,
+          ),
+      plans: planSet.plans,
+      info: info,
+      options: options,
+    );
+    final reaper = _signalReaper()
+      ..install((_) {
+        unawaited(scheduler.cancel(runId));
+        ProcessRegistry.instance.killAll();
+      });
+    final finished = <TestResult>[];
+    try {
+      await for (final event in scheduler.submit(
+        RegressionRequest(
+          runId: runId,
+          tests: <TestSpec>[for (final plan in planSet.plans) plan.submitSpec],
+          concurrency: planSet.plans.length.clamp(1, 4),
+        ),
+      )) {
+        switch (event) {
+          case TestLog(:final line, :final fromStderr):
+            if (fromStderr) stderrSink(line);
+          case TestFinished(:final result):
+            finished.add(result);
+          default:
+            break;
+        }
+      }
+    } finally {
+      await reaper.dispose();
+    }
+
+    final views = <GlsResultView>[
+      for (final r in finished) ?GlsResultView.of(r),
+    ];
+    final code = reaper.exitCode ?? _glsCode(views);
+    final label = FlowExitCode.labelFor(code);
+    final junit = results.option('junit');
+    if (junit != null) await File(junit).writeAsString(glsJunit(views));
+    for (final v in views) {
+      if (v.bannered) {
+        stderrSink(
+          'warning: gate-level simulation of this PDK is not yet measured on '
+          'a design Icarus can judge; read the result as unmeasured.',
+        );
+        break;
+      }
+    }
+    for (final v in views) {
+      if (v.versionDiffers) {
+        stderrSink(
+          "warning: the PDK version installed here differs from the run's.",
+        );
+        break;
+      }
+    }
+    if (results.flag('json')) {
+      stdoutSink(
+        const JsonEncoder.withIndent('  ').convert(
+          glsJson(
+            views,
+            runDir: info.runRoot,
+            exitCode: code,
+            exitLabel: label,
+            note: kGlsFindingsNote,
+          ),
+        ),
+      );
+    } else {
+      for (final v in views) {
+        final reason = v.reason == null ? '' : ' (${v.reason!.wireName})';
+        final counts = v.outcome == GlsOutcome.notRun
+            ? ''
+            : '  real ${v.realDiffs ?? 0}, x-asymmetry ${v.xDiffs ?? 0}';
+        stdoutSink('${v.testId}: ${v.outcome.wireName}$reason$counts');
+      }
+      stdoutSink('$programName flow gls: $label');
+    }
+    return code;
+  }
+
+  /// 0 when every test that ran is equal (or X-only without strict x), 1 when
+  /// one differs (or is X-only under strict x), 2 when none could run, 65
+  /// when what stopped them was an unreadable port dump.
+  static int _glsCode(List<GlsResultView> views) {
+    final ran = views.where((v) => v.outcome != GlsOutcome.notRun);
+    if (ran.isEmpty) {
+      final dumps = views.any(
+        (v) =>
+            v.reason == GlsNotRunReason.vcdUnreadable ||
+            v.reason == GlsNotRunReason.vcdTooLarge,
+      );
+      return dumps ? FlowExitCode.dataErr : FlowExitCode.couldNotEvaluate;
+    }
+    return ran.any((v) => !v.passes) ? FlowExitCode.violated : FlowExitCode.met;
   }
 }
 

@@ -52,4 +52,21 @@ void main() {
   test('a missing and an empty sweep are unequal but may share a hash', () {
     expect(spec(), isNot(spec(seeds: const [])));
   });
+
+  test('extra tops are carried, compared and hashed, and empty by default', () {
+    final plain = spec();
+    final extra = plain.copyWith(extraTops: const ['gls_portdump']);
+    expect(plain.extraTops, isEmpty);
+    expect(extra.extraTops, ['gls_portdump']);
+    expect(extra, isNot(plain));
+    expect(
+      extra,
+      plain.copyWith(extraTops: const ['gls_portdump']),
+    );
+    expect(
+      extra.hashCode,
+      plain.copyWith(extraTops: const ['gls_portdump']).hashCode,
+    );
+    expect(extra.copyWith(name: 'm').extraTops, ['gls_portdump']);
+  });
 }

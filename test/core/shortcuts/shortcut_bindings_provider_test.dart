@@ -64,6 +64,9 @@ void main() {
       // The implementation flow: menu and palette only.
       SimcruxAction.toggleFlowRuns,
       SimcruxAction.runFlowEntry,
+      SimcruxAction.runGateLevelSimulation,
+      SimcruxAction.openGateLevelWaveform,
+      SimcruxAction.openGlsTriage,
       SimcruxAction.openInKlayout,
       SimcruxAction.openInOpenroad,
       SimcruxAction.openInNextpnrGui,

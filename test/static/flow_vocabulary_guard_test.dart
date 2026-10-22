@@ -53,12 +53,17 @@ void main() {
       key == 'dockTabFlowRuns' ||
       key.startsWith('diagnosticsTabFlow') ||
       key.startsWith('diagnosticsTabRowFlow') ||
+      // Gate-level simulation: its results, reasons and notes, the
+      // inspector's section and button, and the three actions.
+      key.startsWith('gls') ||
+      key == 'inspectorSectionGateLevel' ||
+      key == 'inspectorActionOpenGateLevelWaveform' ||
       RegExp(
         '^action(ToggleFlowRuns|RunFlowEntry|OpenIn|Ingest|OpenFlow|'
-        'WriteFlow)',
+        'WriteFlow|RunGateLevel|OpenGateLevel|OpenGls)',
       ).hasMatch(key);
 
-  bool gateLevel(String key) => RegExp('Gls|GateLevel|Sdf').hasMatch(key);
+  bool gateLevel(String key) => RegExp('^gls|Gls|GateLevel|Sdf').hasMatch(key);
 
   /// The offences in [text], named by [where].
   List<String> offences(String where, String text, {bool timing = false}) {
@@ -151,6 +156,30 @@ void main() {
     }
     expect(fences, 1, reason: 'exactly one fenced disclaimer');
     expect(fenced, isFalse, reason: 'the fence is closed');
+    expect(found, isEmpty, reason: found.join('\n'));
+  });
+
+  test('the gate-level code makes no signoff or timing claim', () {
+    // Messages the CLI and the exporters print: a functional gate-level
+    // simulation has unit delays and no timing checks, so none of the
+    // timing words can be a result, and nothing is signoff.
+    final files = Directory('lib/services/flow/gate_level')
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .toList();
+    expect(files.length, greaterThan(5));
+    final found = <String>[];
+    for (final file in files) {
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i].trim();
+        if (line.startsWith('//')) continue;
+        found.addAll(
+          offences('${p.basename(file.path)}:${i + 1}', line, timing: true),
+        );
+      }
+    }
     expect(found, isEmpty, reason: found.join('\n'));
   });
 

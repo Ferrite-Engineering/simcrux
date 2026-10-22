@@ -218,6 +218,11 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // Run, ingest and the hand-off all act on the active tab: with no project
   // they say so.
   SimcruxAction.runFlowEntry: _Dispatch.noProjectSnack,
+  // Gate level acts on the active tab too, and the triage is a Pro seam that
+  // is null in open core.
+  SimcruxAction.runGateLevelSimulation: _Dispatch.noProjectSnack,
+  SimcruxAction.openGateLevelWaveform: _Dispatch.noProjectSnack,
+  SimcruxAction.openGlsTriage: _Dispatch.proGatedSnack,
   SimcruxAction.openInKlayout: _Dispatch.noProjectSnack,
   SimcruxAction.openInOpenroad: _Dispatch.noProjectSnack,
   SimcruxAction.openInNextpnrGui: _Dispatch.noProjectSnack,

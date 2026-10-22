@@ -130,6 +130,108 @@ void main() {
     expect(container.read(flowBaselineWriterProvider), isNull);
   });
 
+  test('gate level: the runner, the comparator and the models are reached '
+      'from the CLI and from the app', () {
+    final cli = source('lib/core/cli/flow_cli.dart');
+    final actions = source('lib/features/flow/flow_actions.dart');
+    for (final text in [cli, actions]) {
+      expect(text, contains('GlsRunInfo.read('));
+      expect(text, contains('GlsPlanner.select('));
+      expect(text, contains('GlsPlanner.plan('));
+      expect(text, contains('GlsScheduler('));
+    }
+    expect(cli, contains('glsJunit('));
+    expect(cli, contains('glsJson('));
+    expect(
+      source('lib/services/flow/gate_level/gls_run_info.dart'),
+      contains('PdkCellModels.resolve('),
+    );
+    final runner = source('lib/services/flow/gate_level/gls_runner.dart');
+    expect(runner, contains('GlsTraceComparator.compareFiles('));
+    expect(runner, contains('GlsNetlistPorts.read('));
+    expect(runner, contains('GlsDutScope.find('));
+    expect(runner, contains('PdkCellModels.definesFor('));
+    expect(
+      source('lib/services/flow/flow_run_reading.dart'),
+      contains('String librelaneTargetToken('),
+    );
+  });
+
+  test('gate level: the wrapper reaches the regression runner, which '
+      'records the result row and the telemetry', () {
+    final runner = source(
+      'lib/features/dashboard/providers/regression_runner.dart',
+    );
+    expect(runner, contains('wrapScheduler'));
+    expect(runner, contains('GlsResultView.of('));
+    expect(runner, contains('recordFlowGls('));
+    expect(runner, contains('flowGlsCompletedProperties('));
+    expect(runner, contains("'flow.gls.completed'"));
+    expect(
+      source('lib/services/trend_store/sql_trend_store_io.dart'),
+      contains('INSERT INTO flow_gls_results'),
+    );
+    expect(
+      source('lib/features/flow/flow_actions.dart'),
+      contains('trigger: RegressionTrigger.gls'),
+    );
+  });
+
+  test('gate level: the results table, the inspector and the Flow Runs '
+      'context menu show it', () {
+    expect(
+      source('lib/features/dashboard/widgets/dashboard_results_table.dart'),
+      contains('GlsResultView.of('),
+    );
+    expect(
+      source('lib/features/dashboard/widgets/dashboard_status_icon.dart'),
+      contains('GlsLabels.icon('),
+    );
+    expect(
+      source('lib/features/inspector/widgets/inspector_pane.dart'),
+      contains('InspectorGlsNotes('),
+    );
+    expect(
+      source('lib/features/inspector/widgets/inspector_actions.dart'),
+      contains('SimcruxAction.openGateLevelWaveform'),
+    );
+    expect(
+      source('lib/features/flow/widgets/flow_runs_panel.dart'),
+      allOf(
+        contains('SimcruxAction.runGateLevelSimulation'),
+        contains('contextMenuEntries:'),
+      ),
+    );
+    expect(
+      source('lib/features/workspace/widgets/regression_tab_content.dart'),
+      contains('GlsLabels.completion('),
+    );
+  });
+
+  test('gate level: every action reaches its feature from the one handler '
+      'map, and the triage reads its Pro seam', () {
+    final handlers = source('lib/core/shortcuts/simcrux_action_handlers.dart');
+    for (final call in const [
+      'FlowActions.runGateLevel(',
+      'FlowActions.openGateLevelWaveform(',
+      'FlowActions.glsTriageTarget(',
+      'ref.read(flowGlsTriageOpenerProvider)',
+    ]) {
+      expect(handlers, contains(call));
+    }
+    expect(
+      source('lib/features/flow/flow_actions.dart'),
+      contains('debugInWaveCruxDispatcherProvider'),
+    );
+  });
+
+  test('the gate-level Pro seams are null in open core', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    expect(container.read(flowGlsTriageOpenerProvider), isNull);
+    expect(container.read(flowSdfGlsRunnerProvider), isNull);
+  });
+
   test('the Flow Runs panel is a movable tab of both docks, and keeps its '
       'watcher alive', () {
     final docks = source('lib/features/workspace/widgets/simcrux_docks.dart');

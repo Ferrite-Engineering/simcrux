@@ -117,6 +117,66 @@ void main() {
     expect(container.read(flowSelectedRunProvider)?.root, endsWith('RUN_2'));
   });
 
+  testWidgets('Run Gate-Level Simulation is a button of a LibreLane run only, '
+      'selects the run and dispatches', (tester) async {
+    final dispatched = <SimcruxAction>[];
+    final container = await pumpFlowPanel(tester, dispatched: dispatched);
+    final button = find.byKey(
+      const ValueKey('flowPanel.runGateLevelSimulation'),
+    );
+    expect(button, findsOneWidget);
+    expect(
+      find.descendant(
+        of: button,
+        matching: find.text(
+          SimcruxAction.runGateLevelSimulation.label(l10n(tester)),
+        ),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(button);
+    expect(dispatched, [SimcruxAction.runGateLevelSimulation]);
+    expect(container.read(flowSelectedRunProvider)?.root, endsWith('RUN_2'));
+    // A nextpnr run has no gate-level simulation here.
+    await tester.tap(find.text('t2'));
+    await tester.pumpAndSettle();
+    expect(button, findsNothing);
+  });
+
+  testWidgets("a run's context menu offers Run Gate-Level Simulation for a "
+      'LibreLane run and greys it for a nextpnr run', (tester) async {
+    final dispatched = <SimcruxAction>[];
+    await pumpFlowPanel(tester, dispatched: dispatched);
+    final words = l10n(tester);
+    final label = SimcruxAction.runGateLevelSimulation.label(words);
+    Future<void> openMenu(String run) async {
+      await tester.tap(find.text(run));
+      await tester.pumpAndSettle();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.f10);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+    }
+
+    final item = find.byKey(const ValueKey('flowRunRunGateLevel'));
+    await openMenu('RUN_2');
+    expect(item, findsOneWidget);
+    expect(find.text(label), findsWidgets);
+    await tester.tap(item);
+    await tester.pumpAndSettle();
+    expect(dispatched, [SimcruxAction.runGateLevelSimulation]);
+
+    await openMenu('t2');
+    expect(item, findsOneWidget);
+    await tester.tap(item);
+    await tester.pumpAndSettle();
+    expect(
+      dispatched,
+      [SimcruxAction.runGateLevelSimulation],
+      reason: 'a nextpnr run is not offered gate level',
+    );
+  });
+
   testWidgets('metrics: a localized label with the raw key on hover, and '
       'corners as columns', (tester) async {
     await pumpFlowPanel(tester);

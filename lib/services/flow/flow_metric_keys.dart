@@ -58,6 +58,78 @@ abstract final class FlowMetricKeys {
   static const String wnsDerivation = 'flow.wns_derivation';
 }
 
+/// The `TestResult.metrics` keys a gate-level result carries.
+///
+/// A gate-level test is an ordinary result of the run with trigger `gls`;
+/// these keys say what it was simulated against and how it came out. None is
+/// a [FlowMetricKeys] key, so a gate-level row is never mistaken for a flow
+/// run's. Tokens and keys are never translated.
+abstract final class GlsMetricKeys {
+  /// The `GlsOutcome` wire name: `equal`, `x_only`, `differs`, `not_run`.
+  static const String outcome = 'flow.gls.outcome';
+
+  /// Why the test did not run (`GlsNotRunReason` wire name), when it did not.
+  static const String reason = 'flow.gls.reason';
+
+  /// `nl` or `pnl`.
+  static const String netlist = 'flow.gls.netlist';
+
+  /// `functional`.
+  static const String delays = 'flow.gls.delays';
+
+  /// The simulator both runs used: `icarus`.
+  static const String simulator = 'flow.gls.simulator';
+
+  /// Port-samples with a real difference. Absent when the test was not
+  /// compared.
+  static const String realDiffs = 'flow.gls.real_diffs';
+
+  /// Port-samples with only X-asymmetry. Absent when the test was not
+  /// compared.
+  static const String xDiffs = 'flow.gls.x_diffs';
+
+  /// The time in picoseconds of the first difference. Absent when there is
+  /// none.
+  static const String firstDiffPs = 'flow.gls.first_diff_ps';
+
+  /// The id the simulated flow run is recorded under.
+  static const String flowRun = 'flow.gls.flow_run';
+
+  /// The simulated run's directory.
+  static const String runDir = 'flow.gls.run_dir';
+
+  /// The closed telemetry target token of the run's PDK.
+  static const String target = 'flow.gls.target';
+
+  /// The run's PDK as LibreLane names it (`sky130A`, `gf180mcuD`). Shown,
+  /// never sent.
+  static const String pdk = 'flow.gls.pdk';
+
+  /// Whether X-asymmetry alone failed the test (`strict_x`).
+  static const String strictX = 'flow.gls.strict_x';
+
+  /// `true` when the PDK is one gate-level simulation is not yet measured on.
+  static const String bannered = 'flow.gls.bannered';
+
+  /// `true` when the PDK version found here differs from the run's.
+  static const String versionDiffers = 'flow.gls.version_differs';
+
+  /// The clock the comparison sampled on.
+  static const String clock = 'flow.gls.clock';
+
+  /// The RTL test this gate-level test reruns.
+  static const String rtlTest = 'flow.gls.rtl_test';
+
+  /// The RTL run's port dump, kept for the triage view.
+  static const String rtlVcd = 'flow.gls.rtl_vcd';
+
+  /// The gate run's port dump: what "Open gate-level waveform" opens.
+  static const String gateVcd = 'flow.gls.gate_vcd';
+
+  /// The DUT's instance in the testbench (`tb.uut`).
+  static const String scope = 'flow.gls.scope';
+}
+
 /// The reader ids [FlowMetricKeys.reader] takes.
 abstract final class FlowReaderIds {
   /// nextpnr's `--report` JSON.

@@ -81,6 +81,7 @@ nav:
       - Ingesting runs: flow-ingest.md
       - The Flow Runs panel: flow-runs.md
       - Hand-off to viewers: flow-handoff.md
+      - Gate-level simulation: flow-gate-level.md
       - CI gate for implementation runs: flow-ci.md
       - Troubleshooting implementation runs: flow-troubleshooting.md
   - Track & ship:

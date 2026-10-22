@@ -95,6 +95,11 @@ void main() {
     // the rest are menu and palette commands reached once per run.
     SimcruxAction.toggleFlowRuns,
     SimcruxAction.runFlowEntry,
+    // Gate-level simulation is a menu and palette command reached once per
+    // run, like Run Flow Entry; its waveform and triage follow it.
+    SimcruxAction.runGateLevelSimulation,
+    SimcruxAction.openGateLevelWaveform,
+    SimcruxAction.openGlsTriage,
     SimcruxAction.openInKlayout,
     SimcruxAction.openInOpenroad,
     SimcruxAction.openInNextpnrGui,

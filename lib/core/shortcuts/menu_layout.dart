@@ -119,6 +119,7 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.reRunSelected,
       SimcruxAction.cancelRegression,
       SimcruxAction.runFlowEntry,
+      SimcruxAction.runGateLevelSimulation,
     ],
     // The implementation flow's own verbs: bringing in runs SimCrux did not
     // launch, and handing one to a viewer.
@@ -128,9 +129,11 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.openInKlayout,
       SimcruxAction.openInOpenroad,
       SimcruxAction.openInNextpnrGui,
+      SimcruxAction.openGateLevelWaveform,
     ],
     // The Pro analyses over flow runs.
     [
+      SimcruxAction.openGlsTriage,
       SimcruxAction.openFlowTrends,
       SimcruxAction.openFlowCompare,
       SimcruxAction.openFlowPpa,

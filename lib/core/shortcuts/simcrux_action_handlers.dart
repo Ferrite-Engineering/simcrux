@@ -64,6 +64,7 @@ import 'package:simcrux/features/workspace/widgets/open_config_tab.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/driver_plugin/plugin_action_openers.dart';
 import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_arch_test_importer.dart';
 import 'package:simcrux/services/import/riscv_formal_check_importer.dart';
@@ -283,9 +284,16 @@ class SimcruxActionHandlers {
           _snackInfo(navigatorContext(), (l10n) => l10n.snackNoProjectOpen);
           return;
         }
-        final spec = tabContainer.read(selectedTestProvider)?.spec;
+        final selected = tabContainer.read(selectedTestProvider);
+        final spec = selected?.spec;
         if (spec == null) {
           _snackInfo(navigatorContext(), (l10n) => l10n.snackNoTestSelected);
+          return;
+        }
+        // A gate-level row is one half of a pair; Run Gate-Level Simulation
+        // reruns it with its comparison.
+        if (GlsResultView.of(selected!.result) != null) {
+          _snackInfo(navigatorContext(), (l10n) => l10n.flowGlsRerunHint);
           return;
         }
         // `submitSpecs` runs exactly the specs it is handed and leaves
@@ -548,6 +556,37 @@ class SimcruxActionHandlers {
         activeTabContainer(),
         ref.read,
       ),
+      // Functional gate-level simulation of the selected LibreLane run's
+      // netlist, and the gate-level waveform in WaveCrux: free in every tier.
+      SimcruxAction.runGateLevelSimulation: () => unawaited(
+        FlowActions.runGateLevel(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+        ),
+      ),
+      SimcruxAction.openGateLevelWaveform: () => unawaited(
+        FlowActions.openGateLevelWaveform(
+          navigatorContext(),
+          activeTabContainer(),
+          ref,
+        ),
+      ),
+      // The Pro triage: null in open core, "requires SimCrux Pro" as a toast.
+      SimcruxAction.openGlsTriage: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(flowGlsTriageOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openGlsTriage);
+          return;
+        }
+        final target = FlowActions.glsTriageTarget(activeTabContainer());
+        if (target == null) {
+          _snackInfo(ctx, (l10n) => l10n.flowGlsSelectResult);
+          return;
+        }
+        opener(ctx, target);
+      },
       // The hand-off: the run selected in Flow Runs (or the inspector's
       // flow result) to a viewer, detached. One handler for the menu, the
       // palette, the panel and the inspector buttons.

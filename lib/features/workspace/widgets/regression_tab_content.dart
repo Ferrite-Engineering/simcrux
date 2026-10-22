@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
 import 'package:simcrux/features/dashboard/widgets/dashboard_view.dart';
+import 'package:simcrux/features/flow/gls_labels.dart';
 import 'package:simcrux/features/panel_layout/widgets/simcrux_ide_layout.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/statistics/widgets/simcrux_stats_strip.dart';
@@ -20,6 +21,8 @@ import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/widgets/regression_status_bar.dart';
 import 'package:simcrux/features/workspace/widgets/simcrux_docks.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/result_store/in_memory_result_store.dart';
+import 'package:simcrux/services/result_store/result_store_provider.dart';
 
 /// Per-tab dashboard scaffold. Sits inside crux_workspace's PaneHost
 /// IndexedStack — each tab's payload supplies the config-file path the
@@ -174,6 +177,26 @@ class _RegressionTabContentState extends ConsumerState<RegressionTabContent> {
           '${strings.configLoadFailedDetail(next.path, next.message)}',
           assertive: true,
         );
+      })
+      // A gate-level run's end is spoken: how many tests came out equal,
+      // X-asymmetry only, different and did not run. Nothing for any other
+      // run.
+      ..listen<AsyncValue<RegressionRunState?>>(regressionRunnerProvider, (
+        previous,
+        next,
+      ) {
+        final now = next.value;
+        if (now == null || !now.isFinished || now.cancelled) return;
+        final before = previous?.value;
+        if (before != null &&
+            before.isFinished &&
+            before.run.id == now.run.id) {
+          return;
+        }
+        final store = ref.read(resultStoreProvider);
+        if (store is! InMemoryResultStore) return;
+        final spoken = GlsLabels.completion(L10N.of(context), store.results);
+        if (spoken != null) announceCrux(context, spoken);
       });
 
     if (widget.tab.payload.configPath.isEmpty) {

@@ -363,7 +363,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Re-measure and check the gate-level and equivalence outcomes
+      - name: Re-measure the gate-level gate, and run `simcrux flow gls` against the real tools
         shell: bash
         env:
           OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
@@ -371,4 +371,4 @@ jobs:
           FLOW_LIVE_REQUIRED: '1'
         run: |
           set -euo pipefail
-          flutter test test/static/flow_gate_level_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/gate-level-live.log"
+          flutter test test/static/flow_gate_level_live_test.dart test/static/flow_gls_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/gate-level-live.log"

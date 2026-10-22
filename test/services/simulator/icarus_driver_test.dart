@@ -225,6 +225,45 @@ void main() {
       expect(call.args.first, '-g2012');
     });
 
+    test(
+      'elaborates every extra top with its own -s, after the first',
+      () async {
+        File(p.join(tmp.path, 'sim.vvp')).createSync();
+        final rec = _RecordingLauncher({
+          'iverilog': () => _FakeProcess(stdoutLines: const ['compiled']),
+        });
+        final driver = IcarusDriver(launcher: rec.launch);
+        await driver.compile(
+          CompileRequest(
+            test: _spec().copyWith(extraTops: ['gls_portdump', 'gls_power']),
+            workingDirectory: tmp.path,
+            binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+          ),
+        );
+        final args = rec.calls.single.args;
+        final tops = <String>[
+          for (var i = 0; i < args.length - 1; i++)
+            if (args[i] == '-s') args[i + 1],
+        ];
+        expect(tops, <String>['tb_alu', 'gls_portdump', 'gls_power']);
+      },
+    );
+
+    test('a plain test still names exactly one top', () async {
+      File(p.join(tmp.path, 'sim.vvp')).createSync();
+      final rec = _RecordingLauncher({
+        'iverilog': () => _FakeProcess(stdoutLines: const ['compiled']),
+      });
+      await IcarusDriver(launcher: rec.launch).compile(
+        CompileRequest(
+          test: _spec(),
+          workingDirectory: tmp.path,
+          binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+        ),
+      );
+      expect(rec.calls.single.args.where((a) => a == '-s'), hasLength(1));
+    });
+
     test('reports failure when iverilog exits nonzero', () async {
       final rec = _RecordingLauncher({
         'iverilog': () =>

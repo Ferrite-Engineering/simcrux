@@ -4085,5 +4085,304 @@
         "example": "fifo.full"
       }
     }
+  },
+  "actionRunGateLevelSimulation": "Run Gate-Level Simulation",
+  "@actionRunGateLevelSimulation": {
+    "description": "Tools menu / palette / Flow Runs context menu: rerun the tests a LibreLane run's entry names against the run's netlist, under Icarus, and compare RTL with gates."
+  },
+  "actionOpenGateLevelWaveform": "Open Gate-Level Waveform in WaveCrux…",
+  "@actionOpenGateLevelWaveform": {
+    "description": "Tools menu / palette: hand the selected gate-level result's port waveform to WaveCrux. WaveCrux is a product name."
+  },
+  "actionOpenGlsTriage": "Open Gate-Level Triage…",
+  "@actionOpenGlsTriage": {
+    "description": "Tools menu / palette (Pro): which port differs at which cycle for the selected gate-level result."
+  },
+  "flowGlsNoRun": "Select a LibreLane run in Flow Runs first.",
+  "@flowGlsNoRun": {
+    "description": "Toast when Run Gate-Level Simulation has no run selected."
+  },
+  "flowGlsNeedsLibreLane": "Gate-level simulation reruns tests against a LibreLane run's netlist. Select a LibreLane run first.",
+  "@flowGlsNeedsLibreLane": {
+    "description": "Toast when Run Gate-Level Simulation is asked of a nextpnr run."
+  },
+  "flowGlsNoTests": "This run's flow entry names no tests under gls: tests. Add them to the entry in simcrux.yaml.",
+  "@flowGlsNoTests": {
+    "description": "Toast when the selected run's flow entry has no gls: tests. \"gls: tests\" and \"simcrux.yaml\" are literal and never translated."
+  },
+  "flowGlsNoMatch": "No test is named {selectors}. A name under gls: tests must match a test in this project.",
+  "@flowGlsNoMatch": {
+    "description": "Toast when names under gls: tests match no test. {selectors} is the unmatched names, never translated. \"gls: tests\" is literal.",
+    "placeholders": {
+      "selectors": {
+        "type": "String",
+        "example": "alu_smoke"
+      }
+    }
+  },
+  "flowGlsCannotRun": "Gate-level simulation cannot start: {reason}",
+  "@flowGlsCannotRun": {
+    "description": "Error toast when the run cannot be simulated at all. {reason} is one of the glsReason sentences.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "flowGlsIcarusNote": "Gate-level simulation runs under Icarus. A test that runs under Verilator reruns its RTL and its gate-level run under Icarus.",
+  "@flowGlsIcarusNote": {
+    "description": "Toast when a selected test runs under a simulator other than Icarus. Icarus and Verilator are product names."
+  },
+  "flowGlsSelectResult": "Select a gate-level result in the results table first.",
+  "@flowGlsSelectResult": {
+    "description": "Toast when Open Gate-Level Waveform or Triage has no gate-level result selected."
+  },
+  "flowGlsRerunHint": "Run Gate-Level Simulation reruns a gate-level result: it runs the RTL and the gate-level run of the test and compares them.",
+  "@flowGlsRerunHint": {
+    "description": "Toast when Re-run is chosen on a gate-level row."
+  },
+  "glsOutcomeEqual": "Equal",
+  "@glsOutcomeEqual": {
+    "description": "Gate-level outcome: the testbench passes at gate level and no port differs."
+  },
+  "glsOutcomeXOnly": "X-asymmetry only",
+  "@glsOutcomeXOnly": {
+    "description": "Gate-level outcome: the only differences are X-asymmetry. X is the unknown logic value."
+  },
+  "glsOutcomeXOnlyTooltip": "The RTL was X where the gates resolved to 0 or 1.",
+  "@glsOutcomeXOnlyTooltip": {
+    "description": "Tooltip of the X-asymmetry only outcome. X is the unknown logic value."
+  },
+  "glsOutcomeDiffers": "Differs",
+  "@glsOutcomeDiffers": {
+    "description": "Gate-level outcome: the testbench fails at gate level, or a port differs between RTL and gates. A finding, not an error."
+  },
+  "glsOutcomeNotRun": "Did not run",
+  "@glsOutcomeNotRun": {
+    "description": "Gate-level outcome: the comparison could not be made; the reason is stated beside it."
+  },
+  "glsRealDifferences": "{count, plural, =1{1 real difference} other{{count} real differences}}",
+  "@glsRealDifferences": {
+    "description": "Count of port-samples where RTL and gates differ for real.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "glsXAsymmetries": "{count, plural, =1{1 X-asymmetry} other{{count} X-asymmetries}}",
+  "@glsXAsymmetries": {
+    "description": "Count of port-samples where the RTL was X and the gates resolved to 0 or 1.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "glsCountsJoined": "{real}, {x}",
+  "@glsCountsJoined": {
+    "description": "The two gate-level counts side by side. {real} is glsRealDifferences, {x} is glsXAsymmetries.",
+    "placeholders": {
+      "real": {
+        "type": "String"
+      },
+      "x": {
+        "type": "String"
+      }
+    }
+  },
+  "glsVerdictWithCounts": "{outcome}: {counts}",
+  "@glsVerdictWithCounts": {
+    "description": "Verdict cell of a gate-level row: the outcome and both counts, so the counts are never hidden.",
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
+  "glsRowSpoken": "Test {test}, gate level, {outcome}, {counts}",
+  "@glsRowSpoken": {
+    "description": "Screen reader name of a gate-level results row that ran. {test} is the test's name; {outcome} and {counts} are the localized outcome and counts.",
+    "placeholders": {
+      "test": {
+        "type": "String"
+      },
+      "outcome": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
+  "glsRowSpokenNotRun": "Test {test}, gate level, did not run, {reason}",
+  "@glsRowSpokenNotRun": {
+    "description": "Screen reader name of a gate-level results row that did not run. {reason} is one of the glsReason sentences.",
+    "placeholders": {
+      "test": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "glsCompleted": "Gate-level simulation finished: {equal} equal, {xOnly} X-asymmetry only, {differs} differ, {notRun} did not run.",
+  "@glsCompleted": {
+    "description": "Spoken when a gate-level run ends. The four numbers are tests per outcome.",
+    "placeholders": {
+      "equal": {
+        "type": "int"
+      },
+      "xOnly": {
+        "type": "int"
+      },
+      "differs": {
+        "type": "int"
+      },
+      "notRun": {
+        "type": "int"
+      }
+    }
+  },
+  "glsReasonFailsAtRtl": "The test fails at RTL, so it was not rerun at gate level.",
+  "@glsReasonFailsAtRtl": {
+    "description": "Why a gate-level test did not run. RTL is register-transfer level."
+  },
+  "glsReasonRtlBuildFailed": "The test's RTL did not build under Icarus, the simulator gate-level simulation uses.",
+  "@glsReasonRtlBuildFailed": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonRtlLanguage": "VHDL tests are not simulated at gate level: the netlist is Verilog.",
+  "@glsReasonRtlLanguage": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonSimulatorUnsupported": "This test's simulator is not one gate-level simulation uses.",
+  "@glsReasonSimulatorUnsupported": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonPortShape": "The netlist's ports do not match the design the testbench connects. SimCrux never reshapes a netlist; check that its bus ports were not split into bits.",
+  "@glsReasonPortShape": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonGateBuildFailed": "The gate-level run did not build. See its log.",
+  "@glsReasonGateBuildFailed": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonModelsMissing": "The PDK's cell models were not found. Set the PDK root in Settings > Engines.",
+  "@glsReasonModelsMissing": {
+    "description": "Why a gate-level test did not run. PDK is process design kit. The menu path is spoken as written."
+  },
+  "glsReasonNetlistMissing": "The run holds no netlist of the kind asked for.",
+  "@glsReasonNetlistMissing": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonRunUnreadable": "The run's record could not be read.",
+  "@glsReasonRunUnreadable": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonNoDesignSources": "None of this test's sources is a design source the run synthesised.",
+  "@glsReasonNoDesignSources": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonDutScope": "The testbench's instance of the design could not be found.",
+  "@glsReasonDutScope": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonClockUnknown": "No clock input was found. Name one under gls: clock.",
+  "@glsReasonClockUnknown": {
+    "description": "Why a gate-level test did not run. \"gls: clock\" is literal and never translated."
+  },
+  "glsReasonClockAmbiguous": "More than one input reads as a clock. Name one under gls: clock.",
+  "@glsReasonClockAmbiguous": {
+    "description": "Why a gate-level test did not run. \"gls: clock\" is literal and never translated."
+  },
+  "glsReasonVcdUnreadable": "A port dump could not be read.",
+  "@glsReasonVcdUnreadable": {
+    "description": "Why a gate-level test did not run. A port dump is a VCD waveform file of the design's top-level ports."
+  },
+  "glsReasonVcdTooLarge": "A port dump is over the size limit.",
+  "@glsReasonVcdTooLarge": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonNoSamples": "The clock never rose, so nothing was compared.",
+  "@glsReasonNoSamples": {
+    "description": "Why a gate-level test did not run."
+  },
+  "glsReasonToolMissing": "Icarus is not installed. See Settings > Engines.",
+  "@glsReasonToolMissing": {
+    "description": "Why a gate-level test did not run. Icarus is a product name. The menu path is spoken as written."
+  },
+  "glsReasonCancelled": "The test was cancelled.",
+  "@glsReasonCancelled": {
+    "description": "Why a gate-level test did not run."
+  },
+  "inspectorSectionGateLevel": "Gate level",
+  "@inspectorSectionGateLevel": {
+    "description": "Inspector section heading for a gate-level result."
+  },
+  "glsPdkBanner": "Gate-level simulation of {pdk} is not yet measured on a design Icarus can judge. The models resolve and the netlist binds; read this result as unmeasured.",
+  "@glsPdkBanner": {
+    "description": "Note on a gate-level result for a PDK that is not yet measured. {pdk} is the PDK's name, never translated.",
+    "placeholders": {
+      "pdk": {
+        "type": "String",
+        "example": "gf180mcuD"
+      }
+    }
+  },
+  "glsVersionDiffers": "The PDK version installed here differs from the one this run recorded.",
+  "@glsVersionDiffers": {
+    "description": "Warning on a gate-level result whose cell models come from another PDK version than the run's."
+  },
+  "glsNoteNetlistNl": "Netlist: final/nl, without power pins.",
+  "@glsNoteNetlistNl": {
+    "description": "Inspector line: which netlist was simulated. \"final/nl\" is a literal path segment."
+  },
+  "glsNoteNetlistPnl": "Netlist: final/pnl, with its power pins tied by a generated module.",
+  "@glsNoteNetlistPnl": {
+    "description": "Inspector line: which netlist was simulated. \"final/pnl\" is a literal path segment."
+  },
+  "glsNoteDelays": "Functional simulation: every gate has a unit delay and there are no timing checks. The result is a finding about behaviour.",
+  "@glsNoteDelays": {
+    "description": "Inspector line stating what a functional gate-level result is."
+  },
+  "glsNoteSimulator": "Both the RTL run and the gate-level run used Icarus Verilog.",
+  "@glsNoteSimulator": {
+    "description": "Inspector line. Icarus Verilog is a product name."
+  },
+  "glsNoteRtlTest": "Reruns the test {test}.",
+  "@glsNoteRtlTest": {
+    "description": "Inspector line naming the RTL test a gate-level test reruns. {test} is the test's id, never translated.",
+    "placeholders": {
+      "test": {
+        "type": "String"
+      }
+    }
+  },
+  "glsNoteClock": "Compared on the rising edge of {clock}, sampled just before the edge.",
+  "@glsNoteClock": {
+    "description": "Inspector line naming the clock the comparison sampled on. {clock} is the port's name, never translated.",
+    "placeholders": {
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "glsNoteFirstDifference": "First difference at {time} ps.",
+  "@glsNoteFirstDifference": {
+    "description": "Inspector line: the time of the first difference, in picoseconds. {time} is a formatted number.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorActionOpenGateLevelWaveform": "Open gate-level waveform in WaveCrux",
+  "@inspectorActionOpenGateLevelWaveform": {
+    "description": "Inspector button on a gate-level result: the design's top-level ports at gate level, in WaveCrux. A free cross-probe."
   }
 }

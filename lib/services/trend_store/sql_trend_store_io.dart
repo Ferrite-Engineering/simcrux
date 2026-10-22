@@ -424,10 +424,79 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     _notifyChanged();
   }
 
-  /// Removes `flow_steps` and `flow_metrics` rows whose result row the
-  /// retention pass deleted: the flow history ages out with its run.
+  @override
+  Future<void> recordFlowGls(FlowGlsRecord record) async {
+    await _db.transaction((txn) async {
+      // One gate-level result per (run, test): a re-record replaces.
+      await txn.rawDelete(
+        'DELETE FROM flow_gls_results WHERE run_id = ? AND test_id = ?',
+        <Object?>[record.runId, record.testId],
+      );
+      await txn.rawInsert(
+        '''
+INSERT INTO flow_gls_results (
+  run_id, test_id, flow_run_id, netlist, delays, outcome,
+  real_diffs, x_diffs, first_diff_ps
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+''',
+        <Object?>[
+          record.runId,
+          record.testId,
+          record.flowRunId,
+          record.netlist,
+          record.delays,
+          record.outcome,
+          record.realDiffs,
+          record.xDiffs,
+          record.firstDiffPs,
+        ],
+      );
+    });
+    _notifyChanged();
+  }
+
+  @override
+  Future<List<FlowGlsRecord>> flowGlsResults({
+    String? testId,
+    int limit = 200,
+  }) async {
+    if (limit <= 0) return const <FlowGlsRecord>[];
+    final rows = await _rawQuery(
+      '''
+SELECT g.*, r.started_at AS run_started_at
+FROM flow_gls_results g
+LEFT JOIN runs r ON r.id = g.run_id
+${testId == null ? '' : 'WHERE g.test_id = ?'}
+ORDER BY COALESCE(r.started_at, 0) DESC, g.run_id DESC, g.test_id ASC
+LIMIT ?
+''',
+      <Object?>[?testId, limit],
+    );
+    return <FlowGlsRecord>[
+      for (final row in rows)
+        FlowGlsRecord(
+          runId: row['run_id']! as String,
+          testId: row['test_id']! as String,
+          flowRunId: row['flow_run_id']! as String,
+          netlist: row['netlist']! as String,
+          delays: row['delays']! as String,
+          outcome: row['outcome']! as String,
+          realDiffs: row['real_diffs'] as int?,
+          xDiffs: row['x_diffs'] as int?,
+          firstDiffPs: row['first_diff_ps'] as int?,
+        ),
+    ];
+  }
+
+  /// Removes `flow_steps`, `flow_metrics` and `flow_gls_results` rows whose
+  /// result row the retention pass deleted: the flow history ages out with
+  /// its run.
   Future<void> _pruneOrphanedFlowRows() async {
-    for (final table in const <String>['flow_steps', 'flow_metrics']) {
+    for (final table in const <String>[
+      'flow_steps',
+      'flow_metrics',
+      'flow_gls_results',
+    ]) {
       await _db.rawDelete('''
 DELETE FROM $table WHERE NOT EXISTS (
   SELECT 1 FROM test_results t

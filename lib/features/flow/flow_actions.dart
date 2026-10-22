@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_cxp/crux_cxp.dart' show cxpDesignIdForPath;
 import 'package:crux_flow/crux_flow.dart';
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
@@ -12,14 +13,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/flow/gls_labels.dart';
+import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
+import 'package:simcrux/features/remote/services/debug_in_wavecrux_message.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/viewer/providers/right_dock_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -30,6 +36,11 @@ import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
+import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
+import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
+import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
+import 'package:simcrux/services/job_scheduler/gls_scratch.dart';
 import 'package:simcrux/services/telemetry/flow_telemetry.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
 
@@ -93,6 +104,178 @@ abstract final class FlowActions {
           .read(regressionRunnerProvider.notifier)
           .submitSpecs(specs, concurrency: specs.length.clamp(1, 4)),
     );
+  }
+
+  /// Tools > Run Gate-Level Simulation: reruns the tests the selected
+  /// LibreLane run's entry names under `gls:` against the run's netlist.
+  ///
+  /// Functional simulation under Icarus with unit delays; each test is run at
+  /// RTL and at gate level, both under Icarus (a Verilator test reruns under
+  /// Icarus, and the toast says so), and the design's top-level ports are
+  /// compared. The results land in the results table as an ordinary run with
+  /// the `gls` trigger. Free in every tier.
+  ///
+  /// Nothing is synthesised and nothing is written into the run: the
+  /// generated port-dump modules and the dumps live in SimCrux's own scratch.
+  static Future<void> runGateLevel(
+    BuildContext? context,
+    ProviderContainer? tab,
+    FlowRead read,
+  ) async {
+    final config = tab?.read(activeConfigProvider);
+    if (tab == null || config == null) {
+      _toast(context, (l10n) => l10n.snackNoProjectOpen);
+      return;
+    }
+    final selection = tab.read(flowSelectedRunProvider);
+    if (selection == null) {
+      _toast(context, (l10n) => l10n.flowGlsNoRun);
+      return;
+    }
+    if (selection.kind != FlowKind.librelane) {
+      _toast(context, (l10n) => l10n.flowGlsNeedsLibreLane);
+      return;
+    }
+    FlowEntry? entry;
+    for (final e in config.flow?.entries ?? const <FlowEntry>[]) {
+      if (e.kind == FlowKind.librelane && e.name == selection.design) {
+        entry = e;
+      }
+    }
+    final gls = entry?.gls;
+    if (gls == null || gls.tests.isEmpty) {
+      _toast(context, (l10n) => l10n.flowGlsNoTests);
+      return;
+    }
+    final candidates = <TestSpec>[
+      for (final suite in config.suites)
+        if (suite.name != FlowRunImporter.kFlowSuiteName) ...suite.tests,
+    ];
+    final chosen = GlsPlanner.select(candidates, gls.tests);
+    if (chosen.unmatched.isNotEmpty) {
+      _toast(
+        context,
+        (l10n) => l10n.flowGlsNoMatch(chosen.unmatched.join(', ')),
+      );
+      return;
+    }
+
+    // Everything the rest needs, read before the first await: the tab can
+    // close behind it.
+    final settings = read(appSettingsProvider).value;
+    final background = read(flowBackgroundRunnerProvider);
+    final scratch = GlsScratch(root: read(flowGlsScratchProvider));
+    final runner = tab.read(regressionRunnerProvider.notifier);
+    final index = tab.read(flowRunIndexProvider(flowProjectRoot(config))).value;
+    final reading = index?.byRoot(selection.root)?.reading;
+    final flowRunId = reading == null
+        ? null
+        : FlowRunIngestor.runIdFor(reading);
+    final pdkRoot = settings?.flowTools.pdkRoot ?? '';
+    final env = Platform.environment;
+    final root = selection.root;
+    final netlist = gls.netlist;
+
+    final read0 = await background(
+      () => GlsRunInfo.read(
+        runRoot: root,
+        netlist: netlist,
+        pdkRootFallback: pdkRoot.isEmpty ? env['PDK_ROOT'] : pdkRoot,
+        home: env['HOME'] ?? env['USERPROFILE'],
+        flowRunId: flowRunId,
+      ),
+    );
+    final info = read0.info;
+    if (info == null) {
+      final reason = read0.problem ?? GlsNotRunReason.runUnreadable;
+      if (context != null && context.mounted) {
+        _toast(
+          context,
+          (l10n) => l10n.flowGlsCannotRun(GlsLabels.reason(l10n, reason)),
+          error: true,
+        );
+      }
+      return;
+    }
+    final options = GlsOptions(
+      netlist: netlist,
+      strictX: gls.strictX,
+      clock: gls.clock,
+      tests: gls.tests,
+    );
+    final runDir = await scratch.allocateRun(
+      'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}',
+    );
+    final planSet = await GlsPlanner.plan(
+      info: info,
+      options: options,
+      selected: chosen.selected,
+      runDir: runDir,
+      scratch: scratch,
+      background: background,
+    );
+    // Said plainly, before anything runs: a Verilator test reruns under
+    // Icarus, both its RTL and its gate-level run.
+    if (chosen.selected.any((s) => s.simulatorId == 'verilator') &&
+        context != null &&
+        context.mounted) {
+      _toast(context, (l10n) => l10n.flowGlsIcarusNote);
+    }
+    await runner.submitSpecs(
+      <TestSpec>[for (final plan in planSet.plans) plan.submitSpec],
+      concurrency: 2,
+      trigger: RegressionTrigger.gls,
+      wrapScheduler: (inner) => GlsScheduler(
+        inner: inner,
+        plans: planSet.plans,
+        info: info,
+        options: options,
+        background: background,
+      ),
+    );
+  }
+
+  /// The gate-level result selected in the results table, or null.
+  static GlsTriageTarget? glsTriageTarget(ProviderContainer? tab) {
+    final result = tab?.read(selectedTestProvider)?.result;
+    if (result == null) return null;
+    final view = GlsResultView.of(result);
+    return view == null ? null : GlsTriageTarget(result: result, view: view);
+  }
+
+  /// Tools > Open Gate-Level Waveform in WaveCrux…: the selected gate-level
+  /// result's port dump, handed to WaveCrux. A free cross-probe.
+  static Future<void> openGateLevelWaveform(
+    BuildContext? context,
+    ProviderContainer? tab,
+    WidgetRef ref,
+  ) async {
+    final config = tab?.read(activeConfigProvider);
+    if (tab == null || config == null) {
+      _toast(context, (l10n) => l10n.snackNoProjectOpen);
+      return;
+    }
+    final target = glsTriageTarget(tab);
+    if (target == null) {
+      _toast(context, (l10n) => l10n.flowGlsSelectResult);
+      return;
+    }
+    final dispatcher = ref.read(debugInWaveCruxDispatcherProvider);
+    final result = await dispatcher.dispatch(
+      waveformPath: target.view.gateVcd,
+      displayName: target.result.testId,
+      designId: cxpDesignIdForPath(config.projectFilePath),
+      topModule: tab.read(selectedTestProvider)?.spec?.top,
+      result: target.result,
+    );
+    if (context == null || !context.mounted) return;
+    final l10n = L10N.of(context);
+    final message = debugInWaveCruxMessage(l10n, result);
+    if (debugInWaveCruxSucceeded(result)) {
+      showCruxInfoSnack(context, message);
+    } else {
+      showCruxErrorSnack(context, message);
+    }
   }
 
   /// The run the hand-off opens: the one selected in Flow Runs, else the

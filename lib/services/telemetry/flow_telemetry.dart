@@ -8,6 +8,8 @@
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_process_driver.dart';
+import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
 
 /// The `flow.run.completed` properties of one flow result's [metrics]
@@ -70,9 +72,23 @@ List<Map<String, Object?>> flowReaderUnsupportedProperties(
 }
 
 /// The distinct `flow.tool.missing.tool` tokens among [results], for one
-/// event per run per tool.
+/// event per run per tool: a flow tool that could not start, and the PDK cell
+/// models a gate-level test could not find (`pdk_models`).
 Set<String> flowToolMissingTokens(Iterable<TestResult> results) => <String>{
   for (final result in results)
     if (result.metrics[FlowDriverMetricKeys.toolMissing] case final tool?)
       if (kFlowToolTokens.contains(tool)) tool,
+  if (results.any(
+    (r) =>
+        r.metrics[GlsMetricKeys.reason] ==
+        GlsNotRunReason.modelsMissing.wireName,
+  ))
+    'pdk_models',
 };
+
+/// The `flow.gls.completed` event one gate-level run records, or null when
+/// [results] hold no gate-level result. [clamp] is `telemetryCount`.
+Map<String, Object?>? flowGlsCompletedProperties(
+  Iterable<TestResult> results, {
+  required int Function(int count) clamp,
+}) => glsRunCompletedProperties(results, clamp: clamp);

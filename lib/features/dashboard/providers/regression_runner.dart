@@ -33,6 +33,7 @@ import 'package:simcrux/features/statistics/providers/job_scheduler_stats_provid
 import 'package:simcrux/services/ci/ci_runner.dart' show CiRunResult;
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
+import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/lifecycle/active_run_registry.dart';
 import 'package:simcrux/services/lifecycle/app_exit_provider.dart';
@@ -791,6 +792,26 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
         unawaited(_recordFlowRun(trendBuffer.store, result));
       }
     }
+    // A gate-level result's own row, a test that did not run included: the
+    // outcome and both counts, keyed to the flow run it simulated.
+    final gls = GlsResultView.of(result);
+    if (gls != null && trendBuffer != null) {
+      unawaited(_recordGls(trendBuffer.store, result.runId, gls));
+    }
+  }
+
+  /// Records [gls] in [store]'s `flow_gls_results`. Best-effort, like the
+  /// trend points: a store that cannot write leaves the result row alone.
+  static Future<void> _recordGls(
+    TrendStore store,
+    String runId,
+    GlsResultView gls,
+  ) async {
+    try {
+      await store.recordFlowGls(gls.record(runId));
+    } on Object {
+      // Best-effort persistence.
+    }
   }
 
   /// Reads the run [result] names on a background isolate and records its
@@ -849,10 +870,17 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
   /// responsible for surfacing a "open a project first" message
   /// where applicable; in practice the Pro UI gates the re-run
   /// affordances on `activeConfigProvider != null` already).
+  ///
+  /// [wrapScheduler] puts a scheduler of the caller's between the runner and
+  /// the one the project resolves: gate-level simulation hands the runner its
+  /// derived specs and wraps the real scheduler so each is run as a pair and
+  /// compared. Everything else about the run (the table, the trend store, the
+  /// telemetry, cancel) is unchanged.
   Future<void> submitSpecs(
     List<TestSpec> specs, {
     int concurrency = 4,
     RegressionTrigger trigger = RegressionTrigger.manual,
+    JobScheduler Function(JobScheduler inner)? wrapScheduler,
   }) async {
     if (specs.isEmpty) return;
     final config = ref.read(activeConfigProvider);
@@ -879,9 +907,12 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
     final trendStore = await trendStoreForRun(ref);
     if (_superseded(generation)) return;
 
-    final scheduler = ref
+    final resolved = ref
         .read(jobSchedulerProvider)
         .schedulerFor(_withBinaryOverrides(config));
+    final scheduler = wrapScheduler == null
+        ? resolved
+        : wrapScheduler(resolved);
     _activeScheduler = scheduler;
     final specsById = <String, TestSpec>{
       for (final t in specs) t.id: t,
@@ -1139,6 +1170,14 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
       for (final properties in flowReaderUnsupportedProperties(results)) {
         telemetry.record(
           TelemetryEvent('flow.reader.unsupported', properties: properties),
+        );
+      }
+      // One per gate-level run: the closed outcome, never a count of
+      // differences, a signal name or a cycle.
+      if (flowGlsCompletedProperties(results, clamp: telemetryCount)
+          case final properties?) {
+        telemetry.record(
+          TelemetryEvent('flow.gls.completed', properties: properties),
         );
       }
     }

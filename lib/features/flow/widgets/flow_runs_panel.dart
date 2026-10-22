@@ -181,6 +181,25 @@ class _RunList extends ConsumerWidget {
       },
       rowCount: runs.length,
       currentIndex: runs.indexOf(current),
+      // The run's context menu: rerun the entry's tests against this run's
+      // netlist, at gate level. LibreLane runs only; free on every tier.
+      contextMenuEntries: (i) {
+        final run = runs[i];
+        return <CruxMenuEntry>[
+          CruxMenuItem(
+            key: const ValueKey('flowRunRunGateLevel'),
+            label: SimcruxAction.runGateLevelSimulation.label(l10n),
+            icon: Icons.memory_outlined,
+            enabled: run.reading.run.ref.kind == FlowKind.librelane,
+            onSelected: () {
+              ref
+                  .read(flowSelectedRunProvider.notifier)
+                  .select(flowSelectionOf(run.reading.run.ref, run.design));
+              _dispatch(context, SimcruxAction.runGateLevelSimulation);
+            },
+          ),
+        ];
+      },
       onCurrentChanged: (i) {
         final run = runs[i];
         ref
@@ -416,6 +435,7 @@ class _Summary extends ConsumerWidget {
       FlowKind.librelane => <SimcruxAction>[
         SimcruxAction.openInKlayout,
         SimcruxAction.openInOpenroad,
+        SimcruxAction.runGateLevelSimulation,
       ],
       FlowKind.nextpnr => <SimcruxAction>[SimcruxAction.openInNextpnrGui],
     };
