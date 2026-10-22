@@ -1071,6 +1071,7 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] A legacy bare `.crux-project` opens and the snack bar names the file to rename it to — `[Coverage: WIDGET]` (`cli_regression_bootstrapper_test.dart`)
 - [ ] A directory holding two manifests opens nothing and names both — `[Coverage: WIDGET]` (`cli_regression_bootstrapper_test.dart`, `open_config_tab_test.dart`)
 - [ ] Invalid, no-`simulation:` and missing-config manifests open nothing and say why, in every locale — `[Coverage: UNIT]` (`crux_project_resolution_test.dart`) + `[Coverage: WIDGET]` (`open_config_tab_test.dart`)
+- [ ] A `formal:` entry beside `simulation:` is carried as `formalPath` and imports nothing; `formal:` alone opens nothing and names the formal file and **File > Import Formal Project**, in every locale — `[Coverage: UNIT]` (`crux_project_resolution_test.dart`) + `[Coverage: WIDGET]` (`open_config_tab_test.dart`)
 - [ ] macOS: Finder **Get Info** on a `.crux-project` lists SimCrux under **Open with** — `[Coverage: MANUAL]`
 
 ---

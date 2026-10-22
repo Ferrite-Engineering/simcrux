@@ -104,6 +104,16 @@ void main() {
       );
       expect(noSim, contains('uart'));
       expect(noSim, contains('simulation:'));
+      final formalOnly = cruxProjectRefusalMessage(
+        l10n,
+        const ManifestFormalOnly(
+          displayName: 'uart',
+          formalPath: 'formal/uart.sby',
+        ),
+      );
+      expect(formalOnly, contains('uart'));
+      expect(formalOnly, contains('formal/uart.sby'));
+      expect(formalOnly, contains('File > Import Formal Project'));
       final ambiguous = cruxProjectRefusalMessage(
         l10n,
         const ManifestAmbiguous(

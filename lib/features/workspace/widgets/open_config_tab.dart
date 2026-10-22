@@ -23,6 +23,8 @@ String cruxProjectRefusalMessage(L10N l10n, ManifestUnusable refusal) =>
       ManifestNoSimulation(:final displayName) => l10n.cruxProjectNoSimulation(
         displayName,
       ),
+      ManifestFormalOnly(:final displayName, :final formalPath) =>
+        l10n.cruxProjectFormalOnly(displayName, formalPath),
       ManifestAmbiguous(:final directory, :final candidates) =>
         l10n.cruxProjectAmbiguous(
           directory,

@@ -4230,6 +4230,15 @@ manifest that cannot be opened — invalid, no `simulation:` entry, a config tha
 is not on disk — and a directory holding more than one manifest open nothing
 and say why in an error snack bar. Every message is localized.
 
+A manifest may also carry an optional `formal:` entry naming one `.sby` or
+`.eqy` file. Opening the manifest does not import it, because the import writes
+a `simcrux.yaml` the user owns. A manifest with both entries opens the
+`simulation:` config and the resolver carries the formal file's path beside it
+(`ManifestSimulation.formalPath`, null when the file is not on disk). A manifest
+with `formal:` and no `simulation:` opens nothing and the snack bar names the
+formal file and says to choose **File > Import Formal Project**. There is no
+`flow:` entry: the implementation flow stays configured in `simcrux.yaml`.
+
 ### 21.2 Setup
 
 A design directory `uart_tx/` holding `sim/simcrux.yaml` (any working project)
@@ -4260,6 +4269,11 @@ artifacts:
 6. Remove the `simulation:` entry: opening the manifest opens nothing and the
    snack bar says to add one. Point it at a missing file: the snack bar names
    the path.
+6a. Replace the `simulation:` entry with `formal: formal/uart_tx.sby` (a real
+   file): opening the manifest opens nothing, and the snack bar names
+   `formal/uart_tx.sby` and says to choose **File > Import Formal Project**.
+   Keep both entries instead: the config tab opens as in step 1 and nothing is
+   imported.
 7. macOS: in Finder, **Get Info** on `uart_tx.crux-project` lists SimCrux under
    **Open with**.
 
@@ -4279,7 +4293,7 @@ Open Core — every tier and every build.
 
 | Test | Coverage | File |
 |---|---|---|
-| Named, case-insensitive, legacy, directory, ambiguous, invalid, no-entry and missing-config resolution | `[Coverage: UNIT]` | `test/features/workspace/services/crux_project_resolution_test.dart` |
+| Named, case-insensitive, legacy, directory, ambiguous, invalid, no-entry, missing-config and `formal:` entry resolution | `[Coverage: UNIT]` | `test/features/workspace/services/crux_project_resolution_test.dart` |
 | A named manifest, a design directory, a legacy name and an ambiguous directory on the command line | `[Coverage: WIDGET]` | `test/features/dashboard/widgets/cli_regression_bootstrapper_test.dart` |
 | Refusal messages and their locale sweep | `[Coverage: WIDGET]` | `test/features/workspace/widgets/open_config_tab_test.dart` |
 | Both Open Config… dialogs list `.crux-project`; Finder Open With | `[Coverage: MANUAL]` | platform file dialog |

@@ -136,10 +136,67 @@ void main() {
     expect((r as ManifestNoSimulation).displayName, 'uart');
   });
 
-  test('a named-but-missing config names the path', () {
-    final d = writeDesign(
-      'version: 1\nartifacts:\n  simulation: gone.yaml\n',
+  group('the formal: artifact kind', () {
+    test(
+      'a manifest naming both carries the formal file beside the config',
+      () {
+        final d = writeDesign(
+          'version: 1\nname: uart\nartifacts:\n'
+          '  simulation: sim/simcrux.yaml\n  formal: formal/uart.sby\n',
+          files: ['sim/simcrux.yaml', 'formal/uart.sby'],
+        );
+        final s = resolver.resolve(d.manifest) as ManifestSimulation;
+        expect(s.configPath, endsWith(p.join('sim', 'simcrux.yaml')));
+        expect(s.formalPath, endsWith(p.join('formal', 'uart.sby')));
+      },
     );
+
+    test('an eqy file is read the same way', () {
+      final d = writeDesign(
+        'version: 1\nartifacts:\n'
+        '  simulation: sim/simcrux.yaml\n  formal: eq/gate.eqy\n',
+        files: ['sim/simcrux.yaml', 'eq/gate.eqy'],
+      );
+      final s = resolver.resolve(d.manifest) as ManifestSimulation;
+      expect(s.formalPath, endsWith(p.join('eq', 'gate.eqy')));
+    });
+
+    test('no formal entry leaves formalPath null', () {
+      final d = writeDesign(uartYaml, files: ['sim/simcrux.yaml']);
+      final s = resolver.resolve(d.manifest) as ManifestSimulation;
+      expect(s.formalPath, isNull);
+    });
+
+    test('a formal entry whose file is missing is not offered', () {
+      final d = writeDesign(
+        'version: 1\nartifacts:\n'
+        '  simulation: sim/simcrux.yaml\n  formal: gone.sby\n',
+        files: ['sim/simcrux.yaml'],
+      );
+      final s = resolver.resolve(d.manifest) as ManifestSimulation;
+      expect(s.formalPath, isNull);
+    });
+
+    test('formal without simulation names the formal file, not a config', () {
+      final d = writeDesign(
+        'version: 1\nname: uart\nartifacts:\n  formal: formal/uart.sby\n',
+        files: ['formal/uart.sby'],
+      );
+      final r = resolver.resolve(d.manifest);
+      expect(r, isA<ManifestFormalOnly>());
+      final f = r as ManifestFormalOnly;
+      expect(f.displayName, 'uart');
+      expect(f.formalPath, 'formal/uart.sby');
+    });
+
+    test('an empty simulation and formal still reads as no simulation', () {
+      final d = writeDesign('version: 1\nname: uart\nartifacts:\n  lint: x\n');
+      expect(resolver.resolve(d.manifest), isA<ManifestNoSimulation>());
+    });
+  });
+
+  test('a named-but-missing config names the path', () {
+    final d = writeDesign('version: 1\nartifacts:\n  simulation: gone.yaml\n');
     final r = resolver.resolve(d.manifest);
     expect(r, isA<ManifestConfigMissing>());
     expect((r as ManifestConfigMissing).configPath, 'gone.yaml');

@@ -14,6 +14,14 @@ import 'package:path/path.dart' as p;
 /// package in crux-shared.
 const String kSimulationArtifactKind = 'simulation';
 
+/// The `<design>.crux-project` `artifacts:` key naming the design's formal
+/// project: one `.sby` or `.eqy` file, read by File > Import Formal Project.
+///
+/// Optional, and owned here for the same reason as [kSimulationArtifactKind].
+/// There is no `flow:` key: the implementation flow stays configured in
+/// `simcrux.yaml`.
+const String kFormalArtifactKind = 'formal';
+
 /// The outcome of pointing SimCrux at a path that might be a design manifest
 /// or a design directory holding one.
 ///
@@ -40,11 +48,17 @@ class ManifestSimulation extends CruxProjectResolution {
     required this.designId,
     required this.displayName,
     required this.manifestPath,
+    this.formalPath,
     this.warnings = const <String>[],
   });
 
   /// The `simcrux.yaml` to open.
   final String configPath;
+
+  /// The `.sby` or `.eqy` the manifest's `formal:` entry names, when it names
+  /// one that is on disk. Opening the manifest does not import it: the
+  /// import writes a config the user owns, so it stays the user's action.
+  final String? formalPath;
 
   /// CXP design id, derived from the manifest's directory.
   final String designId;
@@ -106,6 +120,22 @@ class ManifestNoSimulation extends ManifestUnusable {
 
   /// The manifest's human label.
   final String displayName;
+}
+
+/// The manifest names a formal project but no regression config, so there is
+/// nothing to open; the import is the user's next step.
+class ManifestFormalOnly extends ManifestUnusable {
+  /// Creates the formal-only outcome.
+  const ManifestFormalOnly({
+    required this.displayName,
+    required this.formalPath,
+  });
+
+  /// The manifest's human label.
+  final String displayName;
+
+  /// The `formal:` entry as written in the manifest.
+  final String formalPath;
 }
 
 /// A design directory holds more than one manifest, so none is opened.
@@ -172,6 +202,9 @@ class CruxProjectResolver {
     if (artifact != null) {
       return ManifestSimulation(
         configPath: artifact,
+        formalPath: const CruxProjectOpenPlanner()
+            .plan(manifest, kind: kFormalArtifactKind, exists: exists)
+            .artifactPath,
         designId: plan.designId,
         displayName: manifest.displayName,
         manifestPath: manifestPath,
@@ -183,9 +216,14 @@ class CruxProjectResolver {
       CruxOpenRefusal.pathMissing => ManifestConfigMissing(
         manifest.rawArtifacts[kSimulationArtifactKind] ?? '',
       ),
-      CruxOpenRefusal.kindAbsent || null => ManifestNoSimulation(
-        manifest.displayName,
-      ),
+      CruxOpenRefusal.kindAbsent ||
+      null => switch (manifest.rawArtifacts[kFormalArtifactKind]) {
+        final String formal when formal.isNotEmpty => ManifestFormalOnly(
+          displayName: manifest.displayName,
+          formalPath: formal,
+        ),
+        _ => ManifestNoSimulation(manifest.displayName),
+      },
     };
   }
 }

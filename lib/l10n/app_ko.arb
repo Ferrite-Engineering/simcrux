@@ -1721,7 +1721,19 @@
       }
     }
   },
-  "cruxProjectAmbiguous": "{directory}에 디자인 매니페스트가 여러 개 있습니다({candidates}). 디자인 디렉터리에는 매니페스트가 하나만 있어야 합니다. 나머지를 삭제하거나 그중 하나를 직접 여세요.",
+  "cruxProjectFormalOnly": "{name}에 정형 검증 프로젝트 {path}이(가) 지정되어 있지만 회귀 구성은 없습니다. '파일 > 정형 검증 프로젝트 가져오기'를 선택하고 해당 파일을 고르세요.",
+  "@cruxProjectFormalOnly": {
+    "description": "Error snackbar shown when a design manifest has a formal: entry under artifacts: but no simulation: entry, so there is no regression config to open. name is the manifest's display name; path is the formal entry as written. Keep the menu path matching actionImportFormalProject.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectAmbiguous":"{directory}에 디자인 매니페스트가 여러 개 있습니다({candidates}). 디자인 디렉터리에는 매니페스트가 하나만 있어야 합니다. 나머지를 삭제하거나 그중 하나를 직접 여세요.",
   "@cruxProjectAmbiguous": {
     "description": "Error snackbar shown when a design directory opened from the command line holds more than one design manifest, so none is opened. directory is the directory path; candidates is a comma-separated list of the manifest file names.",
     "placeholders": {

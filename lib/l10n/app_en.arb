@@ -1730,6 +1730,18 @@
       }
     }
   },
+  "cruxProjectFormalOnly": "{name} names a formal project, {path}, and no regression config. Choose File > Import Formal Project and pick that file.",
+  "@cruxProjectFormalOnly": {
+    "description": "Error snackbar shown when a design manifest has a formal: entry under artifacts: but no simulation: entry, so there is no regression config to open. name is the manifest's display name; path is the formal entry as written. The menu path in the text must match actionImportFormalProject.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "cruxProjectAmbiguous": "{directory} holds more than one design manifest ({candidates}). A design directory holds exactly one: remove the extras, or open one of them directly.",
   "@cruxProjectAmbiguous": {
     "description": "Error snackbar shown when a design directory opened from the command line holds more than one design manifest, so none is opened. directory is the directory path; candidates is a comma-separated list of the manifest file names.",

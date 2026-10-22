@@ -1721,7 +1721,19 @@
       }
     }
   },
-  "cruxProjectAmbiguous": "{directory} に複数のデザインマニフェストがあります ({candidates})。デザインディレクトリに置けるマニフェストは 1 つだけです。余分なものを削除するか、いずれかを直接開いてください。",
+  "cruxProjectFormalOnly": "{name} は形式検証プロジェクト {path} を指定していますが、リグレッション構成はありません。「ファイル > 形式検証プロジェクトをインポート」を選び、そのファイルを指定してください。",
+  "@cruxProjectFormalOnly": {
+    "description": "Error snackbar shown when a design manifest has a formal: entry under artifacts: but no simulation: entry, so there is no regression config to open. name is the manifest's display name; path is the formal entry as written. Keep the menu path matching actionImportFormalProject.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cruxProjectAmbiguous":"{directory} に複数のデザインマニフェストがあります ({candidates})。デザインディレクトリに置けるマニフェストは 1 つだけです。余分なものを削除するか、いずれかを直接開いてください。",
   "@cruxProjectAmbiguous": {
     "description": "Error snackbar shown when a design directory opened from the command line holds more than one design manifest, so none is opened. directory is the directory path; candidates is a comma-separated list of the manifest file names.",
     "placeholders": {
