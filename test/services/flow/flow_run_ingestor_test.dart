@@ -1,13 +1,16 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:crux_flow/crux_flow.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
+import 'package:simcrux/services/flow/flow_archive_extractor.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/trend_store/sql_trend_store.dart';
@@ -105,13 +108,65 @@ void main() {
     testOn: '!windows',
   );
 
-  test('a zipped artifact is named, not opened', () async {
+  test('a file that is not a zip is refused as an archive', () async {
     final zip = File(p.join(tmp.path, 'GDS_logs.zip'))..writeAsStringSync('PK');
-    final items = await const FlowRunIngestor().ingest(
+    final items = await FlowRunIngestor(
+      archives: FlowArchiveExtractor(scratch: p.join(tmp.path, 'scratch')),
+    ).ingest(<String>[zip.path], allowedRoots: <String>[tmp.path]);
+    expect(items.single.failure, FlowIngestFailure.archive);
+  });
+
+  test('a zipped artifact is extracted into the scratch and its runs read, '
+      'filed under the same run id every time', () async {
+    final archive = Archive();
+    for (final name in const ['path_ice40_met', 'path_ice40_violated']) {
+      archive.add(
+        ArchiveFile.bytes(
+          'GDS_logs/runs/adder/$name/report.json',
+          File('$fixtures/$name/report.json').readAsBytesSync(),
+        ),
+      );
+    }
+    final zip = File(p.join(tmp.path, 'GDS_logs.zip'))
+      ..writeAsBytesSync(ZipEncoder().encodeBytes(archive));
+    final scratch = p.join(tmp.path, 'scratch');
+    final ingestor = FlowRunIngestor(
+      archives: FlowArchiveExtractor(scratch: scratch),
+    );
+    final items = await ingestor.ingest(
       <String>[zip.path],
       allowedRoots: <String>[tmp.path],
     );
+    expect(items.map((i) => i.reading?.verdict), <FlowVerdict?>[
+      FlowVerdict.met,
+      FlowVerdict.violated,
+    ]);
+    for (final item in items) {
+      expect(p.isWithin(scratch, item.reading!.run.ref.root), isTrue);
+      expect(FlowRunIngestor.testIdFor(item.reading!), 'flow/adder');
+    }
+    final again = await ingestor.ingest(
+      <String>[zip.path],
+      allowedRoots: <String>[tmp.path],
+    );
+    expect(
+      again.map((i) => FlowRunIngestor.runIdFor(i.reading!)),
+      items.map((i) => FlowRunIngestor.runIdFor(i.reading!)),
+    );
+  });
+
+  test('a zip with an entry that would escape is refused whole', () async {
+    final archive = Archive()
+      ..add(ArchiveFile.bytes('runs/a/report.json', utf8.encode('{}')))
+      ..add(ArchiveFile.bytes('../escape.txt', utf8.encode('x')));
+    final zip = File(p.join(tmp.path, 'bad.zip'))
+      ..writeAsBytesSync(ZipEncoder().encodeBytes(archive));
+    final items = await FlowRunIngestor(
+      archives: FlowArchiveExtractor(scratch: p.join(tmp.path, 'scratch')),
+    ).ingest(<String>[zip.path], allowedRoots: <String>[tmp.path]);
     expect(items.single.failure, FlowIngestFailure.archive);
+    expect(items.single.message, contains('..'));
+    expect(File(p.join(tmp.path, 'escape.txt')).existsSync(), isFalse);
   });
 
   test('a missing path and an unrecognised directory say so', () async {

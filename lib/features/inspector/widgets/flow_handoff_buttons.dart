@@ -1,26 +1,25 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:async';
-
 import 'package:crux_flow/crux_flow.dart';
-import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:simcrux/domain/models/flow_tool_settings.dart';
+import 'package:simcrux/core/shortcuts/simcrux_action.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
-import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
-import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
-import 'package:simcrux/services/flow/flow_handoff_provider.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
+import 'package:simcrux/services/flow/flow_run_importer.dart';
 
 /// The inspector's hand-off buttons for a flow result: Open in KLayout and
 /// Open in OpenROAD for a LibreLane run, Open in nextpnr for a nextpnr run.
 /// Empty for every other result.
 ///
-/// The viewer starts detached and never blocks; a missing viewer or a run
-/// with nothing to open says so in a toast, never an error dialog.
+/// Each makes the result's run the selected flow run and dispatches the
+/// same `SimcruxAction` as Tools > Open in KLayout… (and the others), so
+/// the menu, the palette, the Flow Runs panel and these buttons share one
+/// handler: the viewer starts detached, and a missing viewer or a run with
+/// nothing to open says so in a toast.
 List<Widget> flowHandoffButtons(
   BuildContext context,
   WidgetRef ref,
@@ -31,70 +30,51 @@ List<Widget> flowHandoffButtons(
   final kind = metrics[FlowMetricKeys.kind];
   if (runDir == null || runDir.isEmpty || kind == null) return const [];
   final l10n = L10N.of(context);
-  Widget button(FlowViewer viewer, String label, IconData icon) =>
+  final FlowKind flowKind;
+  try {
+    flowKind = FlowKind.fromWireName(kind);
+  } on FormatException {
+    return const [];
+  }
+  const prefix = '${FlowRunImporter.kFlowSuiteName}/';
+  final id = selection.result.testId;
+  final target = FlowRunSelection(
+    root: runDir,
+    kind: flowKind,
+    design: id.startsWith(prefix) ? id.substring(prefix.length) : null,
+  );
+  Widget button(SimcruxAction action, String label, IconData icon) =>
       OutlinedButton.icon(
-        key: ValueKey('flowHandoff.${viewer.token}'),
-        onPressed: () => unawaited(
-          _open(context, ref, selection, viewer, FlowKind.fromWireName(kind)),
-        ),
+        key: ValueKey('flowHandoff.${action.name}'),
+        onPressed: () {
+          ref.read(flowSelectedRunProvider.notifier).select(target);
+          Actions.maybeInvoke<SimcruxActionIntent>(
+            context,
+            SimcruxActionIntent(action),
+          );
+        },
         icon: Icon(icon),
         label: Text(label),
       );
-  if (kind == FlowKind.librelane.wireName) {
-    return <Widget>[
+  return switch (flowKind) {
+    FlowKind.librelane => <Widget>[
       button(
-        FlowViewer.klayout,
+        SimcruxAction.openInKlayout,
         l10n.inspectorActionOpenInKlayout,
         Icons.layers_outlined,
       ),
       button(
-        FlowViewer.openroadGui,
+        SimcruxAction.openInOpenroad,
         l10n.inspectorActionOpenInOpenroad,
         Icons.grid_on_outlined,
       ),
-    ];
-  }
-  if (kind == FlowKind.nextpnr.wireName) {
-    return <Widget>[
+    ],
+    FlowKind.nextpnr => <Widget>[
       button(
-        FlowViewer.nextpnrGui,
+        SimcruxAction.openInNextpnrGui,
         l10n.inspectorActionOpenInNextpnr,
         Icons.memory_outlined,
       ),
-    ];
-  }
-  return const [];
-}
-
-Future<void> _open(
-  BuildContext context,
-  WidgetRef ref,
-  SelectedTest selection,
-  FlowViewer viewer,
-  FlowKind kind,
-) async {
-  final l10n = L10N.of(context);
-  final settings = ref.read(appSettingsProvider).value;
-  final result = await ref
-      .read(flowHandoffLauncherProvider)
-      .open(
-        viewer,
-        kind: kind,
-        runRoot: selection.result.metrics[FlowMetricKeys.runDir]!,
-        entry: selection.spec?.flow,
-        settings: settings?.flowTools ?? const FlowToolSettings(),
-        nextpnrPath: settings?.simulatorBinaryOverrides['nextpnr'],
-      );
-  if (!context.mounted || result.ok) return;
-  final name = switch (viewer) {
-    FlowViewer.klayout => 'KLayout',
-    FlowViewer.openroadGui => 'OpenROAD',
-    FlowViewer.nextpnrGui => 'nextpnr',
+    ],
   };
-  showCruxInfoSnack(
-    context,
-    result.missingTool != null
-        ? l10n.inspectorFlowViewerMissing(name)
-        : l10n.inspectorFlowViewerNothingToOpen,
-  );
 }

@@ -50,6 +50,7 @@ import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_metrics.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_column_layout_provider.dart';
 import 'package:simcrux/features/dashboard/widgets/cli_regression_bootstrapper.dart';
 import 'package:simcrux/features/eula/simcrux_eula_overrides.dart';
+import 'package:simcrux/features/flow/providers/flow_table_layouts.dart';
 import 'package:simcrux/features/issue_reporter/providers/issue_reporter_overrides.dart';
 import 'package:simcrux/features/lifecycle/widgets/app_exit_guard.dart';
 import 'package:simcrux/features/menu_bar/widgets/desktop_menu_bar.dart';
@@ -374,6 +375,8 @@ Future<bool> bootstrap({
   // The results table's column widths, so a restored tab draws its first
   // frame at the saved widths. See [launchDashboardColumnLayoutProvider].
   final dashboardColumnLayout = await loadDashboardColumnLayout();
+  // The Flow tables' widths, for the same reason.
+  final flowTableLayouts = await loadFlowTableLayoutOverrides();
 
   // Two-phase init: build the root container first so the per-tab and
   // per-pane container managers can be parented to it; expose the
@@ -414,6 +417,7 @@ Future<bool> bootstrap({
       launchDashboardColumnLayoutProvider.overrideWithValue(
         dashboardColumnLayout,
       ),
+      ...flowTableLayouts,
       // Beta-release infrastructure. Both spread before
       // `extraOverrides` so the Pro overlay can layer its own
       // bindings on top (open-core first, Pro last, later overrides win) —

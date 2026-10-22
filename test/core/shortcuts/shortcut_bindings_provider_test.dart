@@ -61,6 +61,19 @@ void main() {
       SimcruxAction.openFormalProperties,
       // Export Results — Tools menu / palette only, no chord.
       SimcruxAction.exportResults,
+      // The implementation flow: menu and palette only.
+      SimcruxAction.toggleFlowRuns,
+      SimcruxAction.runFlowEntry,
+      SimcruxAction.openInKlayout,
+      SimcruxAction.openInOpenroad,
+      SimcruxAction.openInNextpnrGui,
+      SimcruxAction.ingestRunDirectory,
+      SimcruxAction.ingestRunArchive,
+      SimcruxAction.openFlowTrends,
+      SimcruxAction.openFlowCompare,
+      SimcruxAction.openFlowPpa,
+      SimcruxAction.openFlowSweep,
+      SimcruxAction.writeFlowBaseline,
     };
 
     test('seeds from defaultBindings', () {

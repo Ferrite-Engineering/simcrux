@@ -5546,8 +5546,9 @@ Settings > Engines.
    1000/achieved` ns per clock, the minimum). SIGINT or SIGTERM during
    `flow run` cancels the run, kills its process trees and exits 130 or 143.
 4. `simcrux flow ingest <dir>` lists every run under a directory of runs and
-   writes nothing inside any of them. A zipped CI artifact is named and not
-   opened (extract it first).
+   writes nothing inside any of them. A zipped CI artifact (`GDS_logs.zip`)
+   is extracted into SimCrux's own scratch and its runs listed; a zip with an
+   entry that would escape is refused whole (§27.8).
 5. `simcrux flow export <run> --format json|junit|sarif|html --out <file>`
    writes the file and exits 0.
 6. `simcrux flow -h` (anywhere on the line) prints usage and exits 0 before
@@ -5590,7 +5591,7 @@ Core with the beta period over.
 | nextpnr report and log readers on the committed fixtures; the LibreLane contract on hand-built runs (met, each violation, stopped, unrecognised, version detection, links refused) | `[Coverage: UNIT]` | `test/services/flow/flow_run_reading_test.dart` |
 | nextpnr driver: verdict from the report not the exit code, command lines per family, fresh run directory inside the project, synthesis and tool failures, cancel, FuseSoC | `[Coverage: UNIT]` | `test/services/flow/nextpnr_flow_driver_test.dart` |
 | LibreLane driver: verdict from the records, path, Nix and Docker command lines, never `--overwrite` or `--last-run`, fresh tags, containment, `XDG_DATA_HOME`, progress, cancel of the tree and of the container | `[Coverage: UNIT]` | `test/services/flow/librelane_flow_driver_test.dart` |
-| Ingest: report, run directory, directory of runs, read-only, containment, archives refused; persistence with the `ingest` trigger and retention | `[Coverage: UNIT]` | `test/services/flow/flow_run_ingestor_test.dart` |
+| Ingest: report, run directory, directory of runs, read-only, containment, zipped artifacts extracted or refused; persistence with the `ingest` trigger and retention | `[Coverage: UNIT]` | `test/services/flow/flow_run_ingestor_test.dart` |
 | The scheduler's status follows the flow verdict; a flow run is never retried | `[Coverage: UNIT]` | `test/services/job_scheduler/flow_verdict_status_test.dart` |
 | `simcrux flow`: one test per exit code (0, 1, 2, 3, 64, 65, 130, 143), help first, version from the pubspec, JSON, SARIF, JUnit and the export formats | `[Coverage: UNIT]` | `test/core/cli/flow_cli_test.dart` |
 | `simcrux flow run`, `gate` and `ingest` against the real Yosys and nextpnr | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_driver_live_test.dart`, `.github/workflows/flow-live.yml` |
@@ -5598,10 +5599,142 @@ Core with the beta period over.
 | Drivers, importer, ingestor, probe, hand-off and CLI are reached from the app and the binary | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
 | Verdict, metrics and run directory at Open Core with the beta period over | `[Coverage: UNIT]` | `test/flow/ungated_flow_test.dart` |
 | Implementation flow Settings persist under `simcrux.*` and reach the drivers; the section saves and Check flow tools reports | `[Coverage: UNIT]` | `test/services/settings/flow_tool_settings_codec_test.dart`, `test/features/settings/widgets/settings_implementation_flow_section_test.dart` |
-| The inspector's hand-off buttons per kind, the detached start, the missing-viewer toast and its two events, in every locale | `[Coverage: WIDGET]` | `test/features/inspector/widgets/flow_handoff_buttons_test.dart` |
+| The inspector's hand-off buttons per kind, dispatching the Tools hand-off actions; the detached start, the missing-viewer toast and its two events, the wrong-kind and no-run toasts, in every locale | `[Coverage: WIDGET]` | `test/features/inspector/widgets/flow_handoff_buttons_test.dart` |
 | Flow telemetry: closed vocabularies tied to their enums, six properties at most, no values or names | `[Coverage: UNIT]` | `test/services/telemetry/flow_telemetry_test.dart`, `test/static/telemetry_catalog_conformance_test.dart` |
 | `simcrux flow --help` and `--version` from the built binary, Linux on every push and macOS on Sundays | `[Coverage: AUTOMATED — GitHub Actions]` | `.github/workflows/ci.yml` (`build-cli`) |
 | A launched LibreLane run, its Nix and Docker launchers from the app, and a hand-off to each viewer | `[Coverage: MANUAL]` | needs LibreLane and the viewers installed |
+
+### 27.8 The Flow Runs panel, the Flow actions and zipped artifacts
+
+**What it covers.** View > Flow Runs: a dock tab listing the project's
+implementation-flow runs, the runs its `ingest:` list names and the runs the
+user ingested, newest first, and for the selected run its verdict, how it was
+read, the last-run delta, its steps, metrics and worst paths, each path's
+segments and RTL mapping, and the hand-off. The Tools menu's flow commands
+(Run Flow Entry, Ingest Run Directory…, Ingest Zipped Artifact…, Open in
+KLayout…, Open in OpenROAD…, Open in nextpnr GUI…), the five Pro analyses'
+seams, tab diagnostics' Flow section, `flow.path.opened`, and the vocabulary
+guard. Everything here is open core; results are findings, not signoff.
+
+- **A movable dock tab.** Flow Runs opens in the bottom dock beside the Log
+  and can be dragged to the right dock; its close button hides it. Each
+  movable tab (the cross-probe panel and Flow Runs) keeps its own region, and
+  a drop moves only the tab it carried.
+- **Never presented as verified when it is not.** A LibreLane run is read
+  against the documented run-directory contract until the versioned readers
+  land: a banner says the reader is not verified for the run's version and
+  that results are read best-effort, before the verdict. It is a banner, not a
+  beta label.
+- **One Tab stop per table.** The run list, the steps, the metrics, the worst
+  paths and a path's segments are `crux_table` tables. Each is one Tab stop;
+  the arrow keys, Home, End, Page Up and Page Down move the current row, which
+  is spoken as one sentence ("Path 1, clock clk, from src_a to sum_q, 9.600
+  nanoseconds, mapping Register"); Enter or Space opens it; a click selects
+  and a second click opens. Units are spoken in full.
+- **Metrics** show each key's localized label, the raw key on hover, the
+  design-wide value and one column per corner, the corner names as the tool
+  wrote them.
+- **Worst paths** (nextpnr) are mapped to the RTL from the run's synthesised
+  and placed netlists (`synth.json`, `post.json`) when it holds them: register,
+  statement, block or unmapped, a path labelled by its weaker end; an
+  unmapped segment is shown beside its nearest mapped neighbour. A report
+  ingested without its netlists lists its paths unmapped and says so. A
+  LibreLane run's paths are not read yet; its slack and violation counts are
+  in Metrics. Opening a path records `flow.path.opened` with the flow and the
+  fidelity only.
+- **The last-run delta** compares the run with the same design's previous run
+  on worst slack (else the achieved clock), in words and an arrow, never by
+  colour alone.
+- **A step** opens a tab-modal dialog with its status, the last 200 lines (at
+  most 64 KiB) of its largest log, and Open Full Log in Editor.
+- **The hand-off** is one handler for the Tools menu, the palette, the panel's
+  buttons and the inspector's: it opens the run selected in Flow Runs (the
+  inspector's buttons select theirs first), says when the run is of the other
+  kind or none is selected, and otherwise behaves as §27.7 describes.
+- **A zipped artifact** (Ingest Zipped Artifact…, `simcrux flow ingest
+  x.zip`, or a `.zip` in `ingest:`) is extracted into SimCrux's own scratch
+  (the system temporary directory's `simcrux/ingest/`), never into the
+  project, under a name made from the file's path, size and modification
+  time, so a second ingest reuses it and files the runs under the same ids.
+  Before anything is written the whole archive is checked; an absolute,
+  drive-letter or UNC path, a `..` segment written with either separator, a
+  symbolic link, a NUL, a name deeper than 64 segments, more than 50,000
+  entries, an entry over 1 GiB, entries over 4 GiB together, or a file over
+  4 GiB refuses it whole. Decompression is counted as it happens, so an entry
+  that understates its size stops at the cap. A file that is not a zip is
+  refused as unreadable.
+
+**Setup.** None for the automated checks. For the drive: a release build, an
+OSS CAD Suite on the machine, a project with a nextpnr `flow:` entry, and a
+Tiny Tapeout `GDS_logs` artifact zip.
+
+**Expected behaviour.**
+
+1. With no flow run, Flow Runs says "No flow runs yet. Add a flow: entry or
+   ingest a run directory." and offers Ingest Run Directory….
+2. After Run Regression (or Tools > Run Flow Entry) the run appears at the top,
+   its verdict in words; a second run of the same entry shows the delta chip.
+3. A LibreLane run shows the not-verified banner before its heading.
+4. Tab through the panel: the run list, the hand-off buttons, the Steps /
+   Metrics / Worst paths switch, the table, each one stop, as the transcripts
+   in `test/accessibility/goldens/flow_runs.txt` and `flow_worst_paths.txt`.
+5. Ingest Zipped Artifact… on the Tiny Tapeout zip lists its run; ingesting it
+   again adds nothing new; nothing appears in the project directory.
+6. Tab diagnostics (Cmd/Ctrl+Shift+I) shows the selected run's reader, reader
+   version, whether it is verified, its directory and its tool versions.
+7. Tools > Flow Metric Trends… (and the other four) answers "requires SimCrux
+   Pro" in an open-core build, and stays enabled with its badge.
+
+**Release-build drive (macOS and Linux).** Run by a person at the machine, or
+by automation only on a machine nobody is using: these clicks and keys reach
+whatever app is in front.
+
+- [ ] Build the release app; confirm the build printed "Build complete:" (or
+  hash `App.framework/App` against the previous build) before trusting it.
+- [ ] Launch it from Finder (macOS) or the desktop launcher (Linux), not a
+  terminal, so the app has the GUI PATH a user's has.
+- [ ] Open a project with a nextpnr `flow:` entry; Run Regression; the run
+  appears in View > Flow Runs with its verdict, metrics and worst paths.
+- [ ] Ingest Run Directory… on a LibreLane `runs/<tag>`; Ingest Zipped
+  Artifact… on a Tiny Tapeout `GDS_logs` zip; both runs list, the LibreLane
+  one with the not-verified banner.
+- [ ] `simcrux flow gate <run>` from a terminal exits by the run's verdict.
+- [ ] Open in nextpnr GUI… on the nextpnr run, Open in KLayout… on the
+  LibreLane run: each viewer starts (macOS: the hardened-runtime build may
+  spawn it; Linux: the AppImage's PATH finds it), or the toast names Settings
+  > Engines > Implementation flow when it is not installed.
+
+**Edge cases.**
+
+- A dock 160 pixels tall, a right dock 380 pixels wide and an 800×500 window
+  scroll instead of overflowing; the switch scrolls sideways when its labels
+  are wider than the dock.
+- A project `ingest:` path outside the project is refused and counted in the
+  panel's problems line, whose tooltip names it; a path the user chose may be
+  anywhere and is read within itself.
+- The panel re-reads its runs every three seconds while the tab's regression
+  runs, and once more when it ends; a change of the shown run's verdict is
+  spoken.
+
+**Tier-gate scenarios.** The panel, its tables, the delta, ingest, zipped
+artifacts and the hand-off are open core and never gated (verified at Open
+Core with the beta period over). The five Pro analyses are null seams here:
+they answer "requires SimCrux Pro" through the toast, and the overlay owns
+each gate.
+
+**Automation Assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| The panel: empty states, the banner, the run list's keys and sentences, the delta, the hand-off dispatch, metrics, worst paths and the path dialog with `flow.path.opened`, the step dialog, three sizes, every locale, at Open Core with the beta period over | `[Coverage: WIDGET]` | `test/features/flow/flow_runs_panel_test.dart` |
+| Focus-walk transcripts of the panel and the worst-paths table; no orphan semantics node from the two dialogs | `[Coverage: WIDGET]` | `test/accessibility/flow_runs_focus_walk_test.dart` |
+| The index (project runs, `ingest:` within the project, user paths within themselves), the delta, the iCE40 mapping to `sum_q`, unmapped and LibreLane paths, the log tail and the step's log | `[Coverage: UNIT]` | `test/services/flow/flow_run_index_test.dart` |
+| Every archive refusal, the scratch extraction, its reuse and Windows separators | `[Coverage: UNIT]` | `test/services/flow/flow_archive_extractor_test.dart` |
+| The two movable dock tabs keep their own regions | `[Coverage: UNIT]` | `test/features/viewer/providers/dock_tab_region_test.dart` |
+| The Flow actions' categories, tiers, enablement and dispatch | `[Coverage: UNIT]` | `test/core/shortcuts/action_surface_conformance_test.dart`, `test/core/shortcuts/simcrux_action_handlers_test.dart` |
+| The panel, the actions, the five seams, the per-tab providers, the event and the diagnostics section are reached | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
+| No signoff claim in any Flow message, the export template or the docs-site Flow pages | `[Coverage: UNIT]` | `test/static/flow_vocabulary_guard_test.dart` |
+| The release-build drive above | `[Coverage: MANUAL]` | needs a release build and the tools installed |
 
 ---
 

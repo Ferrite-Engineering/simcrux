@@ -39,6 +39,8 @@ import 'package:simcrux/features/diagnostics/widgets/tab_diagnostics_drawer.dart
 import 'package:simcrux/features/dialogs/confirm_dialog.dart';
 import 'package:simcrux/features/export/export_results_flow.dart';
 import 'package:simcrux/features/flaky_detection/providers/flaky_tests_panel_opener.dart';
+import 'package:simcrux/features/flow/flow_actions.dart';
+import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/formal_import/import_formal_project_flow.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
@@ -58,6 +60,7 @@ import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/widgets/open_config_tab.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/driver_plugin/plugin_action_openers.dart';
+import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_arch_test_importer.dart';
 import 'package:simcrux/services/import/riscv_formal_check_importer.dart';
@@ -525,6 +528,104 @@ class SimcruxActionHandlers {
           return;
         }
         opener(ctx);
+      },
+      // ── Implementation flow ───────────────────────────────
+      // View > Flow Runs: a dock tab, toggled like the cross-probe panel.
+      SimcruxAction.toggleFlowRuns: () => FlowActions.toggleFlowRuns(ref),
+      SimcruxAction.runFlowEntry: () => FlowActions.runFlowEntry(
+        navigatorContext(),
+        activeTabContainer(),
+        ref.read,
+      ),
+      // The hand-off: the run selected in Flow Runs (or the inspector's
+      // flow result) to a viewer, detached. One handler for the menu, the
+      // palette, the panel and the inspector buttons.
+      SimcruxAction.openInKlayout: () => unawaited(
+        FlowActions.handoff(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+          FlowViewer.klayout,
+        ),
+      ),
+      SimcruxAction.openInOpenroad: () => unawaited(
+        FlowActions.handoff(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+          FlowViewer.openroadGui,
+        ),
+      ),
+      SimcruxAction.openInNextpnrGui: () => unawaited(
+        FlowActions.handoff(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+          FlowViewer.nextpnrGui,
+        ),
+      ),
+      SimcruxAction.ingestRunDirectory: () => unawaited(
+        FlowActions.ingest(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+          archive: false,
+        ),
+      ),
+      SimcruxAction.ingestRunArchive: () => unawaited(
+        FlowActions.ingest(
+          navigatorContext(),
+          activeTabContainer(),
+          ref.read,
+          archive: true,
+        ),
+      ),
+      // The five Pro Flow seams. Null in open core: "requires SimCrux Pro",
+      // a toast on desktop. The Pro override owns each gate.
+      SimcruxAction.openFlowTrends: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(flowTrendsOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openFlowTrends);
+          return;
+        }
+        opener(ctx);
+      },
+      SimcruxAction.openFlowCompare: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(flowCompareOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openFlowCompare);
+          return;
+        }
+        opener(ctx);
+      },
+      SimcruxAction.openFlowPpa: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(flowPpaOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openFlowPpa);
+          return;
+        }
+        opener(ctx);
+      },
+      SimcruxAction.openFlowSweep: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(flowSweepOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openFlowSweep);
+          return;
+        }
+        opener(ctx);
+      },
+      SimcruxAction.writeFlowBaseline: () {
+        final ctx = navigatorContext();
+        final writer = ref.read(flowBaselineWriterProvider);
+        if (writer == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.writeFlowBaseline);
+          return;
+        }
+        writer(ctx);
       },
       // View > Formal Properties…: the same seam shape. The Pro override
       // owns the gate; open core answers "requires SimCrux Pro".

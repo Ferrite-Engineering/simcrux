@@ -31,9 +31,11 @@ enum FlowExportFormat {
   }
 }
 
+// vocabulary-guard: disclaimer begin
 /// The line every exported result carries: results are findings, not
-/// signoff.
+/// signoff. The one place the HTML template names the word, in the negative.
 const String kFlowFindingsNote = 'Findings, not signoff.';
+// vocabulary-guard: disclaimer end
 
 /// The JSON summary of one run: what `--json` prints and `export --format
 /// json` writes, the derivation of a nextpnr WNS named.

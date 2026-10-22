@@ -13,6 +13,7 @@ import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
 import 'package:simcrux/features/diagnostics/providers/diagnostics_enabled_provider.dart';
 import 'package:simcrux/features/diagnostics/services/diagnostics_report.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/container_managers.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
@@ -71,6 +72,16 @@ class TabDiagnosticsDrawer extends ConsumerWidget {
         .watch(regressionRunnerProvider)
         .maybeWhen<RegressionRunState?>(data: (s) => s, orElse: () => null);
     final driverRegistry = ref.watch(simulatorDriverRegistryProvider);
+    // The Flow section: how the selected flow run was read. Shown when the
+    // project has a flow: block or a run is selected.
+    final flowSelection = ref.watch(flowSelectedRunProvider);
+    final showFlow = config?.flow != null || flowSelection != null;
+    final flowRun = config == null || flowSelection == null
+        ? null
+        : ref
+              .watch(flowRunIndexProvider(flowProjectRoot(config)))
+              .value
+              ?.byRoot(flowSelection.root);
 
     return Drawer(
       width: 380,
@@ -127,6 +138,40 @@ class TabDiagnosticsDrawer extends ConsumerWidget {
               label: l10n.diagnosticsTabRowFinished,
               value: runState?.isFinished.toString() ?? '—',
             ),
+            if (showFlow) ...[
+              const SizedBox(height: 16),
+              _Section(label: l10n.diagnosticsTabFlowSection, theme: theme),
+              if (flowRun == null)
+                Text(l10n.diagnosticsTabFlowNoRun)
+              else ...[
+                _Row(
+                  label: l10n.diagnosticsTabRowFlowReader,
+                  value: flowRun.reading.reader,
+                ),
+                _Row(
+                  label: l10n.diagnosticsTabRowFlowReaderVersion,
+                  value: flowRun.reading.run.ref.readerVersion,
+                ),
+                _Row(
+                  label: l10n.diagnosticsTabRowFlowVerified,
+                  value: flowRun.reading.run.ref.verified.toString(),
+                ),
+                _Row(
+                  label: l10n.diagnosticsTabRowFlowRunRoot,
+                  value: flowRun.root,
+                ),
+                _Row(
+                  label: l10n.diagnosticsTabRowFlowTools,
+                  value: flowRun.reading.run.toolVersions.isEmpty
+                      ? '—'
+                      : [
+                          for (final MapEntry(:key, :value)
+                              in flowRun.reading.run.toolVersions.entries)
+                            '$key $value',
+                        ].join(', '),
+                ),
+              ],
+            ],
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: () => _copyReport(context, ref),

@@ -77,6 +77,53 @@ enum SimcruxAction implements CruxAction {
   /// no export path at all.
   exportResults,
 
+  /// Show or hide the Flow Runs panel (View > Flow Runs): the project's
+  /// implementation-flow runs, their steps, metrics and worst paths.
+  toggleFlowRuns,
+
+  /// Run the project's flow entries (Tools > Run Flow Entry): the entry of
+  /// the run selected in Flow Runs, else every entry. No chord: F5 is Run
+  /// Regression, which runs flow entries too, and Esc cancels either.
+  runFlowEntry,
+
+  /// Hand the selected LibreLane run to KLayout (Tools > Open in KLayout…).
+  openInKlayout,
+
+  /// Hand the selected LibreLane run to OpenROAD's viewer (Tools > Open in
+  /// OpenROAD…).
+  openInOpenroad,
+
+  /// Hand the selected nextpnr run to nextpnr's own viewer (Tools > Open in
+  /// nextpnr GUI…).
+  openInNextpnrGui,
+
+  /// Index a run directory, a directory of runs or a nextpnr report SimCrux
+  /// did not launch (Tools > Ingest Run Directory…). Read-only.
+  ingestRunDirectory,
+
+  /// Index the runs in a zipped CI artifact (Tools > Ingest Zipped
+  /// Artifact…), extracted into SimCrux's own scratch with containment.
+  ingestRunArchive,
+
+  /// Open the Pro metric trends across flow runs. Open core registers it so
+  /// it is discoverable and badged; the screen is behind
+  /// `flowTrendsOpenerProvider`.
+  openFlowTrends,
+
+  /// Open the Pro comparison of two flow runs (`flowCompareOpenerProvider`).
+  openFlowCompare,
+
+  /// Open the Pro PPA dashboard (`flowPpaOpenerProvider`).
+  openFlowPpa,
+
+  /// Open the Pro design-space sweep view (`flowSweepOpenerProvider`).
+  openFlowSweep,
+
+  /// Write or manage a Pro flow baseline (`flowBaselineWriterProvider`).
+  /// Gating against a baseline file is open core (`simcrux flow gate
+  /// --baseline`); writing one is Pro.
+  writeFlowBaseline,
+
   /// Quit the application.
   quit,
 
@@ -397,6 +444,13 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.searchAcrossProjects:
       case SimcruxAction.openPluginManager:
       case SimcruxAction.reloadPlugins:
+      // The Flow analysis screens over runs that are themselves free: the
+      // verdict, metrics, worst paths and the last-run delta are open core.
+      case SimcruxAction.openFlowTrends:
+      case SimcruxAction.openFlowCompare:
+      case SimcruxAction.openFlowPpa:
+      case SimcruxAction.openFlowSweep:
+      case SimcruxAction.writeFlowBaseline:
       // Multi-project registry semantics. Open-core
       // ships `NoopProjectRegistry`: one project, no recents, no
       // pinning. Every action whose *meaning* is defined by the
@@ -432,6 +486,16 @@ enum SimcruxAction implements CruxAction {
       // charging for the GUI door onto a capability the binary already gives
       // away for free would be a tier boundary drawn around a menu item.
       case SimcruxAction.exportResults:
+      // An implementation-flow run, its panel, ingest and the hand-off to
+      // a viewer are open core in every tier: results are findings, and
+      // reading them is not a paid capability.
+      case SimcruxAction.toggleFlowRuns:
+      case SimcruxAction.runFlowEntry:
+      case SimcruxAction.openInKlayout:
+      case SimcruxAction.openInOpenroad:
+      case SimcruxAction.openInNextpnrGui:
+      case SimcruxAction.ingestRunDirectory:
+      case SimcruxAction.ingestRunArchive:
       case SimcruxAction.quit:
       case SimcruxAction.toggleTestBrowser:
       case SimcruxAction.toggleInspector:
@@ -510,6 +574,8 @@ enum SimcruxAction implements CruxAction {
       // different menu in half the products.
       case SimcruxAction.openCrossProbePanel:
       case SimcruxAction.crossProbeSelection:
+      // Flow Runs is a panel, beside the other panel toggles.
+      case SimcruxAction.toggleFlowRuns:
       // A view onto the run's formal rows, as the plan's menu table puts it.
       case SimcruxAction.openFormalProperties:
       case SimcruxAction.splitPaneRight:
@@ -547,6 +613,19 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.openPluginManager:
       case SimcruxAction.reloadPlugins:
       case SimcruxAction.exportResults:
+      // SimCrux has no Run menu: running and handing off a flow are Tools
+      // verbs, beside Run Regression.
+      case SimcruxAction.runFlowEntry:
+      case SimcruxAction.openInKlayout:
+      case SimcruxAction.openInOpenroad:
+      case SimcruxAction.openInNextpnrGui:
+      case SimcruxAction.ingestRunDirectory:
+      case SimcruxAction.ingestRunArchive:
+      case SimcruxAction.openFlowTrends:
+      case SimcruxAction.openFlowCompare:
+      case SimcruxAction.openFlowPpa:
+      case SimcruxAction.openFlowSweep:
+      case SimcruxAction.writeFlowBaseline:
       case SimcruxAction.openTabDiagnostics:
       case SimcruxAction.openAppDiagnostics:
         return ActionCategory.tools;
@@ -636,6 +715,30 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionConfigureRetentionPolicy;
       case SimcruxAction.exportResults:
         return l10n.actionExportResults;
+      case SimcruxAction.toggleFlowRuns:
+        return l10n.actionToggleFlowRuns;
+      case SimcruxAction.runFlowEntry:
+        return l10n.actionRunFlowEntry;
+      case SimcruxAction.openInKlayout:
+        return l10n.actionOpenInKlayout;
+      case SimcruxAction.openInOpenroad:
+        return l10n.actionOpenInOpenroad;
+      case SimcruxAction.openInNextpnrGui:
+        return l10n.actionOpenInNextpnrGui;
+      case SimcruxAction.ingestRunDirectory:
+        return l10n.actionIngestRunDirectory;
+      case SimcruxAction.ingestRunArchive:
+        return l10n.actionIngestRunArchive;
+      case SimcruxAction.openFlowTrends:
+        return l10n.actionOpenFlowTrends;
+      case SimcruxAction.openFlowCompare:
+        return l10n.actionOpenFlowCompare;
+      case SimcruxAction.openFlowPpa:
+        return l10n.actionOpenFlowPpa;
+      case SimcruxAction.openFlowSweep:
+        return l10n.actionOpenFlowSweep;
+      case SimcruxAction.writeFlowBaseline:
+        return l10n.actionWriteFlowBaseline;
       case SimcruxAction.dispatchPrAnnotations:
         return l10n.actionDispatchPrAnnotations;
       case SimcruxAction.configurePrAnnotationTarget:

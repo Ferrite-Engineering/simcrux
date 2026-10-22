@@ -11,6 +11,7 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
 import 'package:simcrux/domain/models/flow_run_record.dart';
 import 'package:simcrux/domain/models/test_result.dart';
+import 'package:simcrux/services/flow/flow_archive_extractor.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
@@ -24,8 +25,9 @@ enum FlowIngestFailure {
   /// The path resolves outside every directory ingest may read from.
   outside,
 
-  /// A zipped CI artifact: not opened yet; extract it and ingest the run
-  /// directory inside.
+  /// A zipped CI artifact that was refused: unreadable, over a size or
+  /// entry limit, or holding an entry that would escape its extraction
+  /// (an absolute path, a `..` segment or a symbolic link).
   archive,
 
   /// Neither a nextpnr report nor a LibreLane run, nor a directory of runs.
@@ -65,6 +67,10 @@ class FlowIngestItem {
 /// was allowed (the project root and the paths the user chose), symlinks
 /// resolved.
 ///
+/// A zipped CI artifact (a `.zip`) is extracted into SimCrux's own scratch
+/// by [FlowArchiveExtractor], contained and bounded, never into the project,
+/// and the runs inside are read from there.
+///
 /// A result is a `TestResult` with `didExecute` false, and the trend store
 /// records it with the run trigger `ingest`.
 class FlowRunIngestor {
@@ -73,7 +79,11 @@ class FlowRunIngestor {
     this.nextpnr = const NextpnrRunReader(),
     this.librelane,
     this.maxRuns = 500,
+    this.archives = const FlowArchiveExtractor(),
   });
+
+  /// Extracts zipped artifacts.
+  final FlowArchiveExtractor archives;
 
   /// Reads nextpnr reports and logs.
   final NextpnrRunReader nextpnr;
@@ -123,7 +133,11 @@ class FlowRunIngestor {
         continue;
       }
       if (type == FileSystemEntityType.file) {
-        out.add(await _readFile(raw, resolved));
+        out.addAll(
+          p.extension(resolved).toLowerCase() == '.zip'
+              ? await _readArchive(raw, resolved)
+              : await _readFile(raw, resolved),
+        );
       } else {
         out.addAll(await _readDirectory(raw, resolved, containment));
       }
@@ -131,56 +145,88 @@ class FlowRunIngestor {
     return out;
   }
 
-  Future<FlowIngestItem> _readFile(String raw, String path) async {
+  Future<List<FlowIngestItem>> _readFile(String raw, String path) async {
     final ext = p.extension(path).toLowerCase();
-    if (ext == '.zip') {
-      return FlowIngestItem(
-        path: raw,
-        failure: FlowIngestFailure.archive,
-        message:
-            'zipped artifacts are not opened yet: extract it and ingest the '
-            'run directory inside',
-      );
-    }
     if (ext == '.json') {
-      return FlowIngestItem(
-        path: raw,
-        reading: await nextpnr.readReport(path),
-      );
+      return <FlowIngestItem>[
+        FlowIngestItem(path: raw, reading: await nextpnr.readReport(path)),
+      ];
     }
     if (ext == '.log') {
-      return FlowIngestItem(path: raw, reading: await nextpnr.readLog(path));
+      return <FlowIngestItem>[
+        FlowIngestItem(path: raw, reading: await nextpnr.readLog(path)),
+      ];
     }
-    return FlowIngestItem(
-      path: raw,
-      failure: FlowIngestFailure.unrecognised,
-      message: 'not a nextpnr report, a nextpnr log or a run directory',
-    );
+    return <FlowIngestItem>[
+      FlowIngestItem(
+        path: raw,
+        failure: FlowIngestFailure.unrecognised,
+        message: 'not a nextpnr report, a nextpnr log or a run directory',
+      ),
+    ];
   }
 
+  /// Extracts the zip at [path] into SimCrux's scratch and reads the runs
+  /// inside, contained to the extraction.
+  Future<List<FlowIngestItem>> _readArchive(String raw, String path) async {
+    final extraction = await archives.extract(path);
+    final dir = extraction.directory;
+    if (dir == null) {
+      return <FlowIngestItem>[
+        FlowIngestItem(
+          path: raw,
+          failure: FlowIngestFailure.archive,
+          message: 'the zipped artifact was not opened: ${extraction.message}',
+        ),
+      ];
+    }
+    final items = await _readDirectory(
+      raw,
+      dir,
+      FlowContainment(<String>[dir]),
+      depth: 4,
+    );
+    return <FlowIngestItem>[
+      for (final item in items)
+        if (item.reading == null)
+          FlowIngestItem(
+            path: raw,
+            failure: item.failure,
+            message:
+                'no nextpnr report and no LibreLane run in the zipped '
+                'artifact',
+          )
+        else
+          item,
+    ];
+  }
+
+  /// The runs in [dir]: [dir] itself, or a directory of runs, `runs/<tag>/`
+  /// (LibreLane) or `runs/<entry>/<tag>/` (SimCrux's nextpnr runs), [depth]
+  /// levels at most. A zipped artifact is searched deeper, because it
+  /// usually wraps the `runs/` directory in one or two of its own.
   Future<List<FlowIngestItem>> _readDirectory(
     String raw,
     String dir,
-    FlowContainment containment,
-  ) async {
+    FlowContainment containment, {
+    int depth = 2,
+  }) async {
     final single = await _readRun(dir);
     if (single != null) return <FlowIngestItem>[single];
-    // A directory of runs: `runs/<tag>/` (LibreLane) or
-    // `runs/<entry>/<tag>/` (SimCrux's nextpnr runs), two levels at most.
     final found = <FlowIngestItem>[];
-    for (final child in _subdirectories(dir, containment)) {
-      if (found.length >= maxRuns) break;
-      final run = await _readRun(child);
-      if (run != null) {
-        found.add(run);
-        continue;
-      }
-      for (final grandchild in _subdirectories(child, containment)) {
-        if (found.length >= maxRuns) break;
-        final nested = await _readRun(grandchild);
-        if (nested != null) found.add(nested);
+    Future<void> walk(String at, int left) async {
+      for (final child in _subdirectories(at, containment)) {
+        if (found.length >= maxRuns) return;
+        final run = await _readRun(child);
+        if (run != null) {
+          found.add(run);
+        } else if (left > 1) {
+          await walk(child, left - 1);
+        }
       }
     }
+
+    await walk(dir, depth);
     if (found.isNotEmpty) return found;
     return <FlowIngestItem>[
       FlowIngestItem(

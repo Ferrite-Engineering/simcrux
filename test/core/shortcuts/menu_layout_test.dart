@@ -85,11 +85,13 @@ void main() {
 
     test('leads Tools with the run commands, and File holds none of them', () {
       // Running a regression is a Tools verb. These three used to sit at the
-      // top of the File menu, right under Open Config….
+      // top of the File menu, right under Open Config…. Run Flow Entry is a
+      // run verb too, so it closes the group (SimCrux has no Run menu).
       expect(kMenuLayout[ActionCategory.tools]!.first, [
         SimcruxAction.runRegression,
         SimcruxAction.reRunSelected,
         SimcruxAction.cancelRegression,
+        SimcruxAction.runFlowEntry,
       ]);
       final file = kMenuLayout[ActionCategory.file]!.expand((g) => g);
       expect(file, isNot(contains(SimcruxAction.runRegression)));

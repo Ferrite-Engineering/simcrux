@@ -211,6 +211,24 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // yet".
   SimcruxAction.dispatchPrAnnotations: _Dispatch.proGatedSnack,
   SimcruxAction.configurePrAnnotationTarget: _Dispatch.proGatedSnack,
+  // ── Implementation flow ─────────────────────────────────────────
+  // View > Flow Runs toggles the dock tab's visibility flag, like the
+  // cross-probe panel.
+  SimcruxAction.toggleFlowRuns: _Dispatch.mutatesState,
+  // Run, ingest and the hand-off all act on the active tab: with no project
+  // they say so.
+  SimcruxAction.runFlowEntry: _Dispatch.noProjectSnack,
+  SimcruxAction.openInKlayout: _Dispatch.noProjectSnack,
+  SimcruxAction.openInOpenroad: _Dispatch.noProjectSnack,
+  SimcruxAction.openInNextpnrGui: _Dispatch.noProjectSnack,
+  SimcruxAction.ingestRunDirectory: _Dispatch.noProjectSnack,
+  SimcruxAction.ingestRunArchive: _Dispatch.noProjectSnack,
+  // The five Pro Flow seams are null in open core.
+  SimcruxAction.openFlowTrends: _Dispatch.proGatedSnack,
+  SimcruxAction.openFlowCompare: _Dispatch.proGatedSnack,
+  SimcruxAction.openFlowPpa: _Dispatch.proGatedSnack,
+  SimcruxAction.openFlowSweep: _Dispatch.proGatedSnack,
+  SimcruxAction.writeFlowBaseline: _Dispatch.proGatedSnack,
 };
 
 /// The open-core registry, recording every pin toggle it is asked for.

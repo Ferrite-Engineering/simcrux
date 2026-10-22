@@ -2911,5 +2911,855 @@
   "settingsFormalToolsGuidanceWindows": "OSS CAD Suite には Windows 版があります。WSL2 上で形式検証フローを実行する方法も一般的で、より充実したサポートがあります。",
   "@settingsFormalToolsGuidanceWindows": {
     "description": "Advice under the formal tools report on Windows when a tool is missing."
+  },
+  "actionToggleFlowRuns": "フローの実行",
+  "@actionToggleFlowRuns": {
+    "description": "View menu / palette: show or hide the Flow Runs panel (implementation-flow runs)."
+  },
+  "actionRunFlowEntry": "フローエントリを実行",
+  "@actionRunFlowEntry": {
+    "description": "Tools menu / palette: run the project's implementation-flow entry (the one of the selected run, else all)."
+  },
+  "actionOpenInKlayout": "KLayout で開く…",
+  "@actionOpenInKlayout": {
+    "description": "Tools menu / palette: hand the selected LibreLane run to KLayout. KLayout is a product name."
+  },
+  "actionOpenInOpenroad": "OpenROAD で開く…",
+  "@actionOpenInOpenroad": {
+    "description": "Tools menu / palette: hand the selected LibreLane run to OpenROAD's viewer. OpenROAD is a product name."
+  },
+  "actionOpenInNextpnrGui": "nextpnr GUI で開く…",
+  "@actionOpenInNextpnrGui": {
+    "description": "Tools menu / palette: hand the selected nextpnr run to nextpnr's own viewer. nextpnr is a product name, always lower case."
+  },
+  "actionIngestRunDirectory": "実行ディレクトリを取り込む…",
+  "@actionIngestRunDirectory": {
+    "description": "Tools menu / palette: index a flow run directory SimCrux did not launch, read-only."
+  },
+  "actionIngestRunArchive": "zip 形式のアーティファクトを取り込む…",
+  "@actionIngestRunArchive": {
+    "description": "Tools menu / palette: index the flow runs inside a zipped CI artifact (for example a Tiny Tapeout GDS_logs zip)."
+  },
+  "actionOpenFlowTrends": "フローのメトリクスの推移…",
+  "@actionOpenFlowTrends": {
+    "description": "Tools menu / palette (Pro): metric trends across implementation-flow runs."
+  },
+  "actionOpenFlowCompare": "フローの実行を比較…",
+  "@actionOpenFlowCompare": {
+    "description": "Tools menu / palette (Pro): compare two implementation-flow runs."
+  },
+  "actionOpenFlowPpa": "PPA ダッシュボード…",
+  "@actionOpenFlowPpa": {
+    "description": "Tools menu / palette (Pro): power, performance and area over time. PPA is an industry acronym."
+  },
+  "actionOpenFlowSweep": "設計空間スイープ…",
+  "@actionOpenFlowSweep": {
+    "description": "Tools menu / palette (Pro): runs grouped by the configuration variables they differ in."
+  },
+  "actionWriteFlowBaseline": "フローのベースラインを書き出す…",
+  "@actionWriteFlowBaseline": {
+    "description": "Tools menu / palette (Pro): write or manage the baseline a flow gate compares against."
+  },
+  "dockTabFlowRuns": "フローの実行",
+  "@dockTabFlowRuns": {
+    "description": "Dock tab title of the Flow Runs panel."
+  },
+  "flowRunNoEntries": "このプロジェクトにはフローのエントリがありません。simcrux.yaml に flow: エントリを追加してください。",
+  "@flowRunNoEntries": {
+    "description": "Toast when Run Flow Entry finds no flow: entry. \"flow:\" and \"simcrux.yaml\" are literal and never translated."
+  },
+  "flowHandoffNoRun": "先に「フローの実行」で実行を選ぶか、フローの結果を選んでください。",
+  "@flowHandoffNoRun": {
+    "description": "Toast when a hand-off (Open in KLayout and the others) has no run to open."
+  },
+  "flowHandoffNeedsLibreLane": "{viewer} は LibreLane の実行を開きます。先に LibreLane の実行を選んでください。",
+  "@flowHandoffNeedsLibreLane": {
+    "description": "Toast when KLayout or OpenROAD is asked to open a nextpnr run. {viewer} is the product name.",
+    "placeholders": {
+      "viewer": {
+        "type": "String"
+      }
+    }
+  },
+  "flowHandoffNeedsNextpnr": "nextpnr GUI は nextpnr の実行を開きます。先に nextpnr の実行を選んでください。",
+  "@flowHandoffNeedsNextpnr": {
+    "description": "Toast when nextpnr's viewer is asked to open a LibreLane run."
+  },
+  "flowIngestDone": "{count, plural, =0{実行が見つかりませんでした} =1{1 件の実行を取り込みました} other{{count} 件の実行を取り込みました}}",
+  "@flowIngestDone": {
+    "description": "Toast after Ingest Run Directory or Ingest Zipped Artifact.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowIngestFailed": "実行を取り込めませんでした：{reason}",
+  "@flowIngestFailed": {
+    "description": "Error toast when an ingest path holds no run or was refused. {reason} is the reader's own English explanation.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsNoProject": "プロジェクトを開くと、フローの実行が表示されます。",
+  "@flowRunsNoProject": {
+    "description": "Flow Runs panel empty state with no project open."
+  },
+  "flowRunsReading": "フローの実行を読み込んでいます…",
+  "@flowRunsReading": {
+    "description": "Flow Runs panel while the runs are read."
+  },
+  "flowRunsReadFailed": "フローの実行を読み込めませんでした。",
+  "@flowRunsReadFailed": {
+    "description": "Flow Runs panel when reading the runs failed."
+  },
+  "flowRunsEmpty": "フローの実行はまだありません。flow: エントリを追加するか、実行ディレクトリを取り込んでください。",
+  "@flowRunsEmpty": {
+    "description": "Flow Runs panel empty state. \"flow:\" is literal."
+  },
+  "flowRunStatusChanged": "実行 {design}: {verdict}",
+  "@flowRunStatusChanged": {
+    "description": "Spoken when the shown run's verdict changes. {design} is the entry name, {verdict} a verdict label.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsTableLabel": "フローの実行",
+  "@flowRunsTableLabel": {
+    "description": "Accessible name of the run list in the Flow Runs panel."
+  },
+  "flowColumnVerdict": "判定",
+  "@flowColumnVerdict": {
+    "description": "Run list column header."
+  },
+  "flowColumnDesign": "設計",
+  "@flowColumnDesign": {
+    "description": "Run list column header: the flow entry the run belongs to."
+  },
+  "flowColumnTag": "タグ",
+  "@flowColumnTag": {
+    "description": "Run list column header: the run tag (its directory name)."
+  },
+  "flowColumnFlow": "フロー",
+  "@flowColumnFlow": {
+    "description": "Run list column header: LibreLane or nextpnr."
+  },
+  "flowRunRowSpoken": "実行 {design}、{tag}、{verdict}、{kind}",
+  "@flowRunRowSpoken": {
+    "description": "The one sentence a screen reader hears for a run row. {kind} is LibreLane or nextpnr.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "tag": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsProblems": "{count, plural, =1{取り込みパス 1 件に実行がありません} other{取り込みパス {count} 件に実行がありません}}",
+  "@flowRunsProblems": {
+    "description": "Note under the run summary; the paths and reasons are in its tooltip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowSectionsLabel": "実行の詳細",
+  "@flowSectionsLabel": {
+    "description": "Accessible name of the Steps / Metrics / Worst paths switch."
+  },
+  "flowStepsTableLabel": "ステップ",
+  "@flowStepsTableLabel": {
+    "description": "Steps table name and switch segment."
+  },
+  "flowMetricsTableLabel": "メトリクス",
+  "@flowMetricsTableLabel": {
+    "description": "Metrics table name and switch segment."
+  },
+  "flowPathsTableLabel": "ワーストパス",
+  "@flowPathsTableLabel": {
+    "description": "Worst timing paths table name and switch segment."
+  },
+  "flowSegmentsTableLabel": "パスのセグメント",
+  "@flowSegmentsTableLabel": {
+    "description": "Accessible name of the segments table in the path detail."
+  },
+  "flowReaderNotVerified": "このリーダーは、この実行の LibreLane のバージョンでは検証されていません。結果は実行ディレクトリからできる範囲で読み取ったものです。",
+  "@flowReaderNotVerified": {
+    "description": "Banner above an unverified run. Must never be shortened into a claim that the run was verified."
+  },
+  "flowRunHeading": "{design}: {verdict}",
+  "@flowRunHeading": {
+    "description": "Heading of the shown run.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "flowFindingsNote": "結果は所見であり、サインオフではありません。",
+  "@flowFindingsNote": {
+    "description": "The one disclaimer that names signoff in the negative; fenced in the vocabulary guard. Keep the negative."
+  },
+  "flowReaderLine": "{reader} で読み取り（{version}）",
+  "@flowReaderLine": {
+    "description": "Which reader read the run, and for which tool version. Both are identifiers, never translated.",
+    "placeholders": {
+      "reader": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSame": "前回の実行と同じ",
+  "@flowDeltaSame": {
+    "description": "Last-run delta chip when nothing changed."
+  },
+  "flowDeltaSlackBetter": "スラックが前回の実行より {value} ns 改善",
+  "@flowDeltaSlackBetter": {
+    "description": "Last-run delta chip. ns is nanoseconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackWorse": "スラックが前回の実行より {value} ns 悪化",
+  "@flowDeltaSlackWorse": {
+    "description": "Last-run delta chip. ns is nanoseconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackBetterSpoken": "スラックが前回の実行より {value} ナノ秒改善",
+  "@flowDeltaSlackBetterSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackWorseSpoken": "スラックが前回の実行より {value} ナノ秒悪化",
+  "@flowDeltaSlackWorseSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxBetter": "クロックが前回の実行より {value} MHz 高速",
+  "@flowDeltaFmaxBetter": {
+    "description": "Last-run delta chip (nextpnr). MHz is megahertz.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxWorse": "クロックが前回の実行より {value} MHz 低速",
+  "@flowDeltaFmaxWorse": {
+    "description": "Last-run delta chip (nextpnr). MHz is megahertz.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxBetterSpoken": "クロックが前回の実行より {value} メガヘルツ高速",
+  "@flowDeltaFmaxBetterSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxWorseSpoken": "クロックが前回の実行より {value} メガヘルツ低速",
+  "@flowDeltaFmaxWorseSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowStepsNone": "この実行にはステップの記録がありません。",
+  "@flowStepsNone": {
+    "description": "Steps section of a run without step directories (nextpnr)."
+  },
+  "flowOpenRunLog": "実行ログを開く",
+  "@flowOpenRunLog": {
+    "description": "Button: the run's own log, for a run without steps."
+  },
+  "flowColumnNumber": "#",
+  "@flowColumnNumber": {
+    "description": "Column header: the step number or the path rank."
+  },
+  "flowColumnStep": "ステップ",
+  "@flowColumnStep": {
+    "description": "Steps table column header."
+  },
+  "flowColumnTool": "ツール",
+  "@flowColumnTool": {
+    "description": "Steps table column header."
+  },
+  "flowColumnStatus": "状態",
+  "@flowColumnStatus": {
+    "description": "Steps table column header."
+  },
+  "flowColumnSeconds": "時間（秒）",
+  "@flowColumnSeconds": {
+    "description": "Steps table column header: wall time in seconds."
+  },
+  "flowStepRowSpoken": "ステップ {ordinal}、{step}、{status}、{time}",
+  "@flowStepRowSpoken": {
+    "description": "The one sentence a screen reader hears for a step row.",
+    "placeholders": {
+      "ordinal": {
+        "type": "int"
+      },
+      "step": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRuntimeUnknown": "時間の記録なし",
+  "@flowRuntimeUnknown": {
+    "description": "Spoken in a step row when the step's wall time is unknown."
+  },
+  "flowSecondsSpoken": "{value} 秒",
+  "@flowSecondsSpoken": {
+    "description": "A step's wall time, spoken.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMetricsNone": "この実行にはメトリクスの記録がありません。",
+  "@flowMetricsNone": {
+    "description": "Metrics section of a run without metrics."
+  },
+  "flowMetricsColumnDesign": "設計",
+  "@flowMetricsColumnDesign": {
+    "description": "Metrics table header of the design-wide value (no corner). Corner names beside it are never translated."
+  },
+  "flowColumnMetric": "メトリクス",
+  "@flowColumnMetric": {
+    "description": "Metrics table column header."
+  },
+  "flowMetricValueSpoken": "{column} {value}",
+  "@flowMetricValueSpoken": {
+    "description": "One value of a metric row, spoken: the column (Design or a corner name) and the value with its unit.",
+    "placeholders": {
+      "column": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMetricRowSpoken": "{label}: {values}",
+  "@flowMetricRowSpoken": {
+    "description": "The one sentence a screen reader hears for a metric row.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathsReading": "ワーストパスを読み込んでいます…",
+  "@flowPathsReading": {
+    "description": "Worst paths section while reading."
+  },
+  "flowPathsUnreadable": "この実行のタイミングレポートを読み込めませんでした。",
+  "@flowPathsUnreadable": {
+    "description": "Worst paths section when the report could not be read."
+  },
+  "flowPathsLibreLane": "LibreLane の実行のタイミングパスはまだ読み取りません。ワーストスラックと違反数は「メトリクス」にあります。",
+  "@flowPathsLibreLane": {
+    "description": "Worst paths section of a LibreLane run."
+  },
+  "flowPathsNone": "この実行のレポートにはタイミングパスがありません。",
+  "@flowPathsNone": {
+    "description": "Worst paths section when the report lists none."
+  },
+  "flowColumnClock": "クロック",
+  "@flowColumnClock": {
+    "description": "Worst paths column header."
+  },
+  "flowColumnFrom": "始点",
+  "@flowColumnFrom": {
+    "description": "Column header: where a path or segment starts."
+  },
+  "flowColumnTo": "終点",
+  "@flowColumnTo": {
+    "description": "Column header: where a path or segment ends."
+  },
+  "flowColumnDelay": "遅延（ns）",
+  "@flowColumnDelay": {
+    "description": "Column header: delay in nanoseconds."
+  },
+  "flowColumnMapping": "対応付け",
+  "@flowColumnMapping": {
+    "description": "Worst paths column header: how the path maps to the RTL."
+  },
+  "flowPathRowSpoken": "パス {rank}、クロック {clock}、{from} から {to} まで、{delay} ナノ秒、対応付け {mapping}",
+  "@flowPathRowSpoken": {
+    "description": "The one sentence a screen reader hears for a worst-path row. {from} and {to} are cell names.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "clock": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathRowSpokenNoClock": "パス {rank}、{from} から {to} まで、{delay} ナノ秒、対応付け {mapping}",
+  "@flowPathRowSpokenNoClock": {
+    "description": "As flowPathRowSpoken, for a path with no clock.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathsUnmappedNote": "この実行には合成済みネットリストがないため、パスは RTL に対応付けられていません。",
+  "@flowPathsUnmappedNote": {
+    "description": "Note above the worst paths of an ingested report without its netlists."
+  },
+  "flowRunLogTitle": "実行ログ: {tag}",
+  "@flowRunLogTitle": {
+    "description": "Dialog title for a run's own log.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "flowStepDetailTitle": "ステップ {ordinal}: {step}",
+  "@flowStepDetailTitle": {
+    "description": "Dialog title for a step.",
+    "placeholders": {
+      "ordinal": {
+        "type": "int"
+      },
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "flowOpenFullLog": "完全なログをエディターで開く",
+  "@flowOpenFullLog": {
+    "description": "Button: the step's whole log in the configured editor."
+  },
+  "flowStepStatusLine": "状態: {status}。ツール: {tool}。",
+  "@flowStepStatusLine": {
+    "description": "First line of the step dialog.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "flowLogNone": "このステップのログは見つかりませんでした。",
+  "@flowLogNone": {
+    "description": "Step dialog when the step wrote no log."
+  },
+  "flowLogTailLabel": "ログの末尾",
+  "@flowLogTailLabel": {
+    "description": "Accessible name of the scrolling log tail in the step dialog."
+  },
+  "flowPathDetailTitle": "パス {rank}",
+  "@flowPathDetailTitle": {
+    "description": "Path detail dialog title.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "flowPathFromTo": "{from} から {to} まで",
+  "@flowPathFromTo": {
+    "description": "Path detail: the path's two ends. Never written with an arrow.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathSummary": "{delay} ns、クロック {clock}",
+  "@flowPathSummary": {
+    "description": "Path detail: the delay and the clock.",
+    "placeholders": {
+      "delay": {
+        "type": "String"
+      },
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathSummaryNoClock": "{delay} ns",
+  "@flowPathSummaryNoClock": {
+    "description": "Path detail: the delay of a path with no clock.",
+    "placeholders": {
+      "delay": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathEnds": "始点: {start}。終点: {end}。",
+  "@flowPathEnds": {
+    "description": "Path detail: where each end maps in the RTL.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "flowColumnSegmentType": "種類",
+  "@flowColumnSegmentType": {
+    "description": "Path segments column header (logic, routing, and so on, as the tool writes them)."
+  },
+  "flowColumnSource": "ソース",
+  "@flowColumnSource": {
+    "description": "Path segments column header: where the segment lands in the RTL."
+  },
+  "flowSegmentRowSpoken": "セグメント {index}、{type}、{from} から {to} まで、{delay} ナノ秒、{source}",
+  "@flowSegmentRowSpoken": {
+    "description": "The one sentence a screen reader hears for a segment row.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingNearest": "対応付けなし。最も近い対応付け: {mapping}",
+  "@flowMappingNearest": {
+    "description": "A segment with no source location, shown beside its nearest mapped neighbour.",
+    "placeholders": {
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingRegister": "レジスタ {name}",
+  "@flowMappingRegister": {
+    "description": "Where a path end lands: a source register. {name} is never translated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingStatement": "文 {location}",
+  "@flowMappingStatement": {
+    "description": "Where a path end lands: one source line (file:line).",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingStatementOf": "文 {location}（{register} への代入）",
+  "@flowMappingStatementOf": {
+    "description": "As flowMappingStatement, when the line assigns one register.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "register": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingSpan": "ブロック {location}",
+  "@flowMappingSpan": {
+    "description": "Where a path end lands: only a block of source lines is known.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingUnmapped": "このセルのソース位置は合成後に残っていません",
+  "@flowMappingUnmapped": {
+    "description": "Where a path end lands: nothing."
+  },
+  "flowFidelityRegister": "レジスタ",
+  "@flowFidelityRegister": {
+    "description": "Mapping fidelity: a source register, found by name."
+  },
+  "flowFidelityStatement": "文",
+  "@flowFidelityStatement": {
+    "description": "Mapping fidelity: one source line."
+  },
+  "flowFidelitySpan": "ブロック",
+  "@flowFidelitySpan": {
+    "description": "Mapping fidelity: only a block of source lines."
+  },
+  "flowFidelityUnmapped": "対応付けなし",
+  "@flowFidelityUnmapped": {
+    "description": "Mapping fidelity: nothing in the source."
+  },
+  "flowVerdictMet": "達成",
+  "@flowVerdictMet": {
+    "description": "Flow verdict: every constraint met."
+  },
+  "flowVerdictViolated": "違反",
+  "@flowVerdictViolated": {
+    "description": "Flow verdict: the run completed with violations. A finding, not an error."
+  },
+  "flowVerdictStopped": "停止",
+  "@flowVerdictStopped": {
+    "description": "Flow verdict: the run stopped before it finished."
+  },
+  "flowVerdictStoppedAt": "{step} で停止",
+  "@flowVerdictStoppedAt": {
+    "description": "Flow verdict with the step the run stopped at. {step} is a step id.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "flowVerdictNotRun": "実行されず",
+  "@flowVerdictNotRun": {
+    "description": "Flow verdict: nothing ran."
+  },
+  "flowVerdictUnrecognised": "認識できない",
+  "@flowVerdictUnrecognised": {
+    "description": "Flow verdict: the run's records could not be read into a verdict."
+  },
+  "flowStepCompleted": "完了",
+  "@flowStepCompleted": {
+    "description": "Step status."
+  },
+  "flowStepFailed": "失敗",
+  "@flowStepFailed": {
+    "description": "Step status."
+  },
+  "flowStepSkipped": "スキップ",
+  "@flowStepSkipped": {
+    "description": "Step status."
+  },
+  "flowStepRunning": "実行中",
+  "@flowStepRunning": {
+    "description": "Step status."
+  },
+  "flowStepNotStarted": "未開始",
+  "@flowStepNotStarted": {
+    "description": "Step status."
+  },
+  "flowMetricSetupWorstSlack": "ワーストセットアップスラック",
+  "@flowMetricSetupWorstSlack": {
+    "description": "Label of metric timing__setup__ws (the key itself is never translated)."
+  },
+  "flowMetricHoldWorstSlack": "ワーストホールドスラック",
+  "@flowMetricHoldWorstSlack": {
+    "description": "Label of metric timing__hold__ws."
+  },
+  "flowMetricSetupWns": "セットアップの最悪負スラック",
+  "@flowMetricSetupWns": {
+    "description": "Label of metric timing__setup__wns."
+  },
+  "flowMetricHoldWns": "ホールドの最悪負スラック",
+  "@flowMetricHoldWns": {
+    "description": "Label of metric timing__hold__wns."
+  },
+  "flowMetricSetupTns": "セットアップの総負スラック",
+  "@flowMetricSetupTns": {
+    "description": "Label of metric timing__setup__tns."
+  },
+  "flowMetricHoldTns": "ホールドの総負スラック",
+  "@flowMetricHoldTns": {
+    "description": "Label of metric timing__hold__tns."
+  },
+  "flowMetricSetupViolations": "セットアップ違反数",
+  "@flowMetricSetupViolations": {
+    "description": "Label of metric timing__setup_vio__count."
+  },
+  "flowMetricHoldViolations": "ホールド違反数",
+  "@flowMetricHoldViolations": {
+    "description": "Label of metric timing__hold_vio__count."
+  },
+  "flowMetricAchievedClock": "達成クロック",
+  "@flowMetricAchievedClock": {
+    "description": "Label of metric fmax__achieved__mhz."
+  },
+  "flowMetricCellArea": "セル面積",
+  "@flowMetricCellArea": {
+    "description": "Label of metric design__instance__area."
+  },
+  "flowMetricUtilization": "使用率",
+  "@flowMetricUtilization": {
+    "description": "Label of metric design__instance__utilization."
+  },
+  "flowMetricCellCount": "セル数",
+  "@flowMetricCellCount": {
+    "description": "Label of metric design__instance__count."
+  },
+  "flowMetricRouteDrc": "配線 DRC エラー",
+  "@flowMetricRouteDrc": {
+    "description": "Label of metric route__drc_errors. DRC is an industry acronym."
+  },
+  "flowMetricMagicDrc": "Magic DRC エラー",
+  "@flowMetricMagicDrc": {
+    "description": "Label of metric magic__drc_error__count. Magic is a product name."
+  },
+  "flowMetricLvs": "LVS エラー",
+  "@flowMetricLvs": {
+    "description": "Label of metric design__lvs_error__count. LVS is an industry acronym."
+  },
+  "flowMetricAntenna": "アンテナ違反",
+  "@flowMetricAntenna": {
+    "description": "Label of metric route__antenna_violation__count."
+  },
+  "flowMetricAntennaNets": "アンテナ違反のあるネット",
+  "@flowMetricAntennaNets": {
+    "description": "Label of metric antenna__violating__nets."
+  },
+  "flowMetricXor": "XOR の差分",
+  "@flowMetricXor": {
+    "description": "Label of metric design__xor_difference__count."
+  },
+  "flowMetricPower": "総消費電力",
+  "@flowMetricPower": {
+    "description": "Label of metric power__total."
+  },
+  "flowMetricBelsUsed": "使用セル数",
+  "@flowMetricBelsUsed": {
+    "description": "Label of nextpnr metric utilization__used__bel (per cell type)."
+  },
+  "flowMetricBelsAvailable": "使用可能セル数",
+  "@flowMetricBelsAvailable": {
+    "description": "Label of nextpnr metric utilization__available__bel (per cell type)."
+  },
+  "flowUnitNanoseconds": "ナノ秒",
+  "@flowUnitNanoseconds": {
+    "description": "The unit ns, spoken."
+  },
+  "flowUnitMegahertz": "メガヘルツ",
+  "@flowUnitMegahertz": {
+    "description": "The unit MHz, spoken."
+  },
+  "flowUnitSquareMicrometres": "平方マイクロメートル",
+  "@flowUnitSquareMicrometres": {
+    "description": "The unit square micrometre, spoken."
+  },
+  "flowUnitWatts": "ワット",
+  "@flowUnitWatts": {
+    "description": "The unit W, spoken."
+  },
+  "diagnosticsTabFlowSection": "フロー",
+  "@diagnosticsTabFlowSection": {
+    "description": "Tab Diagnostics section heading: how the selected flow run was read."
+  },
+  "diagnosticsTabFlowNoRun": "フローの実行が選択されていません。",
+  "@diagnosticsTabFlowNoRun": {
+    "description": "Tab Diagnostics Flow section with no run selected."
+  },
+  "diagnosticsTabRowFlowReader": "リーダー",
+  "@diagnosticsTabRowFlowReader": {
+    "description": "Tab Diagnostics row: the reader id."
+  },
+  "diagnosticsTabRowFlowReaderVersion": "リーダーのバージョン",
+  "@diagnosticsTabRowFlowReaderVersion": {
+    "description": "Tab Diagnostics row: the tool version line the reader was written for."
+  },
+  "diagnosticsTabRowFlowVerified": "検証済みリーダー",
+  "@diagnosticsTabRowFlowVerified": {
+    "description": "Tab Diagnostics row: whether the reader is verified for the run (true or false)."
+  },
+  "diagnosticsTabRowFlowRunRoot": "実行ディレクトリ",
+  "@diagnosticsTabRowFlowRunRoot": {
+    "description": "Tab Diagnostics row: the run directory."
+  },
+  "diagnosticsTabRowFlowTools": "ツールのバージョン",
+  "@diagnosticsTabRowFlowTools": {
+    "description": "Tab Diagnostics row: the tool versions the run states."
   }
 }

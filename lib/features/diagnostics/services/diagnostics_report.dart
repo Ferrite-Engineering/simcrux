@@ -4,6 +4,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 
 /// Builds the structured-plain-text "Tab Diagnostics Report" the
@@ -48,6 +49,27 @@ String buildTabDiagnosticsReport(WidgetRef ref) {
       ..writeln('  Total tests: ${runState.run.testIds.length}')
       ..writeln('  Completed: ${runState.run.results.length}')
       ..writeln('  Finished: ${runState.isFinished}');
+  }
+  final selection = ref.read(flowSelectedRunProvider);
+  if (config != null && selection != null) {
+    final run = ref
+        .read(flowRunIndexProvider(flowProjectRoot(config)))
+        .value
+        ?.byRoot(selection.root);
+    if (run != null) {
+      final runRef = run.reading.run.ref;
+      buffer
+        ..writeln()
+        ..writeln('Flow:')
+        ..writeln('  Reader: ${run.reading.reader}')
+        ..writeln('  Reader version: ${runRef.readerVersion}')
+        ..writeln('  Verified reader: ${runRef.verified}')
+        ..writeln('  Run directory: ${run.root}');
+      for (final MapEntry(:key, :value)
+          in run.reading.run.toolVersions.entries) {
+        buffer.writeln('  $key: $value');
+      }
+    }
   }
   return buffer.toString();
 }

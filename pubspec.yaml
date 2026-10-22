@@ -14,7 +14,13 @@ executables:
   simcrux: simcrux
 
 dependencies:
+  # Zipped CI artifacts for flow ingest (MIT). Pure Dart.
+  archive: ^4.3.0
   args: ^2.5.0
+  # CruxScrollRegion (the Flow step log tail). Its test harness,
+  # `crux_a11y_testing.dart`, is what the focus walks use.
+  crux_a11y:
+    path: ./crux-shared/packages/crux_a11y
   crux_about_dialog:
     path: ./crux-shared/packages/crux_about_dialog
   crux_app_info:
@@ -223,11 +229,6 @@ dev_dependencies:
   # requires Dart 3.13 and this package targets the 3.12 SDK. 12.1.0 is already
   # the transitively resolved version, so the lockfile does not move.
   analyzer: '>=12.1.0 <13.0.0'
-  # The focus walk (`crux_a11y_testing.dart`) behind
-  # `test/accessibility/screen_reader_test.dart`: what a desktop screen reader
-  # hears when Tab moves through a surface, pinned as a text transcript.
-  crux_a11y:
-    path: ./crux-shared/packages/crux_a11y
   # Deterministic control of `Timer` for the tests whose subject IS a timing
   # window (the trend-tick coalescing debounce). Polling cannot shorten a real
   # debounce window, and asserting after a wall-clock sleep loses the race

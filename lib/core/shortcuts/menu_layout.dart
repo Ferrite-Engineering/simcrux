@@ -76,6 +76,7 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.toggleLogPanel,
       SimcruxAction.openCrossProbePanel,
       SimcruxAction.crossProbeSelection,
+      SimcruxAction.toggleFlowRuns,
     ],
     // The views onto the run's results that are screens, not panels.
     [
@@ -117,6 +118,24 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.runRegression,
       SimcruxAction.reRunSelected,
       SimcruxAction.cancelRegression,
+      SimcruxAction.runFlowEntry,
+    ],
+    // The implementation flow's own verbs: bringing in runs SimCrux did not
+    // launch, and handing one to a viewer.
+    [
+      SimcruxAction.ingestRunDirectory,
+      SimcruxAction.ingestRunArchive,
+      SimcruxAction.openInKlayout,
+      SimcruxAction.openInOpenroad,
+      SimcruxAction.openInNextpnrGui,
+    ],
+    // The Pro analyses over flow runs.
+    [
+      SimcruxAction.openFlowTrends,
+      SimcruxAction.openFlowCompare,
+      SimcruxAction.openFlowPpa,
+      SimcruxAction.openFlowSweep,
+      SimcruxAction.writeFlowBaseline,
     ],
     [
       SimcruxAction.showTrendChart,

@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
 
@@ -13,28 +14,61 @@ const String kRightDockTabDetails = 'details';
 /// The docked cross-probe panel tab (on-demand).
 const String kRightDockTabCrossProbe = 'crossProbe';
 
+/// The Flow Runs panel tab (on-demand).
+const String kDockTabFlowRuns = 'flowRuns';
+
 /// The bottom dock's region id (drag-between-docks).
 const String kDockRegionBottom = 'bottom';
 
 /// The right dock's region id (drag-between-docks).
 const String kDockRegionRight = 'right';
 
-/// Where the CXP tab currently lives (session-only drag override).
-class CrossProbeDockRegionNotifier extends Notifier<String> {
-  @override
-  String build() => kDockRegionRight;
+/// Every movable dock tab and the region it starts in: the cross-probe
+/// panel beside Details, Flow Runs beside the Log, where a run's tables
+/// have the window's width.
+const Map<String, String> kMovableDockTabHomes = <String, String>{
+  kRightDockTabCrossProbe: kDockRegionRight,
+  kDockTabFlowRuns: kDockRegionBottom,
+};
 
-  /// Re-homes the CXP tab into [region].
-  // ignore: use_setters_to_change_properties
-  void move(String region) => state = region;
+/// Where each movable dock tab currently lives (session-only drag
+/// override), keyed by tab id.
+class DockTabRegionNotifier extends Notifier<Map<String, String>> {
+  @override
+  Map<String, String> build() => kMovableDockTabHomes;
+
+  /// Re-homes the tab [id] into [region]. An id that is not a movable tab
+  /// moves nothing: a drop names the tab it carried, and only these can be
+  /// carried.
+  void move(String id, String region) {
+    if (!kMovableDockTabHomes.containsKey(id)) return;
+    if (region != kDockRegionRight && region != kDockRegionBottom) return;
+    state = <String, String>{...state, id: region};
+  }
 }
 
-/// See [CrossProbeDockRegionNotifier].
-final crossProbeDockRegionProvider =
-    NotifierProvider<CrossProbeDockRegionNotifier, String>(
-      CrossProbeDockRegionNotifier.new,
-      name: 'crossProbeDockRegionProvider',
+/// See [DockTabRegionNotifier].
+final NotifierProvider<DockTabRegionNotifier, Map<String, String>>
+dockTabRegionProvider =
+    NotifierProvider<DockTabRegionNotifier, Map<String, String>>(
+      DockTabRegionNotifier.new,
+      name: 'dockTabRegionProvider',
     );
+
+/// Where the cross-probe tab lives.
+final Provider<String> crossProbeDockRegionProvider = Provider<String>(
+  (ref) =>
+      ref.watch(dockTabRegionProvider)[kRightDockTabCrossProbe] ??
+      kDockRegionRight,
+  name: 'crossProbeDockRegionProvider',
+);
+
+/// Where the Flow Runs tab lives.
+final Provider<String> flowRunsDockRegionProvider = Provider<String>(
+  (ref) =>
+      ref.watch(dockTabRegionProvider)[kDockTabFlowRuns] ?? kDockRegionBottom,
+  name: 'flowRunsDockRegionProvider',
+);
 
 /// The bottom dock's active tab id (Log unless a moved-in CXP tab was
 /// revealed). Session-only.
@@ -97,13 +131,19 @@ final rightDockTabProvider = NotifierProvider<RightDockTabNotifier, String?>(
 /// when no explicit choice exists or the choice went stale.
 final Provider<String> effectiveRightDockTabProvider = Provider<String>((ref) {
   final tab = ref.watch(rightDockTabProvider);
-  final crossProbe = ref.watch(crossProbeVisibleProvider);
+  final crossProbe =
+      ref.watch(crossProbeVisibleProvider) &&
+      ref.watch(crossProbeDockRegionProvider) == kDockRegionRight;
+  final flowRuns =
+      ref.watch(flowRunsVisibleProvider) &&
+      ref.watch(flowRunsDockRegionProvider) == kDockRegionRight;
   if (tab != null) {
-    if (tab == kRightDockTabCrossProbe) {
-      if (crossProbe) return tab;
-    } else {
-      return tab;
-    }
+    final present = switch (tab) {
+      kRightDockTabCrossProbe => crossProbe,
+      kDockTabFlowRuns => flowRuns,
+      _ => true,
+    };
+    if (present) return tab;
   }
   if (crossProbe) return kRightDockTabCrossProbe;
   return kRightDockTabDetails;

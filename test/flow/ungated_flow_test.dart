@@ -17,7 +17,10 @@ import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 /// Flow is never gated. At Open Core with the beta period over and no Pro
 /// overrides, a project's flow entries load, a run's verdict, metrics and
 /// run directory come through ingest and the CLI, and `flow gate` decides.
-/// Nothing on these paths consults a licence.
+/// Nothing on these paths consults a licence. The Flow Runs panel renders
+/// its verdict, metrics and worst paths at Open Core with the beta period
+/// over in `test/features/flow/flow_runs_panel_test.dart`, whose harness
+/// pins both.
 void main() {
   const fixtures = 'verification/fixtures/flow/nextpnr';
   late Directory tmp;
@@ -85,8 +88,14 @@ flow:
   });
 
   test('no Flow file reads the licence tier or the beta flag', () {
+    // The panel, its tables and the hand-off are open core too; only the
+    // five Pro seams (null here, gated by the overlay) lead anywhere paid.
     final files = <File>[
       ...Directory('lib/services/flow')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart')),
+      ...Directory('lib/features/flow')
           .listSync(recursive: true)
           .whereType<File>()
           .where((f) => f.path.endsWith('.dart')),

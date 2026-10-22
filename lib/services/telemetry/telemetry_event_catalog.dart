@@ -245,6 +245,16 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'reason': kFlowReaderUnsupportedTokens,
         },
       ),
+      // Each worst path opened in the Flow Runs panel: the flow and how well
+      // the path maps to the RTL. Never the path, its cells, its delay or
+      // the design.
+      TelemetryCatalogEvent(
+        'flow.path.opened',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFlowKindTokens,
+          'fidelity': kFlowFidelityTokens,
+        },
+      ),
       // Each hand-off to an external viewer; `ok` false when it could not
       // be started.
       TelemetryCatalogEvent(
@@ -848,6 +858,14 @@ const List<String> kFlowReaderUnsupportedTokens = <String>[
   'version_unknown',
   'layout_unknown',
   'schema_unknown',
+];
+
+/// `flow.path.opened.fidelity`: the `MappingFidelity` wire names.
+const List<String> kFlowFidelityTokens = <String>[
+  'register',
+  'statement',
+  'span',
+  'unmapped',
 ];
 
 /// `flow.handoff.launched.viewer`.

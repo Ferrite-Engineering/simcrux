@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_view_mode_provider.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/inspector/providers/inspector_log_provider.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/watcher/providers/auto_reload_notifier.dart';
@@ -133,5 +134,12 @@ List<Override> simcruxTabOverrides(crux.TabId tabId) {
     selectedTestProvider.overrideWith(selectedTest),
     inspectorLogSnapshotProvider.overrideWith(inspectorLogSnapshot),
     fullInspectorLogProvider.overrideWith(fullInspectorLog),
+
+    // ── Implementation flow ───────────────────────────────────────────
+    // The Flow Runs selection, the ingested paths, the run index and the
+    // worst paths (both read the tab's config) and the watcher that keeps
+    // them current while the tab's regression runs. The Pro overlay's
+    // per-tab factory applies the same list.
+    ...flowTabOverrides(),
   ];
 }

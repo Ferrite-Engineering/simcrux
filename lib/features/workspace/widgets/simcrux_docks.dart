@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/dashboard/widgets/log_stream_panel.dart';
 import 'package:simcrux/features/dashboard/widgets/test_browser_panel.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
+import 'package:simcrux/features/flow/widgets/flow_runs_panel.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_pane.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
@@ -38,7 +40,7 @@ class SimcruxRightDock extends ConsumerWidget {
           label: l10n.dockTabDetails,
           builder: (_) => const InspectorPane(),
         ),
-        ..._crossProbeEntry(context, ref, region: kDockRegionRight),
+        ..._movableEntries(context, ref, region: kDockRegionRight),
       ],
       activeId: ref.watch(effectiveRightDockTabProvider),
       onSelect: tabNotifier.select,
@@ -101,11 +103,12 @@ class SimcruxBottomDock extends ConsumerWidget {
           label: l10n.dockTabLog,
           builder: (_) => const LogStreamPanel(),
         ),
-        // A CXP tab dragged down from the right dock.
-        ..._crossProbeEntry(context, ref, region: kDockRegionBottom),
+        // Flow Runs, and a CXP tab dragged down from the right dock.
+        ..._movableEntries(context, ref, region: kDockRegionBottom),
       ],
       activeId: ref.watch(bottomDockTabProvider),
       onSelect: (id) => ref.read(bottomDockTabProvider.notifier).select(id),
+      onAutoReveal: (id) => ref.read(bottomDockTabProvider.notifier).reveal(id),
       dockId: kDockRegionBottom,
       onTabMovedIn: (id, _) => _moveTab(ref, id, kDockRegionBottom),
       onCollapse: () => ref
@@ -117,33 +120,46 @@ class SimcruxBottomDock extends ConsumerWidget {
   }
 }
 
-/// The movable CXP entry when it is placed in [region] and the feature is
-/// on. Shared by both docks so the tab can never render twice.
-List<CruxDockEntry> _crossProbeEntry(
+/// The movable entries placed in [region] whose feature is on: the
+/// cross-probe panel and Flow Runs. Shared by both docks, each tab placed by
+/// [dockTabRegionProvider], so a tab can never render twice.
+List<CruxDockEntry> _movableEntries(
   BuildContext context,
   WidgetRef ref, {
   required String region,
 }) {
   final l10n = L10N.of(context);
-  if (!ref.watch(crossProbeVisibleProvider) ||
-      ref.watch(crossProbeDockRegionProvider) != region) {
-    return const [];
-  }
+  final regions = ref.watch(dockTabRegionProvider);
   return [
-    CruxDockEntry(
-      id: kRightDockTabCrossProbe,
-      icon: Icons.sensors_outlined,
-      label: l10n.dockTabCrossProbe,
-      movable: true,
-      builder: (_) => const SimCruxCrossProbePanel(),
-      onClose: () => ref.read(crossProbeVisibleProvider.notifier).toggle(),
-    ),
+    if (ref.watch(crossProbeVisibleProvider) &&
+        regions[kRightDockTabCrossProbe] == region)
+      CruxDockEntry(
+        id: kRightDockTabCrossProbe,
+        icon: Icons.sensors_outlined,
+        label: l10n.dockTabCrossProbe,
+        movable: true,
+        builder: (_) => const SimCruxCrossProbePanel(),
+        onClose: () => ref.read(crossProbeVisibleProvider.notifier).toggle(),
+      ),
+    if (ref.watch(flowRunsVisibleProvider) &&
+        regions[kDockTabFlowRuns] == region)
+      CruxDockEntry(
+        id: kDockTabFlowRuns,
+        icon: Icons.route_outlined,
+        label: l10n.dockTabFlowRuns,
+        movable: true,
+        builder: (_) => const FlowRunsPanel(),
+        onClose: () =>
+            ref.read(flowRunsVisibleProvider.notifier).set(visible: false),
+      ),
   ];
 }
 
-/// Drop handler: re-home [id] into [region] and reveal it there.
+/// Drop handler: re-home the tab [id] that was dropped into [region] and
+/// reveal it there. Only a movable tab moves; anything else is ignored.
 void _moveTab(WidgetRef ref, String id, String region) {
-  ref.read(crossProbeDockRegionProvider.notifier).move(region);
+  if (!kMovableDockTabHomes.containsKey(id)) return;
+  ref.read(dockTabRegionProvider.notifier).move(id, region);
   if (region == kDockRegionBottom) {
     ref.read(bottomDockTabProvider.notifier).reveal(id);
   } else {
@@ -207,7 +223,7 @@ class SimcruxDockRestoreBars extends ConsumerWidget {
                     notifier.setLogPanelVisible(visible: true),
                   ),
                 ),
-                for (final entry in _crossProbeEntry(
+                for (final entry in _movableEntries(
                   context,
                   ref,
                   region: kDockRegionBottom,
@@ -236,7 +252,7 @@ class SimcruxDockRestoreBars extends ConsumerWidget {
                       .read(rightDockTabProvider.notifier)
                       .reveal(kRightDockTabDetails),
                 ),
-                for (final entry in _crossProbeEntry(
+                for (final entry in _movableEntries(
                   context,
                   ref,
                   region: kDockRegionRight,

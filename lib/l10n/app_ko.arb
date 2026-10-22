@@ -2911,5 +2911,855 @@
   "settingsFormalToolsGuidanceWindows": "OSS CAD Suite에는 Windows 빌드가 있습니다. WSL2에서 정형 검증 흐름을 실행하는 것도 흔하며 지원이 더 잘 되어 있습니다.",
   "@settingsFormalToolsGuidanceWindows": {
     "description": "Advice under the formal tools report on Windows when a tool is missing."
+  },
+  "actionToggleFlowRuns": "플로우 실행",
+  "@actionToggleFlowRuns": {
+    "description": "View menu / palette: show or hide the Flow Runs panel (implementation-flow runs)."
+  },
+  "actionRunFlowEntry": "플로우 항목 실행",
+  "@actionRunFlowEntry": {
+    "description": "Tools menu / palette: run the project's implementation-flow entry (the one of the selected run, else all)."
+  },
+  "actionOpenInKlayout": "KLayout에서 열기…",
+  "@actionOpenInKlayout": {
+    "description": "Tools menu / palette: hand the selected LibreLane run to KLayout. KLayout is a product name."
+  },
+  "actionOpenInOpenroad": "OpenROAD에서 열기…",
+  "@actionOpenInOpenroad": {
+    "description": "Tools menu / palette: hand the selected LibreLane run to OpenROAD's viewer. OpenROAD is a product name."
+  },
+  "actionOpenInNextpnrGui": "nextpnr GUI에서 열기…",
+  "@actionOpenInNextpnrGui": {
+    "description": "Tools menu / palette: hand the selected nextpnr run to nextpnr's own viewer. nextpnr is a product name, always lower case."
+  },
+  "actionIngestRunDirectory": "실행 디렉터리 가져오기…",
+  "@actionIngestRunDirectory": {
+    "description": "Tools menu / palette: index a flow run directory SimCrux did not launch, read-only."
+  },
+  "actionIngestRunArchive": "zip 아티팩트 가져오기…",
+  "@actionIngestRunArchive": {
+    "description": "Tools menu / palette: index the flow runs inside a zipped CI artifact (for example a Tiny Tapeout GDS_logs zip)."
+  },
+  "actionOpenFlowTrends": "플로우 메트릭 추이…",
+  "@actionOpenFlowTrends": {
+    "description": "Tools menu / palette (Pro): metric trends across implementation-flow runs."
+  },
+  "actionOpenFlowCompare": "플로우 실행 비교…",
+  "@actionOpenFlowCompare": {
+    "description": "Tools menu / palette (Pro): compare two implementation-flow runs."
+  },
+  "actionOpenFlowPpa": "PPA 대시보드…",
+  "@actionOpenFlowPpa": {
+    "description": "Tools menu / palette (Pro): power, performance and area over time. PPA is an industry acronym."
+  },
+  "actionOpenFlowSweep": "설계 공간 스윕…",
+  "@actionOpenFlowSweep": {
+    "description": "Tools menu / palette (Pro): runs grouped by the configuration variables they differ in."
+  },
+  "actionWriteFlowBaseline": "플로우 기준선 작성…",
+  "@actionWriteFlowBaseline": {
+    "description": "Tools menu / palette (Pro): write or manage the baseline a flow gate compares against."
+  },
+  "dockTabFlowRuns": "플로우 실행",
+  "@dockTabFlowRuns": {
+    "description": "Dock tab title of the Flow Runs panel."
+  },
+  "flowRunNoEntries": "이 프로젝트에는 플로우 항목이 없습니다. simcrux.yaml에 flow: 항목을 추가하세요.",
+  "@flowRunNoEntries": {
+    "description": "Toast when Run Flow Entry finds no flow: entry. \"flow:\" and \"simcrux.yaml\" are literal and never translated."
+  },
+  "flowHandoffNoRun": "먼저 플로우 실행 패널에서 실행을 선택하거나 플로우 결과를 선택하세요.",
+  "@flowHandoffNoRun": {
+    "description": "Toast when a hand-off (Open in KLayout and the others) has no run to open."
+  },
+  "flowHandoffNeedsLibreLane": "{viewer}는 LibreLane 실행을 엽니다. 먼저 LibreLane 실행을 선택하세요.",
+  "@flowHandoffNeedsLibreLane": {
+    "description": "Toast when KLayout or OpenROAD is asked to open a nextpnr run. {viewer} is the product name.",
+    "placeholders": {
+      "viewer": {
+        "type": "String"
+      }
+    }
+  },
+  "flowHandoffNeedsNextpnr": "nextpnr GUI는 nextpnr 실행을 엽니다. 먼저 nextpnr 실행을 선택하세요.",
+  "@flowHandoffNeedsNextpnr": {
+    "description": "Toast when nextpnr's viewer is asked to open a LibreLane run."
+  },
+  "flowIngestDone": "{count, plural, =0{실행을 찾지 못했습니다} =1{실행 1개를 가져왔습니다} other{실행 {count}개를 가져왔습니다}}",
+  "@flowIngestDone": {
+    "description": "Toast after Ingest Run Directory or Ingest Zipped Artifact.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowIngestFailed": "실행을 가져오지 못했습니다: {reason}",
+  "@flowIngestFailed": {
+    "description": "Error toast when an ingest path holds no run or was refused. {reason} is the reader's own English explanation.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsNoProject": "프로젝트를 열면 플로우 실행이 표시됩니다.",
+  "@flowRunsNoProject": {
+    "description": "Flow Runs panel empty state with no project open."
+  },
+  "flowRunsReading": "플로우 실행을 읽는 중…",
+  "@flowRunsReading": {
+    "description": "Flow Runs panel while the runs are read."
+  },
+  "flowRunsReadFailed": "플로우 실행을 읽을 수 없습니다.",
+  "@flowRunsReadFailed": {
+    "description": "Flow Runs panel when reading the runs failed."
+  },
+  "flowRunsEmpty": "아직 플로우 실행이 없습니다. flow: 항목을 추가하거나 실행 디렉터리를 가져오세요.",
+  "@flowRunsEmpty": {
+    "description": "Flow Runs panel empty state. \"flow:\" is literal."
+  },
+  "flowRunStatusChanged": "실행 {design}: {verdict}",
+  "@flowRunStatusChanged": {
+    "description": "Spoken when the shown run's verdict changes. {design} is the entry name, {verdict} a verdict label.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsTableLabel": "플로우 실행",
+  "@flowRunsTableLabel": {
+    "description": "Accessible name of the run list in the Flow Runs panel."
+  },
+  "flowColumnVerdict": "판정",
+  "@flowColumnVerdict": {
+    "description": "Run list column header."
+  },
+  "flowColumnDesign": "설계",
+  "@flowColumnDesign": {
+    "description": "Run list column header: the flow entry the run belongs to."
+  },
+  "flowColumnTag": "태그",
+  "@flowColumnTag": {
+    "description": "Run list column header: the run tag (its directory name)."
+  },
+  "flowColumnFlow": "플로우",
+  "@flowColumnFlow": {
+    "description": "Run list column header: LibreLane or nextpnr."
+  },
+  "flowRunRowSpoken": "실행 {design}, {tag}, {verdict}, {kind}",
+  "@flowRunRowSpoken": {
+    "description": "The one sentence a screen reader hears for a run row. {kind} is LibreLane or nextpnr.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "tag": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRunsProblems": "{count, plural, =1{가져오기 경로 1개에 실행이 없습니다} other{가져오기 경로 {count}개에 실행이 없습니다}}",
+  "@flowRunsProblems": {
+    "description": "Note under the run summary; the paths and reasons are in its tooltip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowSectionsLabel": "실행 세부 정보",
+  "@flowSectionsLabel": {
+    "description": "Accessible name of the Steps / Metrics / Worst paths switch."
+  },
+  "flowStepsTableLabel": "단계",
+  "@flowStepsTableLabel": {
+    "description": "Steps table name and switch segment."
+  },
+  "flowMetricsTableLabel": "메트릭",
+  "@flowMetricsTableLabel": {
+    "description": "Metrics table name and switch segment."
+  },
+  "flowPathsTableLabel": "최악 경로",
+  "@flowPathsTableLabel": {
+    "description": "Worst timing paths table name and switch segment."
+  },
+  "flowSegmentsTableLabel": "경로 세그먼트",
+  "@flowSegmentsTableLabel": {
+    "description": "Accessible name of the segments table in the path detail."
+  },
+  "flowReaderNotVerified": "이 리더는 이 실행의 LibreLane 버전에서 검증되지 않았습니다. 결과는 실행 디렉터리에서 가능한 범위에서 읽은 것입니다.",
+  "@flowReaderNotVerified": {
+    "description": "Banner above an unverified run. Must never be shortened into a claim that the run was verified."
+  },
+  "flowRunHeading": "{design}: {verdict}",
+  "@flowRunHeading": {
+    "description": "Heading of the shown run.",
+    "placeholders": {
+      "design": {
+        "type": "String"
+      },
+      "verdict": {
+        "type": "String"
+      }
+    }
+  },
+  "flowFindingsNote": "결과는 발견 사항이며 사인오프가 아닙니다.",
+  "@flowFindingsNote": {
+    "description": "The one disclaimer that names signoff in the negative; fenced in the vocabulary guard. Keep the negative."
+  },
+  "flowReaderLine": "{reader}로 읽음 ({version})",
+  "@flowReaderLine": {
+    "description": "Which reader read the run, and for which tool version. Both are identifiers, never translated.",
+    "placeholders": {
+      "reader": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSame": "이전 실행과 같음",
+  "@flowDeltaSame": {
+    "description": "Last-run delta chip when nothing changed."
+  },
+  "flowDeltaSlackBetter": "슬랙이 이전 실행보다 {value} ns 개선",
+  "@flowDeltaSlackBetter": {
+    "description": "Last-run delta chip. ns is nanoseconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackWorse": "슬랙이 이전 실행보다 {value} ns 악화",
+  "@flowDeltaSlackWorse": {
+    "description": "Last-run delta chip. ns is nanoseconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackBetterSpoken": "슬랙이 이전 실행보다 {value}나노초 개선",
+  "@flowDeltaSlackBetterSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaSlackWorseSpoken": "슬랙이 이전 실행보다 {value}나노초 악화",
+  "@flowDeltaSlackWorseSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxBetter": "클럭이 이전 실행보다 {value} MHz 빠름",
+  "@flowDeltaFmaxBetter": {
+    "description": "Last-run delta chip (nextpnr). MHz is megahertz.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxWorse": "클럭이 이전 실행보다 {value} MHz 느림",
+  "@flowDeltaFmaxWorse": {
+    "description": "Last-run delta chip (nextpnr). MHz is megahertz.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxBetterSpoken": "클럭이 이전 실행보다 {value}메가헤르츠 빠름",
+  "@flowDeltaFmaxBetterSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowDeltaFmaxWorseSpoken": "클럭이 이전 실행보다 {value}메가헤르츠 느림",
+  "@flowDeltaFmaxWorseSpoken": {
+    "description": "Spoken form of the delta chip.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowStepsNone": "이 실행에는 기록된 단계가 없습니다.",
+  "@flowStepsNone": {
+    "description": "Steps section of a run without step directories (nextpnr)."
+  },
+  "flowOpenRunLog": "실행 로그 열기",
+  "@flowOpenRunLog": {
+    "description": "Button: the run's own log, for a run without steps."
+  },
+  "flowColumnNumber": "#",
+  "@flowColumnNumber": {
+    "description": "Column header: the step number or the path rank."
+  },
+  "flowColumnStep": "단계",
+  "@flowColumnStep": {
+    "description": "Steps table column header."
+  },
+  "flowColumnTool": "도구",
+  "@flowColumnTool": {
+    "description": "Steps table column header."
+  },
+  "flowColumnStatus": "상태",
+  "@flowColumnStatus": {
+    "description": "Steps table column header."
+  },
+  "flowColumnSeconds": "시간(초)",
+  "@flowColumnSeconds": {
+    "description": "Steps table column header: wall time in seconds."
+  },
+  "flowStepRowSpoken": "단계 {ordinal}, {step}, {status}, {time}",
+  "@flowStepRowSpoken": {
+    "description": "The one sentence a screen reader hears for a step row.",
+    "placeholders": {
+      "ordinal": {
+        "type": "int"
+      },
+      "step": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "flowRuntimeUnknown": "시간 기록 없음",
+  "@flowRuntimeUnknown": {
+    "description": "Spoken in a step row when the step's wall time is unknown."
+  },
+  "flowSecondsSpoken": "{value}초",
+  "@flowSecondsSpoken": {
+    "description": "A step's wall time, spoken.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMetricsNone": "이 실행에는 기록된 메트릭이 없습니다.",
+  "@flowMetricsNone": {
+    "description": "Metrics section of a run without metrics."
+  },
+  "flowMetricsColumnDesign": "설계",
+  "@flowMetricsColumnDesign": {
+    "description": "Metrics table header of the design-wide value (no corner). Corner names beside it are never translated."
+  },
+  "flowColumnMetric": "메트릭",
+  "@flowColumnMetric": {
+    "description": "Metrics table column header."
+  },
+  "flowMetricValueSpoken": "{column} {value}",
+  "@flowMetricValueSpoken": {
+    "description": "One value of a metric row, spoken: the column (Design or a corner name) and the value with its unit.",
+    "placeholders": {
+      "column": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMetricRowSpoken": "{label}: {values}",
+  "@flowMetricRowSpoken": {
+    "description": "The one sentence a screen reader hears for a metric row.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathsReading": "최악 경로를 읽는 중…",
+  "@flowPathsReading": {
+    "description": "Worst paths section while reading."
+  },
+  "flowPathsUnreadable": "이 실행의 타이밍 보고서를 읽을 수 없습니다.",
+  "@flowPathsUnreadable": {
+    "description": "Worst paths section when the report could not be read."
+  },
+  "flowPathsLibreLane": "LibreLane 실행의 타이밍 경로는 아직 읽지 않습니다. 최악 슬랙과 위반 수는 메트릭에 있습니다.",
+  "@flowPathsLibreLane": {
+    "description": "Worst paths section of a LibreLane run."
+  },
+  "flowPathsNone": "이 실행의 보고서에 타이밍 경로가 없습니다.",
+  "@flowPathsNone": {
+    "description": "Worst paths section when the report lists none."
+  },
+  "flowColumnClock": "클럭",
+  "@flowColumnClock": {
+    "description": "Worst paths column header."
+  },
+  "flowColumnFrom": "시작",
+  "@flowColumnFrom": {
+    "description": "Column header: where a path or segment starts."
+  },
+  "flowColumnTo": "끝",
+  "@flowColumnTo": {
+    "description": "Column header: where a path or segment ends."
+  },
+  "flowColumnDelay": "지연(ns)",
+  "@flowColumnDelay": {
+    "description": "Column header: delay in nanoseconds."
+  },
+  "flowColumnMapping": "매핑",
+  "@flowColumnMapping": {
+    "description": "Worst paths column header: how the path maps to the RTL."
+  },
+  "flowPathRowSpoken": "경로 {rank}, 클럭 {clock}, {from}에서 {to}까지, {delay}나노초, 매핑 {mapping}",
+  "@flowPathRowSpoken": {
+    "description": "The one sentence a screen reader hears for a worst-path row. {from} and {to} are cell names.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "clock": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathRowSpokenNoClock": "경로 {rank}, {from}에서 {to}까지, {delay}나노초, 매핑 {mapping}",
+  "@flowPathRowSpokenNoClock": {
+    "description": "As flowPathRowSpoken, for a path with no clock.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathsUnmappedNote": "이 실행에는 합성된 넷리스트가 없어 경로가 RTL에 매핑되지 않았습니다.",
+  "@flowPathsUnmappedNote": {
+    "description": "Note above the worst paths of an ingested report without its netlists."
+  },
+  "flowRunLogTitle": "실행 로그: {tag}",
+  "@flowRunLogTitle": {
+    "description": "Dialog title for a run's own log.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "flowStepDetailTitle": "단계 {ordinal}: {step}",
+  "@flowStepDetailTitle": {
+    "description": "Dialog title for a step.",
+    "placeholders": {
+      "ordinal": {
+        "type": "int"
+      },
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "flowOpenFullLog": "전체 로그를 에디터에서 열기",
+  "@flowOpenFullLog": {
+    "description": "Button: the step's whole log in the configured editor."
+  },
+  "flowStepStatusLine": "상태: {status}. 도구: {tool}.",
+  "@flowStepStatusLine": {
+    "description": "First line of the step dialog.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "flowLogNone": "이 단계의 로그를 찾지 못했습니다.",
+  "@flowLogNone": {
+    "description": "Step dialog when the step wrote no log."
+  },
+  "flowLogTailLabel": "로그 끝부분",
+  "@flowLogTailLabel": {
+    "description": "Accessible name of the scrolling log tail in the step dialog."
+  },
+  "flowPathDetailTitle": "경로 {rank}",
+  "@flowPathDetailTitle": {
+    "description": "Path detail dialog title.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "flowPathFromTo": "{from}에서 {to}까지",
+  "@flowPathFromTo": {
+    "description": "Path detail: the path's two ends. Never written with an arrow.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathSummary": "{delay} ns, 클럭 {clock}",
+  "@flowPathSummary": {
+    "description": "Path detail: the delay and the clock.",
+    "placeholders": {
+      "delay": {
+        "type": "String"
+      },
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathSummaryNoClock": "{delay} ns",
+  "@flowPathSummaryNoClock": {
+    "description": "Path detail: the delay of a path with no clock.",
+    "placeholders": {
+      "delay": {
+        "type": "String"
+      }
+    }
+  },
+  "flowPathEnds": "시작: {start}. 끝: {end}.",
+  "@flowPathEnds": {
+    "description": "Path detail: where each end maps in the RTL.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "flowColumnSegmentType": "유형",
+  "@flowColumnSegmentType": {
+    "description": "Path segments column header (logic, routing, and so on, as the tool writes them)."
+  },
+  "flowColumnSource": "소스",
+  "@flowColumnSource": {
+    "description": "Path segments column header: where the segment lands in the RTL."
+  },
+  "flowSegmentRowSpoken": "세그먼트 {index}, {type}, {from}에서 {to}까지, {delay}나노초, {source}",
+  "@flowSegmentRowSpoken": {
+    "description": "The one sentence a screen reader hears for a segment row.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingNearest": "매핑 없음. 가장 가까운 매핑: {mapping}",
+  "@flowMappingNearest": {
+    "description": "A segment with no source location, shown beside its nearest mapped neighbour.",
+    "placeholders": {
+      "mapping": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingRegister": "레지스터 {name}",
+  "@flowMappingRegister": {
+    "description": "Where a path end lands: a source register. {name} is never translated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingStatement": "구문 {location}",
+  "@flowMappingStatement": {
+    "description": "Where a path end lands: one source line (file:line).",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingStatementOf": "구문 {location}, {register} 할당",
+  "@flowMappingStatementOf": {
+    "description": "As flowMappingStatement, when the line assigns one register.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "register": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingSpan": "블록 {location}",
+  "@flowMappingSpan": {
+    "description": "Where a path end lands: only a block of source lines is known.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "flowMappingUnmapped": "이 셀의 소스 위치는 합성 후 남아 있지 않습니다",
+  "@flowMappingUnmapped": {
+    "description": "Where a path end lands: nothing."
+  },
+  "flowFidelityRegister": "레지스터",
+  "@flowFidelityRegister": {
+    "description": "Mapping fidelity: a source register, found by name."
+  },
+  "flowFidelityStatement": "구문",
+  "@flowFidelityStatement": {
+    "description": "Mapping fidelity: one source line."
+  },
+  "flowFidelitySpan": "블록",
+  "@flowFidelitySpan": {
+    "description": "Mapping fidelity: only a block of source lines."
+  },
+  "flowFidelityUnmapped": "매핑 없음",
+  "@flowFidelityUnmapped": {
+    "description": "Mapping fidelity: nothing in the source."
+  },
+  "flowVerdictMet": "충족",
+  "@flowVerdictMet": {
+    "description": "Flow verdict: every constraint met."
+  },
+  "flowVerdictViolated": "위반",
+  "@flowVerdictViolated": {
+    "description": "Flow verdict: the run completed with violations. A finding, not an error."
+  },
+  "flowVerdictStopped": "중지됨",
+  "@flowVerdictStopped": {
+    "description": "Flow verdict: the run stopped before it finished."
+  },
+  "flowVerdictStoppedAt": "{step}에서 중지됨",
+  "@flowVerdictStoppedAt": {
+    "description": "Flow verdict with the step the run stopped at. {step} is a step id.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "flowVerdictNotRun": "실행되지 않음",
+  "@flowVerdictNotRun": {
+    "description": "Flow verdict: nothing ran."
+  },
+  "flowVerdictUnrecognised": "인식할 수 없음",
+  "@flowVerdictUnrecognised": {
+    "description": "Flow verdict: the run's records could not be read into a verdict."
+  },
+  "flowStepCompleted": "완료",
+  "@flowStepCompleted": {
+    "description": "Step status."
+  },
+  "flowStepFailed": "실패",
+  "@flowStepFailed": {
+    "description": "Step status."
+  },
+  "flowStepSkipped": "건너뜀",
+  "@flowStepSkipped": {
+    "description": "Step status."
+  },
+  "flowStepRunning": "실행 중",
+  "@flowStepRunning": {
+    "description": "Step status."
+  },
+  "flowStepNotStarted": "시작 안 됨",
+  "@flowStepNotStarted": {
+    "description": "Step status."
+  },
+  "flowMetricSetupWorstSlack": "최악 셋업 슬랙",
+  "@flowMetricSetupWorstSlack": {
+    "description": "Label of metric timing__setup__ws (the key itself is never translated)."
+  },
+  "flowMetricHoldWorstSlack": "최악 홀드 슬랙",
+  "@flowMetricHoldWorstSlack": {
+    "description": "Label of metric timing__hold__ws."
+  },
+  "flowMetricSetupWns": "셋업 최악 음수 슬랙",
+  "@flowMetricSetupWns": {
+    "description": "Label of metric timing__setup__wns."
+  },
+  "flowMetricHoldWns": "홀드 최악 음수 슬랙",
+  "@flowMetricHoldWns": {
+    "description": "Label of metric timing__hold__wns."
+  },
+  "flowMetricSetupTns": "셋업 총 음수 슬랙",
+  "@flowMetricSetupTns": {
+    "description": "Label of metric timing__setup__tns."
+  },
+  "flowMetricHoldTns": "홀드 총 음수 슬랙",
+  "@flowMetricHoldTns": {
+    "description": "Label of metric timing__hold__tns."
+  },
+  "flowMetricSetupViolations": "셋업 위반 수",
+  "@flowMetricSetupViolations": {
+    "description": "Label of metric timing__setup_vio__count."
+  },
+  "flowMetricHoldViolations": "홀드 위반 수",
+  "@flowMetricHoldViolations": {
+    "description": "Label of metric timing__hold_vio__count."
+  },
+  "flowMetricAchievedClock": "달성 클럭",
+  "@flowMetricAchievedClock": {
+    "description": "Label of metric fmax__achieved__mhz."
+  },
+  "flowMetricCellArea": "셀 면적",
+  "@flowMetricCellArea": {
+    "description": "Label of metric design__instance__area."
+  },
+  "flowMetricUtilization": "사용률",
+  "@flowMetricUtilization": {
+    "description": "Label of metric design__instance__utilization."
+  },
+  "flowMetricCellCount": "셀 수",
+  "@flowMetricCellCount": {
+    "description": "Label of metric design__instance__count."
+  },
+  "flowMetricRouteDrc": "라우팅 DRC 오류",
+  "@flowMetricRouteDrc": {
+    "description": "Label of metric route__drc_errors. DRC is an industry acronym."
+  },
+  "flowMetricMagicDrc": "Magic DRC 오류",
+  "@flowMetricMagicDrc": {
+    "description": "Label of metric magic__drc_error__count. Magic is a product name."
+  },
+  "flowMetricLvs": "LVS 오류",
+  "@flowMetricLvs": {
+    "description": "Label of metric design__lvs_error__count. LVS is an industry acronym."
+  },
+  "flowMetricAntenna": "안테나 위반",
+  "@flowMetricAntenna": {
+    "description": "Label of metric route__antenna_violation__count."
+  },
+  "flowMetricAntennaNets": "안테나 위반 넷",
+  "@flowMetricAntennaNets": {
+    "description": "Label of metric antenna__violating__nets."
+  },
+  "flowMetricXor": "XOR 차이",
+  "@flowMetricXor": {
+    "description": "Label of metric design__xor_difference__count."
+  },
+  "flowMetricPower": "총 전력",
+  "@flowMetricPower": {
+    "description": "Label of metric power__total."
+  },
+  "flowMetricBelsUsed": "사용한 셀",
+  "@flowMetricBelsUsed": {
+    "description": "Label of nextpnr metric utilization__used__bel (per cell type)."
+  },
+  "flowMetricBelsAvailable": "사용 가능한 셀",
+  "@flowMetricBelsAvailable": {
+    "description": "Label of nextpnr metric utilization__available__bel (per cell type)."
+  },
+  "flowUnitNanoseconds": "나노초",
+  "@flowUnitNanoseconds": {
+    "description": "The unit ns, spoken."
+  },
+  "flowUnitMegahertz": "메가헤르츠",
+  "@flowUnitMegahertz": {
+    "description": "The unit MHz, spoken."
+  },
+  "flowUnitSquareMicrometres": "제곱마이크로미터",
+  "@flowUnitSquareMicrometres": {
+    "description": "The unit square micrometre, spoken."
+  },
+  "flowUnitWatts": "와트",
+  "@flowUnitWatts": {
+    "description": "The unit W, spoken."
+  },
+  "diagnosticsTabFlowSection": "플로우",
+  "@diagnosticsTabFlowSection": {
+    "description": "Tab Diagnostics section heading: how the selected flow run was read."
+  },
+  "diagnosticsTabFlowNoRun": "선택한 플로우 실행이 없습니다.",
+  "@diagnosticsTabFlowNoRun": {
+    "description": "Tab Diagnostics Flow section with no run selected."
+  },
+  "diagnosticsTabRowFlowReader": "리더",
+  "@diagnosticsTabRowFlowReader": {
+    "description": "Tab Diagnostics row: the reader id."
+  },
+  "diagnosticsTabRowFlowReaderVersion": "리더 버전",
+  "@diagnosticsTabRowFlowReaderVersion": {
+    "description": "Tab Diagnostics row: the tool version line the reader was written for."
+  },
+  "diagnosticsTabRowFlowVerified": "검증된 리더",
+  "@diagnosticsTabRowFlowVerified": {
+    "description": "Tab Diagnostics row: whether the reader is verified for the run (true or false)."
+  },
+  "diagnosticsTabRowFlowRunRoot": "실행 디렉터리",
+  "@diagnosticsTabRowFlowRunRoot": {
+    "description": "Tab Diagnostics row: the run directory."
+  },
+  "diagnosticsTabRowFlowTools": "도구 버전",
+  "@diagnosticsTabRowFlowTools": {
+    "description": "Tab Diagnostics row: the tool versions the run states."
   }
 }

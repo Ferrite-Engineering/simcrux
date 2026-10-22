@@ -103,6 +103,32 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   // with an empty `surfaces` set is for an action reachable some other
   // real way, not for one that does nothing.
 
+  // ── Implementation flow — needs a tab ─────────────────────────────
+  // The panel, ingest and the hand-off answer for themselves when there is
+  // nothing to show or open ("Select a flow run first", "This project has no
+  // flow entries"), so they stay enabled with a tab rather than greying out
+  // with no explanation, like Cross-probe Selection. The five Pro screens
+  // stay enabled and badged on every surface.
+  SimcruxAction.toggleFlowRuns ||
+  SimcruxAction.openInKlayout ||
+  SimcruxAction.openInOpenroad ||
+  SimcruxAction.openInNextpnrGui ||
+  SimcruxAction.ingestRunDirectory ||
+  SimcruxAction.ingestRunArchive ||
+  SimcruxAction.openFlowTrends ||
+  SimcruxAction.openFlowCompare ||
+  SimcruxAction.openFlowPpa ||
+  SimcruxAction.openFlowSweep ||
+  SimcruxAction.writeFlowBaseline => const SimcruxActionDescriptor(
+    surfaces: _menuPalette,
+    isEnabled: _requiresTab,
+  ),
+  // Running an entry is a run: a config, and no regression in flight.
+  SimcruxAction.runFlowEntry => const SimcruxActionDescriptor(
+    surfaces: _menuPalette,
+    isEnabled: _canStartRun,
+  ),
+
   // ── Tab Diagnostics — needs a tab, gated on diagnostics opt-in ────
   // WaveCrux parity: the drawer opens for the active tab and honors the
   // diagnostics-enabled setting (always on in debug/profile, Settings

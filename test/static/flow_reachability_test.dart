@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
+import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
 import 'package:simcrux/services/flow/flow_handoff_provider.dart';
 import 'package:simcrux/services/flow/librelane_flow_driver.dart';
@@ -15,8 +17,9 @@ import 'package:simcrux/services/flow/nextpnr_flow_driver.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 
 /// Every Flow binding is reached from the app or the binary: a driver
-/// nothing registers, an importer nothing calls or a CLI nothing routes to
-/// would ship green and dead.
+/// nothing registers, an importer nothing calls, a CLI nothing routes to,
+/// a panel no dock shows or a Pro seam no action reads would ship green and
+/// dead.
 void main() {
   String source(String path) => File(path).readAsStringSync();
 
@@ -70,14 +73,115 @@ void main() {
     );
   });
 
-  test('the inspector hands a flow result to the launcher', () {
+  test('the inspector hands a flow result to the hand-off actions', () {
     expect(
       source('lib/features/inspector/widgets/inspector_actions.dart'),
       contains('flowHandoffButtons('),
     );
+    final buttons = source(
+      'lib/features/inspector/widgets/flow_handoff_buttons.dart',
+    );
+    expect(buttons, contains('Actions.maybeInvoke<SimcruxActionIntent>'));
+    for (final action in const [
+      'SimcruxAction.openInKlayout',
+      'SimcruxAction.openInOpenroad',
+      'SimcruxAction.openInNextpnrGui',
+    ]) {
+      expect(buttons, contains(action));
+    }
     expect(
-      source('lib/features/inspector/widgets/flow_handoff_buttons.dart'),
+      source('lib/features/flow/flow_actions.dart'),
       contains('flowHandoffLauncherProvider'),
+    );
+  });
+
+  test('every Flow action reaches its feature from the one handler map', () {
+    final handlers = source('lib/core/shortcuts/simcrux_action_handlers.dart');
+    for (final call in const [
+      'FlowActions.toggleFlowRuns(',
+      'FlowActions.runFlowEntry(',
+      'FlowViewer.klayout',
+      'FlowViewer.openroadGui',
+      'FlowViewer.nextpnrGui',
+      'archive: false',
+      'archive: true',
+    ]) {
+      expect(handlers, contains(call));
+    }
+    // The five Pro seams, each read by its action.
+    for (final seam in const [
+      'flowTrendsOpenerProvider',
+      'flowCompareOpenerProvider',
+      'flowPpaOpenerProvider',
+      'flowSweepOpenerProvider',
+      'flowBaselineWriterProvider',
+    ]) {
+      expect(handlers, contains('ref.read($seam)'), reason: seam);
+    }
+  });
+
+  test('the five Pro seams are null in open core', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    expect(container.read(flowTrendsOpenerProvider), isNull);
+    expect(container.read(flowCompareOpenerProvider), isNull);
+    expect(container.read(flowPpaOpenerProvider), isNull);
+    expect(container.read(flowSweepOpenerProvider), isNull);
+    expect(container.read(flowBaselineWriterProvider), isNull);
+  });
+
+  test('the Flow Runs panel is a movable tab of both docks, and keeps its '
+      'watcher alive', () {
+    final docks = source('lib/features/workspace/widgets/simcrux_docks.dart');
+    expect(docks, contains('const FlowRunsPanel()'));
+    expect(docks, contains('kDockTabFlowRuns'));
+    expect(
+      source('lib/features/flow/widgets/flow_runs_panel.dart'),
+      contains('ref.watch(flowRunWatcherProvider)'),
+    );
+  });
+
+  test('the Flow providers are per tab, in open core and in the overlay', () {
+    final overrides = source(
+      'lib/features/workspace/providers/simcrux_tab_overrides.dart',
+    );
+    expect(overrides, contains('...flowTabOverrides()'));
+    final names = source('lib/features/flow/providers/flow_providers.dart');
+    for (final provider in const [
+      'flowIngestedPathsProvider.overrideWith(',
+      'flowSelectedRunProvider.overrideWith(',
+      'flowRunWatcherProvider.overrideWith(',
+      'flowRunIndexProvider.overrideWith(',
+      'flowWorstPathsProvider.overrideWith(',
+    ]) {
+      expect(names, contains(provider));
+    }
+    expect(flowTabOverrides(), hasLength(5));
+  });
+
+  test('the panel reads the index and the worst paths, and records '
+      'flow.path.opened', () {
+    final panel = source('lib/features/flow/widgets/flow_runs_panel.dart');
+    expect(panel, contains('flowRunIndexProvider('));
+    expect(panel, contains('flowWorstPathsProvider('));
+    expect(panel, contains("'flow.path.opened'"));
+    expect(
+      source('lib/features/flow/providers/flow_providers.dart'),
+      allOf(contains('buildFlowRunIndex('), contains('readFlowWorstPaths(')),
+    );
+  });
+
+  test('ingest opens a zipped artifact through the extractor', () {
+    expect(
+      source('lib/services/flow/flow_run_ingestor.dart'),
+      contains('archives.extract('),
+    );
+  });
+
+  test('tab diagnostics carry the Flow section', () {
+    expect(
+      source('lib/features/diagnostics/widgets/tab_diagnostics_drawer.dart'),
+      contains('diagnosticsTabFlowSection'),
     );
   });
 

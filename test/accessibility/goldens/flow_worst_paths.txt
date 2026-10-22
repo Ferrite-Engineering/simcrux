@@ -1,0 +1,5 @@
+# Tab walk: 4 stops, cycles
+1. Open in nextpnr GUI… button
+2. [Run details grouping] Worst paths button selected
+3. Worst paths text Path 1, clock clk, from src_a_SB_DFF_Q to sum_q_SB_DFF_Q_3, 9.600 nanoseconds, mapping Register
+4. Flow runs text Run adder, t2, Violated, nextpnr

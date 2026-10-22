@@ -42,6 +42,13 @@ const _proActions = <SimcruxAction>{
   SimcruxAction.searchAcrossProjects,
   SimcruxAction.openPluginManager,
   SimcruxAction.reloadPlugins,
+  // The five Flow analyses. The panel, run, ingest and hand-off are open
+  // core and deliberately absent from this set.
+  SimcruxAction.openFlowTrends,
+  SimcruxAction.openFlowCompare,
+  SimcruxAction.openFlowPpa,
+  SimcruxAction.openFlowSweep,
+  SimcruxAction.writeFlowBaseline,
 };
 
 void main() {

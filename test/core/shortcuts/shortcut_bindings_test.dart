@@ -90,6 +90,21 @@ void main() {
     // once at the end of a run, and it opens two modals before it does
     // anything — a headline chord would buy nothing. Cmd/Ctrl+E stays free.
     SimcruxAction.exportResults,
+    // The implementation flow: F5 and Esc already run and cancel any
+    // regression, flow entries included, so Run Flow Entry takes no chord;
+    // the rest are menu and palette commands reached once per run.
+    SimcruxAction.toggleFlowRuns,
+    SimcruxAction.runFlowEntry,
+    SimcruxAction.openInKlayout,
+    SimcruxAction.openInOpenroad,
+    SimcruxAction.openInNextpnrGui,
+    SimcruxAction.ingestRunDirectory,
+    SimcruxAction.ingestRunArchive,
+    SimcruxAction.openFlowTrends,
+    SimcruxAction.openFlowCompare,
+    SimcruxAction.openFlowPpa,
+    SimcruxAction.openFlowSweep,
+    SimcruxAction.writeFlowBaseline,
   };
 
   group('defaultBindings()', () {

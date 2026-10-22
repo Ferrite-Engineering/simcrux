@@ -17,6 +17,7 @@
 // verbatim). WaveCrux and NetCrux both had one; SimCrux did not.
 
 import 'package:crux_command_palette/crux_command_palette.dart';
+import 'package:crux_license/crux_license.dart';
 import 'package:crux_toolbar/crux_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -391,6 +392,69 @@ void main() {
         ),
         isTrue,
       );
+    });
+  });
+
+  // ── The Flow actions ────────────────────────────────────────────────────
+  group('the Flow actions', () {
+    const withTab = SimcruxActionContext(hasOpenTab: true);
+    const running = SimcruxActionContext(
+      hasOpenTab: true,
+      hasConfig: true,
+      runInProgress: true,
+    );
+
+    test('View > Flow Runs is a View panel toggle beside Cross-Probe', () {
+      const action = SimcruxAction.toggleFlowRuns;
+      expect(action.category, ActionCategory.view);
+      expect(action.requiredTier, LicenseTier.openCore);
+      expect(isActionEnabled(action, withTab), isTrue);
+      expect(isActionEnabled(action, const SimcruxActionContext()), isFalse);
+    });
+
+    test('Run Flow Entry is a Tools run verb, off while a run is in flight, '
+        'never on the toolbar', () {
+      const action = SimcruxAction.runFlowEntry;
+      expect(action.category, ActionCategory.tools);
+      expect(
+        descriptorFor(action).surfaces,
+        isNot(contains(SimcruxActionSurface.toolbar)),
+      );
+      expect(isActionEnabled(action, running), isFalse);
+      expect(
+        isActionEnabled(
+          action,
+          const SimcruxActionContext(hasOpenTab: true, hasConfig: true),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the hand-off and ingest are open-core Tools commands; the five '
+        'analyses are Pro, enabled and badged', () {
+      for (final action in const [
+        SimcruxAction.openInKlayout,
+        SimcruxAction.openInOpenroad,
+        SimcruxAction.openInNextpnrGui,
+        SimcruxAction.ingestRunDirectory,
+        SimcruxAction.ingestRunArchive,
+      ]) {
+        expect(action.category, ActionCategory.tools, reason: '$action');
+        expect(action.requiredTier, LicenseTier.openCore, reason: '$action');
+        expect(isActionEnabled(action, withTab), isTrue, reason: '$action');
+      }
+      for (final action in const [
+        SimcruxAction.openFlowTrends,
+        SimcruxAction.openFlowCompare,
+        SimcruxAction.openFlowPpa,
+        SimcruxAction.openFlowSweep,
+        SimcruxAction.writeFlowBaseline,
+      ]) {
+        expect(action.category, ActionCategory.tools, reason: '$action');
+        expect(action.requiredTier, LicenseTier.pro, reason: '$action');
+        expect(isActionEnabled(action, withTab), isTrue, reason: '$action');
+        expect(paletteActionsFor(withTab), contains(action));
+      }
     });
   });
 
