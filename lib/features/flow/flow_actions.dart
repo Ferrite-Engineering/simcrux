@@ -166,6 +166,7 @@ abstract final class FlowActions {
       entry: entry,
       settings: settings?.flowTools ?? const FlowToolSettings(),
       nextpnrPath: settings?.simulatorBinaryOverrides['nextpnr'],
+      librelanePath: settings?.simulatorBinaryOverrides['librelane'],
     );
     if (result.ok || context == null || !context.mounted) return;
     _toast(

@@ -88,15 +88,15 @@ class FlowRunIngestor {
   /// Reads nextpnr reports and logs.
   final NextpnrRunReader nextpnr;
 
-  /// Reads LibreLane run directories; the documented-contract reader when
-  /// null.
+  /// Reads LibreLane run directories; crux_flow's versioned readers
+  /// ([LibreLaneVersionedReader]) when null.
   final LibreLaneRunReading? librelane;
 
   /// The most runs one directory of runs yields.
   final int maxRuns;
 
   LibreLaneRunReading get _readLibreLane =>
-      librelane ?? const LibreLaneContractReader().read;
+      librelane ?? const LibreLaneVersionedReader().read;
 
   /// Reads every run [paths] names. [allowedRoots] are the directories a
   /// path may resolve inside; a path outside all of them is refused.
@@ -245,7 +245,7 @@ class FlowRunIngestor {
         reading: await nextpnr.readRunDir(dir, logFallback: true),
       );
     }
-    if (LibreLaneContractReader.looksLikeRun(dir)) {
+    if (LibreLaneVersionedReader.looksLikeRun(dir)) {
       return FlowIngestItem(path: dir, reading: await _readLibreLane(dir));
     }
     return null;
@@ -385,15 +385,20 @@ class FlowRunIngestor {
 
   /// Re-reads the run a launched flow result names
   /// ([FlowMetricKeys.runDir]), for its full metric set. Null when the
-  /// result is not a flow result or its run cannot be read.
-  static Future<FlowReading?> readForResult(Map<String, String> metrics) async {
+  /// result is not a flow result or its run cannot be read. [librelane]
+  /// reads a LibreLane run ([LibreLaneVersionedReader] when null).
+  static Future<FlowReading?> readForResult(
+    Map<String, String> metrics, {
+    LibreLaneRunReading? librelane,
+  }) async {
     final root = metrics[FlowMetricKeys.runDir];
     final kind = metrics[FlowMetricKeys.kind];
     if (root == null || root.isEmpty || kind == null) return null;
     if (!Directory(root).existsSync()) return null;
     final tag = metrics[FlowMetricKeys.tag];
     if (kind == FlowKind.librelane.wireName) {
-      return await const LibreLaneContractReader().read(root, tag: tag);
+      final read = librelane ?? const LibreLaneVersionedReader().read;
+      return await read(root, tag: tag);
     }
     if (kind == FlowKind.nextpnr.wireName) {
       return await const NextpnrRunReader().readRunDir(

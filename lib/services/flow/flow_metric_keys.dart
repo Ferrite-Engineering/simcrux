@@ -66,9 +66,9 @@ abstract final class FlowReaderIds {
   /// nextpnr's log, for runs without a report (FuseSoC's Edalize default).
   static const String nextpnrLog = 'nextpnr_log';
 
-  /// The LibreLane run-directory contract the plan documents, read
-  /// best-effort until the versioned LibreLane readers land; never verified.
-  static const String librelaneContract = 'librelane_contract';
+  /// crux_flow's versioned LibreLane run readers: verified for the releases
+  /// each reader's range names, best-effort for any other.
+  static const String librelane = 'librelane_run';
 }
 
 /// How the WNS of a nextpnr run is derived, as `--json` names it.

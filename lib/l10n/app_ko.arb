@@ -3321,7 +3321,7 @@
   "@flowPathsUnreadable": {
     "description": "Worst paths section when the report could not be read."
   },
-  "flowPathsLibreLane": "LibreLane 실행의 타이밍 경로는 아직 읽지 않습니다. 최악 슬랙과 위반 수는 메트릭에 있습니다.",
+  "flowPathsLibreLane": "이 LibreLane 실행에는 읽을 셋업 경로 목록이 없습니다. 배선 후 타이밍 단계가 실행되지 않았거나 목록이 실행에서 빠졌습니다. 최악 슬랙과 위반 수는 메트릭에 있습니다.",
   "@flowPathsLibreLane": {
     "description": "Worst paths section of a LibreLane run."
   },

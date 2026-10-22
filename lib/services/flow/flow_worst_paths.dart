@@ -50,8 +50,9 @@ enum FlowWorstPathsGap {
   /// The run's report lists no critical paths.
   none,
 
-  /// A LibreLane run: its path reports are not read yet; the slack and
-  /// violation counts are in its metrics.
+  /// A LibreLane run whose post-route STA step wrote no setup listing for
+  /// the corner read (the step did not run, or the listing was trimmed);
+  /// the slack and violation counts are in its metrics.
   librelaneNotRead,
 
   /// The run's report could not be read.
@@ -91,6 +92,11 @@ class FlowWorstPaths {
 /// directory and is size-capped; a [netlist] that is absolute or leaves the
 /// run directory is ignored.
 ///
+/// LibreLane: the paths are the post-route STA setup listing of the corner
+/// the setup checker checks (crux_flow's `OpenStaReportReader`, worst
+/// first); they map through the synthesis step's netlist sidecar, whose
+/// `write_verilog` names the listing uses, to the nearest register.
+///
 /// Reads whole files, so the app calls it off the UI isolate.
 Future<FlowWorstPaths> readFlowWorstPaths(
   FlowRunRef ref, {
@@ -98,7 +104,7 @@ Future<FlowWorstPaths> readFlowWorstPaths(
   FlowInputLimits limits = FlowInputLimits.defaults,
 }) async {
   if (ref.kind == FlowKind.librelane) {
-    return FlowWorstPaths(gap: FlowWorstPathsGap.librelaneNotRead);
+    return await _librelaneWorstPaths(ref, limits);
   }
   final root = ref.root;
   final reading = await NextpnrRunReader(limits: limits).readRunDir(root);
@@ -121,6 +127,63 @@ Future<FlowWorstPaths> readFlowWorstPaths(
     rows: <FlowPathRow>[
       for (final path in paths)
         if (_map(resolver, path) case final mapping)
+          FlowPathRow(
+            path: path,
+            startpoint: mapping.startpoint,
+            endpoint: mapping.endpoint,
+            segments: mapping.segments,
+          ),
+    ],
+  );
+}
+
+Future<FlowWorstPaths> _librelaneWorstPaths(
+  FlowRunRef ref,
+  FlowInputLimits limits,
+) async {
+  final reading = await LibreLaneReaders.standard(
+    limits: limits,
+  ).read(ref.root, tag: ref.tag);
+  final paths = reading.run.timing;
+  if (paths.isEmpty) {
+    return FlowWorstPaths(
+      // A listing that is there and fails to read is unreadable; no
+      // listing, or an empty one (a trimmed corner), has no paths to show.
+      gap:
+          reading.timingProblem != null &&
+              reading.run.artifacts.containsKey('sta_max')
+          ? FlowWorstPathsGap.unreadable
+          : FlowWorstPathsGap.librelaneNotRead,
+    );
+  }
+  final sidecar = reading.run.artifacts['synthesis_netlist'];
+  LibreLaneNetlist? netlist;
+  RtlRegisterSet? registers;
+  if (sidecar != null) {
+    try {
+      final path = FlowContainment(<String>[
+        ref.root,
+      ]).require(p.join(ref.root, sidecar));
+      netlist = await LibreLaneNetlist.read(path, limits: limits);
+      registers = await RtlRegisterSet.read(path, limits: limits);
+    } on FlowContainmentException {
+      netlist = null;
+    } on FlowReadException {
+      netlist = null;
+    } on FileSystemException {
+      netlist = null;
+    }
+  }
+  if (netlist == null || registers == null) {
+    return FlowWorstPaths(
+      rows: <FlowPathRow>[for (final path in paths) FlowPathRow(path: path)],
+    );
+  }
+  return FlowWorstPaths(
+    mapped: true,
+    rows: <FlowPathRow>[
+      for (final path in paths)
+        if (netlist.resolvePath(path, registers) case final mapping)
           FlowPathRow(
             path: path,
             startpoint: mapping.startpoint,
@@ -255,8 +318,8 @@ class FlowLogTail {
   final bool truncated;
 }
 
-/// The log a step of [run] wrote: its own `logPath`, else the largest
-/// `*.log` in its directory; for a run with no steps, the run's own
+/// The log a step of [run] wrote: the largest `*.log` in its directory,
+/// else its own `logPath`; for a run with no steps, the run's own
 /// `pnr.log`. Null when there is none inside the run directory.
 String? flowStepLogPath(FlowRun run, FlowStep? step) {
   final containment = FlowContainment(<String>[run.ref.root]);
@@ -275,15 +338,16 @@ String? flowStepLogPath(FlowRun run, FlowStep? step) {
     }
     return null;
   }
-  final own = step.logPath;
-  if (own != null) {
-    final path = p.isAbsolute(own) ? own : p.join(run.ref.root, own);
-    if (File(path).existsSync()) return inside(path);
-  }
+  // The largest log is the tool's own; a LibreLane step also keeps small
+  // helper logs beside it. The step's recorded log stands in when its
+  // directory lists none. A step directory is relative to the run root.
+  final dir = p.isAbsolute(step.dir)
+      ? step.dir
+      : p.join(run.ref.root, step.dir);
   File? largest;
   var size = -1;
   try {
-    for (final entity in Directory(step.dir).listSync(followLinks: false)) {
+    for (final entity in Directory(dir).listSync(followLinks: false)) {
       if (entity is! File || !entity.path.endsWith('.log')) continue;
       final length = entity.lengthSync();
       if (length > size) {
@@ -292,9 +356,15 @@ String? flowStepLogPath(FlowRun run, FlowStep? step) {
       }
     }
   } on FileSystemException {
-    return null;
+    largest = null;
   }
-  return largest == null ? null : inside(largest.path);
+  if (largest != null) return inside(largest.path);
+  final own = step.logPath;
+  if (own != null) {
+    final path = p.isAbsolute(own) ? own : p.join(run.ref.root, own);
+    if (File(path).existsSync()) return inside(path);
+  }
+  return null;
 }
 
 /// Reads the last [maxBytes] of the log at [path], at most [maxLines] lines.

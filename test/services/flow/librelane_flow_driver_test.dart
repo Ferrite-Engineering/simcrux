@@ -120,7 +120,10 @@ void main() {
       expect(finished.metrics[FlowMetricKeys.verdict], 'violated');
       expect(finished.status, TestStatus.fail);
       expect(finished.metrics[FlowMetricKeys.processExitCode], '2');
-      expect(finished.metrics[FlowMetricKeys.readerVerified], 'false');
+      // The run states LibreLane 3.0.16, a release the 3.0 reader is
+      // verified for.
+      expect(finished.metrics[FlowMetricKeys.readerVerified], 'true');
+      expect(finished.metrics[FlowMetricKeys.reader], FlowReaderIds.librelane);
     });
 
     test('a run that ends without final metrics is stopped', () async {

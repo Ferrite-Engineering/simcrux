@@ -4,9 +4,11 @@
 import 'dart:convert';
 
 import 'package:crux_flow/crux_flow.dart';
+import 'package:path/path.dart' as p;
 import 'package:simcrux/services/flow/flow_gate.dart';
 import 'package:simcrux/services/flow/flow_process_driver.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
+import 'package:simcrux/services/flow/flow_worst_paths.dart';
 
 /// The formats `simcrux flow export` writes.
 enum FlowExportFormat {
@@ -16,7 +18,8 @@ enum FlowExportFormat {
   /// One JUnit test case per run.
   junit,
 
-  /// SARIF 2.1.0: nextpnr timing findings with RTL locations.
+  /// SARIF 2.1.0: nextpnr timing findings with RTL locations, LibreLane
+  /// check findings.
   sarif,
 
   /// A standalone HTML page.
@@ -169,12 +172,38 @@ String flowJunit(
 }
 
 /// A SARIF 2.1.0 log for [reading]: the nextpnr writer's timing findings
-/// for a nextpnr run, an empty run log otherwise.
-String flowSarif(FlowReading reading, {String? sourceRoot}) {
+/// for a nextpnr run; for a LibreLane run, one finding per check the run
+/// fails, with [worstSetup] (its worst setup path, mapped) anchoring the
+/// setup finding at the endpoint's source; an empty run log otherwise.
+///
+/// A LibreLane run's source root defaults to the design directory, the one
+/// above `runs/`. Findings, not signoff.
+String flowSarif(
+  FlowReading reading, {
+  String? sourceRoot,
+  FlowPathRow? worstSetup,
+}) {
   final report = reading.nextpnrReport;
   if (report != null) {
     return FlowSarifWriter.encode(
       FlowSarifWriter(sourceRoot: sourceRoot).nextpnr(report),
+    );
+  }
+  final librelane = reading.librelane;
+  if (librelane != null) {
+    final root = sourceRoot ?? p.dirname(p.dirname(reading.run.ref.root));
+    return FlowSarifWriter.encode(
+      FlowSarifWriter(sourceRoot: root).librelane(
+        librelane,
+        worstSetupPath: worstSetup?.path,
+        worstSetupMapping: worstSetup == null
+            ? null
+            : TimingPathMapping(
+                startpoint: worstSetup.startpoint,
+                endpoint: worstSetup.endpoint,
+                segments: worstSetup.segments,
+              ),
+      ),
     );
   }
   return const JsonEncoder.withIndent('  ').convert(<String, Object?>{
@@ -189,6 +218,21 @@ String flowSarif(FlowReading reading, {String? sourceRoot}) {
       },
     ],
   });
+}
+
+/// [flowSarif] for [reading] with a LibreLane run's worst setup path read
+/// and mapped first ([readFlowWorstPaths]), so its setup finding names the
+/// registers and points at the source. Reads files; off the UI isolate.
+Future<String> flowSarifWithPaths(
+  FlowReading reading, {
+  String? sourceRoot,
+}) async {
+  FlowPathRow? worst;
+  if (reading.librelane != null && reading.run.timing.isNotEmpty) {
+    final paths = await readFlowWorstPaths(reading.run.ref);
+    worst = paths.rows.isEmpty ? null : paths.rows.first;
+  }
+  return flowSarif(reading, sourceRoot: sourceRoot, worstSetup: worst);
 }
 
 /// A standalone HTML page for [reading]: verdict, run facts and the metric

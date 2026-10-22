@@ -1,7 +1,6 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -11,11 +10,11 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 
-// Why a reader is not verified for a run (`FlowReaderUnsupported`) and the
-// LibreLane step-directory pattern now come from crux_flow; re-exported so
-// importers of this file keep their names.
+// Why a reader is not verified for a run (`FlowReaderUnsupported`), the
+// LibreLane step-directory pattern and the LibreLane check set come from
+// crux_flow; re-exported so importers of this file keep their names.
 export 'package:crux_flow/crux_flow.dart'
-    show FlowReaderUnsupported, kLibreLaneStepDirectory;
+    show FlowReaderUnsupported, kLibreLane30Checks, kLibreLaneStepDirectory;
 
 /// One flow run read from its directory or report: the crux_flow [FlowRun]
 /// plus what SimCrux shows and records about how it was read.
@@ -34,11 +33,17 @@ class FlowReading {
     this.fmaxMhz,
     this.wnsDerivation,
     this.aggregatedKeys = const <String>{},
+    this.librelane,
   });
 
   /// The keys of [FlowRun.metrics] SimCrux computed by aggregation rather
   /// than read from the run.
   final Set<String> aggregatedKeys;
+
+  /// What crux_flow's LibreLane reader read, for a LibreLane run: the
+  /// release, the checks the run fails, the steps turned off, the error
+  /// records and the timing corner. Null for a nextpnr run.
+  final LibreLaneReading? librelane;
 
   /// The run: its reference, verdict, steps, metrics and timing paths.
   final FlowRun run;
@@ -99,31 +104,6 @@ class FlowReading {
   static String _bounded(String text) =>
       text.length <= 400 ? text : '${text.substring(0, 400)}...';
 }
-
-/// The verdict-driving LibreLane metrics: a value past its limit makes a
-/// completed run `violated`.
-///
-/// A provisional set from the plan's metric list (setup and hold slack and
-/// their violation counts, DRC, LVS, antenna, XOR difference). The versioned
-/// LibreLane readers confirm it against LibreLane's own checkers; until then
-/// a LibreLane verdict is read best-effort and never verified.
-const Map<String, double> kLibreLaneVerdictLimits = <String, double>{
-  // Slack: a negative worst slack is a violation.
-  'timing__setup__ws': 0,
-  'timing__hold__ws': 0,
-};
-
-/// The LibreLane count metrics where any value above zero is a violation.
-const List<String> kLibreLaneViolationCounts = <String>[
-  'timing__setup_vio__count',
-  'timing__hold_vio__count',
-  'route__drc_errors',
-  'magic__drc_error__count',
-  'design__lvs_error__count',
-  'route__antenna_violation__count',
-  'antenna__violating__nets',
-  'design__xor_difference__count',
-];
 
 /// The nextpnr metrics SimCrux derives from the clocks rather than reads.
 const Set<String> _derivedNextpnrKeys = <String>{
@@ -328,243 +308,67 @@ class NextpnrRunReader {
   }
 }
 
-/// Reads a LibreLane run directory against the contract the plan documents
-/// (`runs/<tag>/` with numbered step directories, `resolved.json`, and
-/// `final/metrics.json`), best-effort and **never verified**.
+/// Reads a LibreLane run directory with crux_flow's versioned readers
+/// ([LibreLaneReaders]) and turns the reading into a [FlowReading].
 ///
-/// This is the stand-in until the versioned LibreLane readers exist: it
-/// detects the version, lists the steps by `state_out.json`, aggregates the
-/// final metrics with crux_flow's upstream table, and decides the verdict:
+/// The release comes from `resolved.json`; the reader of its minor line
+/// reads the run and is verified only for the releases its range names
+/// (3.0.15 and 3.0.16 for the 3.0 line). Any other release is read by the
+/// nearest older line's reader, best-effort, with
+/// [FlowReading.unsupported] saying why: what the run shows has not been
+/// checked against the release that wrote it.
 ///
-/// - no `final/metrics.json`: `stopped`, at the newest step without
-///   `state_out.json` (or the newest step);
-/// - final metrics with a verdict metric past its limit: `violated`;
-/// - final metrics with every verdict metric present inside its limit:
-///   `met`;
-/// - final metrics carrying none of the verdict metrics: `unrecognised`.
-///
-/// It reads and never writes, and every path it opens resolves inside the
-/// run root.
-class LibreLaneContractReader {
+/// The verdict comes from the run's records and LibreLane's own checks
+/// ([kLibreLane30Checks]), never from the exit status; the worst setup paths
+/// come from the post-PnR STA listing of the corner the setup checker
+/// checks. It reads and never writes, and every path it opens resolves
+/// inside the run root.
+class LibreLaneVersionedReader {
   /// Creates the reader.
-  const LibreLaneContractReader({this.limits = FlowInputLimits.defaults});
+  const LibreLaneVersionedReader({
+    this.limits = FlowInputLimits.defaults,
+    this.timingPaths = 100,
+  });
 
   /// Byte and depth caps for every file read.
   final FlowInputLimits limits;
 
+  /// The most setup paths read into [FlowRun.timing].
+  final int timingPaths;
+
   /// Whether [dir] looks like a LibreLane run directory.
-  static bool looksLikeRun(String dir) {
-    if (File(p.join(dir, 'resolved.json')).existsSync()) return true;
-    if (Directory(p.join(dir, 'final')).existsSync()) return true;
-    try {
-      return Directory(dir)
-          .listSync(followLinks: false)
-          .any(
-            (e) =>
-                e is Directory &&
-                kLibreLaneStepDirectory.hasMatch(p.basename(e.path)),
-          );
-    } on FileSystemException {
-      return false;
-    }
+  static bool looksLikeRun(String dir) => LibreLaneReaders.looksLikeRun(dir);
+
+  /// Reads the run at [runRoot], which must already be contained. [live]
+  /// says the LibreLane process is still running.
+  Future<FlowReading> read(
+    String runRoot, {
+    String? tag,
+    bool live = false,
+  }) async {
+    final reading = await LibreLaneReaders.standard(
+      limits: limits,
+    ).read(runRoot, tag: tag, live: live, timingPaths: timingPaths);
+    return fromReading(reading);
   }
 
-  /// Reads the run at [runRoot], which must already be contained.
-  Future<FlowReading> read(String runRoot, {String? tag}) async {
-    final containment = FlowContainment(<String>[runRoot]);
-    final runTag = tag ?? p.basename(runRoot);
-    if (!Directory(runRoot).existsSync()) {
-      return _notRun(
-        root: runRoot,
-        tag: runTag,
-        reader: FlowReaderIds.librelaneContract,
-        problem: 'the run directory does not exist',
-        target: 'other',
-        kind: FlowKind.librelane,
-        unsupported: FlowReaderUnsupported.layoutUnknown,
-      );
-    }
-
-    String? version;
-    var target = 'other';
-    FlowReaderUnsupported? unsupported;
-    final resolvedPath = p.join(runRoot, 'resolved.json');
-    if (File(resolvedPath).existsSync()) {
-      try {
-        final json = await _readJsonObject(containment.require(resolvedPath));
-        final meta = json['meta'];
-        if (meta is Map<String, Object?>) {
-          final v = meta['librelane_version'] ?? meta['openlane_version'];
-          if (v is String && v.isNotEmpty && v.length <= 64) version = v;
-        }
-        final pdk = json['PDK'];
-        if (pdk is String) target = librelaneTargetToken(pdk);
-      } on FlowContainmentException {
-        unsupported = FlowReaderUnsupported.layoutUnknown;
-      } on FormatException {
-        unsupported = FlowReaderUnsupported.schemaUnknown;
-      } on FileSystemException {
-        unsupported = FlowReaderUnsupported.layoutUnknown;
-      }
-    }
-    unsupported ??= version == null
-        ? FlowReaderUnsupported.versionUnknown
-        : null;
-
-    final steps = _steps(runRoot, containment);
-    final metricsPath = p.join(runRoot, 'final', 'metrics.json');
-    Map<String, Object?>? aggregated;
-    var aggregatedKeys = const <String>{};
-    String? problem;
-    if (File(metricsPath).existsSync()) {
-      try {
-        final document = await MetricsDocument.readFile(
-          containment.require(metricsPath),
-          limits: limits,
-        );
-        final folded = aggregateMetrics(
-          document.values,
-          table: librelaneMetricsV1,
-        );
-        aggregated = folded;
-        aggregatedKeys = <String>{
-          for (final MapEntry(:key, :value) in folded.entries)
-            if (!document.values.containsKey(key) ||
-                document.values[key] != value)
-              key,
-        };
-      } on FlowContainmentException catch (e) {
-        problem = 'final/metrics.json: ${e.reason}';
-      } on FlowReadException catch (e) {
-        problem = 'final/metrics.json: ${e.message}';
-        unsupported = FlowReaderUnsupported.schemaUnknown;
-      } on FileSystemException catch (e) {
-        problem = 'final/metrics.json: ${e.message}';
-      }
-    }
-
-    final FlowVerdict verdict;
-    String? stoppedStep;
-    var finalSteps = steps;
-    if (aggregated == null) {
-      verdict = problem == null
-          ? FlowVerdict.stopped
-          : FlowVerdict.unrecognised;
-      // The newest step without `state_out.json` is where it stopped; when
-      // every step completed, the run stopped after the last one.
-      final incomplete = steps.lastIndexWhere(
-        (s) => s.status != FlowStepStatus.completed,
-      );
-      if (incomplete >= 0) {
-        final s = steps[incomplete];
-        stoppedStep = s.id;
-        finalSteps = List<FlowStep>.of(steps)
-          ..[incomplete] = FlowStep(
-            ordinal: s.ordinal,
-            id: s.id,
-            tool: s.tool,
-            dir: s.dir,
-            status: FlowStepStatus.failed,
-          );
-      } else if (steps.isNotEmpty) {
-        stoppedStep = steps.last.id;
-      }
-      problem ??= stoppedStep == null
-          ? 'the run has no final/metrics.json and no step directories'
-          : 'the run has no final/metrics.json';
-    } else {
-      verdict = librelaneVerdict(aggregated);
-    }
-
-    final wns = aggregated?['timing__setup__wns'];
+  /// [reading] as SimCrux records and shows it.
+  static FlowReading fromReading(LibreLaneReading reading) {
+    final run = reading.run;
+    final wns = run.metrics['timing__setup__wns'];
     return FlowReading(
-      run: FlowRun(
-        ref: FlowRunRef(
-          kind: FlowKind.librelane,
-          root: runRoot,
-          tag: runTag,
-          readerVersion: version ?? 'unknown',
-          verified: false,
-        ),
-        verdict: verdict,
-        steps: finalSteps,
-        metrics: aggregated ?? const <String, Object?>{},
-        toolVersions: <String, String>{'librelane': ?version},
-      ),
-      reader: FlowReaderIds.librelaneContract,
-      problem: problem,
-      stoppedStep: stoppedStep,
-      unsupported: unsupported,
-      target: target,
+      run: run,
+      reader: FlowReaderIds.librelane,
+      problem: reading.problem,
+      stoppedStep: reading.stoppedStep,
+      unsupported: reading.unsupported,
+      target: reading.pdk == null
+          ? 'other'
+          : librelaneTargetToken(reading.pdk!),
       wnsNs: wns is num && wns.isFinite ? wns.toDouble() : null,
-      aggregatedKeys: aggregatedKeys,
+      aggregatedKeys: reading.metrics?.aggregatedKeys ?? const <String>{},
+      librelane: reading,
     );
-  }
-
-  /// The verdict of a completed run's aggregated [metrics].
-  @visibleForTesting
-  static FlowVerdict librelaneVerdict(Map<String, Object?> metrics) {
-    var seen = false;
-    for (final MapEntry(:key, :value) in kLibreLaneVerdictLimits.entries) {
-      final v = metrics[key];
-      if (v is! num) continue;
-      seen = true;
-      if (v < value) return FlowVerdict.violated;
-    }
-    for (final key in kLibreLaneViolationCounts) {
-      final v = metrics[key];
-      if (v is! num) continue;
-      seen = true;
-      if (v > 0) return FlowVerdict.violated;
-    }
-    return seen ? FlowVerdict.met : FlowVerdict.unrecognised;
-  }
-
-  List<FlowStep> _steps(String runRoot, FlowContainment containment) {
-    final steps = <FlowStep>[];
-    final List<FileSystemEntity> entries;
-    try {
-      entries = Directory(runRoot).listSync(followLinks: false);
-    } on FileSystemException {
-      return steps;
-    }
-    for (final entity in entries) {
-      if (entity is! Directory) continue;
-      final name = p.basename(entity.path);
-      final match = kLibreLaneStepDirectory.firstMatch(name);
-      if (match == null) continue;
-      if (!containment.allows(entity.path)) continue;
-      final slug = match.group(2)!;
-      final dash = slug.indexOf('-');
-      steps.add(
-        FlowStep(
-          ordinal: int.tryParse(match.group(1)!) ?? 0,
-          id: slug,
-          tool: dash < 0 ? slug : slug.substring(0, dash),
-          dir: entity.path,
-          status: File(p.join(entity.path, 'state_out.json')).existsSync()
-              ? FlowStepStatus.completed
-              : FlowStepStatus.notStarted,
-        ),
-      );
-    }
-    steps.sort((a, b) => a.ordinal.compareTo(b.ordinal));
-    return steps;
-  }
-
-  Future<Map<String, Object?>> _readJsonObject(String path) async {
-    final file = File(path);
-    final length = await file.length();
-    if (length > limits.maxBytes) {
-      throw FormatException('${p.basename(path)} is over the size cap');
-    }
-    final text = utf8.decode(await file.readAsBytes());
-    _checkDepth(text, limits.maxJsonDepth);
-    final json = jsonDecode(text);
-    if (json is! Map<String, Object?>) {
-      throw FormatException('${p.basename(path)} is not a JSON object');
-    }
-    return json;
   }
 }
 
@@ -577,34 +381,6 @@ String librelaneTargetToken(String pdk) {
     return 'ihp_sg13g2';
   }
   return 'other';
-}
-
-void _checkDepth(String text, int maxDepth) {
-  var depth = 0;
-  var inString = false;
-  var escaped = false;
-  for (var i = 0; i < text.length; i++) {
-    final c = text.codeUnitAt(i);
-    if (inString) {
-      if (escaped) {
-        escaped = false;
-      } else if (c == 0x5C) {
-        escaped = true;
-      } else if (c == 0x22) {
-        inString = false;
-      }
-      continue;
-    }
-    if (c == 0x22) {
-      inString = true;
-    } else if (c == 0x5B || c == 0x7B) {
-      if (++depth > maxDepth) {
-        throw const FormatException('JSON nests too deep');
-      }
-    } else if (c == 0x5D || c == 0x7D) {
-      depth--;
-    }
-  }
 }
 
 FlowReading _notRun({

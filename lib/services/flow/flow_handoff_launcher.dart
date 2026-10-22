@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/flow_tool_settings.dart';
+import 'package:simcrux/services/flow/flow_process_driver.dart';
 import 'package:simcrux/services/flow/flow_toolchain_probe.dart';
 import 'package:simcrux/services/flow/nextpnr_flow_driver.dart';
 
@@ -103,6 +104,9 @@ class FlowHandoffLauncher {
   final TelemetryService? telemetry;
 
   /// Opens [run] (its kind and root) in [viewer].
+  ///
+  /// [librelanePath] is the Settings path for LibreLane: the executable (or
+  /// its directory) for the `path` launcher, the checkout for `nix`.
   Future<FlowHandoffResult> open(
     FlowViewer viewer, {
     required FlowKind kind,
@@ -110,6 +114,7 @@ class FlowHandoffLauncher {
     FlowEntry? entry,
     FlowToolSettings settings = const FlowToolSettings(),
     String? nextpnrPath,
+    String? librelanePath,
   }) async {
     final planned = plan(
       viewer,
@@ -118,6 +123,7 @@ class FlowHandoffLauncher {
       entry: entry,
       settings: settings,
       nextpnrPath: nextpnrPath,
+      librelanePath: librelanePath,
     );
     final argv = planned.argv;
     if (argv == null) {
@@ -146,6 +152,16 @@ class FlowHandoffLauncher {
 
   /// The command line [viewer] would start for the run, or why there is
   /// none. Pure apart from listing and writing the OpenROAD read script.
+  ///
+  /// A LibreLane run opens through LibreLane's own `OpenInKLayout` or
+  /// `OpenInOpenROAD` flow when SimCrux knows the run's entry and can start
+  /// LibreLane (the `path` or `nix` launcher), because that flow supplies the
+  /// PDK's layer properties and the run's own views: started from the run's
+  /// newest output state (`--with-initial-state`) under a fresh tag, so the
+  /// measured run is never written to, and never with `--overwrite` or
+  /// `--last-run`. Otherwise KLayout opens the final GDS directly (with the
+  /// run's DRC markers, `-m`, when it has them) and OpenROAD reads the final
+  /// database through a generated script.
   @visibleForTesting
   ({List<String>? argv, String? problem}) plan(
     FlowViewer viewer, {
@@ -154,6 +170,8 @@ class FlowHandoffLauncher {
     FlowEntry? entry,
     FlowToolSettings settings = const FlowToolSettings(),
     String? nextpnrPath,
+    String? librelanePath,
+    DateTime? now,
   }) {
     final containment = FlowContainment(<String>[runRoot]);
     String? first(String sub, String ext) {
@@ -201,6 +219,18 @@ class FlowHandoffLauncher {
       );
     }
 
+    if (kind == FlowKind.librelane && viewer != FlowViewer.nextpnrGui) {
+      final own = librelaneOwnFlow(
+        viewer,
+        runRoot: runRoot,
+        entry: entry,
+        settings: settings,
+        librelanePath: librelanePath,
+        now: now ?? DateTime.now(),
+      );
+      if (own != null) return (argv: own, problem: null);
+    }
+
     switch (viewer) {
       case FlowViewer.klayout:
         if (gds == null) {
@@ -209,7 +239,17 @@ class FlowHandoffLauncher {
         final klayout = settings.klayoutPath.isEmpty
             ? 'klayout'
             : settings.klayoutPath;
-        return (argv: <String>[klayout, gds], problem: null);
+        final markers = kind == FlowKind.librelane
+            ? _drcMarkers(runRoot, containment)
+            : null;
+        return (
+          argv: <String>[
+            klayout,
+            gds,
+            if (markers != null) ...['-m', markers],
+          ],
+          problem: null,
+        );
       case FlowViewer.openroadGui:
         if (odb == null) {
           return (argv: null, problem: 'the run has no final database to open');
@@ -249,6 +289,127 @@ class FlowHandoffLauncher {
           problem: null,
         );
     }
+  }
+
+  /// LibreLane's own open flow for [viewer] on the run at [runRoot], or null
+  /// when it cannot be used: no entry with a configuration, a run that is
+  /// not under that configuration's `runs/`, no step with output state, the
+  /// `docker` launcher (no display from a container), or a `nix` launcher
+  /// without a checkout.
+  @visibleForTesting
+  List<String>? librelaneOwnFlow(
+    FlowViewer viewer, {
+    required String runRoot,
+    required DateTime now,
+    FlowEntry? entry,
+    FlowToolSettings settings = const FlowToolSettings(),
+    String? librelanePath,
+  }) {
+    final config = entry?.config;
+    if (entry == null || config == null) return null;
+    final project = entry.projectRoot;
+    final configPath = p.isAbsolute(config)
+        ? config
+        : (project == null ? null : p.join(project, config));
+    if (configPath == null || !File(configPath).existsSync()) return null;
+    final runs = p.join(p.dirname(configPath), 'runs');
+    if (!p.equals(p.dirname(runRoot), runs)) return null;
+    final state = _newestState(runRoot);
+    if (state == null) return null;
+    final tag = FlowProcessDriver.freshTag(runs, 'simcrux-view', now);
+    if (tag == null) return null;
+    final flow = switch (viewer) {
+      FlowViewer.klayout => 'OpenInKLayout',
+      FlowViewer.openroadGui => 'OpenInOpenROAD',
+      FlowViewer.nextpnrGui => null,
+    };
+    if (flow == null) return null;
+    final args = <String>[
+      '--flow',
+      flow,
+      '--with-initial-state',
+      state,
+      '--run-tag',
+      tag,
+      if (settings.pdkRoot.isNotEmpty) ...['--pdk-root', settings.pdkRoot],
+      if (entry.pdk != null) ...['--pdk', entry.pdk!],
+      configPath,
+    ];
+    final custom = librelanePath ?? '';
+    switch (entry.launcher ?? settings.launcher) {
+      case FlowLauncher.path:
+        final binary =
+            entry.librelaneBinary ??
+            (custom.isEmpty
+                ? 'librelane'
+                : (Directory(custom).existsSync()
+                      ? p.join(custom, 'librelane')
+                      : custom));
+        return <String>[binary, ...args];
+      case FlowLauncher.nix:
+        if (custom.isEmpty || !Directory(custom).existsSync()) return null;
+        return <String>[
+          'nix',
+          'develop',
+          custom,
+          '--command',
+          'librelane',
+          ...args,
+        ];
+      case FlowLauncher.docker:
+        return null;
+    }
+  }
+
+  /// The newest step's `state_out.json` under [runRoot], inside it.
+  static String? _newestState(String runRoot) {
+    final containment = FlowContainment(<String>[runRoot]);
+    final steps = <(int, String)>[];
+    try {
+      for (final e in Directory(runRoot).listSync(followLinks: false)) {
+        if (e is! Directory) continue;
+        final m = kLibreLaneStepDirectory.firstMatch(p.basename(e.path));
+        if (m == null) continue;
+        steps.add((int.tryParse(m.group(1)!) ?? -1, e.path));
+      }
+    } on FileSystemException {
+      return null;
+    }
+    steps.sort((a, b) => b.$1.compareTo(a.$1));
+    for (final (_, dir) in steps) {
+      final state = p.join(dir, 'state_out.json');
+      if (File(state).existsSync() && containment.allows(state)) {
+        return containment.require(state);
+      }
+    }
+    return null;
+  }
+
+  /// The run's KLayout DRC markers, else its Magic ones, when it has them.
+  static String? _drcMarkers(String runRoot, FlowContainment containment) {
+    for (final (slug, file) in const <(String, String)>[
+      ('klayout-drc', 'drc.klayout.lyrdb'),
+      ('magic-drc', 'drc.magic.lyrdb'),
+    ]) {
+      try {
+        final dirs = <String>[
+          for (final e in Directory(runRoot).listSync(followLinks: false))
+            if (e is Directory &&
+                kLibreLaneStepDirectory.hasMatch(p.basename(e.path)) &&
+                p.basename(e.path).endsWith('-$slug'))
+              e.path,
+        ]..sort();
+        for (final dir in dirs.reversed) {
+          final markers = p.join(dir, 'reports', file);
+          if (File(markers).existsSync() && containment.allows(markers)) {
+            return containment.require(markers);
+          }
+        }
+      } on FileSystemException {
+        return null;
+      }
+    }
+    return null;
   }
 
   /// Writes `read_db <odb>` to a fresh file in SimCrux's scratch directory.

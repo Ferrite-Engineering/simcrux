@@ -15,8 +15,9 @@ import 'librelane_run_builder.dart';
 
 /// The run readers: nextpnr's report and log against the committed
 /// fixtures (expectations from the fixtures' own hand-written
-/// `verdict.expected.json`), and the LibreLane run-directory contract on
-/// hand-built directories only, until the versioned LibreLane readers land.
+/// `verdict.expected.json`), and crux_flow's versioned LibreLane readers on
+/// hand-built directories (the captured runs are read in
+/// `flow_librelane_reading_test.dart`).
 void main() {
   const fixtures = 'verification/fixtures/flow/nextpnr';
 
@@ -136,24 +137,26 @@ void main() {
     },
   );
 
-  group('LibreLane run-directory contract (hand-built runs)', () {
+  group('LibreLane, crux_flow versioned readers (hand-built runs)', () {
     late Directory tmp;
     setUp(() => tmp = Directory.systemTemp.createTempSync('flow_ll_'));
     tearDown(() => tmp.deleteSync(recursive: true));
 
     Future<FlowReading> read(LibreLaneRunBuilder run) =>
-        const LibreLaneContractReader().read(run.root);
+        const LibreLaneVersionedReader().read(run.root);
 
-    test('complete metrics inside every limit are met', () async {
+    test('complete metrics inside every check are met', () async {
       final run = LibreLaneRunBuilder(tmp.path)
         ..step('yosys-synthesis')
         ..step('openroad-stapostpnr')
         ..finalMetrics(cleanMetrics);
       final reading = await read(run);
       expect(reading.verdict, FlowVerdict.met);
-      expect(reading.run.ref.verified, isFalse);
-      expect(reading.reader, FlowReaderIds.librelaneContract);
-      expect(reading.run.ref.readerVersion, '3.0.16');
+      // 3.0.16 is a release the 3.0 reader is verified for.
+      expect(reading.run.ref.verified, isTrue);
+      expect(reading.reader, FlowReaderIds.librelane);
+      expect(reading.run.ref.readerVersion, '3.0');
+      expect(reading.run.toolVersions['librelane'], '3.0.16');
       expect(reading.target, 'sky130');
       expect(reading.run.steps.map((s) => s.id), [
         'yosys-synthesis',
@@ -164,16 +167,17 @@ void main() {
         isTrue,
       );
       expect(reading.unsupported, isNull);
+      expect(reading.librelane, isNotNull);
     });
 
     for (final (key, value) in <(String, num)>[
-      ('timing__setup__ws', -0.12),
-      ('timing__hold__ws', -0.01),
       ('timing__setup_vio__count', 3),
+      ('timing__hold_vio__count', 1),
       ('route__drc_errors', 1),
       ('magic__drc_error__count', 2),
       ('design__lvs_error__count', 1),
       ('route__antenna_violation__count', 4),
+      ('antenna__violating__nets', 1),
       ('design__xor_difference__count', 1),
     ]) {
       test('$key past its limit is violated', () async {
@@ -184,6 +188,17 @@ void main() {
       });
     }
 
+    test('a negative slack alone is not a violation: LibreLane checks the '
+        'violation counts', () async {
+      final run = LibreLaneRunBuilder(tmp.path)
+        ..step('yosys-synthesis')
+        ..finalMetrics(<String, Object?>{
+          ...cleanMetrics,
+          'timing__setup__ws': -0.12,
+        });
+      expect((await read(run)).verdict, FlowVerdict.met);
+    });
+
     test('a per-corner violation folds into its base and violates', () async {
       final run = LibreLaneRunBuilder(tmp.path)
         ..step('yosys-synthesis')
@@ -192,6 +207,8 @@ void main() {
             ...cleanMetrics,
             'timing__setup__ws__corner:nom_tt_025C_1v80': 0.4,
             'timing__setup__ws__corner:max_ss_100C_1v60': -0.3,
+            'timing__hold_vio__count__corner:nom_tt_025C_1v80': 0,
+            'timing__hold_vio__count__corner:max_ss_100C_1v60': 2,
           }..remove('timing__setup__ws'),
         );
       final reading = await read(run);
@@ -214,7 +231,19 @@ void main() {
       },
     );
 
-    test('metrics with none of the verdict metrics are unrecognised', () async {
+    test(
+      'a checker without output state before later steps violates',
+      () async {
+        final run = LibreLaneRunBuilder(tmp.path)
+          ..step('yosys-synthesis')
+          ..step('checker-magicdrc', complete: false)
+          ..step('misc-reportmanufacturability')
+          ..finalMetrics(cleanMetrics);
+        expect((await read(run)).verdict, FlowVerdict.violated);
+      },
+    );
+
+    test('metrics with none of the checked metrics are unrecognised', () async {
       final run = LibreLaneRunBuilder(tmp.path)
         ..step('yosys-synthesis')
         ..finalMetrics(<String, Object?>{'design__instance__count': 100});
@@ -229,14 +258,28 @@ void main() {
           ..finalMetrics(cleanMetrics);
         final reading = await read(run);
         expect(reading.verdict, FlowVerdict.met);
+        expect(reading.run.ref.verified, isFalse);
         expect(reading.unsupported, FlowReaderUnsupported.versionUnknown);
-        expect(reading.run.ref.readerVersion, 'unknown');
         expect(
           reading.toMetrics()[FlowMetricKeys.readerUnsupported],
           'version_unknown',
         );
+        expect(reading.toMetrics()[FlowMetricKeys.readerVerified], 'false');
       },
     );
+
+    test('a release outside the verified range is never verified', () async {
+      for (final version in ['3.0.14', '3.0.17', '3.1.0']) {
+        final run = LibreLaneRunBuilder(
+          Directory(p.join(tmp.path, version)).path,
+          version: version,
+        )..finalMetrics(cleanMetrics);
+        final reading = await read(run);
+        expect(reading.run.ref.verified, isFalse, reason: version);
+        expect(reading.unsupported, FlowReaderUnsupported.versionUnknown);
+        expect(reading.run.toolVersions['librelane'], version);
+      }
+    });
 
     test('openlane_version is the fallback version field', () async {
       final run = LibreLaneRunBuilder(
@@ -244,7 +287,9 @@ void main() {
         version: null,
         openlaneVersion: '2.2.9',
       )..finalMetrics(cleanMetrics);
-      expect((await read(run)).run.ref.readerVersion, '2.2.9');
+      final reading = await read(run);
+      expect(reading.run.toolVersions['librelane'], '2.2.9');
+      expect(reading.run.ref.verified, isFalse);
     });
 
     test('directories that are not NN-name steps are ignored', () async {

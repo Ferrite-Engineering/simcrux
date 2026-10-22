@@ -26,8 +26,8 @@ const Map<String, Object?> cleanMetrics = <String, Object?>{
 /// Builds a LibreLane run directory by hand, following the layout the plan
 /// documents (`runs/<tag>/`, `resolved.json`, `NN-<tool>-<step>/` with
 /// `state_out.json` once complete, `final/metrics.json`). No LibreLane is
-/// run: these runs exercise SimCrux's reading of the contract until the
-/// versioned readers and their captured fixtures land.
+/// run: these runs exercise the edges of SimCrux's reading that the
+/// captured fixtures (`verification/fixtures/flow/librelane/`) do not.
 class LibreLaneRunBuilder {
   /// Creates `<base>/runs/<tag>/` with a `resolved.json` stating [version]
   /// (or none) and [pdk].

@@ -280,7 +280,7 @@ abstract class FlowProcessDriver extends ProcessBackedSimulatorDriver {
         verdict: FlowVerdict.notRun,
       ),
       reader: kind == FlowKind.librelane
-          ? FlowReaderIds.librelaneContract
+          ? FlowReaderIds.librelane
           : FlowReaderIds.nextpnrReport,
       problem: problem,
       target: target,

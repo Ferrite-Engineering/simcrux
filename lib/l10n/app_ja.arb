@@ -3321,7 +3321,7 @@
   "@flowPathsUnreadable": {
     "description": "Worst paths section when the report could not be read."
   },
-  "flowPathsLibreLane": "LibreLane の実行のタイミングパスはまだ読み取りません。ワーストスラックと違反数は「メトリクス」にあります。",
+  "flowPathsLibreLane": "この LibreLane の実行には読み取れるセットアップパスの一覧がありません。配線後のタイミングステップが実行されなかったか、一覧が実行から除かれています。ワーストスラックと違反数は「メトリクス」にあります。",
   "@flowPathsLibreLane": {
     "description": "Worst paths section of a LibreLane run."
   },

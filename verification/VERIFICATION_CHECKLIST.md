@@ -1249,7 +1249,7 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] An unverified reader is a banner before the verdict, never a beta label and never "verified"; every run says "findings, not signoff" — `[Coverage: WIDGET]` (`flow_runs_panel_test.dart`)
 - [ ] The last-run delta compares worst slack (or the achieved clock) with the design's previous run, in words and an arrow, never colour alone — `[Coverage: UNIT]` (`flow_run_index_test.dart`) and `[Coverage: WIDGET]` (`flow_runs_panel_test.dart`)
 - [ ] Steps, metrics and worst paths are `crux_table` tables, each one Tab stop: the arrows move and speak one sentence per row; metric labels are localized with the raw key on hover and corners as columns; a step opens with a bounded log tail and Open Full Log in Editor; a path opens as a list of rows with its RTL mapping and fidelity — `[Coverage: WIDGET]` (`flow_runs_panel_test.dart`) and `[Coverage: UNIT]` (`flow_run_index_test.dart`)
-- [ ] The worst path of the designed iCE40 adder maps to the register `sum_q`; a report without its netlists lists its paths unmapped; a LibreLane run says its paths are not read yet — `[Coverage: UNIT]` (`flow_run_index_test.dart`)
+- [ ] The worst path of the designed iCE40 adder maps to the register `sum_q`; a report without its netlists lists its paths unmapped; a LibreLane run without a setup listing says so — `[Coverage: UNIT]` (`flow_run_index_test.dart`)
 - [ ] `flow.path.opened` carries only the flow and the fidelity — `[Coverage: WIDGET]` (`flow_runs_panel_test.dart`), `[Coverage: UNIT]` (`telemetry_catalog_conformance_test.dart`)
 - [ ] No overflow in the bottom dock at 800×160, the right dock at 380×500 or an 800×500 window; every locale renders every section — `[Coverage: WIDGET]` (`flow_runs_panel_test.dart`)
 - [ ] Focus-walk transcripts of the panel and the worst-paths table; the step and path dialogs serialize no orphan node — `[Coverage: WIDGET]` (`flow_runs_focus_walk_test.dart`, `goldens/flow_runs.txt`, `goldens/flow_worst_paths.txt`)
@@ -1277,6 +1277,16 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] Every kept STA path listing parses into rank, endpoints, slack and segments with the slack arithmetic closing; the sidecar's rebuilt names all appear in the synthesis netlist; 3.0.15 and 3.0.16 write the same step sequence — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`)
 - [ ] `trim_run_fixture.py` keeps records, empties views, drops `tmp/`, scrubs paths, keeps only the chosen corners' listings, enforces the size limit and refuses an output inside the run — `[Coverage: UNIT]` (`flow_trim_run_fixture_test.dart`)
 - [ ] The mapping gate is recorded in `MAPPING-GATE.md` (98 of 100, outcome `>=90`) and LibreLane rerun weekly still matches every expectation and the gate's outcome — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`), `[Coverage: AUTOMATED — GitHub Actions]` (`flow_librelane_live_test.dart`, `flow-live.yml`)
+
+### LibreLane runs read by the versioned readers (guide §27.11)
+
+- [ ] Every committed case reads with its hand-written verdict and `flow.reader_verified=true`; the exit status is recorded, never the verdict; steps without `state_out.json` are failed; a stopped run names its step; ingest gives the same verdict, pass only for met — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`)
+- [ ] Only LibreLane 3.0.15 and 3.0.16 are verified; any other release, a run without `resolved.json` or a malformed metrics file reads best-effort with `flow.reader_unsupported` — `[Coverage: UNIT]` (`flow_run_reading_test.dart`, crux_flow `librelane_readers_test.dart`)
+- [ ] The verdict follows LibreLane's own checks: an enforced check or an antenna count past its limit violates, a waived one (corner outside `*_VIOLATION_CORNERS`, `ERROR_ON_*` off) is kept and leaves the verdict alone, a negative slack alone does not — `[Coverage: UNIT]` (`flow_run_reading_test.dart`, crux_flow `librelane_checks_test.dart`)
+- [ ] Worst paths come from the post-route STA listing, worst first, and the timing case's worst register path maps to `src_a`/`src_b` and `sum_q` through the sidecar; a run without a listing says so — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`)
+- [ ] SARIF: one result per failing check, setup anchored at the endpoint register, a waived check a `note`, no warning on a met run — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`)
+- [ ] Open in KLayout and Open in OpenROAD start LibreLane's own open flow from the newest `state_out.json` under a fresh tag, never `--overwrite` or `--last-run`; Docker, a run outside the entry's `runs/` or no entry open the viewer directly, KLayout with the DRC markers — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`), `[Coverage: MANUAL]` (guide §27.11)
+- [ ] Every fresh LibreLane run of the weekly job reads and ingests to its expected verdict, verified — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_librelane_live_test.dart`, `flow-live.yml`)
 
 ---
 

@@ -3565,9 +3565,9 @@
   "@flowPathsUnreadable": {
     "description": "Worst paths section when the report could not be read."
   },
-  "flowPathsLibreLane": "Timing paths of LibreLane runs are not read yet. The worst slack and the violation counts are under Metrics.",
+  "flowPathsLibreLane": "This LibreLane run has no setup path listing to read: its post-route timing step did not run, or the listing was left out of the run. The worst slack and the violation counts are under Metrics.",
   "@flowPathsLibreLane": {
-    "description": "Worst paths section of a LibreLane run."
+    "description": "Worst paths section of a LibreLane run whose STA step wrote no path listing for the corner read."
   },
   "flowPathsNone": "The run's report lists no timing paths.",
   "@flowPathsNone": {

@@ -5761,13 +5761,15 @@ the four Flow telemetry events. Results are findings, not signoff.
   (exit 1 with a violated report is `violated`; exit 0 with no report is
   `not_run`); a FuseSoC entry falls back to nextpnr's log when Edalize passed
   no `--report`.
-- **LibreLane is read against the documented run-directory contract,
-  best-effort and never verified,** until the versioned LibreLane readers
-  land: no `final/metrics.json` is `stopped` at the newest step without
-  `state_out.json`; final metrics with a slack below zero or a violation,
-  DRC, LVS, antenna or XOR count above zero are `violated`; final metrics
-  with none of those metrics are `unrecognised`. Every LibreLane result says
-  `flow.reader_verified=false`.
+- **LibreLane is read by crux_flow's versioned readers** (section 27.11):
+  verified (`flow.reader_verified=true`) only for LibreLane 3.0.15 and
+  3.0.16; any other release is read best-effort by the nearest older line's
+  reader with `flow.reader_verified=false` and `flow.reader_unsupported`. No
+  final metrics is `stopped` at the newest step without `state_out.json`; a
+  checker step without `state_out.json` followed by later steps, or a check
+  LibreLane enforces (or none looks at: antenna) past its limit, is
+  `violated`; final metrics with none of the checked metrics are
+  `unrecognised`. Results are findings, not signoff.
 - **Run directories are never deleted, reused or resumed.** LibreLane gets
   `--run-tag <prefix>-<UTC stamp>` (a fresh tag; a tag whose directory exists
   gets `-2`, `-3`) and is never passed `--overwrite` or `--last-run`.
@@ -5844,7 +5846,7 @@ Core with the beta period over.
 |---|---|---|
 | The `flow:` block: entries, kinds, strict keys, the `gls:` and `equiv:` sub-blocks, includes, the synthesised suite, a flow-only project, reserved `settings.` options | `[Coverage: UNIT]` | `test/services/config/config_loader_flow_test.dart` |
 | One test per project-tooling key: dropped or refused with the gate closed, honoured with it open | `[Coverage: UNIT]` | `test/services/config/config_loader_project_tooling_test.dart` |
-| nextpnr report and log readers on the committed fixtures; the LibreLane contract on hand-built runs (met, each violation, stopped, unrecognised, version detection, links refused) | `[Coverage: UNIT]` | `test/services/flow/flow_run_reading_test.dart` |
+| nextpnr report and log readers on the committed fixtures; the versioned LibreLane readers on hand-built runs (met, each check, a negative slack alone, per corner, a deferred checker, stopped, unrecognised, versions inside and outside the verified range, links refused) | `[Coverage: UNIT]` | `test/services/flow/flow_run_reading_test.dart` |
 | nextpnr driver: verdict from the report not the exit code, command lines per family, fresh run directory inside the project, synthesis and tool failures, cancel, FuseSoC | `[Coverage: UNIT]` | `test/services/flow/nextpnr_flow_driver_test.dart` |
 | LibreLane driver: verdict from the records, path, Nix and Docker command lines, never `--overwrite` or `--last-run`, fresh tags, containment, `XDG_DATA_HOME`, progress, cancel of the tree and of the container | `[Coverage: UNIT]` | `test/services/flow/librelane_flow_driver_test.dart` |
 | Ingest: report, run directory, directory of runs, read-only, containment, zipped artifacts extracted or refused; persistence with the `ingest` trigger and retention | `[Coverage: UNIT]` | `test/services/flow/flow_run_ingestor_test.dart` |
@@ -5876,11 +5878,11 @@ guard. Everything here is open core; results are findings, not signoff.
   and can be dragged to the right dock; its close button hides it. Each
   movable tab (the cross-probe panel and Flow Runs) keeps its own region, and
   a drop moves only the tab it carried.
-- **Never presented as verified when it is not.** A LibreLane run is read
-  against the documented run-directory contract until the versioned readers
-  land: a banner says the reader is not verified for the run's version and
-  that results are read best-effort, before the verdict. It is a banner, not a
-  beta label.
+- **Never presented as verified when it is not.** A LibreLane run from a
+  release other than 3.0.15 and 3.0.16 (or one whose records do not read as
+  their schema says) is read best-effort: a banner says the reader is not
+  verified for the run's version, before the verdict. It is a banner, not a
+  beta label. A run from a verified release shows none.
 - **One Tab stop per table.** The run list, the steps, the metrics, the worst
   paths and a path's segments are `crux_table` tables. Each is one Tab stop;
   the arrow keys, Home, End, Page Up and Page Down move the current row, which
@@ -5897,9 +5899,11 @@ guard. Everything here is open core; results are findings, not signoff.
   statement, block or unmapped, a path labelled by its weaker end; an
   unmapped segment is shown beside its nearest mapped neighbour. A report
   ingested without its netlists lists its paths unmapped and says so. A
-  LibreLane run's paths are not read yet; its slack and violation counts are
-  in Metrics. Opening a path records `flow.path.opened` with the flow and the
-  fidelity only.
+  LibreLane run's worst paths are the post-route STA setup listing of the
+  corner its setup checker checks, mapped through the synthesis sidecar to
+  the nearest register (section 27.11); a run without that listing says so,
+  and its slack and violation counts are in Metrics. Opening a path records
+  `flow.path.opened` with the flow and the fidelity only.
 - **The last-run delta** compares the run with the same design's previous run
   on worst slack (else the achieved clock), in words and an arrow, never by
   colour alone.
@@ -6136,6 +6140,64 @@ with `FLOW_LIVE_REQUIRED=1`.
 | The trimming tool: kept, placeholder, dropped, scrubbed, corners, size limit, refusals | `[Coverage: UNIT]` | `test/static/flow_trim_run_fixture_test.dart` |
 | LibreLane rerun against the same expectations, and the mapping gate (gated on the toolchain) | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_librelane_live_test.dart`, `.github/workflows/flow-live.yml` |
 | The LibreLane job is capped at 150 minutes and caches PDKs by version hash | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
+
+### 27.11 LibreLane runs read by the versioned readers
+
+**What it covers.** SimCrux reads every LibreLane run (launched, ingested,
+zipped, or re-read for a result) through crux_flow's `LibreLaneReaders`, one
+reader per verified minor line. The 3.0 reader is verified for exactly
+LibreLane 3.0.15 and 3.0.16; any other release is read by the nearest older
+line's reader, best-effort, with `flow.reader_verified=false` and a
+`flow.reader_unsupported` reason. The verdict comes from the run's records
+and LibreLane's own checks (`kLibreLane30Checks`: every 3.0 checker's metric,
+`ERROR_ON_*` variable and corner wildcards, judged as the checker judges
+them, plus the antenna counts no checker fails on), never from the exit
+status. A finding the configuration only warns about (a corner outside
+`*_VIOLATION_CORNERS`, an `ERROR_ON_*` turned off) is kept, written to SARIF
+as a `note`, and leaves the verdict alone. Worst paths come from the
+post-route STA listing (crux_flow's `OpenStaReportReader`) and map through
+the synthesis sidecar to the nearest register. SARIF has one result per
+failing check; the worst setup path's result points at the endpoint's source.
+Open in KLayout and Open in OpenROAD start LibreLane's own `OpenInKLayout` and
+`OpenInOpenROAD` flows when the run belongs to a project entry and the `path`
+or `nix` launcher is set: from the run's newest `state_out.json`
+(`--with-initial-state`) under a fresh `simcrux-view-<stamp>` tag beside it,
+never `--overwrite` or `--last-run`, so the measured run is never written to.
+Otherwise KLayout opens the final GDS (open PDKs: sky130A, gf180mcuD, IHP
+sg13g2), with the run's DRC markers (`-m`) when it has them. Results are
+findings, not signoff.
+
+**Setup.** None for the committed corpus (section 27.10). For the live check,
+a LibreLane checkout's `shell.nix`.
+
+**Expected behaviour.**
+
+1. `flutter test test/services/flow/flow_librelane_reading_test.dart` reads
+   every committed case with its hand-written verdict, verified, records the
+   exit status but never uses it, lists the steps without `state_out.json` as
+   failed, names the step a stopped run stopped at, ingests each case to the
+   same verdict (pass for met, fail otherwise), maps the timing case's worst
+   register path to `src_a`/`src_b` and `sum_q`, writes SARIF (setup anchored
+   at `sum_q`; DRC and LVS findings; routing DRC a `note` where
+   `ERROR_ON_TR_DRC` is off; no warning on a met run) and plans each hand-off.
+2. The live check (`flow_librelane_live_test.dart`, weekly in `flow-live.yml`)
+   reads every freshly run case through the same reader and ingest and
+   requires its expected verdict, verified.
+
+**Edge cases.** A release outside 3.0.15 to 3.0.16 is never verified; a run
+without `resolved.json` or with a malformed metrics file is unverified; a run
+without a setup listing has no worst paths and says so; the `docker` launcher
+and runs outside the entry's `runs/` hand off to the viewer directly.
+
+**Tier-gate scenarios.** Open Core only; no gated feature.
+
+| Test | Coverage | File |
+|---|---|---|
+| Every committed case: verdict, verification, steps, stopped step, ingest, worst paths, SARIF and the hand-off plans | `[Coverage: UNIT]` | `test/services/flow/flow_librelane_reading_test.dart` |
+| The readers, checks, OpenSTA reader, mapping and SARIF in crux_flow, on its own copy of these runs | `[Coverage: UNIT]` | `crux-shared/packages/crux_flow/test/librelane_readers_test.dart` and its siblings |
+| Every fresh LibreLane run read and ingested to its expected verdict, verified | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_librelane_live_test.dart`, `.github/workflows/flow-live.yml` |
+| The `metrics compare` parity capture regenerates byte for byte | `[Coverage: MANUAL]` | `tool/flow/regen_metric_diff_parity.sh` with a Python that imports LibreLane 3.0.16 |
+| LibreLane's own open flows started from the app on a real run | `[Coverage: MANUAL]` | needs LibreLane, KLayout and OpenROAD installed |
 
 ---
 

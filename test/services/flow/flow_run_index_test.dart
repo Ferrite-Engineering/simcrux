@@ -183,7 +183,7 @@ void main() {
       );
     });
 
-    test('a LibreLane run says its paths are not read yet', () async {
+    test('a LibreLane run without a setup listing says so', () async {
       final paths = await readFlowWorstPaths(
         FlowRunRef(
           kind: FlowKind.librelane,

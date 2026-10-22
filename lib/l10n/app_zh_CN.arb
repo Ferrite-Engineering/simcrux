@@ -3321,7 +3321,7 @@
   "@flowPathsUnreadable": {
     "description": "Worst paths section when the report could not be read."
   },
-  "flowPathsLibreLane": "尚不读取 LibreLane 运行的时序路径。最差裕量和违例数量见指标。",
+  "flowPathsLibreLane": "此 LibreLane 运行没有可读取的建立时间路径列表：其布线后时序步骤没有运行，或该列表未保留在运行中。最差裕量和违例数量见指标。",
   "@flowPathsLibreLane": {
     "description": "Worst paths section of a LibreLane run."
   },

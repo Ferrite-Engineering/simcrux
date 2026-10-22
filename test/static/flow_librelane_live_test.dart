@@ -15,7 +15,9 @@
 // Facts are compared, not bytes: exit status, which steps wrote no
 // state_out.json, the failing step, the error records, the sign of each
 // headline metric, the worst register path's endpoints, and the G1 outcome.
-// Slacks and counts move with every tool build and are not pinned.
+// Slacks and counts move with every tool build and are not pinned. The
+// product's own reading of each fresh run (crux_flow's versioned reader, and
+// ingest) must give the case's hand-written verdict, verified.
 //
 // Tagged `oss-cad-live`: the CI `Test` job runs `flutter test -x oss-cad-live`.
 // flow-live.yml runs this file without that exclusion.
@@ -27,6 +29,8 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simcrux/services/flow/flow_run_ingestor.dart';
+import 'package:simcrux/services/flow/flow_run_reading.dart';
 
 import 'flow_librelane_facts.dart';
 
@@ -131,6 +135,36 @@ void main() {
           mapping: mapping,
         );
         expect(diffs, isEmpty, reason: name);
+      }
+    });
+
+    test("SimCrux's versioned reader and ingest give every fresh run its "
+        'expected verdict, verified', () async {
+      final committed = Directory('$_root/$version')
+          .listSync()
+          .whereType<Directory>()
+          .map(dirName)
+          .where((n) => only.isEmpty || only.contains(n))
+          .where(
+            (n) => File('$_root/$version/$n/case.expected.json').existsSync(),
+          )
+          .toList();
+      for (final name in committed) {
+        final expected = readJson('$_root/$version/$name/case.expected.json');
+        final run = Directory(
+          '${out.path}/$version/$name/run',
+        ).resolveSymbolicLinksSync();
+        final reading = await const LibreLaneVersionedReader().read(run);
+        expect(reading.verdict.wireName, expected['verdict'], reason: name);
+        expect(reading.run.ref.verified, isTrue, reason: name);
+        expect(reading.unsupported, isNull, reason: name);
+        final items = await const FlowRunIngestor().ingest(
+          <String>[
+            run,
+          ],
+          allowedRoots: <String>[out.resolveSymbolicLinksSync()],
+        );
+        expect(items.single.reading?.verdict, reading.verdict, reason: name);
       }
     });
 

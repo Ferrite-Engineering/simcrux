@@ -52,9 +52,8 @@ class LibreLaneInvocation {
   final Map<String, String> environment;
 }
 
-/// Reads a finished or stopped LibreLane run directory. A seam: the
-/// documented-contract reader stands in until the versioned LibreLane
-/// readers replace it.
+/// Reads a finished or stopped LibreLane run directory. A seam for tests;
+/// [LibreLaneVersionedReader] (crux_flow's versioned readers) by default.
 typedef LibreLaneRunReading =
     Future<FlowReading> Function(
       String runRoot, {
@@ -86,7 +85,7 @@ typedef LibreLaneRunReading =
 ///
 /// The verdict comes from the run's records, never the exit code
 /// (LibreLane exits non-zero when a checker flags a violation): see
-/// [LibreLaneContractReader].
+/// [LibreLaneVersionedReader].
 ///
 /// **Never gated.** A flow verdict is correctness and is free.
 class LibreLaneFlowDriver extends FlowProcessDriver {
@@ -99,7 +98,7 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
     this.pollInterval = const Duration(seconds: 2),
     LibreLaneRunReading? readRun,
     this.hostEnvironment,
-  }) : _readRun = readRun ?? const LibreLaneContractReader().read;
+  }) : _readRun = readRun ?? const LibreLaneVersionedReader().read;
 
   /// The `simulatorId` this driver claims.
   static const String kId = 'librelane';

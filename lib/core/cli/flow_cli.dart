@@ -502,7 +502,7 @@ class FlowCli {
     final code = FlowOrgGate.combineExitCode(userCode, orgOutcome?.decision);
     final sarif = results.option('sarif');
     if (sarif != null) {
-      await File(sarif).writeAsString(flowSarif(reading));
+      await File(sarif).writeAsString(await flowSarifWithPaths(reading));
     }
     final junit = results.option('junit');
     if (junit != null) {
@@ -606,7 +606,7 @@ class FlowCli {
         '  ',
       ).convert(flowRunJson(reading)),
       FlowExportFormat.junit => flowJunit(<FlowReading>[reading]),
-      FlowExportFormat.sarif => flowSarif(reading),
+      FlowExportFormat.sarif => await flowSarifWithPaths(reading),
       FlowExportFormat.html => flowHtml(reading),
     };
     await File(out).writeAsString(text);
