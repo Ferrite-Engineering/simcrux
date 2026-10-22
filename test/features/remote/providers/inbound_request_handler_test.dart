@@ -688,7 +688,8 @@ void main() {
             (await ackFuture.timeout(const Duration(seconds: 2))).message
                 as RequestHighlightAck;
         expect(ack.honored, isFalse);
-        expect(ack.reason, contains('quantum_flux_capacitor'));
+        expect(ack.reason, contains('unsupported element kind'));
+        expect(ack.reason, isNot(contains('quantum_flux_capacitor')));
       },
     );
 

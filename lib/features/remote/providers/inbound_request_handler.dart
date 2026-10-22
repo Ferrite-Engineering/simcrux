@@ -121,10 +121,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
     PeerIdentity from,
   ) async {
     if (request.artifactKind != kCxpSourceArtifactKind) {
-      return CruxCxpHandlerResult(
+      return const CruxCxpHandlerResult(
         honored: false,
-        reason:
-            'simcrux opens only source artifacts, not "${request.artifactKind}"',
+        reason: 'simcrux opens only source artifacts',
       );
     }
     // Read under the floor: the rooted store drops the record for a project
@@ -135,9 +134,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
         await resolveOpenArtifactSourcePath(ref, request.designId) ??
         request.path;
     if (path == null) {
-      return CruxCxpHandlerResult(
+      return const CruxCxpHandlerResult(
         honored: false,
-        reason: 'no source artifact recorded for design "${request.designId}"',
+        reason: 'no source artifact recorded for that design',
       );
     }
     // CXP §11's MUST: the same scrutiny as a `file_path` on the wire, on the
@@ -339,9 +338,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
         // honest `honored: false`, never throw. Crashing the inbound
         // dispatch on an unrecognised kind would defeat the whole point
         // of the type being open.
-        return CruxCxpHandlerResult(
+        return const CruxCxpHandlerResult(
           honored: false,
-          reason: 'unsupported element kind: ${element.kind.name}',
+          reason: 'unsupported element kind',
         );
 
       case KnownElementKind.test:
@@ -350,9 +349,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
         // the active tab's scope. Selecting a nonexistent id would
         // leave the inspector empty while telling the peer it worked.
         if (!_testExists(element.path)) {
-          return CruxCxpHandlerResult(
+          return const CruxCxpHandlerResult(
             honored: false,
-            reason: 'test not found in the active project: ${element.path}',
+            reason: 'test not found in the active project',
           );
         }
         _readScoped(selectedTestIdProvider.notifier).select(element.path);
@@ -409,9 +408,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
       case KnownElementKind.rule:
         // SimCrux is not the natural owner of waveform markers
         // (WaveCrux) or rule sites (LintCrux). Decline politely.
-        return CruxCxpHandlerResult(
+        return const CruxCxpHandlerResult(
           honored: false,
-          reason: 'simcrux does not own ${element.kind.name} elements',
+          reason: 'simcrux does not own marker or rule elements',
         );
     }
   }

@@ -337,7 +337,7 @@ void main() {
         await record('d-padded', trailing);
         final ack = await app.ask(designId: 'd-padded');
         expect(ack.honored, isFalse);
-        expect(ack.reason, 'no source artifact recorded for design "d-padded"');
+        expect(ack.reason, 'no source artifact recorded for that design');
         expect(app.tabs(), isEmpty);
       });
     });
