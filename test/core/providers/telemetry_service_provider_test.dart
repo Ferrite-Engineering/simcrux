@@ -76,7 +76,7 @@ void main() {
     // collected — the disclosure is on screen, and the launch's events wait
     // for its answer rather than going anywhere.
     await container.read(telemetryConsentReadyProvider.future);
-    expect(container.read(telemetryEnabledProvider), isFalse);
+    expect(container.read(telemetryGateProvider), isNot(TelemetryGate.open));
     expect(
       container.read(telemetryServiceProvider),
       isA<PendingTelemetryService>(),
@@ -86,7 +86,7 @@ void main() {
     // An explicit yes opens the gate, which no beta build allowed.
     container.read(telemetryConsentStoreProvider.notifier).state =
         TelemetryConsentState.enabled;
-    expect(container.read(telemetryEnabledProvider), isTrue);
+    expect(container.read(telemetryGateProvider), TelemetryGate.open);
     expect(
       container.read(telemetryServiceProvider),
       isNot(isA<NoopTelemetryService>()),
@@ -100,7 +100,7 @@ void main() {
       final container = simcruxContainer(
         extra: [telemetryBetaPeriodProvider.overrideWithValue(true)],
       );
-      expect(container.read(telemetryEnabledProvider), isFalse);
+      expect(container.read(telemetryGateProvider), isNot(TelemetryGate.open));
       expect(
         container.read(telemetryServiceProvider),
         isA<NoopTelemetryService>(),
@@ -114,7 +114,7 @@ void main() {
       container.read(telemetryConsentStoreProvider.notifier).state =
           TelemetryConsentState.enabled;
 
-      expect(container.read(telemetryEnabledProvider), isFalse);
+      expect(container.read(telemetryGateProvider), isNot(TelemetryGate.open));
       expect(
         container.read(telemetryServiceProvider),
         isA<NoopTelemetryService>(),

@@ -36,9 +36,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// ## What this is *not*
 ///
-/// It is not `telemetryEnabledProvider`. That provider treats `unset` as
-/// enabled under `TELEMETRY_DEV`, which is right for a developer exercising
-/// the pipeline through the UI and wrong here for the reason above. What the
+/// It is not `telemetryGateProvider`. That gate treats `unset` as open under
+/// `TELEMETRY_DEV`, which is right for a developer exercising the pipeline
+/// through the UI and wrong here for the reason above. What the
 /// dev flag *does* still do on this path is select the dataset: a headless
 /// `TELEMETRY_DEV` build with stored consent posts to the staging endpoint,
 /// exactly as a GUI one does, so end-to-end verification covers `--ci` too.

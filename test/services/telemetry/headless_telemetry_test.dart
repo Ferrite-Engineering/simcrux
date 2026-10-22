@@ -108,7 +108,7 @@ void main() {
 
     test('TELEMETRY_DEV does NOT make `unset` count as consent here', () async {
       // This is where the headless gate deliberately diverges from
-      // `telemetryEnabledProvider`, which treats `unset` as enabled under the
+      // `telemetryGateProvider`, which treats `unset` as open under the
       // dev flag so a developer can verify the pipeline without touching the
       // UI. On a headless path there is no UI to have skipped, and no one to
       // have skipped it — so `unset` stays a hard no.
@@ -117,7 +117,7 @@ void main() {
       // dev flag only after the persisted value has been read back, since
       // before that a stored refusal wears the same value.
       await container.read(telemetryConsentReadyProvider.future);
-      expect(container.read(telemetryEnabledProvider), isTrue);
+      expect(container.read(telemetryGateProvider), TelemetryGate.open);
       expect(await headlessTelemetryAllowed(container), isFalse);
     });
 
