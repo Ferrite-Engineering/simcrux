@@ -12623,7 +12623,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12643,7 +12643,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12663,7 +12663,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12683,7 +12683,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12703,7 +12703,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12723,7 +12723,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12743,7 +12743,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12763,7 +12763,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12783,7 +12783,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12803,7 +12803,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12823,7 +12823,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12843,7 +12843,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12863,7 +12863,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12883,7 +12883,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12903,7 +12903,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12923,7 +12923,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12943,7 +12943,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12963,7 +12963,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -12983,7 +12983,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13003,7 +13003,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13023,7 +13023,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13043,7 +13043,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13063,7 +13063,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13083,7 +13083,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13103,7 +13103,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13123,7 +13123,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13143,7 +13143,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13163,7 +13163,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13183,7 +13183,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13203,7 +13203,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13223,7 +13223,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13243,7 +13243,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13263,7 +13263,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13283,7 +13283,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13303,7 +13303,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13323,7 +13323,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13343,7 +13343,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13363,7 +13363,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13383,7 +13383,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13403,7 +13403,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13423,7 +13423,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13443,7 +13443,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13463,7 +13463,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13483,7 +13483,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13503,7 +13503,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13523,7 +13523,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13543,7 +13543,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13563,7 +13563,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13583,7 +13583,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13603,7 +13603,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13623,7 +13623,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13644,7 +13644,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13667,7 +13667,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13689,7 +13689,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13710,7 +13710,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13733,7 +13733,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13755,7 +13755,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13776,7 +13776,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13799,7 +13799,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13821,7 +13821,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13842,7 +13842,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13865,7 +13865,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13887,7 +13887,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13908,7 +13908,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13931,7 +13931,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13953,7 +13953,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -13974,7 +13974,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13997,7 +13997,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14019,7 +14019,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14040,7 +14040,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14063,7 +14063,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14085,7 +14085,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14106,7 +14106,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14129,7 +14129,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14151,7 +14151,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14172,7 +14172,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14195,7 +14195,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14217,7 +14217,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14238,7 +14238,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14261,7 +14261,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14284,7 +14284,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14307,7 +14307,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14329,7 +14329,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14349,7 +14349,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14370,7 +14370,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14393,7 +14393,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14415,7 +14415,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14436,7 +14436,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14459,7 +14459,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14481,7 +14481,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14502,7 +14502,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14525,7 +14525,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14547,7 +14547,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14568,7 +14568,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14591,7 +14591,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14613,7 +14613,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14634,7 +14634,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14659,7 +14659,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14682,7 +14682,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14704,7 +14704,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14725,7 +14725,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14748,7 +14748,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14770,7 +14770,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14791,7 +14791,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14814,7 +14814,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14836,7 +14836,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14857,7 +14857,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14880,7 +14880,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14902,7 +14902,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14923,7 +14923,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14946,7 +14946,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14968,7 +14968,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -14989,7 +14989,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -15012,7 +15012,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -15034,7 +15034,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15055,7 +15055,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -15078,7 +15078,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -15100,7 +15100,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15121,7 +15121,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -15144,7 +15144,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -15165,7 +15165,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -15273,7 +15273,7 @@
           "bits": [ 90 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_11_D": {
@@ -15287,7 +15287,7 @@
           "bits": [ 91 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_12_D": {
@@ -15301,7 +15301,7 @@
           "bits": [ 93 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_13_D": {
@@ -15315,7 +15315,7 @@
           "bits": [ 95 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_14_D": {
@@ -15329,7 +15329,7 @@
           "bits": [ 97 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_15_D": {
@@ -15343,7 +15343,7 @@
           "bits": [ 99 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_16_D": {
@@ -15357,7 +15357,7 @@
           "bits": [ 101 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_17_D": {
@@ -15371,7 +15371,7 @@
           "bits": [ 103 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_18_D": {
@@ -15385,7 +15385,7 @@
           "bits": [ 105 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_19_D": {
@@ -15399,7 +15399,7 @@
           "bits": [ 107 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_1_D": {
@@ -15413,7 +15413,7 @@
           "bits": [ 110 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_20_D": {
@@ -15427,7 +15427,7 @@
           "bits": [ 109 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_21_D": {
@@ -15441,7 +15441,7 @@
           "bits": [ 114 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_22_D": {
@@ -15455,7 +15455,7 @@
           "bits": [ 116 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_23_D": {
@@ -15469,7 +15469,7 @@
           "bits": [ 118 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_24_D": {
@@ -15489,7 +15489,7 @@
           "bits": [ 111 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_3_D": {
@@ -15503,7 +15503,7 @@
           "bits": [ 121 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_4_D": {
@@ -15517,7 +15517,7 @@
           "bits": [ 123 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_5_D": {
@@ -15531,7 +15531,7 @@
           "bits": [ 125 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_6_D": {
@@ -15545,7 +15545,7 @@
           "bits": [ 127 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_7_D": {
@@ -15559,7 +15559,7 @@
           "bits": [ 129 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_8_D": {
@@ -15573,7 +15573,7 @@
           "bits": [ 131 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_9_D": {
@@ -15587,7 +15587,7 @@
           "bits": [ 133 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "sum_q_SB_DFF_Q_D": {
@@ -15595,7 +15595,7 @@
           "bits": [ 87 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         }
       }

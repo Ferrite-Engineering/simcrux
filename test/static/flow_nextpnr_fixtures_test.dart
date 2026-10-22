@@ -135,6 +135,118 @@ void main() {
     });
   });
 
+  group('captured netlists keep the user source spans', () {
+    // Yosys joins the spans of one cell with '|'. A scrub that rewrites the
+    // library path must start after that bar, or it swallows the user span in
+    // front of it and leaves 'file.v:<yosys-share>/lib.v:..' behind.
+    final span = RegExp(r'^[^:|]+:\d+\.\d+-\d+\.\d+$');
+    final netlists = <String, String>{
+      for (final name in _verdictCases)
+        if (!name.endsWith('_violated')) name: '$_root/$name/netlist.json',
+      'fusesoc': '$_fusesocRoot/build/award-winning_serv_servant_1.4.0.json',
+    };
+
+    Map<String, List<String>> srcsOf(String path) {
+      final out = <String, List<String>>{};
+      void walk(Object? node) {
+        if (node is Map<String, dynamic>) {
+          for (final e in node.entries) {
+            final v = e.value;
+            if (e.key == 'src' && v is String) {
+              (out[v] ??= []).add(v);
+            } else {
+              walk(v);
+            }
+          }
+        } else if (node is List<dynamic>) {
+          node.forEach(walk);
+        }
+      }
+
+      walk(jsonDecode(_file(path).readAsStringSync()));
+      return out;
+    }
+
+    for (final entry in netlists.entries) {
+      test(
+        '${entry.key}: every src is a bar-joined list of file:line spans',
+        () {
+          final srcs = srcsOf(entry.value).keys;
+          expect(srcs, isNotEmpty);
+          final bad = [
+            for (final src in srcs)
+              if (src.contains(':<') ||
+                  src.split('|').any((s) => !span.hasMatch(s)))
+                src,
+          ];
+          expect(bad, isEmpty, reason: 'malformed src values: $bad');
+        },
+      );
+
+      test('${entry.key}: no src names a machine path', () {
+        final bad = [
+          for (final src in srcsOf(entry.value).keys)
+            if (_machinePath.hasMatch(src)) src,
+        ];
+        expect(bad, isEmpty);
+      });
+    }
+
+    test('a user span survives in front of a library span', () {
+      for (final entry in netlists.entries) {
+        final kept = srcsOf(entry.value).keys.where((src) {
+          final spans = src.split('|');
+          return spans.length > 1 &&
+              !spans.first.startsWith('<') &&
+              spans.skip(1).any((s) => s.startsWith('<yosys-share>/'));
+        });
+        expect(kept, isNotEmpty, reason: '${entry.key} lost its user spans');
+      }
+    });
+
+    test(
+      'the designed adder statement (line 16) has a user span per family',
+      () {
+        final expected = _json('$_root/mapping.expected.json');
+        final line = expected['path_statement_line'] as int;
+        final design = (expected['design'] as String).split('/').last;
+        final lines = RegExp(
+          '(?:^|\\|)${RegExp.escape(design)}:(\\d+)\\.\\d+-(\\d+)\\.\\d+',
+        );
+        for (final name in _mappingCases) {
+          final covering = srcsOf('$_root/$name/netlist.json').keys.where(
+            (src) => lines
+                .allMatches(src)
+                .any(
+                  (m) => int.parse(m[1]!) <= line && line <= int.parse(m[2]!),
+                ),
+          );
+          expect(
+            covering,
+            isNotEmpty,
+            reason: '$name has no span on line $line',
+          );
+        }
+      },
+    );
+
+    test('the regenerators exclude the span separator from the path match', () {
+      for (final script in [
+        'tool/flow/regen_nextpnr_fixtures.sh',
+        'tool/flow/regen_fusesoc_fixture.sh',
+      ]) {
+        final text = _file(script).readAsStringSync();
+        final rules = RegExp(
+          r"-e 's#\[\^([^\]]*)\]\*/(?:share/yosys|libexec)",
+        ).allMatches(text).toList();
+        expect(rules, isNotEmpty, reason: script);
+        for (final rule in rules) {
+          expect(rule[1], contains('|'), reason: '$script: ${rule[0]}');
+        }
+      }
+    });
+  });
+
   group('verdicts come from nextpnr own log line', () {
     for (final name in _verdictCases) {
       test(name, () {

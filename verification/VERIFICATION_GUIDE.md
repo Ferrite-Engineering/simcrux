@@ -5275,6 +5275,7 @@ Open Core only. The fixtures and their tests exercise no gated feature.
 | Test | Coverage | File |
 |---|---|---|
 | Corpus present, scrubbed, under 5 MB, documented; verdicts, exit statuses, designed endpoints and report schema match the hand-written expectations | `[Coverage: UNIT]` | `test/static/flow_nextpnr_fixtures_test.dart` |
+| Captured netlists keep each user source span (bar-joined `src` values, no machine path, no span lost to the path scrub) | `[Coverage: UNIT]` | `test/static/flow_nextpnr_fixtures_test.dart` |
 | The real tools re-run through the regenerators match the same expectations (gated on tool presence) | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_nextpnr_live_test.dart`, `.github/workflows/flow-live.yml` |
 | Every workflow job has an integer `timeout-minutes`, no step pipes into `tee` without `pipefail`, and `flow-live.yml` keeps its caps | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
 

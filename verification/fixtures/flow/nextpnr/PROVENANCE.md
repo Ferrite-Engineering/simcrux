@@ -53,6 +53,11 @@ share path (`<work>`, `<home>`, `<yosys-share>`) in every capture, and fails
 if any machine path survives. The measured `report.json` of the earlier
 re-screen carried one scratch path; these do not.
 
+Yosys joins the spans of one `src` attribute in `netlist.json` with `|`
+(`path_adder.v:13.3-17.6|<yosys-share>/ice40/ff_map.v:2.51-2.90`). The share
+path rewrite never crosses a `|` or a `:`, so it replaces only the machine
+prefix and every file name and line and column span stays as Yosys wrote it.
+
 ## Cases
 
 | Case | RTL | Constraint | Verdict |

@@ -32477,7 +32477,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32504,7 +32504,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32531,7 +32531,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32558,7 +32558,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32585,7 +32585,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32612,7 +32612,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32639,7 +32639,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32666,7 +32666,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32693,7 +32693,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32720,7 +32720,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32747,7 +32747,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32774,7 +32774,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32801,7 +32801,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32828,7 +32828,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32855,7 +32855,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32882,7 +32882,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32909,7 +32909,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32936,7 +32936,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32963,7 +32963,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -32990,7 +32990,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33017,7 +33017,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33044,7 +33044,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33071,7 +33071,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33098,7 +33098,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33125,7 +33125,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33152,7 +33152,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33179,7 +33179,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33206,7 +33206,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33233,7 +33233,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33260,7 +33260,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33287,7 +33287,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33314,7 +33314,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33341,7 +33341,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33368,7 +33368,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33395,7 +33395,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33422,7 +33422,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33449,7 +33449,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33476,7 +33476,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33503,7 +33503,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33530,7 +33530,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33557,7 +33557,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33584,7 +33584,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33611,7 +33611,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33638,7 +33638,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33665,7 +33665,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33692,7 +33692,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33719,7 +33719,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33746,7 +33746,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33773,7 +33773,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33800,7 +33800,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33827,7 +33827,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33853,7 +33853,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -33896,7 +33896,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33923,7 +33923,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -33949,7 +33949,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -33992,7 +33992,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34019,7 +34019,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34045,7 +34045,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34088,7 +34088,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34115,7 +34115,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34141,7 +34141,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34184,7 +34184,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34211,7 +34211,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34237,7 +34237,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34280,7 +34280,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34307,7 +34307,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34334,7 +34334,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34360,7 +34360,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34403,7 +34403,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34430,7 +34430,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34456,7 +34456,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34499,7 +34499,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34526,7 +34526,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34552,7 +34552,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34594,7 +34594,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34637,7 +34637,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34663,7 +34663,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34706,7 +34706,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34733,7 +34733,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34759,7 +34759,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34802,7 +34802,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34829,7 +34829,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34855,7 +34855,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -34898,7 +34898,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34925,7 +34925,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
+            "src": "path_adder.v:13.3-17.6|<yosys-share>/lattice/cells_map_trellis.v:16.100-16.154"
           },
           "port_directions": {
             "CLK": "input",
@@ -34951,7 +34951,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4"
           },
           "port_directions": {
             "A0": "input",
@@ -35179,7 +35179,7 @@
           "bits": [ 106 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_10_DI_CCU2C_S0_S1": {
@@ -35199,7 +35199,7 @@
           "bits": [ 110 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_12_DI_CCU2C_S1_S0": {
@@ -35219,7 +35219,7 @@
           "bits": [ 113 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_14_DI_CCU2C_S1_S0": {
@@ -35239,7 +35239,7 @@
           "bits": [ 116 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_16_DI_CCU2C_S1_S0": {
@@ -35259,7 +35259,7 @@
           "bits": [ 119 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_18_DI_CCU2C_S1_S0": {
@@ -35279,7 +35279,7 @@
           "bits": [ 123 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_20_DI_CCU2C_S1_S0": {
@@ -35299,7 +35299,7 @@
           "bits": [ 126 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_22_DI_CCU2C_S1_S0": {
@@ -35319,7 +35319,7 @@
           "bits": [ 129 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_24_DI_CCU2C_S1_S0": {
@@ -35339,7 +35339,7 @@
           "bits": [ 105 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_2_DI_CCU2C_S1_S0": {
@@ -35359,7 +35359,7 @@
           "bits": [ 134 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_3_DI_CCU2C_S0_S1": {
@@ -35379,7 +35379,7 @@
           "bits": [ 137 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_5_DI_CCU2C_S0_S1": {
@@ -35399,7 +35399,7 @@
           "bits": [ 130 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_7_DI_CCU2C_S0_S1": {
@@ -35419,7 +35419,7 @@
           "bits": [ 133 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "path_adder.v:<yosys-share>/lattice/arith_map_ccu2c.v:<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
+            "src": "path_adder.v:16.14-16.27|<yosys-share>/lattice/arith_map_ccu2c.v:74.7-80.4|<yosys-share>/lattice/ccu2c_sim.vh:9.9-9.13"
           }
         },
         "sum_q_TRELLIS_FF_Q_DI_CCU2C_S0_S1": {

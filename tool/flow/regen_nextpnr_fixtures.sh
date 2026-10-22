@@ -57,13 +57,16 @@ mkdir -p "$XDG_DATA_HOME" "$out"
 
 # Rewrite machine-specific paths. The yosys share directory (arith_map.v and
 # friends) is install-relative, so it is matched by shape, not by location.
+# The match must not cross ':' or '|': Yosys joins the spans of one src
+# attribute with '|' ("user.v:13.3-17.6|<lib>/ff_map.v:2.51-2.90"), and a match
+# that began before the bar would swallow the user span in front of it.
 scrub() {
   sed -E \
     -e "s|$work_real|<work>|g" \
     -e "s|$work|<work>|g" \
     -e "s|$HOME|<home>|g" \
-    -e 's|[^ ":]*/share/yosys/|<yosys-share>/|g' \
-    -e 's|[^ ":]*/libexec/\.\./|<suite>/|g' \
+    -e 's#[^ ":|]*/share/yosys/#<yosys-share>/#g' \
+    -e 's#[^ ":|]*/libexec/\.\./#<suite>/#g' \
     "$1" > "$1.scrubbed"
   mv "$1.scrubbed" "$1"
 }

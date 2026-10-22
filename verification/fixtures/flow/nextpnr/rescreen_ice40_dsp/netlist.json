@@ -12875,7 +12875,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -12897,7 +12897,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -12919,7 +12919,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -12966,7 +12966,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -13013,7 +13013,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -13060,7 +13060,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -13107,7 +13107,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -13155,7 +13155,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13178,7 +13178,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13199,7 +13199,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13220,7 +13220,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13241,7 +13241,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13262,7 +13262,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13283,7 +13283,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13304,7 +13304,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13325,7 +13325,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13346,7 +13346,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13367,7 +13367,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13388,7 +13388,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13409,7 +13409,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13430,7 +13430,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13451,7 +13451,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13474,7 +13474,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13499,7 +13499,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13522,7 +13522,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -13545,7 +13545,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13570,7 +13570,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13620,7 +13620,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13645,7 +13645,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13670,7 +13670,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13695,7 +13695,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13720,7 +13720,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13745,7 +13745,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13770,7 +13770,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13795,7 +13795,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13820,7 +13820,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13845,7 +13845,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13870,7 +13870,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13895,7 +13895,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13920,7 +13920,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13945,7 +13945,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13970,7 +13970,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -13995,7 +13995,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14020,7 +14020,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14045,7 +14045,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14070,7 +14070,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14095,7 +14095,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14120,7 +14120,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14145,7 +14145,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14170,7 +14170,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14195,7 +14195,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14218,7 +14218,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14240,7 +14240,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -14263,7 +14263,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:26.33-27.52"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:26.33-27.52"
           },
           "port_directions": {
             "I0": "input",
@@ -14286,7 +14286,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14307,7 +14307,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14328,7 +14328,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14349,7 +14349,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14370,7 +14370,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14391,7 +14391,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14412,7 +14412,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14433,7 +14433,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14454,7 +14454,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14475,7 +14475,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14496,7 +14496,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14517,7 +14517,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14538,7 +14538,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14559,7 +14559,7 @@
           "parameters": {
           },
           "attributes": {
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:62.5-70.4"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4"
           },
           "port_directions": {
             "CI": "input",
@@ -14956,7 +14956,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15003,7 +15003,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15050,7 +15050,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15097,7 +15097,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15144,7 +15144,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15191,7 +15191,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15238,7 +15238,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15285,7 +15285,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15357,7 +15357,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15379,7 +15379,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15401,7 +15401,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15423,7 +15423,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15445,7 +15445,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15467,7 +15467,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15489,7 +15489,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15511,7 +15511,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:19.59-19.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:19.59-19.105"
           },
           "port_directions": {
             "C": "input",
@@ -15553,7 +15553,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/mul2dsp.v:<yosys-share>/ice40/dsp_map.v:29.4-33.3"
+            "src": "top.v:16.22-16.29|<yosys-share>/mul2dsp.v:255.6-259.5|<yosys-share>/ice40/dsp_map.v:29.4-33.3"
           },
           "port_directions": {
             "A": "input",
@@ -15646,7 +15646,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15666,7 +15666,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15711,7 +15711,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15756,7 +15756,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15801,7 +15801,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15846,7 +15846,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15891,7 +15891,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -15936,7 +15936,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16006,7 +16006,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16026,7 +16026,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16046,7 +16046,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16066,7 +16066,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16086,7 +16086,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16106,7 +16106,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16126,7 +16126,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16146,7 +16146,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16166,7 +16166,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16186,7 +16186,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16206,7 +16206,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16226,7 +16226,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16246,7 +16246,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16266,7 +16266,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16286,7 +16286,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16306,7 +16306,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:2.51-2.90"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:2.51-2.90"
           },
           "port_directions": {
             "C": "input",
@@ -16326,7 +16326,7 @@
           },
           "attributes": {
             "module_not_derived": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/ff_map.v:20.59-20.105"
+            "src": "top.v:13.3-22.6|<yosys-share>/ice40/ff_map.v:20.59-20.105"
           },
           "port_directions": {
             "C": "input",
@@ -16525,7 +16525,7 @@
           "bits": [ 57 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO": {
@@ -16533,7 +16533,7 @@
           "bits": [ 58 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16541,7 +16541,7 @@
           "bits": [ 59 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16549,7 +16549,7 @@
           "bits": [ 61 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16557,7 +16557,7 @@
           "bits": [ 63 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16565,7 +16565,7 @@
           "bits": [ 65 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16573,7 +16573,7 @@
           "bits": [ 67 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16581,7 +16581,7 @@
           "bits": [ 69 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16589,7 +16589,7 @@
           "bits": [ 71 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16597,7 +16597,7 @@
           "bits": [ 73 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16605,7 +16605,7 @@
           "bits": [ 75 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16613,7 +16613,7 @@
           "bits": [ 77 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16621,7 +16621,7 @@
           "bits": [ 79 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16629,7 +16629,7 @@
           "bits": [ 81 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16637,7 +16637,7 @@
           "bits": [ 83 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.22-19.32|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_LUT4_I3_O": {
@@ -16653,7 +16653,7 @@
           "bits": [ 87 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_LUT4_I3_O": {
@@ -16669,7 +16669,7 @@
           "bits": [ "0", 36, 90, 89 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_14_D_SB_LUT4_O_I3_SB_LUT4_O_I3_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_LUT4_I3_O": {
@@ -16779,7 +16779,7 @@
           "bits": [ "0", 22, 134, "1" ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO": {
@@ -16787,7 +16787,7 @@
           "bits": [ 135 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO": {
@@ -16795,7 +16795,7 @@
           "bits": [ 132 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16803,7 +16803,7 @@
           "bits": [ 130 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16811,7 +16811,7 @@
           "bits": [ 128 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16819,7 +16819,7 @@
           "bits": [ 126 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16827,7 +16827,7 @@
           "bits": [ 123 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16835,7 +16835,7 @@
           "bits": [ 119 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16843,7 +16843,7 @@
           "bits": [ 115 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16851,7 +16851,7 @@
           "bits": [ 111 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16859,7 +16859,7 @@
           "bits": [ 107 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16867,7 +16867,7 @@
           "bits": [ 103 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16875,7 +16875,7 @@
           "bits": [ 99 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16883,7 +16883,7 @@
           "bits": [ 95 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO": {
@@ -16891,7 +16891,7 @@
           "bits": [ 89 ],
           "attributes": {
             "abc9_carry": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/abc9_model.v:4.9-4.11"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/abc9_model.v:4.9-4.11"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16899,7 +16899,7 @@
           "bits": [ "0", 35, 94, 95 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16907,7 +16907,7 @@
           "bits": [ "0", 34, 98, 99 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16915,7 +16915,7 @@
           "bits": [ "0", 33, 102, 103 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16923,7 +16923,7 @@
           "bits": [ "0", 32, 106, 107 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16931,7 +16931,7 @@
           "bits": [ "0", 31, 110, 111 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16939,7 +16939,7 @@
           "bits": [ "0", 30, 114, 115 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16947,7 +16947,7 @@
           "bits": [ "0", 29, 118, 119 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16955,7 +16955,7 @@
           "bits": [ "0", 28, 122, 123 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16963,7 +16963,7 @@
           "bits": [ "0", 27, 125, 126 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16971,7 +16971,7 @@
           "bits": [ "0", 26, 127, 128 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16979,7 +16979,7 @@
           "bits": [ "0", 25, 129, 130 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_CO_SB_CARRY_CI_I1": {
@@ -16987,7 +16987,7 @@
           "bits": [ "0", 24, 131, 132 ],
           "attributes": {
             "force_downto": "00000000000000000000000000000001",
-            "src": "top.v:<yosys-share>/ice40/arith_map.v:<yosys-share>/ice40/cells_map.v:6.21-6.22"
+            "src": "top.v:19.35-19.45|<yosys-share>/ice40/arith_map.v:62.5-70.4|<yosys-share>/ice40/cells_map.v:6.21-6.22"
           }
         },
         "acc_SB_DFFSR_Q_15_D_SB_LUT4_O_I2_SB_CARRY_I1_CO_SB_CARRY_CI_I1": {
