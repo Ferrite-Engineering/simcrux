@@ -1,0 +1,315 @@
+// Copyright 2026 Ferrite Engineering LLC
+// SPDX-License-Identifier: Apache-2.0
+
+// The committed gate-level and netlist-equivalence fixtures: present, small,
+// scrubbed, documented, and consistent with their hand-written outcomes.
+//
+// A missing fixture directory fails here; it is never skipped. The VCD checks
+// below read the committed port dumps with a sampler written for this test
+// (value held just before each rising clock edge), not with the product's
+// reader, and compare them with what the testbench and the RTL mean:
+//
+// * the MAC resets asynchronously but starts with rst_n already low, so its
+//   RTL outputs are x until the first clock edge while the gate-level reset
+//   flops are already 0: one sample of x-asymmetry and nothing else;
+// * with XPROBE the testbench drives a = x for three cycles with b = 0. The
+//   RTL product x*0 is x and the accumulator keeps it, so parity stays x for
+//   the rest of the run while the gates compute 0: x-asymmetry only, on 199
+//   samples, never a known value that differs.
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+const _gl = 'verification/fixtures/flow/gate_level';
+const _eqy = 'verification/fixtures/formal/eqy_flow';
+const _smallRun = 'verification/fixtures/flow/librelane/3.0.16/sky130A_met/run';
+
+const int _maxFixtureBytes = 5 * 1024 * 1024;
+
+final RegExp _machinePath = RegExp(
+  '/Users/|/home/|/private/|/var/folders|/runner/',
+);
+
+File _file(String path) {
+  final file = File(path);
+  if (!file.existsSync()) fail('missing fixture file: $path');
+  return file;
+}
+
+Directory _dir(String path) {
+  final dir = Directory(path);
+  if (!dir.existsSync()) fail('missing fixture directory: $path');
+  return dir;
+}
+
+Map<String, dynamic> _json(String path) =>
+    jsonDecode(_file(path).readAsStringSync()) as Map<String, dynamic>;
+
+/// Values of the variables in [scope], sampled before each rising edge of
+/// [clock]: one map per edge, name to bit string (MSB first).
+List<Map<String, String>> _samples(
+  String path, {
+  String scope = 'tb.uut',
+  String clock = 'clk',
+}) {
+  final ids = <String, (String, int)>{};
+  final stack = <String>[];
+  final state = <String, String>{};
+  final pending = <String, String>{};
+  final out = <Map<String, String>>[];
+  String? clockId;
+  var header = true;
+
+  void flush() {
+    if (clockId != null && pending.containsKey(clockId)) {
+      if (state[clockId] == '0' && pending[clockId] == '1') {
+        out.add({
+          for (final e in ids.entries)
+            e.value.$1: state[e.key] ?? 'x' * e.value.$2,
+        });
+      }
+    }
+    state.addAll(pending);
+    pending.clear();
+  }
+
+  for (final raw in _file(path).readAsLinesSync()) {
+    final line = raw.trim();
+    if (line.isEmpty) continue;
+    if (header) {
+      final parts = line.split(RegExp(r'\s+'));
+      if (line.startsWith(r'$scope')) {
+        stack.add(parts[2]);
+      } else if (line.startsWith(r'$upscope')) {
+        stack.removeLast();
+      } else if (line.startsWith(r'$var') && stack.join('.') == scope) {
+        ids.putIfAbsent(parts[3], () => (parts[4], int.parse(parts[2])));
+        if (parts[4] == clock) clockId = parts[3];
+      } else if (line.startsWith(r'$enddefinitions')) {
+        header = false;
+      }
+      continue;
+    }
+    final head = line[0];
+    if (head == '#') {
+      flush();
+    } else if (head == 'b' || head == 'B') {
+      final parts = line.substring(1).split(RegExp(r'\s+'));
+      final id = parts[1];
+      final width = ids[id]?.$2;
+      if (width == null) continue;
+      var value = parts[0].toLowerCase();
+      if (value.length < width) {
+        final pad = (value[0] == 'x' || value[0] == 'z') ? value[0] : '0';
+        value = pad * (width - value.length) + value;
+      }
+      pending[id] = value;
+    } else if ('01xzXZ'.contains(head) && ids.containsKey(line.substring(1))) {
+      pending[line.substring(1)] = head.toLowerCase();
+    }
+  }
+  flush();
+  return out;
+}
+
+/// Bit-level classification of an RTL/gate pair: (x-asymmetry samples,
+/// real-difference samples, x-asymmetry samples per port).
+(int, int, Map<String, int>) _classify(String rtl, String gate) {
+  final r = _samples(rtl);
+  final g = _samples(gate);
+  expect(r.length, g.length, reason: 'same number of clock edges');
+  var xSamples = 0;
+  var realSamples = 0;
+  final perPort = <String, int>{};
+  for (var k = 0; k < r.length; k++) {
+    var x = false;
+    var real = false;
+    for (final name in r[k].keys) {
+      final a = r[k][name]!;
+      final b = g[k][name] ?? '';
+      if (a == b) continue;
+      var portX = false;
+      for (var i = 0; i < a.length && i < b.length; i++) {
+        final ak = a[i] == '0' || a[i] == '1';
+        final bk = b[i] == '0' || b[i] == '1';
+        if (a[i] == b[i] || (!ak && !bk)) continue;
+        if (!ak) {
+          x = true;
+          portX = true;
+        } else {
+          real = true;
+        }
+      }
+      if (portX) perPort[name] = (perPort[name] ?? 0) + 1;
+    }
+    if (x) xSamples++;
+    if (real) realSamples++;
+  }
+  return (xSamples, realSamples, perPort);
+}
+
+void main() {
+  test('every gate-level fixture is present', () {
+    [
+      '$_gl/PROVENANCE.md',
+      '$_gl/GLS-GATE.md',
+      '$_gl/gls.expected.json',
+      '$_gl/harness/gls_bind.v',
+      '$_gl/harness/gls_power.v',
+      '$_gl/path_adder/tb_path_adder.v',
+      '$_gl/path_adder/gls_portdump.v',
+      '$_gl/picorv32/tb_picorv32.v',
+      '$_gl/picorv32/gls_portdump.v',
+      '$_gl/mac/dut.v',
+      '$_gl/mac/tb.v',
+      '$_gl/mac/net.v',
+      '$_gl/mac/net_splitports.v',
+      '$_gl/mac/gls_portdump.v',
+      '$_gl/mac/vcd/rtl.vcd',
+      '$_gl/mac/vcd/gate.vcd',
+      '$_gl/mac/vcd/rtl_x.vcd',
+      '$_gl/mac/vcd/gate_x.vcd',
+      '$_gl/mac/vcd/verilator_rtl.vcd',
+      '$_gl/mac/vcd/verilator_gate.vcd',
+      '$_eqy/RECIPE-GATE.md',
+      '$_eqy/recipe.expected.json',
+      '$_eqy/flow_netlist.eqy.in',
+      '$_smallRun/final/nl/path_adder.nl.v',
+      '$_smallRun/final/pnl/path_adder.pnl.v',
+      '$_smallRun/final/sdf/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.sdf',
+      '$_smallRun/resolved.json',
+      'tool/flow/gate_level/regen_gate_level.py',
+      'tool/flow/gate_level/gls_compare.py',
+      'tool/flow/gate_level/eqy_summary.py',
+      'tool/flow/gate_level/netlist_mutant.py',
+    ].forEach(_file);
+  });
+
+  test('every fixture file is under 5 MB and names no machine path', () {
+    for (final root in [_gl, _eqy]) {
+      for (final f in _dir(root).listSync(recursive: true).whereType<File>()) {
+        expect(f.lengthSync(), lessThan(_maxFixtureBytes), reason: f.path);
+        if (f.path.endsWith('.md')) continue;
+        expect(
+          _machinePath.hasMatch(f.readAsStringSync()),
+          isFalse,
+          reason: f.path,
+        );
+      }
+    }
+  });
+
+  test('the run records name the cell models and the Liberty file', () {
+    final resolved = _json('$_smallRun/resolved.json');
+    expect(resolved['PDK'], 'sky130A');
+    expect(resolved['STD_CELL_LIBRARY'], 'sky130_fd_sc_hd');
+    final models = (resolved['CELL_VERILOG_MODELS'] as List).cast<String>();
+    expect(models.map((m) => m.split('/').last), [
+      'primitives.v',
+      'sky130_fd_sc_hd.v',
+    ]);
+    for (final m in models) {
+      expect(m, startsWith(resolved['PDK_ROOT'] as String));
+      expect(m, contains('/sky130A/libs.ref/sky130_fd_sc_hd/verilog/'));
+    }
+    final corner = resolved['DEFAULT_CORNER'] as String;
+    expect(corner, 'nom_tt_025C_1v80');
+    final lib = (resolved['LIB'] as Map)['*_tt_025C_1v80'] as List;
+    expect(lib.single, endsWith('/lib/sky130_fd_sc_hd__tt_025C_1v80.lib'));
+    // The physical-only cells the equivalence recipe deletes, as the run's
+    // own configuration names them, on each PDK.
+    expect(resolved['FILL_CELLS'], [
+      'sky130_fd_sc_hd__fill_2',
+      'sky130_fd_sc_hd__fill_1',
+    ]);
+    expect(resolved['DECAP_CELLS'], ['sky130_fd_sc_hd__decap_3']);
+    expect(resolved['WELLTAP_CELL'], 'sky130_fd_sc_hd__tapvpwrvgnd_1');
+    final gf = _json(
+      'verification/fixtures/flow/librelane/3.0.16/gf180mcuD_met/run/resolved.json',
+    );
+    expect(gf['FILL_CELLS'], ['gf180mcu_fd_sc_mcu7t5v0__fill_*']);
+    expect(gf['DECAP_CELLS'], ['gf180mcu_fd_sc_mcu7t5v0__fillcap_*']);
+    expect(gf['WELLTAP_CELL'], 'gf180mcu_fd_sc_mcu7t5v0__filltie');
+    expect(gf['ENDCAP_CELL'], 'gf180mcu_fd_sc_mcu7t5v0__endcap');
+    final ihp = _json(
+      'verification/fixtures/flow/librelane/3.0.16/ihp-sg13g2_met/run/resolved.json',
+    );
+    expect(ihp['FILL_CELLS'], ['sg13g2_fill_1', 'sg13g2_fill_2']);
+    expect(ihp['DECAP_CELLS'], ['sg13g2_decap_*']);
+    expect(ihp['WELLTAP_CELL'], isNull);
+  });
+
+  test(
+    'the final netlist keeps the RTL port list; the split variant does not',
+    () {
+      final nl = _file(
+        '$_smallRun/final/nl/path_adder.nl.v',
+      ).readAsStringSync();
+      expect(nl, contains('module path_adder (clk,'));
+      final pnl = _file(
+        '$_smallRun/final/pnl/path_adder.pnl.v',
+      ).readAsStringSync();
+      expect(pnl, contains('inout VPWR;'));
+      expect(pnl, contains('inout VGND;'));
+      final net = _file('$_gl/mac/net.v').readAsStringSync();
+      expect(net, contains(RegExp(r'input\s+\[7:0\]\s+a;')));
+      final split = _file('$_gl/mac/net_splitports.v').readAsStringSync();
+      expect(split, isNot(contains(RegExp(r'input\s+\[7:0\]\s+a;'))));
+      expect(split, contains(r'\a[0]'));
+      expect(_file('$_gl/mac/tb.v').readAsStringSync(), contains('.a(a)'));
+    },
+  );
+
+  test('the MAC port dumps: one x-asymmetry sample, nothing real', () {
+    final (x, real, _) = _classify(
+      '$_gl/mac/vcd/rtl.vcd',
+      '$_gl/mac/vcd/gate.vcd',
+    );
+    expect(x, 1);
+    expect(real, 0);
+    final (vx, vreal, _) = _classify(
+      '$_gl/mac/vcd/verilator_rtl.vcd',
+      '$_gl/mac/vcd/verilator_gate.vcd',
+    );
+    expect(vx, 0, reason: 'a two-state simulator has no x');
+    expect(vreal, 0);
+  });
+
+  test(
+    'the MAC x*0 probe: parity x-asymmetric on 199 samples, nothing real',
+    () {
+      final (_, real, perPort) = _classify(
+        '$_gl/mac/vcd/rtl_x.vcd',
+        '$_gl/mac/vcd/gate_x.vcd',
+      );
+      expect(real, 0);
+      expect(perPort['parity'], 199);
+    },
+  );
+
+  test('the outcomes in the gate documents match the expectation files', () {
+    final gls = _json('$_gl/gls.expected.json');
+    final glsDoc = _file('$_gl/GLS-GATE.md').readAsStringSync();
+    expect(glsDoc, contains('Outcome: `${gls['outcome']}`'));
+    final recipe = _json('$_eqy/recipe.expected.json');
+    final recipeDoc = _file('$_eqy/RECIPE-GATE.md').readAsStringSync();
+    expect(recipeDoc, contains('Outcome: `${recipe['outcome']}`'));
+  });
+
+  test('the recipe template carries the measured steps', () {
+    final t = _file('$_eqy/flow_netlist.eqy.in').readAsStringSync();
+    for (final line in [
+      'read_liberty -ignore_miss_func {liberty}',
+      'delete {physical}',
+      'hierarchy -top {top} -purge_lib',
+      'splitnets',
+      'memory_map',
+      'timeout {timeout}',
+    ]) {
+      expect(t, contains(line));
+    }
+    expect(t, isNot(contains('-ports')), reason: 'never split ports');
+  });
+}

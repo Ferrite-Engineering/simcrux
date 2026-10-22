@@ -1,0 +1,20 @@
+[gold]
+read_verilog -sv {rtl}
+prep -top {top}
+memory_map
+opt_clean
+splitnets
+
+[gate]
+read_liberty -ignore_miss_func {liberty}
+read_verilog {netlist}
+hierarchy -top {top}
+delete {physical}
+hierarchy -top {top} -purge_lib
+prep -top {top}
+
+[strategy sby]
+use sby
+depth 5
+engine smtbmc bitwuzla
+timeout {timeout}

@@ -11,6 +11,8 @@
 // workflow sets it so a dead install cannot pass as a skip.
 // FLOW_LIVE_LIBRELANE_CASES limits the cases (space-separated names, `g1` for
 // the mapping gate); unset, every case of the installed version runs.
+// FLOW_LIVE_LIBRELANE_WORK keeps the untrimmed run directories there (the
+// regenerator's --work), for the gate-level job to read.
 //
 // Facts are compared, not bytes: exit status, which steps wrote no
 // state_out.json, the failing step, the error records, the sign of each
@@ -97,11 +99,13 @@ void main() {
         );
       }
       out = Directory.systemTemp.createTempSync('flow_librelane_live_');
+      final keep = Platform.environment['FLOW_LIVE_LIBRELANE_WORK'] ?? '';
       final args = [
         'bash',
         'tool/flow/regen_librelane_fixtures.sh',
         '--out',
         out.path,
+        if (keep.isNotEmpty) ...['--work', keep],
         for (final c in only) ...['--case', c],
       ];
       final result = _inLibreLane(args.map(_quote).join(' '));

@@ -21,7 +21,9 @@
 #
 # The g1 case runs the mapping-gate design and writes g1.json with
 # tool/flow/measure_g1_mapping.py; its run directory is never trimmed into the
-# fixtures (it is too large) and stays under --work when --work is given.
+# fixtures (it is too large) and stays under --work when --work is given. The
+# g1_cg case runs the same design with Yosys clock gating on and only keeps
+# its run directory, for tool/flow/gate_level/.
 #
 # Runs happen in a scratch copy of each design directory, never in the repo.
 # Without --work the scratch directory is removed on exit.
@@ -83,6 +85,7 @@ all_cases=(
   "sky130A_drc path_adder config_drc.yaml sky130A"
   "sky130A_antenna path_adder config_antenna.yaml sky130A"
   "g1 picorv32 config.yaml sky130A"
+  "g1_cg picorv32 config_cg.yaml sky130A"
 )
 
 wanted() {
@@ -127,6 +130,11 @@ run_case() {
     python3 -I "$here/measure_g1_mapping.py" "$dir/design/runs/$name" \
       --rtl "$dir/design/picorv32.v" --top picorv32 \
       --json "$out/$version/g1.json"
+    return 0
+  fi
+  # The clock-gated variant feeds the gate-level and equivalence measurements
+  # only (tool/flow/gate_level/); like g1 it stays untrimmed under --work.
+  if [ "$name" = "g1_cg" ]; then
     return 0
   fi
 

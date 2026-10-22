@@ -1212,6 +1212,11 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] An EQY row with a partition list carries `formal.eqy.work_dir`, holding its counterexamples; a row with none carries no work directory — `[Coverage: UNIT]` (`eqy_driver_test.dart`)
 - [ ] The EQY captures keep `gold.ids` and `partitions/*.json`; `--only` recaptures one part from the provenance's build and touches no expectation — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
 
+### RTL-to-netlist equivalence on LibreLane netlists: the recipe gate (guide §26.15)
+
+- [ ] The recipe template carries the measured steps (gold `splitnets` and `memory_map`, Liberty read, `delete {physical}`, `-purge_lib`, timeout, never `splitnets -ports`) and `RECIPE-GATE.md` states the outcome `fail` — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`)
+- [ ] The weekly re-measure still gives every recorded result: the adder proves on three PDKs and its mutant fails in `sum_q.0`; PicoRV32 fails the same 8 partitions; the clock-gated variant does not elaborate, with 41 `dlclkp_1` blackboxed — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_gate_level_live_test.dart`, `flow-live.yml`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)
@@ -1287,6 +1292,14 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] SARIF: one result per failing check, setup anchored at the endpoint register, a waived check a `note`, no warning on a met run — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`)
 - [ ] Open in KLayout and Open in OpenROAD start LibreLane's own open flow from the newest `state_out.json` under a fresh tag, never `--overwrite` or `--last-run`; Docker, a run outside the entry's `runs/` or no entry open the viewer directly, KLayout with the DRC markers — `[Coverage: UNIT]` (`flow_librelane_reading_test.dart`), `[Coverage: MANUAL]` (guide §27.11)
 - [ ] Every fresh LibreLane run of the weekly job reads and ingests to its expected verdict, verified — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_librelane_live_test.dart`, `flow-live.yml`)
+
+### Gate-level fixtures and the functional gate-level simulation gate (guide §27.12)
+
+- [ ] The gate-level fixtures (adder and PicoRV32 testbenches, port-dump and bind modules, supply tie, the MAC with its VCDs and split-port netlist, the recipe template) are present, under 5 MB, scrubbed and documented; a missing file fails — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`)
+- [ ] The run records name the cell models, the nominal Liberty file and the physical-only cells on sky130A, gf180mcuD and IHP sg13g2; the final netlist keeps the RTL ports, the split-port netlist does not — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`)
+- [ ] The MAC VCDs read with the test's own sampler: one x-asymmetry sample and nothing real; nothing under Verilator; `parity` x-asymmetric on 199 samples under the `x*0` probe — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`)
+- [ ] `GLS-GATE.md` records the gate (Icarus 0 real differences on both designs, Verilator 78 real bits on PicoRV32; outcome `verilator_fails_icarus_passes`) and the weekly re-measure on the current LibreLane release still matches every recorded outcome — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`), `[Coverage: AUTOMATED — GitHub Actions]` (`flow_gate_level_live_test.dart`, `flow-live.yml`)
+- [ ] The gate-level job is capped at 60 minutes, needs the LibreLane job and reads its runs — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`)
 
 ---
 

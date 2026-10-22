@@ -113,6 +113,23 @@ void main() {
       expect(timeouts['librelane'], 150);
     });
 
+    test('the gate-level job is capped at 60 minutes', () {
+      final timeouts = jobTimeouts(file.readAsStringSync());
+      expect(timeouts['gate-level'], 60);
+    });
+
+    test('the gate-level job runs its live test on the LibreLane runs', () {
+      final text = file.readAsStringSync();
+      const live = 'test/static/flow_gate_level_live_test.dart';
+      expect(text, contains(live));
+      expect(File(live).readAsStringSync(), contains("'oss-cad-live'"));
+      final doc = loadYaml(text) as YamlMap;
+      final job = (doc['jobs'] as YamlMap)['gate-level'] as YamlMap;
+      expect(job['needs'], 'librelane');
+      expect(text, contains('GATE_LEVEL_RUNS'));
+      expect(text, contains('FLOW_LIVE_LIBRELANE_WORK'));
+    });
+
     test('the LibreLane job runs its live test with a cached PDK', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_live_test.dart';

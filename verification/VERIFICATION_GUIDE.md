@@ -5638,6 +5638,45 @@ alone. `PROVENANCE.md` says which recaptured EQY files were kept and why.
 | `formal.eqy.work_dir` present and holding the trace; absent with no partition list | `[Coverage: UNIT]` | `test/services/simulator/eqy_driver_test.dart` |
 | The case, its expectation and its provenance line | `[Coverage: UNIT]` | `test/static/formal_fixture_corpus_test.dart` |
 
+### 26.15 RTL-to-netlist equivalence on LibreLane netlists: the recipe gate
+
+**What it covers.** `verification/fixtures/formal/eqy_flow/`: the EQY recipe
+template for a LibreLane `final/nl` (`flow_netlist.eqy.in`), filled from the
+run's own records (the Liberty file at the default corner, the
+physical-only cells the run names), and `RECIPE-GATE.md`, which records the
+gate measured with it. The small design proves on sky130A, gf180mcuD and
+ihp-sg13g2 and its one-gate mutant fails in one partition; PicoRV32's
+correct netlist does not prove (8 of 75 partitions fail at EQY's cut points
+and on re-encoded FSM registers) and its clock-gated variant cannot run, so
+the outcome is `fail` and no netlist-equivalence action ships. The EQY
+driver for user-written `.eqy` files (§26.11) is unaffected.
+
+**Setup.** None for the committed files. To re-measure: an OSS CAD Suite,
+the PDKs from ciel and `tool/flow/gate_level/regen_gate_level.py` (§27.12).
+
+**Expected behaviour.**
+
+1. `flutter test test/static/flow_gate_level_fixtures_test.dart` checks the
+   template carries the measured steps (`splitnets` and `memory_map` on the
+   gold side, the Liberty read, `delete {physical}`, `-purge_lib`, the
+   partition timeout, never `splitnets -ports`) and that `RECIPE-GATE.md`
+   states the outcome in `recipe.expected.json`.
+2. The weekly `flow-live.yml` job `gate-level` re-measures every design's
+   result, its failing partitions, its blackboxed cells and the mutant, and
+   fails when one changes.
+
+**Edge cases.** EQY's partitioner overflows an 8 MB stack on PicoRV32; the
+regenerator raises the stack limit first. A per-partition `timeout` is
+honoured. A clock-gating cell has no Liberty function and EQY cannot use it
+in any form measured.
+
+**Tier-gate scenarios.** Open Core only; nothing ships.
+
+| Test | Coverage | File |
+|---|---|---|
+| Template steps, outcome stated, run records name the physical-only cells | `[Coverage: UNIT]` | `test/static/flow_gate_level_fixtures_test.dart` |
+| Re-measure on the real toolchain and runs; every recorded outcome unchanged | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_gate_level_live_test.dart`, `.github/workflows/flow-live.yml` |
+
 ---
 
 ## 27. Flow: FPGA place-and-route fixtures and the weekly live check
@@ -6198,6 +6237,61 @@ and runs outside the entry's `runs/` hand off to the viewer directly.
 | Every fresh LibreLane run read and ingested to its expected verdict, verified | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_librelane_live_test.dart`, `.github/workflows/flow-live.yml` |
 | The `metrics compare` parity capture regenerates byte for byte | `[Coverage: MANUAL]` | `tool/flow/regen_metric_diff_parity.sh` with a Python that imports LibreLane 3.0.16 |
 | LibreLane's own open flows started from the app on a real run | `[Coverage: MANUAL]` | needs LibreLane, KLayout and OpenROAD installed |
+
+### 27.12 Gate-level fixtures and the functional gate-level simulation gate
+
+**What it covers.** `verification/fixtures/flow/gate_level/`: self-checking
+testbenches for the two LibreLane designs (the adder, whose netlist, `pnl`
+and SDF are the committed `librelane/3.0.16/sky130A_met/run/final/` views,
+and PicoRV32, whose run the weekly job regenerates), the port-dump modules
+that leave a testbench unedited (a second Icarus top; a Verilator `bind`),
+the external supply tie for `final/pnl`, and the research MAC with its RTL
+and gate port VCDs (with and without the `x*0` probe) and a split-port
+netlist the testbench cannot bind. `GLS-GATE.md` records the gate: Icarus
+reports 0 real differences on both designs and Verilator reports 78 real
+bits on PicoRV32 where the four-state RTL is x, so the outcome is
+`verilator_fails_icarus_passes`: gate-level simulation is Icarus-only in 1.2.
+It also records where the cell models come from (`resolved.json`
+`CELL_VERILOG_MODELS`, ciel's versioned `PDK_ROOT`) and what `pnl` needs.
+
+**Setup.** None for the committed fixtures. To re-measure: an OSS CAD Suite,
+the sky130 PDK from ciel, and `python3 -I
+tool/flow/gate_level/regen_gate_level.py --suite <dir> --out <dir> [--run
+picorv32=<run>] [--run picorv32_cg=<run>]`.
+
+**Expected behaviour.**
+
+1. `flutter test test/static/flow_gate_level_fixtures_test.dart` passes with
+   no tools installed; a missing fixture fails it.
+2. Every file is under 5 MB and names no machine path.
+3. The small run's `resolved.json` names `primitives.v` and
+   `sky130_fd_sc_hd.v` under its `PDK_ROOT`, and the nominal corner's
+   Liberty file.
+4. The final netlist keeps the RTL's port list; the split-port MAC netlist
+   does not, and its testbench connects `.a(a)`.
+5. Read with the test's own sampler (just before each rising edge), the MAC
+   VCDs show one sample of x-asymmetry and nothing real without the probe,
+   nothing at all under Verilator, and `parity` x-asymmetric on 199 samples
+   with the probe.
+6. `GLS-GATE.md` states the outcome in `gls.expected.json`.
+7. `OSS_CAD_SUITE=<dir> GATE_LEVEL_RUNS=<work>/3.0.16 FLOW_LIVE_REQUIRED=1
+   flutter test test/static/flow_gate_level_live_test.dart` re-measures and
+   passes. The weekly `flow-live.yml` job `gate-level` does this on the
+   current LibreLane release's runs (`timeout-minutes: 60`) and fails if any
+   recorded outcome changes.
+
+**Edge cases.** A two-state simulator turns RTL x into 0, so a difference it
+reports may be an x the RTL means. Verilator omits ports it reduced to
+constants from its trace. `final/pnl` floats its supply unless tied.
+Verilator needs `-Wno-BLKANDNBLK` for sky130's asynchronous-reset cells.
+
+**Tier-gate scenarios.** Open Core only; no gated feature.
+
+| Test | Coverage | File |
+|---|---|---|
+| Fixtures present, small, scrubbed; run records name the models; port shapes; MAC VCD classification; outcome matches the document | `[Coverage: UNIT]` | `test/static/flow_gate_level_fixtures_test.dart` |
+| Re-measure on the real toolchain and runs; every recorded outcome unchanged | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_gate_level_live_test.dart`, `.github/workflows/flow-live.yml` |
+| The gate-level job is capped at 60 minutes | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
 
 ---
 

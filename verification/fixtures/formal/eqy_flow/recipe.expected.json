@@ -1,0 +1,42 @@
+{
+  "gate": "RTL-to-netlist equivalence on real LibreLane netlists",
+  "rule": "the generated recipe proves the correct netlist (every partition, or partially proven naming exactly the blackboxed clock-gating cells) and a one-gate mutant fails in exactly one partition, every partition inside 600 s, on the small design and the mapping-gate design",
+  "outcome": "fail",
+  "cases": {
+    "path_adder": {
+      "blackboxes": {},
+      "eqy": {"overall": "PASS", "partitions": 4, "not_passed": []},
+      "eqy_mutant": {"overall": "FAIL", "partitions": 4, "not_passed": ["path_adder.sum_q.0 FAIL"]}
+    },
+    "path_adder_gf180mcuD": {
+      "blackboxes": {},
+      "eqy": {"overall": "PASS", "partitions": 4, "not_passed": []}
+    },
+    "path_adder_ihp-sg13g2": {
+      "blackboxes": {},
+      "eqy": {"overall": "PASS", "partitions": 4, "not_passed": []}
+    },
+    "picorv32": {
+      "blackboxes": {},
+      "eqy": {
+        "overall": "FAIL",
+        "partitions": 75,
+        "not_passed": [
+          "picorv32.mem_addr FAIL",
+          "picorv32.mem_instr FAIL",
+          "picorv32.mem_la_wdata FAIL",
+          "picorv32.mem_la_wstrb FAIL",
+          "picorv32.mem_valid FAIL",
+          "picorv32.mem_wdata FAIL",
+          "picorv32.mem_wstrb FAIL",
+          "picorv32.pcpi_rs2 FAIL"
+        ]
+      },
+      "eqy_mutant": {"overall": "FAIL", "partitions": 75, "not_passed_count": 8}
+    },
+    "picorv32_cg": {
+      "blackboxes": {"sky130_fd_sc_hd__dlclkp_1": 41},
+      "eqy": {"overall": null, "internal_error": true}
+    }
+  }
+}

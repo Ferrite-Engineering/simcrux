@@ -1,0 +1,39 @@
+{
+  "gate": "functional gate-level simulation on real LibreLane netlists",
+  "rule": "Icarus (-DFUNCTIONAL -DUNIT_DELAY=#1) and Verilator (--binary --timing) each report 0 real differences against RTL with the RTL testbench bound unchanged; Verilator fails and Icarus passes: Icarus-only",
+  "outcome": "verilator_fails_icarus_passes",
+  "cases": {
+    "path_adder": {
+      "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0},
+      "verilator": {"rtl_passes": true, "gate_passes": true, "real_bits": 0},
+      "mutant_verilator": {"rtl_passes": true, "gate_passes": false, "real_bits_above_zero": true}
+    },
+    "picorv32": {
+      "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0, "x_only": true},
+      "verilator": {"rtl_passes": true, "gate_passes": true, "real_bits_above_zero": true},
+      "icarus_pnl": {
+        "without_define_compiles": false,
+        "floating_passes": false,
+        "tied_passes": true,
+        "tied_real_bits": 0
+      },
+      "mutant_icarus": {"rtl_passes": true, "gate_passes": true, "real_bits_above_zero": true}
+    },
+    "picorv32_cg": {
+      "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0, "x_only": true}
+    },
+    "path_adder_gf180mcuD": {
+      "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0},
+      "verilator": {"rtl_passes": true, "gate_passes": false, "real_bits_above_zero": true}
+    },
+    "path_adder_ihp-sg13g2": {
+      "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0},
+      "verilator": {"rtl_passes": true, "gate_passes": false, "real_bits_above_zero": true}
+    },
+    "mac": {
+      "plain": {"real_bits": 0, "x_samples": 1},
+      "xprobe": {"real_bits": 0, "parity_x_samples": 199},
+      "split_ports": {"compiles": false}
+    }
+  }
+}
