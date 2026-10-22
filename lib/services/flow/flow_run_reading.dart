@@ -11,23 +11,11 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 
-/// Why a reader is not verified for a run, as `flow.reader.unsupported`
-/// reports it.
-enum FlowReaderUnsupported {
-  /// The run states no tool version the reader knows.
-  versionUnknown('version_unknown'),
-
-  /// The directory is not laid out as a run of the kind it was read as.
-  layoutUnknown('layout_unknown'),
-
-  /// A record in the run is not the shape its schema says.
-  schemaUnknown('schema_unknown');
-
-  const FlowReaderUnsupported(this.wireName);
-
-  /// The telemetry token and the [FlowMetricKeys.readerUnsupported] value.
-  final String wireName;
-}
+// Why a reader is not verified for a run (`FlowReaderUnsupported`) and the
+// LibreLane step-directory pattern now come from crux_flow; re-exported so
+// importers of this file keep their names.
+export 'package:crux_flow/crux_flow.dart'
+    show FlowReaderUnsupported, kLibreLaneStepDirectory;
 
 /// One flow run read from its directory or report: the crux_flow [FlowRun]
 /// plus what SimCrux shows and records about how it was read.
@@ -142,9 +130,6 @@ const Set<String> _derivedNextpnrKeys = <String>{
   'timing__setup__wns',
   'fmax__achieved__mhz',
 };
-
-/// The names a LibreLane step directory may have: `NN-<tool>-<step>`.
-final RegExp kLibreLaneStepDirectory = RegExp(r'^(\d+)-([A-Za-z0-9_.-]+)$');
 
 /// Reads nextpnr runs: a `--report` JSON, with the log as the fallback when
 /// no report was written.
