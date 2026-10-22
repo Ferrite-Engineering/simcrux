@@ -195,8 +195,8 @@ class ConfigLoader {
   ///   `riscv.toolchain.prefix`, `riscv.riscof.binary`,
   ///   `riscv.formal.sby_binary` — dropped, with an advisory;
   /// - `formal.command`, `formal.extra_args` — the load is refused;
-  /// - `formal.sby_binary`, `formal.eqy_binary`, `formal.tools.<tool>` —
-  ///   dropped, with an advisory;
+  /// - `formal.sby_binary`, `formal.eqy_binary`, `formal.ghdl_binary`,
+  ///   `formal.tools.<tool>` — dropped, with an advisory;
   /// - `output.results_path`, `output.summary_path` outside the project
   ///   directory — the load is refused.
   ///

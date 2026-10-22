@@ -411,6 +411,20 @@ suites:
       );
     });
 
+    test('formal.ghdl_binary is dropped with an advisory', () {
+      const body = '          eqy_file: a.eqy\n          ghdl_binary: /tmp/pwn';
+      final config = denied.parse(eqyYaml(body), '/p.yaml');
+      expect(onlyFormal(config).ghdlBinary, isNull);
+      expect(
+        config.loadWarnings.single.message,
+        contains('`formal.ghdl_binary`'),
+      );
+      expect(
+        onlyFormal(allowed.parse(eqyYaml(body), '/p.yaml')).ghdlBinary,
+        '/tmp/pwn',
+      );
+    });
+
     for (final key in ['command', 'extra_args']) {
       test('formal.$key refuses the load for eqy too', () {
         final body = '          eqy_file: a.eqy\n          $key: ["/tmp/pwn"]';

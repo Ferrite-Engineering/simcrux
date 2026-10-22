@@ -91,7 +91,16 @@ class EqyProjectImporter {
             'Rename the file.',
       );
     }
-    final script = readScript(abs);
+    String text;
+    try {
+      text = _readFile(abs);
+    } on Object {
+      text = '';
+    }
+    final script = EqyScript.parse(text);
+    final unlowerable = EqyScript.vhdlReads(
+      text,
+    ).where((r) => r.problem != null).firstOrNull;
     if (!script.hasGoldAndGate) {
       throw FormalImportException(
         path: abs,
@@ -100,14 +109,15 @@ class EqyProjectImporter {
       );
     }
     final warnings = <FormalImportWarning>[
-      if (script.vhdlPluginLines.isNotEmpty)
+      if (unlowerable != null)
         FormalImportWarning(
           code: 'vhdl_plugin',
           message:
               '`${p.basename(abs)}` reads VHDL through the GHDL Yosys plugin '
-              '(`${script.vhdlPluginLines.first}`), which SimCrux does not '
-              'run, so the check will not start. Lower the VHDL with '
-              '`ghdl --synth --out=verilog` and read the Verilog it writes.',
+              '(`${unlowerable.line}`), which SimCrux does not run, and '
+              'cannot lower that line with `ghdl --synth --out=verilog`: '
+              '${unlowerable.problem}. The check will not start until it '
+              'reads `ghdl [--std=NN] <files> -e <unit>` in [gold] or [gate].',
         ),
       if (script.strategies.isEmpty)
         FormalImportWarning(

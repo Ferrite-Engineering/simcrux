@@ -58,6 +58,45 @@ class EqyPatternLine {
   final String text;
 }
 
+/// One `ghdl …` line of a `[gold]` or `[gate]` script: a VHDL read through
+/// the GHDL Yosys plugin, which SimCrux replaces with a read of the Verilog a
+/// standalone `ghdl --synth --out=verilog` writes.
+@immutable
+class EqyVhdlRead {
+  /// Creates a read.
+  const EqyVhdlRead({
+    required this.section,
+    required this.ordinal,
+    required this.line,
+    this.files = const <String>[],
+    this.unit,
+    this.standard,
+    this.problem,
+  });
+
+  /// `gold` or `gate`.
+  final String section;
+
+  /// Which `ghdl` line of the file this is, from 0 in file order.
+  final int ordinal;
+
+  /// The line as written.
+  final String line;
+
+  /// The VHDL files, as written (relative to the `.eqy` file's directory or
+  /// absolute).
+  final List<String> files;
+
+  /// The design unit after `-e`.
+  final String? unit;
+
+  /// The `--std=` value, when given.
+  final String? standard;
+
+  /// Why the line cannot be lowered faithfully, or null when it can.
+  final String? problem;
+}
+
 /// The facts SimCrux reads out of an EQY `.eqy` file.
 ///
 /// Pure and I/O-free (`domain/`), shared by the importer and the `eqy`
@@ -210,8 +249,9 @@ class EqyScript {
 
   /// The lines of `[gold]`, `[gate]` and `[script]` that call the GHDL Yosys
   /// plugin (`ghdl …`). SimCrux reads VHDL only after lowering it with a
-  /// standalone `ghdl --synth --out=verilog`, never through the plugin, so a
-  /// file that uses it is refused before anything runs.
+  /// standalone `ghdl --synth --out=verilog`, never through the plugin: each
+  /// such line is lowered and replaced ([vhdlReads], [replaceVhdlReads]), or
+  /// refuses the run when it cannot be.
   List<String> get vhdlPluginLines => <String>[
     for (final line in <String>[...gold, ...gate, ...script])
       if (_firstWord(line) == 'ghdl') line,
@@ -243,4 +283,119 @@ class EqyScript {
 
   static String _firstWord(String line) =>
       line.trim().split(RegExp(r'[\s;]+')).first;
+
+  /// Every `ghdl …` line of [text]'s `[gold]` and `[gate]` sections, in
+  /// file order, each parsed into the files, unit and standard a standalone
+  /// `ghdl --synth` needs. A `ghdl` line in `[script]` (run on both designs)
+  /// is returned with a [EqyVhdlRead.problem]: SimCrux lowers a design's own
+  /// read only. So is a line with an option other than `--std=`, which a
+  /// lowering could not reproduce, or one without `-e <unit>`.
+  static List<EqyVhdlRead> vhdlReads(String text) {
+    final reads = <EqyVhdlRead>[];
+    var section = '';
+    for (final raw in text.split('\n')) {
+      final hash = raw.indexOf('#');
+      final line = (hash < 0 ? raw : raw.substring(0, hash)).trim();
+      if (line.isEmpty) continue;
+      if (line.startsWith('[') && line.endsWith(']')) {
+        section = line
+            .substring(1, line.length - 1)
+            .trim()
+            .split(RegExp(r'\s+'))
+            .first;
+        continue;
+      }
+      if (_firstWord(line) != 'ghdl') continue;
+      if (section != 'gold' && section != 'gate' && section != 'script') {
+        continue;
+      }
+      reads.add(_vhdlRead(section, reads.length, line));
+    }
+    return reads;
+  }
+
+  static EqyVhdlRead _vhdlRead(String section, int ordinal, String line) {
+    EqyVhdlRead refused(String problem) => EqyVhdlRead(
+      section: section,
+      ordinal: ordinal,
+      line: line,
+      problem: problem,
+    );
+    if (section == 'script') {
+      return refused(
+        'it is in [script], which runs on both designs; read the VHDL in '
+        '[gold] or [gate]',
+      );
+    }
+    if (line.contains(';')) {
+      return refused('it holds more than one command');
+    }
+    final words = line.split(RegExp(r'\s+')).skip(1).toList();
+    final files = <String>[];
+    String? unit;
+    String? standard;
+    for (var i = 0; i < words.length; i++) {
+      final word = words[i];
+      if (word == '-e') {
+        if (i + 1 >= words.length) return refused('`-e` names no unit');
+        unit = words[i + 1];
+        if (i + 2 < words.length) {
+          return refused('it has words after the unit (`${words[i + 2]}`)');
+        }
+        break;
+      }
+      if (word.startsWith('--std=')) {
+        standard = word.substring('--std='.length);
+        continue;
+      }
+      if (word.startsWith('-')) {
+        return refused(
+          'its option `$word` has no equivalent SimCrux can pass to '
+          '`ghdl --synth`',
+        );
+      }
+      files.add(word);
+    }
+    if (unit == null) return refused('it names no unit with `-e <unit>`');
+    if (files.isEmpty) return refused('it names no VHDL file');
+    return EqyVhdlRead(
+      section: section,
+      ordinal: ordinal,
+      line: line,
+      files: List<String>.unmodifiable(files),
+      unit: unit,
+      standard: standard,
+    );
+  }
+
+  /// [text] with the `ghdl …` line of each [EqyVhdlRead.ordinal] in
+  /// [replacements] replaced by its value, everything else byte for byte.
+  static String replaceVhdlReads(String text, Map<int, String> replacements) {
+    final out = StringBuffer();
+    var ordinal = 0;
+    var section = '';
+    final lines = text.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      final raw = lines[i];
+      final hash = raw.indexOf('#');
+      final line = (hash < 0 ? raw : raw.substring(0, hash)).trim();
+      var written = raw;
+      if (line.startsWith('[') && line.endsWith(']')) {
+        section = line
+            .substring(1, line.length - 1)
+            .trim()
+            .split(RegExp(r'\s+'))
+            .first;
+      } else if (line.isNotEmpty &&
+          _firstWord(line) == 'ghdl' &&
+          (section == 'gold' || section == 'gate' || section == 'script')) {
+        final replacement = replacements[ordinal];
+        if (replacement != null) written = replacement;
+        ordinal++;
+      }
+      out.write(written);
+      if (i < lines.length - 1) out.write('\n');
+    }
+    return out.toString();
+  }
 }

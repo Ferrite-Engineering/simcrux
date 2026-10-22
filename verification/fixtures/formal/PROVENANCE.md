@@ -15,7 +15,7 @@ every run.
 
 | Kind | Where | Written by |
 |---|---|---|
-| Inputs | `sby/<case>/*.sv`, `*.sby`; `sva_matrix/probes/`; `eqy/*.v`, `*.eqy`; `eqy/oracle/` | Hand. Never regenerated |
+| Inputs | `sby/<case>/*.sv`, `*.sby`; `sva_matrix/probes/`; `eqy/*.v`, `*.eqy`; `eqy/oracle/`; `eqy_vhdl/*.vhd`, `*.eqy` | Hand. Never regenerated |
 | Expectations | `*.expected.json` | Hand, from each property's meaning. Never regenerated, never copied from a tool |
 | Captures | `*/captured/`, `schemas/<build>/` | `tool/regenerate_formal_fixtures.sh`, from the real tools |
 
@@ -36,6 +36,18 @@ measurement kept no tool output; every capture here is new.
   structure the `alu_pass` false FAIL depends on.
 - `eqy/gate_bad.v` is `gate.v` with the first two-input AND in an `assign`
   flipped to OR (line 147, `_062_ & _064_` to `_062_ | _064_`).
+- `eqy_vhdl/alu.vhd` was written by hand on 2026-10-21 as `eqy/alu.v` in
+  VHDL-2008, line for line in meaning; `eqy_vhdl/*.eqy` read it through a
+  `ghdl --std=08 alu.vhd -e alu` line, which the `eqy` driver lowers with a
+  standalone `ghdl --synth --out=verilog` before EQY runs. Their gates are
+  `eqy/gate.v` and `eqy/gate_bad.v`, so the eqy oracle below decides them.
+  `eqy_vhdl/eqy_vhdl.expected.json` states each output's result, not each
+  partition's: whether EQY cuts an output whole or per bit is its choice. It
+  has no captures and is checked only live
+  (`test/integration/eqy_driver_live_test.dart`), first on 2026-10-21 with
+  EQY v0.70-1 from OSS CAD Suite build 20261021 and GHDL 6.0.0 (Homebrew;
+  that build's own `ghdl` does not start on this macOS, a duplicate
+  `LC_RPATH`).
 
 ## How the expectations were written
 

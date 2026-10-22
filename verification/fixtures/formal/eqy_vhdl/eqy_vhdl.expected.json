@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the designs' meaning; never from eqy or ghdl output",
+  "designs": {
+    "alu.vhd": "the registered ALU of ../eqy/alu.v in VHDL-2008: y <= r and z <= (r = 0) on the rising clock, reset to y = 0 and z = 1, r = a+b, a-b, a and b, a xor b by op",
+    "../eqy/gate.v": "equal to alu.v on every vector (the eqy corpus's simulation oracle), so equal to alu.vhd",
+    "../eqy/gate_bad.v": "differs from alu.v in y and in z (the eqy corpus's oracle)"
+  },
+  "outputs_mean": "per output: true when every partition EQY cuts for it is proved equivalent, false when at least one is not; EQY may cut an output into one partition or one per bit, which the meaning does not decide",
+  "lowering": "SimCrux lowers the [gold] ghdl line with a standalone ghdl --synth --std=08 --out=verilog and replaces it with a read_verilog of the result; the GHDL Yosys plugin is never loaded",
+  "runs": {
+    "alu_vhdl": {
+      "eqy_file": "alu_vhdl.eqy",
+      "verdict": "PASS",
+      "why": "gold-nomatch r cuts nothing inside the ALU, so the partitions run from the inputs to the registered outputs y and z, and the VHDL gold equals the correct netlist on both.",
+      "outputs": {"y": true, "z": true}
+    },
+    "alu_vhdl_bad": {
+      "eqy_file": "alu_vhdl_bad.eqy",
+      "verdict": "FAIL",
+      "why": "The mutant's flipped gate lies in the cone of r, which feeds y and z, and the oracle shows both differ, so at least one partition of y and one of z are not equivalent.",
+      "outputs": {"y": false, "z": false}
+    }
+  }
+}

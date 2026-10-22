@@ -59,6 +59,7 @@ class FormalConfig {
     this.sbyBinary,
     this.eqyFile,
     this.eqyBinary,
+    this.ghdlBinary,
     this.command,
     this.extraArgs,
     this.tools,
@@ -133,6 +134,12 @@ class FormalConfig {
   /// The EQY executable. Gated like [sbyBinary].
   final String? eqyBinary;
 
+  /// The standalone GHDL that lowers a VHDL `[gold]` or `[gate]` read to
+  /// Verilog (`ghdl --synth --out=verilog`) before `eqy` runs. Gated like
+  /// [sbyBinary]; when unset, the `ghdl` beside an absolute `eqy`, else on
+  /// PATH.
+  final String? ghdlBinary;
+
   /// Full argv override. Gated: refuses the load unless project tooling is
   /// allowed. Placeholders as [expandRiscvPlaceholders]: `{sby_file}`,
   /// `{eqy_file}`, `{task}`, `{task_dir}`, `{work_dir}`, `{name}`.
@@ -206,6 +213,7 @@ class FormalConfig {
     String? sbyBinary,
     String? eqyFile,
     String? eqyBinary,
+    String? ghdlBinary,
     List<String>? command,
     List<String>? extraArgs,
     Map<String, String>? tools,
@@ -220,6 +228,7 @@ class FormalConfig {
       sbyBinary: sbyBinary ?? this.sbyBinary,
       eqyFile: eqyFile ?? this.eqyFile,
       eqyBinary: eqyBinary ?? this.eqyBinary,
+      ghdlBinary: ghdlBinary ?? this.ghdlBinary,
       command: command ?? this.command,
       extraArgs: extraArgs ?? this.extraArgs,
       tools: tools ?? this.tools,
@@ -239,6 +248,7 @@ class FormalConfig {
       sbyBinary: sbyBinary ?? parent.sbyBinary,
       eqyFile: eqyFile ?? parent.eqyFile,
       eqyBinary: eqyBinary ?? parent.eqyBinary,
+      ghdlBinary: ghdlBinary ?? parent.ghdlBinary,
       command: command ?? parent.command,
       extraArgs: extraArgs ?? parent.extraArgs,
       tools: tools ?? parent.tools,
@@ -257,6 +267,7 @@ class FormalConfig {
       other.sbyBinary == sbyBinary &&
       other.eqyFile == eqyFile &&
       other.eqyBinary == eqyBinary &&
+      other.ghdlBinary == ghdlBinary &&
       riscvListEquals(other.command, command) &&
       riscvListEquals(other.extraArgs, extraArgs) &&
       _mapEquals(other.tools, tools) &&
@@ -272,6 +283,7 @@ class FormalConfig {
     sbyBinary,
     eqyFile,
     eqyBinary,
+    ghdlBinary,
     command == null ? null : Object.hashAll(command!),
     extraArgs == null ? null : Object.hashAll(extraArgs!),
     tools == null

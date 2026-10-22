@@ -114,10 +114,25 @@ void main() {
       );
     });
 
-    test('warnings: the GHDL plugin, and no strategy', () {
+    test('a ghdl line SimCrux lowers imports clean', () {
       final file = File(p.join(tmp.path, 'v.eqy'))
         ..writeAsStringSync(
-          '[gold]\nghdl a.vhd -e a\n[gate]\nread_verilog b.v\n',
+          '[gold]\nghdl --std=08 a.vhd -e a\n[gate]\nread_verilog b.v\n'
+          '[strategy s]\nuse sby\n',
+        );
+      expect(
+        EqyProjectImporter()
+            .importFile(path: file.path, outputDirectory: tmp.path)
+            .warnings,
+        isEmpty,
+      );
+    });
+
+    test('warnings: a GHDL plugin line that cannot be lowered, and no '
+        'strategy', () {
+      final file = File(p.join(tmp.path, 'v.eqy'))
+        ..writeAsStringSync(
+          '[gold]\nghdl -fsynopsys a.vhd -e a\n[gate]\nread_verilog b.v\n',
         );
       final result = EqyProjectImporter().importFile(
         path: file.path,

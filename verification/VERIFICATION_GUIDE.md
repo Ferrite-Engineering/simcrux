@@ -5194,7 +5194,7 @@ suites:
 ```
 
 Keys for an eqy test: `eqy_file` (required), `extra_args`, `command`, and
-the gated `eqy_binary` and `tools.<tool>` (only `yosys`, `abc`, `smtbmc`,
+the gated `eqy_binary`, `ghdl_binary` and `tools.<tool>` (only `yosys`, `abc`, `smtbmc`,
 `suprove`, `aigbmc`, `avy`, `btormc` and `pono` reach `eqy`; any other is
 named in the run log and left out). `mode: demo` is refused: there is no
 captured EQY corpus to replay.
@@ -5273,10 +5273,21 @@ segment; the rest are listed and never read. Every read is capped
 partition's log 2 MiB). Cancel and timeout kill the whole tree (`eqy`,
 `make`, `sby`, `yosys`, the solvers).
 
-**VHDL.** A `[gold]`, `[gate]` or `[script]` line that calls the GHDL Yosys
-plugin (`ghdl …`) refuses the run before spawn: SimCrux reads VHDL only
-after lowering it with `ghdl --synth --out=verilog`. Lower it and read the
-Verilog it writes.
+**VHDL.** SimCrux never loads the GHDL Yosys plugin. A `ghdl [--std=NN]
+<files> -e <unit>` line in `[gold]` or `[gate]` is lowered before the spawn
+with a standalone `ghdl --synth [--std=NN] --out=verilog <files> -e <unit>`
+(`crux_yosys`'s `YosysRunner.lowerVhdl`, files relative to the `.eqy`
+file, 10-minute budget, cancelled with the test), into
+`<work dir>/<file name>_vhdl/<section>_<n>.v`, a generated directory beside
+the one `eqy -f` clears. `eqy` then reads a copy of the `.eqy` file in that
+directory, identical but for each lowered line, now `read_verilog
+"<that file>"`, and still runs in the original file's directory.
+`formal.eqy.vhdl_lowered` counts the lines. The `ghdl` is
+`formal.ghdl_binary` when project tooling is allowed, else the one beside an
+absolute `eqy`, else the first on PATH (with the platform's engine
+directories). A `ghdl` line in `[script]`, with any option but `--std=`,
+without `-e <unit>`, or holding more than one command refuses the run before
+spawn, and so does a `ghdl` that fails, naming its first diagnostics.
 
 **The Verdict column and the inspector.** A full proof reads "Proved
 equivalent, all N partitions"; any other failing EQY row reads "Not proved
@@ -5292,8 +5303,8 @@ parses); help first, usage errors exit 2, as `import-sby`. File > Import
 Formal Project… takes a `.sby` or an `.eqy`; for an `.eqy` it shows "An
 EQY file becomes one test" instead of the task list and records
 `formal.import.completed{kind: eqy, tasks: 1}`. A file with no `[gold]` or
-`[gate]` is refused; one that calls the GHDL plugin, or has no strategy,
-imports with a warning in its header.
+`[gate]` is refused; one with a `ghdl` line SimCrux cannot lower, or with no
+strategy, imports with a warning in its header.
 
 **Telemetry.** `formal.run.completed{tool: eqy, mode: equiv, engine, …}`
 with the partition counts, and `engine.missing{simulator: eqy}`. Never a
@@ -5303,6 +5314,11 @@ partition name, a path or a count of anything but partitions.
 rebuild the work directory each run left from `eqy/captured/<run>/`
 (`test/support/eqy_workdir_fixture.dart`, whose table is the mapping) and
 take each partition's expected result from `eqy.expected.json`.
+`eqy_vhdl/` holds `alu.vhd` (the ALU in VHDL-2008) and two `.eqy` files
+reading it as the gold against `eqy/gate.v` and `eqy/gate_bad.v`; its
+expectation states each output's result. The live test takes `GHDL=<path>`
+when the suite's own `ghdl` does not start (build 20261021's darwin-arm64
+`ghdl` stops on a duplicate `LC_RPATH` on the macOS it was measured on).
 
 **Expected behaviour (manual).**
 
@@ -5315,6 +5331,10 @@ take each partition's expected result from `eqy.expected.json`.
    trace.
 3. Import `alu_fail2.eqy` and run: "Not proved equivalent, 2 of 2
    partitions", each with its own trace.
+4. Import `verification/fixtures/formal/eqy_vhdl/alu_vhdl.eqy` and run: the
+   run log says the `ghdl` line was lowered; Verdict reads "Proved
+   equivalent"; `<work dir>/alu_vhdl_vhdl/alu_vhdl.eqy` reads the lowered
+   Verilog and holds no `ghdl` line.
 
 **Edge cases.**
 
@@ -5333,10 +5353,10 @@ values. The partition explorer is a separate Pro screen.
 
 | Test | Coverage | File |
 |---|---|---|
-| Sections, strategies in order, engine word, the GHDL plugin | `[Coverage: UNIT]` | `test/domain/models/eqy_script_test.dart` |
+| Sections, strategies in order, engine word; each `ghdl` line parsed or refused, and replaced byte for byte | `[Coverage: UNIT]` | `test/domain/models/eqy_script_test.dart` |
 | Every committed log: DONE token, every partition; reasons; precedence; the shared pass marker | `[Coverage: UNIT]` | `test/domain/models/eqy_outcome_test.dart` |
 | The corpus partitions and traces; the agreement rule; status file against log; cached; containment (`..`, absolute, Windows-shaped, colon, symlink, traversing targets); bounds | `[Coverage: UNIT]` | `test/services/formal/eqy_workdir_reader_test.dart` |
-| Command line, refusals before spawn, not available, the four acceptance rows through the scheduler, exit-code rule, detector | `[Coverage: UNIT]` | `test/services/simulator/eqy_driver_test.dart` |
+| Command line, refusals before spawn, not available, VHDL lowered through `lowerVhdl` and the rewritten `.eqy` (and a failing `ghdl`), the four acceptance rows through the scheduler, exit-code rule, detector | `[Coverage: UNIT]` | `test/services/simulator/eqy_driver_test.dart` |
 | The `formal:` keys and the tooling gate for eqy, one test per key | `[Coverage: UNIT]` | `test/services/config/config_loader_formal_test.dart` |
 | Ungated at Open Core after the beta, identical at Pro and Enterprise | `[Coverage: UNIT]` | `test/services/simulator/eqy_ungated_verdict_test.dart` |
 | The importer and `import-eqy`, through the binary, `IOOverrides` | `[Coverage: UNIT]` | `test/services/import/eqy_project_importer_test.dart` |
@@ -5346,7 +5366,7 @@ values. The partition explorer is a separate Pro screen.
 | The inspector partition lines: Tab walk transcript, order, cap, five locales | `[Coverage: WIDGET]` | `test/accessibility/eqy_partitions_focus_walk_test.dart` |
 | `formal.run.completed` for an EQY row; `engine.missing` for eqy | `[Coverage: UNIT]` | `test/services/telemetry/formal_events_test.dart`, `test/services/telemetry/catalog_events_test.dart` |
 | Both registries, the sub-command, the importer's callers | `[Coverage: UNIT]` | `test/static/eqy_driver_reachability_test.dart` |
-| Every corpus run and the import-load-run round trip against a real eqy | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/eqy_driver_live_test.dart` |
+| Every corpus run, the VHDL gold through a real `ghdl --synth`, and the import-load-run round trip against a real eqy | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/eqy_driver_live_test.dart` |
 
 ---
 

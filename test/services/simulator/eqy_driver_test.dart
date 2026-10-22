@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_yosys/crux_yosys.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -75,6 +76,39 @@ class _Recorder {
       stdoutLines: capturedEqyLog(run),
       exit: exit ?? capturedEqyExit(run),
     );
+  }
+}
+
+/// Plays a standalone `ghdl --synth`: records the call and writes a
+/// Verilog module to the output file, or fails.
+class _FakeGhdl implements ProcessRunner {
+  _FakeGhdl({this.exitCode = 0, this.stderr = ''});
+
+  final int exitCode;
+  final String stderr;
+  final List<({String executable, List<String> args, String? stdoutFile})>
+  calls = [];
+
+  @override
+  Future<ProcessRunResult> run(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+    Map<String, String>? environment,
+    Duration? timeout,
+    Future<void>? cancelSignal,
+    String? stdoutFilePath,
+    void Function(String line)? onStderrLine,
+  }) async {
+    calls.add((
+      executable: executable,
+      args: arguments,
+      stdoutFile: stdoutFilePath,
+    ));
+    if (exitCode == 0 && stdoutFilePath != null) {
+      File(stdoutFilePath).writeAsStringSync('module alu(); endmodule\n');
+    }
+    return ProcessRunResult(exitCode: exitCode, stdout: '', stderr: stderr);
   }
 }
 
@@ -259,16 +293,86 @@ void main() {
       );
     });
 
-    test('VHDL through the GHDL Yosys plugin', () async {
+    test('a GHDL plugin line SimCrux cannot lower', () async {
       final file = File(p.join(project, 'vhdl.eqy'))
         ..writeAsStringSync(
-          '[gold]\nghdl --std=08 alu.vhd -e alu\nprep -top alu\n'
+          '[gold]\nghdl -fsynopsys alu.vhd -e alu\nprep -top alu\n'
           '[gate]\nread_verilog gate.v\n[strategy sby]\nuse sby\n',
         );
       await refused(
         FormalConfig(eqyFile: file.path),
-        allOf(contains('GHDL Yosys plugin'), contains('--synth')),
+        allOf(contains('GHDL Yosys plugin'), contains('-fsynopsys')),
       );
+    });
+  });
+
+  group('VHDL gold, lowered by a standalone ghdl --synth', () {
+    late File vhdlEqy;
+    setUp(() {
+      vhdlEqy = File(p.join(project, 'alu_vhdl.eqy'))
+        ..writeAsStringSync(
+          '[gold]\nghdl --std=08 rtl/alu.vhd -e alu\nprep -top alu\n'
+          '[gate]\nread_verilog gate.v\nprep -top alu\n'
+          '[strategy sby]\nuse sby\n',
+        );
+    });
+
+    test(
+      'lowers, then eqy reads a copy whose ghdl line reads the Verilog',
+      () async {
+        final ghdl = _FakeGhdl();
+        final recorder = _Recorder(run: 'alu_pass2');
+        final result = await finished(
+          EqyDriver(
+            launcher: recorder.launch,
+            lowerer: (exe) =>
+                YosysRunner(processRunner: ghdl, ghdlExecutable: exe),
+          ),
+          request(
+            FormalConfig(eqyFile: vhdlEqy.path, ghdlBinary: '/opt/ghdl'),
+          ),
+        );
+        final call = ghdl.calls.single;
+        expect(call.executable, '/opt/ghdl');
+        expect(call.args, [
+          '--synth',
+          '--std=08',
+          '--out=verilog',
+          p.join(project, 'rtl', 'alu.vhd'),
+          '-e',
+          'alu',
+        ]);
+        final lowered = p.join(workDir.path, 'alu_vhdl_vhdl', 'gold_0.v');
+        expect(call.stdoutFile, lowered);
+        final spawn = recorder.spawns.single;
+        final runFile = p.join(workDir.path, 'alu_vhdl_vhdl', 'alu_vhdl.eqy');
+        expect(spawn.args.last, runFile);
+        expect(spawn.args[2], p.join(workDir.path, 'alu_vhdl'));
+        expect(spawn.cwd, project, reason: 'the gate still reads gate.v here');
+        final rewritten = File(runFile).readAsStringSync();
+        expect(rewritten, contains('read_verilog "$lowered"'));
+        expect(rewritten, isNot(contains('ghdl')));
+        expect(rewritten, contains('read_verilog gate.v'));
+        expect(result.metrics['formal.eqy.vhdl_lowered'], '1');
+      },
+    );
+
+    test('a ghdl that fails refuses the run before eqy is spawned', () async {
+      final recorder = _Recorder(run: 'alu_pass2');
+      final result = await finished(
+        EqyDriver(
+          launcher: recorder.launch,
+          lowerer: (exe) => YosysRunner(
+            processRunner: _FakeGhdl(exitCode: 1, stderr: 'alu.vhd:3: error'),
+            ghdlExecutable: exe,
+          ),
+        ),
+        request(FormalConfig(eqyFile: vhdlEqy.path)),
+      );
+      expect(recorder.spawns, isEmpty);
+      expect(result.status, TestStatus.fail);
+      expect(result.failureMessage, contains('alu.vhd:3: error'));
+      expect(result.failureMessage, contains('was not started'));
     });
   });
 

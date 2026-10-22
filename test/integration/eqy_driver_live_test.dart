@@ -176,6 +176,81 @@ void main() {
     );
   }
 
+  // A VHDL gold design: lowered with a standalone `ghdl --synth`, never the
+  // GHDL Yosys plugin. GHDL=<path> picks the ghdl (the OSS CAD Suite's own
+  // is used otherwise); the expectations are eqy_vhdl/eqy_vhdl.expected.json.
+  final vhdlRuns =
+      readJsonObject(
+            '$kFormalFixtureRoot/eqy_vhdl/eqy_vhdl.expected.json',
+          )['runs']!
+          as Map<String, Object?>;
+  for (final MapEntry(key: run, value: raw) in vhdlRuns.entries) {
+    test(
+      '$run: a VHDL gold lowered by ghdl --synth matches the expectation',
+      () async {
+        final eqy = _eqyOrSkip();
+        if (eqy == null) return;
+        final spec = raw! as Map<String, Object?>;
+        final ghdl = Platform.environment['GHDL'];
+        final work = Directory(p.join(root.path, 'work'))..createSync();
+        final events = await EqyDriver()
+            .execute(
+              ExecuteRequest(
+                test: TestSpec(
+                  id: 'eqy/$run',
+                  name: run,
+                  suiteName: 'eqy',
+                  simulatorId: EqyDriver.kId,
+                  top: run,
+                  formal: FormalConfig(
+                    eqyFile: p.absolute(
+                      kFormalFixtureRoot,
+                      'eqy_vhdl',
+                      spec['eqy_file']! as String,
+                    ),
+                    eqyBinary: eqy,
+                    ghdlBinary: ghdl != null && ghdl.isNotEmpty ? ghdl : null,
+                  ),
+                ),
+                workingDirectory: work.path,
+                compileResult: null,
+                binaryConfig: const SimulatorBinaryConfig(
+                  simulatorId: EqyDriver.kId,
+                ),
+              ),
+            )
+            .toList();
+        final finished = events.whereType<TestExecutionFinished>().single;
+        final metrics = finished.metrics;
+        expect(
+          metrics['formal.verdict'],
+          spec['verdict'],
+          reason: finished.failureMessage,
+        );
+        expect(metrics['formal.eqy.vhdl_lowered'], '1');
+        // Per output: proved when every partition EQY cut for it is, not
+        // when any one is not. Whether EQY cuts an output whole or per bit
+        // is its choice, not the design's meaning.
+        final want = (spec['outputs']! as Map<String, Object?>)
+            .cast<String, bool>();
+        final got = <String, bool>{};
+        for (var n = 0; metrics.containsKey('formal.property.$n.kind'); n++) {
+          final output = metrics['formal.property.$n.label']!.split('.')[1];
+          final proved = metrics['formal.property.$n.status'] == 'proved';
+          got[output] = (got[output] ?? true) && proved;
+        }
+        expect(got, want);
+        // The gold was read from the lowered Verilog, not through the plugin.
+        final rewritten = File(
+          p.join(work.path, '${run}_vhdl', '${spec['eqy_file']}'),
+        ).readAsStringSync();
+        expect(rewritten, isNot(contains('ghdl')));
+        expect(rewritten, contains('read_verilog "'));
+      },
+      timeout: const Timeout(Duration(minutes: 5)),
+    );
+  }
+
   test(
     'import-eqy, load and run: the round trip a user takes',
     () async {

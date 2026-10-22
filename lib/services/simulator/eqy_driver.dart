@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:crux_io/crux_io.dart';
+import 'package:crux_yosys/crux_yosys.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/formal_property_status.dart';
@@ -38,10 +40,35 @@ class EqyJob {
     this.argv = const <String>[],
     this.skippedTools = const <String>[],
     this.unavailableMessage = '',
+    this.eqyText,
+    this.vhdlReads = const <EqyVhdlRead>[],
+    this.loweredDirectory,
+    this.loweredEqyFile,
+    this.ghdl = 'ghdl',
   });
 
   /// The `-d` directory, inside the test's working directory.
   final String workDirectory;
+
+  /// The `.eqy` file's text, when it could be read.
+  final String? eqyText;
+
+  /// The VHDL reads to lower before the spawn, each a `ghdl` plugin line of
+  /// `[gold]` or `[gate]`. Empty for an all-Verilog file.
+  final List<EqyVhdlRead> vhdlReads;
+
+  /// Where the lowered Verilog and the rewritten `.eqy` go: one generated
+  /// safe segment beside [workDirectory], never inside it (`eqy -f` clears
+  /// that). Null when nothing is lowered.
+  final String? loweredDirectory;
+
+  /// The rewritten `.eqy` file `eqy` reads when VHDL is lowered: the user's
+  /// file with each `ghdl` line replaced by a `read_verilog` of its lowered
+  /// Verilog.
+  final String? loweredEqyFile;
+
+  /// The standalone GHDL that lowers [vhdlReads].
+  final String ghdl;
 
   /// Why the run is refused before anything touches the disk, or null.
   final String? problem;
@@ -103,17 +130,46 @@ class EqyJob {
 /// ## VHDL
 ///
 /// SimCrux reads VHDL only after lowering it with a standalone
-/// `ghdl --synth --out=verilog`, never through the GHDL Yosys plugin. A
-/// `.eqy` file whose scripts call the plugin's `ghdl` command is refused
-/// before anything runs.
+/// `ghdl --synth --out=verilog` (`crux_yosys`'s `YosysRunner.lowerVhdl`),
+/// never through the GHDL Yosys plugin. A `ghdl …` line in `[gold]` or
+/// `[gate]` is lowered before the spawn into a generated directory beside
+/// the work directory, and `eqy` reads a copy of the `.eqy` file in which
+/// that line is a `read_verilog` of the lowered file. A `ghdl` line that
+/// cannot be lowered faithfully (in `[script]`, with an option other than
+/// `--std=`, without `-e <unit>`) refuses the run before anything runs.
 ///
 /// ## Tiering
 ///
 /// **Never gated.** The verdict, every partition, and every counterexample
 /// are correctness and are free.
 class EqyDriver extends ProcessBackedSimulatorDriver {
-  /// Creates an [EqyDriver].
-  EqyDriver({super.launcher, super.reaper, super.killGrace});
+  /// Creates an [EqyDriver]. [lowerer] builds the `crux_yosys` runner that
+  /// lowers VHDL for a given `ghdl`; tests pass one with a scripted process
+  /// runner.
+  EqyDriver({
+    super.launcher,
+    super.reaper,
+    super.killGrace,
+    YosysRunner Function(String ghdl)? lowerer,
+  }) : _lowerer = lowerer ?? ((ghdl) => YosysRunner(ghdlExecutable: ghdl));
+
+  final YosysRunner Function(String ghdl) _lowerer;
+
+  /// In-flight VHDL lowerings by test id, so [cancel] reaches `ghdl` too.
+  final Map<String, Completer<void>> _lowering = <String, Completer<void>>{};
+
+  /// Metric key: how many `ghdl` reads were lowered to Verilog for the run.
+  static const String kMetricVhdlLowered = 'formal.eqy.vhdl_lowered';
+
+  /// The budget for one `ghdl --synth` lowering.
+  static const Duration kVhdlLowerTimeout = Duration(minutes: 10);
+
+  @override
+  void cancel(String testId) {
+    final lowering = _lowering[testId];
+    if (lowering != null && !lowering.isCompleted) lowering.complete();
+    super.cancel(testId);
+  }
 
   /// The `simulatorId` this driver claims.
   static const String kId = FormalConfig.kEqySimulatorId;
@@ -231,26 +287,39 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
             'equivalence check was not started.',
       );
     }
-    final script = _readScript(eqyFile);
-    final plugin = script?.vhdlPluginLines ?? const <String>[];
-    if (plugin.isNotEmpty) {
+    final text = _readText(eqyFile);
+    final script = text == null ? null : EqyScript.parse(text);
+    final vhdl = text == null
+        ? const <EqyVhdlRead>[]
+        : EqyScript.vhdlReads(text);
+    final unlowerable = vhdl.where((r) => r.problem != null).firstOrNull;
+    if (unlowerable != null) {
       return EqyJob(
         workDirectory: workDir,
         eqyFile: eqyFile,
         script: script,
         problem:
             '`${p.basename(eqyFile)}` reads VHDL through the GHDL Yosys '
-            'plugin (`${plugin.first}`), which SimCrux does not run. Lower '
-            'the VHDL with `ghdl --synth --out=verilog` and read the Verilog '
-            'it writes; the equivalence check was not started.',
+            'plugin (`${unlowerable.line}`), which SimCrux does not run, and '
+            'cannot lower that line to Verilog: ${unlowerable.problem}. '
+            'The equivalence check was not started.',
       );
     }
     final binary =
         cfg.eqyBinary ??
         resolveBinary(request.binaryConfig, FormalConfig.kDefaultEqyBinary);
+    // A generated segment of its own, beside the work directory `eqy -f`
+    // clears: the lowered Verilog and the rewritten `.eqy` survive the run.
+    final loweredDir = vhdl.isEmpty
+        ? null
+        : p.join(request.workingDirectory, '${segment}_vhdl');
+    final loweredEqy = loweredDir == null
+        ? null
+        : p.join(loweredDir, p.basename(eqyFile));
+    final runFile = loweredEqy ?? eqyFile;
     final tools = cfg.tools ?? const <String, String>{};
     final values = <String, String>{
-      'eqy_file': eqyFile,
+      'eqy_file': runFile,
       'task_dir': workDir,
       'work_dir': request.workingDirectory,
       'name': request.test.name,
@@ -271,13 +340,18 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
                 value,
               ],
             ...?cfg.extraArgs,
-            eqyFile,
+            runFile,
           ];
     return EqyJob(
       workDirectory: workDir,
       validationProblems: validation,
       eqyFile: eqyFile,
       script: script,
+      eqyText: text,
+      vhdlReads: vhdl,
+      loweredDirectory: loweredDir,
+      loweredEqyFile: loweredEqy,
+      ghdl: cfg.ghdlBinary ?? _ghdlFor(binary),
       spawnDirectory: eqyFile.isEmpty ? null : p.dirname(eqyFile),
       argv: argv,
       skippedTools: <String>[
@@ -317,6 +391,13 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
         '`formal.tools.$tool` is a SymbiYosys option EQY does not take; it '
         'was not passed.',
       );
+    }
+    if (job.vhdlReads.isNotEmpty) {
+      final problem = await _lowerVhdl(request.test.id, job, controller);
+      if (problem != null) {
+        await _failBeforeRunning(controller, startedAt, problem);
+        return;
+      }
     }
     final reader = EqyLogReader();
     final reducer = PythonTracebackReducer();
@@ -483,6 +564,8 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
       },
       SbyDriver.kMetricEngine: ?job.script?.engineWord,
       SbyDriver.kMetricSolver: ?job.script?.solver,
+      if (job.vhdlReads.isNotEmpty)
+        kMetricVhdlLowered: '${job.vhdlReads.length}',
     };
     if (snapshot.partitionListRead) {
       final traced = partitions.where((x) => x.trace != null).length;
@@ -634,17 +717,126 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
     return p.normalize(p.isAbsolute(file) ? file : p.absolute(file));
   }
 
-  static EqyScript? _readScript(String eqyFile) {
+  static String? _readText(String eqyFile) {
     if (eqyFile.isEmpty) return null;
     try {
       final file = File(eqyFile);
       if (!file.existsSync() || file.lengthSync() > kMaxEqyFileBytes) {
         return null;
       }
-      return EqyScript.parse(file.readAsStringSync());
+      return file.readAsStringSync();
     } on Object {
       return null;
     }
+  }
+
+  /// The `ghdl` to lower with when the project names none: the one beside
+  /// an absolute `eqy` (an OSS CAD Suite `bin/`), else the first on PATH
+  /// with the platform's engine directories appended (a macOS app does not
+  /// inherit the shell's PATH), else the bare name.
+  static String _ghdlFor(String eqy) {
+    final name = Platform.isWindows ? 'ghdl.exe' : 'ghdl';
+    final dirs = <String>[
+      if (p.isAbsolute(eqy)) p.dirname(eqy),
+      ...(Platform.environment['PATH'] ?? '').split(
+        Platform.isWindows ? ';' : ':',
+      ),
+      ...engineSearchDirs(),
+    ];
+    for (final dir in dirs) {
+      if (dir.isEmpty) continue;
+      final candidate = p.join(dir, name);
+      if (File(candidate).existsSync()) return candidate;
+    }
+    return name;
+  }
+
+  /// Lowers each of [job]'s `ghdl` reads to Verilog with `crux_yosys`'s
+  /// `lowerVhdl` and writes the rewritten `.eqy` beside them. Returns why it
+  /// could not, or null.
+  Future<String?> _lowerVhdl(
+    String testId,
+    EqyJob job,
+    StreamController<TestExecutionEvent> controller,
+  ) async {
+    final dir = job.loweredDirectory!;
+    final cancel = Completer<void>();
+    _lowering[testId] = cancel;
+    try {
+      await Directory(dir).create(recursive: true);
+      final runner = _lowerer(job.ghdl);
+      final base = p.dirname(job.eqyFile);
+      final replacements = <int, String>{};
+      for (final read in job.vhdlReads) {
+        final out = p.join(dir, '${read.section}_${read.ordinal}.v');
+        final result = await runner.lowerVhdl(
+          YosysRunRequest(
+            sources: <YosysSourceFile>[
+              for (final file in read.files)
+                YosysSourceFile.vhdl(
+                  p.normalize(p.isAbsolute(file) ? file : p.join(base, file)),
+                ),
+            ],
+            vhdlTopUnit: read.unit,
+            vhdlStandard: read.standard,
+          ),
+          outputPath: out,
+          timeout: kVhdlLowerTimeout,
+          cancelSignal: cancel.future,
+        );
+        final why = switch (result) {
+          VhdlLowerSuccess() => null,
+          VhdlLowerFailure(:final kind, :final stderr) =>
+            kind == YosysFailureKind.launch
+                ? '`${job.ghdl}` was not found. Set `formal.ghdl_binary`, or '
+                      'put the directory holding `ghdl` on PATH'
+                : _firstLines(stderr),
+          VhdlLowerTimeout() =>
+            'it did not finish within ${kVhdlLowerTimeout.inMinutes} minutes',
+          VhdlLowerCancelled() => 'the run was cancelled',
+        };
+        if (why != null) {
+          return '`ghdl --synth` could not lower `${read.line}` from '
+              '[${read.section}] to Verilog ($why), so the equivalence check '
+              'was not started.';
+        }
+        try {
+          replacements[read.ordinal] = YosysScriptCommands.readVerilog(
+            <String>[out],
+          );
+          // Not a crash: a path SimCrux generated cannot be quoted for Yosys.
+          // ignore: avoid_catching_errors
+        } on ArgumentError catch (e) {
+          return 'The lowered Verilog path cannot be read by Yosys ($e), so '
+              'the equivalence check was not started.';
+        }
+        _notice(
+          controller,
+          'lowered `${read.line}` to $out with `ghdl --synth --out=verilog`.',
+        );
+      }
+      await File(
+        job.loweredEqyFile!,
+      ).writeAsString(EqyScript.replaceVhdlReads(job.eqyText!, replacements));
+      return null;
+    } on FileSystemException catch (e) {
+      return 'The lowered VHDL could not be written ($e), so the equivalence '
+          'check was not started.';
+    } finally {
+      _lowering.remove(testId);
+    }
+  }
+
+  /// The first few lines of a tool's diagnostics, for a failure message.
+  static String _firstLines(String text) {
+    final lines = text
+        .split('\n')
+        .map((l) => l.trimRight())
+        .where((l) => l.isNotEmpty)
+        .take(4)
+        .join(' ');
+    if (lines.isEmpty) return 'it failed with no diagnostic';
+    return lines.length > 400 ? '${lines.substring(0, 400)}…' : lines;
   }
 }
 

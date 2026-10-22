@@ -14,8 +14,8 @@ part of 'config_loader.dart';
 // - `formal.command` and `formal.extra_args` are argv the driver spawns
 //   verbatim. With the gate closed the load is refused: running a different
 //   invocation than the file asked for is worse than one clear diagnostic.
-// - `formal.sby_binary`, `formal.eqy_binary` and every `formal.tools.<tool>`
-//   choose an executable and each has a safe default (the conventional name
+// - `formal.sby_binary`, `formal.eqy_binary`, `formal.ghdl_binary` and every
+//   `formal.tools.<tool>` choose an executable and each has a safe default (the conventional name
 //   on PATH, or no `--<tool>` option at all). With the gate closed they are
 //   dropped, with one advisory per block naming every dropped key.
 
@@ -27,6 +27,7 @@ const Set<String> _kFormalKeys = <String>{
   'sby_binary',
   'eqy_file',
   'eqy_binary',
+  'ghdl_binary',
   'command',
   'extra_args',
   'tools',
@@ -99,6 +100,7 @@ FormalConfig? _readFormalConfig(
     sbyBinary: gate.read(node, 'sby_binary', label, filePath, errors),
     eqyFile: _readFormalEqyFile(node, label, filePath, errors),
     eqyBinary: gate.read(node, 'eqy_binary', label, filePath, errors),
+    ghdlBinary: gate.read(node, 'ghdl_binary', label, filePath, errors),
     command: _readRiscvStringList(node, 'command', label, filePath, errors),
     extraArgs: _readRiscvStringList(
       node,

@@ -118,6 +118,60 @@ ghdl -e other
       ]);
     });
 
+    test('vhdlReads parses each ghdl line SimCrux can lower', () {
+      const text = '''
+[gold]
+ghdl --std=08 rtl/a.vhd rtl/b.vhd -e alu  # the gold
+prep -top alu
+[gate]
+read_verilog gate.v
+ghdl c.vhd -e other
+''';
+      final reads = EqyScript.vhdlReads(text);
+      expect(reads, hasLength(2));
+      expect(reads[0].section, 'gold');
+      expect(reads[0].files, ['rtl/a.vhd', 'rtl/b.vhd']);
+      expect(reads[0].unit, 'alu');
+      expect(reads[0].standard, '08');
+      expect(reads[0].problem, isNull);
+      expect(reads[1].section, 'gate');
+      expect(reads[1].ordinal, 1);
+      expect(reads[1].standard, isNull);
+    });
+
+    for (final (line, why) in const [
+      ('ghdl -fsynopsys a.vhd -e alu', 'option `-fsynopsys`'),
+      ('ghdl a.vhd', 'no unit'),
+      ('ghdl -e alu', 'no VHDL file'),
+      ('ghdl a.vhd -e alu extra', 'words after the unit'),
+      ('ghdl a.vhd -e alu; prep', 'more than one command'),
+    ]) {
+      test('"$line" cannot be lowered faithfully: $why', () {
+        final read = EqyScript.vhdlReads('[gold]\n$line\n').single;
+        expect(read.problem, contains(why));
+      });
+    }
+
+    test('a ghdl line in [script] is refused: it reads both designs', () {
+      final read = EqyScript.vhdlReads('[script]\nghdl a.vhd -e a\n').single;
+      expect(read.problem, contains('[script]'));
+    });
+
+    test('replaceVhdlReads swaps only the ghdl lines, byte for byte else', () {
+      const text =
+          '[gold]\n  ghdl a.vhd -e alu\nprep -top alu\n# ghdl in a comment\n'
+          '[gate]\nghdl b.vhd -e alu\n';
+      final out = EqyScript.replaceVhdlReads(text, {
+        0: 'read_verilog "/w/gold_0.v"',
+        1: 'read_verilog "/w/gate_1.v"',
+      });
+      expect(
+        out,
+        '[gold]\nread_verilog "/w/gold_0.v"\nprep -top alu\n'
+        '# ghdl in a comment\n[gate]\nread_verilog "/w/gate_1.v"\n',
+      );
+    });
+
     test('reading a lowered Verilog file is not the plugin', () {
       final script = EqyScript.parse(
         '[gold]\nread_verilog alu_ghdl.v\n[gate]\nread_verilog g.v\n',

@@ -1,0 +1,15 @@
+[gold]
+ghdl --std=08 alu.vhd -e alu
+prep -top alu
+
+[gate]
+read_verilog ../eqy/gate.v
+prep -top alu
+
+[match alu]
+gold-nomatch r
+
+[strategy sby]
+use sby
+depth 5
+engine smtbmc yices

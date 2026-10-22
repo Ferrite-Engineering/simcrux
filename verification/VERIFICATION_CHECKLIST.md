@@ -1167,11 +1167,12 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 
 ### The `eqy` driver (guide §26.11)
 
-- [ ] `EqyScript` reads `[gold]`, `[gate]`, `[script]`, the pattern sections and the strategies in order; a `ghdl` plugin call is found — `[Coverage: UNIT]` (`eqy_script_test.dart`)
+- [ ] `EqyScript` reads `[gold]`, `[gate]`, `[script]`, the pattern sections and the strategies in order; each `ghdl` line is parsed for lowering or refused, and replaced byte for byte — `[Coverage: UNIT]` (`eqy_script_test.dart`)
+- [ ] A VHDL gold is lowered by a standalone `ghdl --synth --out=verilog` (never the GHDL Yosys plugin) into a generated directory beside the work dir, and `eqy` reads the rewritten copy; a failing `ghdl` or an unlowerable line refuses before spawn; `formal.ghdl_binary` is gated — `[Coverage: UNIT]` (`eqy_driver_test.dart`, `config_loader_formal_test.dart`); live against a real `ghdl` — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`eqy_driver_live_test.dart`)
 - [ ] `EqyLogReader` gives each committed run its DONE token and every partition the hand expectation names; the pass marker is the importer's — `[Coverage: UNIT]` (`eqy_outcome_test.dart`)
 - [ ] The work-directory reader reproduces every corpus partition, attaches only a base-case counterexample inside the work directory, and refuses partition and strategy names that would leave it (`..`, absolute, separators, colon, symlinks) — `[Coverage: UNIT]` (`eqy_workdir_reader_test.dart`)
 - [ ] The agreement rule: PASS only when every partition was proved, a FAIL never softened, no partition list never a pass — `[Coverage: UNIT]` (`eqy_workdir_reader_test.dart`)
-- [ ] `eqy -f -d <work dir>/<file name> <file.eqy>` beside the file; reserved options, an unsafe file name, demo mode and the GHDL plugin refused before spawn; the exit-code rule through the real scheduler; alu_pass Counterexample, alu_pass2 Proved, alu_fail2 two of two partitions — `[Coverage: UNIT]` (`eqy_driver_test.dart`)
+- [ ] `eqy -f -d <work dir>/<file name> <file.eqy>` beside the file; reserved options, an unsafe file name, demo mode and an unlowerable `ghdl` line refused before spawn; the exit-code rule through the real scheduler; alu_pass Counterexample, alu_pass2 Proved, alu_fail2 two of two partitions — `[Coverage: UNIT]` (`eqy_driver_test.dart`)
 - [ ] `formal.eqy_file`, `formal.eqy_binary` (gated, dropped with an advisory), `command`, `extra_args` and `tools` for an eqy test — `[Coverage: UNIT]` (`config_loader_formal_test.dart`)
 - [ ] Ungated at Open Core after the beta, identical at Pro and Enterprise — `[Coverage: UNIT]` (`eqy_ungated_verdict_test.dart`)
 - [ ] `simcrux import-eqy`: help first, usage errors exit 2, one test, the emitted file loads clean; File > Import Formal Project… takes an `.eqy` and records `kind: eqy` — `[Coverage: UNIT]` (`eqy_project_importer_test.dart`), `[Coverage: WIDGET]` (`import_formal_project_dialog_test.dart`)
