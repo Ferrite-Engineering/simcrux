@@ -196,6 +196,18 @@ const _allowlist = <_Allowance>[
         'documented for users',
   ),
   _Allowance(
+    'docs-site/docs/baselines-ci-exports.md',
+    'simcrux-pro',
+    'the shipped Pro CLI executable that runs the regression gate without a '
+        'display, documented for users',
+  ),
+  _Allowance(
+    'docs-site/docs/cli.md',
+    'simcrux-pro',
+    'the shipped Pro CLI executable that runs the regression gate, documented '
+        'for users',
+  ),
+  _Allowance(
     'docs-site/docs/flow.md',
     'simcrux-pro',
     'the shipped Pro CLI executable whose flow verbs are documented for users',

@@ -60,10 +60,21 @@ on stderr and exits `2`. It never reports a gate it did not run as passed.
 
 On a macOS CI runner the desktop executable runs as it is: GitHub's hosted
 macOS runners have a GUI session. On Linux, the desktop app is a GTK
-application and needs a display before it reads its arguments, and SimCrux does
-not yet document a way to run it on a runner without one. There, run the gate
-on a runner with a graphical session; the standalone binary covers every other
-`--ci` job.
+application and needs a display before it reads its arguments, so before
+SimCrux 1.2 the gate ran only on a runner with a graphical session.
+
+**From SimCrux 1.2**, the `simcrux-pro` command that the desktop download
+installs beside the app runs the gate without a display, on any platform:
+
+```bash
+simcrux-pro --ci --fail-on-regression --baseline baseline/results.ndjson \
+  --license-file "$SIMCRUX_LICENSE_FILE" simcrux.yaml
+```
+
+It takes the same flags as `simcrux --ci` and the same exit codes as the
+desktop executable: `1` on a regression, `2` when the license does not include
+the gate or the baseline cannot be read. It needs the same Pro, EDU or
+Enterprise license. The standalone `simcrux` binary still refuses the gate.
 
 ## Exports {#exports}
 
@@ -214,7 +225,8 @@ never posted).
    [web dashboard](ci-integration.md) from `results.ndjson`.
 4. **Gate on regressions** <span class="tier tier-pro">Pro</span>. Keep a
    known-good `results.ndjson` and add `--baseline <file> --fail-on-regression`,
-   run from the desktop app's executable with a license (see
+   run from the desktop app's executable, or from 1.2 `simcrux-pro`, with a
+   license (see
    [Which executable runs the gate](#gate-executable)). The standalone
    `simcrux` binary refuses the gate with exit `2`.
 
