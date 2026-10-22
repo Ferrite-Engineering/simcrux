@@ -260,6 +260,90 @@ void main() {
       expect(msg.elements.single.path, 'cpu_unit/test_alu_basic');
     });
 
+    test('after a tab switch, a selection in the new tab is broadcast and one '
+        'in the old tab is not, with the emitter read once', () async {
+      final tempDir = await Directory.systemTemp.createTemp(
+        'simcrux_emitter_switch_',
+      );
+      final managersCreated = <WorkspaceContainerManagers>[];
+      final captured = CapturedCxpServer();
+      late final ProviderContainer container;
+      container = simcruxCxpRuntimeContainer(
+        manifestDirectory: manifests,
+        capture: captured,
+        extra: <Override>[
+          simcruxWorkspaceServiceProvider.overrideWithValue(
+            crux.WorkspaceService<SimcruxTabPayload>(
+              codec: const SimcruxWorkspaceCodec(),
+              directoryFactory: () async => tempDir,
+            ),
+          ),
+          workspaceContainerManagersProvider.overrideWith((ref) {
+            final managers = WorkspaceContainerManagers(
+              tabs: crux.TabContainerManager(
+                rootContainer: container,
+                overridesFactory: simcruxTabOverrides,
+              ),
+              panes: crux.PaneContainerManager(rootContainer: container),
+            );
+            managersCreated.add(managers);
+            return managers;
+          }),
+        ],
+      );
+      addTearDown(() async {
+        await container.read(workspaceProvider.notifier).flushPendingSave();
+        for (final m in managersCreated) {
+          m.dispose();
+        }
+        if (tempDir.existsSync()) await tempDir.delete(recursive: true);
+      });
+
+      final runtime = await runningCxpRuntime(container);
+      await container.read(workspaceProvider.future);
+      final tabA = await container
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'a',
+            payload: SimcruxTabPayload(configPath: '/p/a.yaml'),
+          );
+      // Launch order: one read of the emitter, tab A active.
+      container.read(notifySelectionEmitterProvider);
+      final tabB = await container
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'b',
+            payload: SimcruxTabPayload(configPath: '/p/b.yaml'),
+          );
+      // Let the container deliver the switch, as the frames between a click
+      // and the next selection do.
+      await Future<void>.delayed(Duration.zero);
+
+      final client = await connectSubscribedClient(runtime, captured);
+      final received = <NotifySelection>[];
+      final sub = client.inbound
+          .where((m) => m.message is NotifySelection)
+          .listen((m) => received.add(m.message as NotifySelection));
+      addTearDown(sub.cancel);
+
+      final managers = container.read(workspaceContainerManagersProvider);
+      managers.tabs
+          .containerFor(tabA)
+          .read(selectedTestIdProvider.notifier)
+          .select('cpu_unit/old_tab_test');
+      managers.tabs
+          .containerFor(tabB)
+          .read(selectedTestIdProvider.notifier)
+          .select('cpu_unit/new_tab_test');
+      final arrived = await pollUntil(() => received.isNotEmpty);
+      expect(arrived, isTrue, reason: 'the new tab must broadcast');
+      // The old tab's selection was made first; had it been broadcast it would
+      // have arrived before the new tab's.
+      expect(received.map((m) => m.elements.single.path).toList(), [
+        'cpu_unit/new_tab_test',
+      ]);
+    });
+
     test(
       'does not auto-broadcast when "Broadcast selection automatically" is '
       'off',
