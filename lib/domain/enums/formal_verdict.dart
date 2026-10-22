@@ -12,8 +12,7 @@ const String kFormalVerdictMetric = 'formal.verdict';
 /// reported for one task, and how SimCrux maps it onto a [TestStatus].
 ///
 /// Lifted unchanged from the RISC-V formal track: same values, same wire
-/// names, same status mapping. `RiscvFormalVerdict` is a typedef of this
-/// enum, so a value written by either name is the same value.
+/// names, same status mapping.
 ///
 /// ## The mapping is the correctness question of every formal driver
 ///

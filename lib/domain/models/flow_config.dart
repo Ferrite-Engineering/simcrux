@@ -442,9 +442,6 @@ class FlowConfig {
   /// Run directories and `report.json` files to index, as written.
   final List<String> ingest;
 
-  /// Whether the block declares nothing.
-  bool get isEmpty => entries.isEmpty && ingest.isEmpty;
-
   /// This block followed by [other]'s entries and ingest paths.
   FlowConfig followedBy(FlowConfig other) => FlowConfig(
     entries: <FlowEntry>[...entries, ...other.entries],

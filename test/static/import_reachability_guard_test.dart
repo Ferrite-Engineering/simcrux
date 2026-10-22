@@ -82,32 +82,12 @@ class _Exemption {
   final String reason;
 }
 
-const _crossProjectSearch =
-    'Part of the cross-project search seam. The open core declares the '
-    'service interface, its value types and the no-op default; the search '
-    'dialog, the service that walks every open project and the only readers '
-    'of this seam are Pro overlay code. The open-core Search Across Projects '
-    'action dispatches through a separate opener seam and never reaches it.';
-
-const _flakyDetection =
-    'Part of the flaky-test detection seam. The open core declares the '
-    'service interface, the score and config models and the no-op default; '
-    'the scoring engine and every surface that reads a score (the Flaky '
-    'Tests panel, the dashboard row annotation, auto-retry) are Pro overlay '
-    'code.';
-
-const _prAnnotation =
-    'Part of the PR-annotation seam. The open core declares the dispatcher '
-    'interface, the annotation and target models, the run-to-annotation '
-    'builder and the no-op defaults; the per-platform dispatchers, the '
-    'target settings and the run-completion hook that read them are Pro '
-    'overlay code.';
-
-const _overlayOpener =
-    'A navigation opener seam whose producer and callers are both Pro '
-    'overlay code: the overlay registers the screen it mounts and its own '
-    'toolbar button and chip read the provider. No open-core surface reads '
-    'it; the open-core default is null.';
+const _catalogVocabulary =
+    'A closed vocabulary the telemetry catalog enumerates. The Pro overlay '
+    'is the only app code that reads it, but the catalog conformance test '
+    'in this repository, which cannot see the overlay, asserts the '
+    "catalog's value set equals the enum, so the one declaration stays "
+    'here beside the catalog.';
 
 const _driverPluginSdk =
     'Part of the driver-plugin SDK contract. The open core owns the wire '
@@ -116,130 +96,16 @@ const _driverPluginSdk =
     'executables is a Pro-tier capability.';
 
 const _exemptions = <_Exemption>[
-  // The cross-project search seam.
-  _Exemption(
-    'lib/domain/enums/riscv_formal_verdict.dart',
-    _Consumer.proOverlay,
-    'the RiscvFormalVerdict typedef of FormalVerdict, kept for one minor '
-        'release because the Pro overlay still names it; open core uses '
-        'FormalVerdict. Delete this file and this exemption when the '
-        'overlay has moved',
-  ),
+  // Enums the telemetry catalog's conformance test reads.
   _Exemption(
     'lib/domain/enums/cross_project_search_scope.dart',
     _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/domain/interfaces/cross_project_search_service.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/domain/models/cross_project_search_match.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/domain/models/cross_project_search_progress.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/domain/models/cross_project_search_query.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/domain/models/cross_project_search_target.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-  _Exemption(
-    'lib/services/projects/cross_project_search_provider.dart',
-    _Consumer.proOverlay,
-    _crossProjectSearch,
-  ),
-
-  // The flaky-test detection seam.
-  _Exemption(
-    'lib/domain/interfaces/flaky_detection_service.dart',
-    _Consumer.proOverlay,
-    _flakyDetection,
-  ),
-  _Exemption(
-    'lib/domain/models/flakiness_config.dart',
-    _Consumer.proOverlay,
-    _flakyDetection,
+    _catalogVocabulary,
   ),
   _Exemption(
     'lib/domain/models/flakiness_score.dart',
     _Consumer.proOverlay,
-    _flakyDetection,
-  ),
-  _Exemption(
-    'lib/services/flaky_detection/flaky_detection_service_provider.dart',
-    _Consumer.proOverlay,
-    _flakyDetection,
-  ),
-  _Exemption(
-    'lib/services/flaky_detection/noop_flaky_detection_service.dart',
-    _Consumer.proOverlay,
-    _flakyDetection,
-  ),
-
-  // The PR-annotation seam.
-  _Exemption(
-    'lib/domain/interfaces/pr_annotation_dispatcher.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/domain/models/pr_annotation.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/domain/models/pr_annotation_dispatch_result.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/domain/models/pr_annotation_target.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/services/pr_annotation/pr_annotation_dispatcher_provider.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/services/pr_annotation/pr_annotation_target_store.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-  _Exemption(
-    'lib/services/pr_annotation/run_annotation_builder.dart',
-    _Consumer.proOverlay,
-    _prAnnotation,
-  ),
-
-  // Opener seams whose callers are all overlay widgets.
-  _Exemption(
-    'lib/features/dashboard/providers/regression_comparison_opener.dart',
-    _Consumer.proOverlay,
-    _overlayOpener,
-  ),
-  _Exemption(
-    'lib/features/dashboard/providers/riscv_compatibility_opener.dart',
-    _Consumer.proOverlay,
-    _overlayOpener,
-  ),
-  _Exemption(
-    'lib/features/dashboard/providers/riscv_formal_opener.dart',
-    _Consumer.proOverlay,
-    _overlayOpener,
+    _catalogVocabulary,
   ),
 
   // The driver-plugin SDK.
@@ -258,10 +124,12 @@ const _exemptions = <_Exemption>[
   _Exemption(
     'lib/domain/models/trend_alert.dart',
     _Consumer.proOverlay,
-    'The trend-regression alert model. The detector that produces alerts, '
-        'the acknowledged-alerts store and the banner that renders them are '
-        'all Pro overlay code; nothing in the open core reads it. Moving the '
-        'model into the overlay would retire this entry.',
+    'The trend-regression alert model, including the flow metric kind. The '
+        'detectors that produce alerts, the acknowledged-alerts store and the '
+        'banner that renders them are Pro overlay code, but the telemetry '
+        "catalog conformance test in this repository asserts the catalog's "
+        '`trend.alert_raised.kind` set against `TrendAlertKind`, so the model '
+        'stays beside the catalog.',
   ),
   _Exemption(
     'lib/services/telemetry/gated_feature.dart',

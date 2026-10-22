@@ -47,16 +47,6 @@ class EqyProjectImporter {
 
   static bool _defaultFileExists(String path) => File(path).existsSync();
 
-  /// Parses one `.eqy` file. Never throws: an unreadable file parses as an
-  /// empty script.
-  EqyScript readScript(String path) {
-    try {
-      return EqyScript.parse(_readFile(path));
-    } on Object {
-      return const EqyScript();
-    }
-  }
-
   /// Imports the `.eqy` file at [path] and emits a project file for a file
   /// in [outputDirectory].
   ///

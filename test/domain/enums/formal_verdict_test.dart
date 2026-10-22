@@ -3,7 +3,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/formal_verdict.dart';
-import 'package:simcrux/domain/enums/riscv_formal_verdict.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 
 /// Pins the formal verdict's wire contract.
@@ -77,11 +76,5 @@ void main() {
         expect(FormalVerdict.fromWireName(raw), isNull);
       });
     }
-  });
-
-  test('RiscvFormalVerdict is the same type, not a copy', () {
-    expect(RiscvFormalVerdict.values, same(FormalVerdict.values));
-    expect(RiscvFormalVerdict.fail, same(FormalVerdict.fail));
-    expect(RiscvFormalVerdict.fromWireName('FAIL'), FormalVerdict.fail);
   });
 }

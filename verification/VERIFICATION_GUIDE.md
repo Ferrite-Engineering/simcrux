@@ -3628,8 +3628,7 @@ on them.
 ### 18.4 The Pro opener seam — and what it must never gate
 
 The Pro Compatibility Dashboard mounts through
-`riscvCompatibilityOpenerProvider`
-(`lib/features/dashboard/providers/riscv_compatibility_opener.dart`), the
+`riscvCompatibilityOpenerProvider`, the
 same `Provider<XOpener?>` shape as `seedFailureHeatmapOpenerProvider` and
 `regressionComparisonOpenerProvider`: open core declares it `null`, the Pro
 overlay overrides it in `proOverrides` and **the override owns the tier
@@ -3655,7 +3654,7 @@ rollup, the ISA-string attestation and the signature diff viewer — is Pro.
 
 | Check | Automatable? | How |
 |---|---|---|
-| Open-core default is `null` | **Yes** | `test/features/dashboard/providers/riscv_compatibility_opener_test.dart` |
+| Open-core default is `null` | **Yes** | the Pro overlay's `riscv_compatibility_opener_test.dart` |
 | Default is tier-independent at every tier × `kBetaPeriod` | **Yes** | same file |
 | An override surfaces a callable opener | **Yes** | same file |
 | Per-test pass/fail is produced and rendered ungated at `LicenseTier.openCore` post-beta | **Yes** | Pro overlay — its ungated-verdict test |
@@ -3700,8 +3699,7 @@ entirely in the Pro overlay.
 ### 18.6 The formal-dashboard opener seam
 
 The Pro formal
-property dashboard mounts through `riscvFormalOpenerProvider`
-(`lib/features/dashboard/providers/riscv_formal_opener.dart`), the same
+property dashboard mounts through `riscvFormalOpenerProvider`, the same
 `Provider<XOpener?>` shape §18.4 established for the compatibility
 dashboard: open core declares it `null`, the Pro overlay overrides it in
 `proOverrides` and **the override owns the tier gate**.
@@ -3730,7 +3728,7 @@ coverage, the proof-depth pair, the per-property table — is Pro.
 
 | Check | Automatable? | How |
 |---|---|---|
-| Open-core default is `null` | **Yes** | `test/features/dashboard/providers/riscv_formal_opener_test.dart` |
+| Open-core default is `null` | **Yes** | the Pro overlay's `riscv_formal_opener_test.dart` |
 | Default is tier-independent at every tier × `kBetaPeriod` | **Yes** | same file |
 | An override surfaces a callable opener | **Yes** | same file |
 | Per-property pass/fail **and the counterexample VCD** produced and rendered ungated at `LicenseTier.openCore` post-beta | **Yes** | Pro overlay — its ungated formal-verdict test |

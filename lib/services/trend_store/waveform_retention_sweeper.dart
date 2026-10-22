@@ -36,9 +36,6 @@ class WaveformSweepResult {
   /// rather than treated as an error; their rows are still forgotten.
   final int missingFiles;
 
-  /// Whether anything changed.
-  bool get didSomething => deletedFiles > 0 || missingFiles > 0;
-
   @override
   String toString() =>
       'WaveformSweepResult(deleted: $deletedFiles, '

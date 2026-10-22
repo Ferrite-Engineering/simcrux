@@ -71,10 +71,6 @@ class WebFilterNotifier extends Notifier<WebFilter> {
   @override
   WebFilter build() => const WebFilter();
 
-  /// Replaces the entire filter state.
-  // ignore: use_setters_to_change_properties
-  void set(WebFilter next) => state = next;
-
   /// Updates the free-text query.
   void setQuery(String query) => state = state.copyWith(query: query);
 

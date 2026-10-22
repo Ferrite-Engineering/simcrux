@@ -163,9 +163,6 @@ class WebResultsDocument {
   /// Originating `simcrux.yaml` path, if any.
   final String? configPath;
 
-  /// Total row count.
-  int get total => rows.length;
-
   static Map<TestStatus, int> _recomputeTotals(List<WebResultRow> rows) {
     final out = <TestStatus, int>{};
     for (final r in rows) {

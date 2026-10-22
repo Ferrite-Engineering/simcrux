@@ -171,9 +171,6 @@ class FormalConfig {
   /// The run mode, defaulting to normal.
   FormalRunMode get effectiveMode => mode ?? FormalRunMode.normal;
 
-  /// The `sby` executable to spawn.
-  String get effectiveSbyBinary => sbyBinary ?? kDefaultSbyBinary;
-
   /// What is missing for a run, in plain English; empty when runnable.
   List<String> validateForRun() {
     if (effectiveMode == FormalRunMode.demo) {

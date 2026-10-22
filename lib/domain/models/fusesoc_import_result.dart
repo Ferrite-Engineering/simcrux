@@ -45,7 +45,4 @@ class FuseSoCImportResult {
   /// defines/parameters surface. Empty when the `.core` file maps
   /// cleanly.
   final List<FuseSoCImportWarning> warnings;
-
-  /// True when the importer surfaced at least one [FuseSoCImportWarning].
-  bool get hasWarnings => warnings.isNotEmpty;
 }

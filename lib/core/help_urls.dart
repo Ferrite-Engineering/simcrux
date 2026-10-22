@@ -10,12 +10,6 @@ abstract final class HelpUrls {
   /// SimCrux documentation home — the Help → Documentation target.
   static const String docs = 'https://docs.simcrux.app';
 
-  /// SimCrux marketing / home page.
-  static const String website = 'https://simcrux.app';
-
-  /// The SimCrux desktop download page.
-  static const String download = 'https://simcrux.app/download';
-
   /// Privacy policy. One suite-wide policy lives on edacrux.app; the old
   /// simcrux.app/privacy page is only a redirect to it.
   static const String privacyPolicy = 'https://edacrux.app/privacy';

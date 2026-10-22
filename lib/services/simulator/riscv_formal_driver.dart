@@ -164,10 +164,6 @@ class RiscvFormalDriver extends SbyDriver {
   /// shared with `riscv_arch` for the same reason as [kMetricMode].
   static const String kMetricIsa = RiscvArchDriver.kMetricIsa;
 
-  /// Filename the demo corpus gives its captured log when `case.json`
-  /// does not name one.
-  static const String kDefaultDemoLogName = SbyDriver.kDefaultDemoLogName;
-
   @override
   String get id => kId;
 
