@@ -17,6 +17,8 @@ void main() {
     'passFailDetection': HelpUrls.passFailDetection,
     'integrations': HelpUrls.integrations,
     'resultsDashboard': HelpUrls.resultsDashboard,
+    'formalImport': HelpUrls.formalImport,
+    'formalTools': HelpUrls.formalTools,
   };
 
   test('every help link lands on a docs-site page section that exists', () {

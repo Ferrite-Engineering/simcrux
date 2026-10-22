@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/models/sby_script.dart';
 import 'package:simcrux/features/formal_import/import_formal_project_flow.dart';
 import 'package:simcrux/features/formal_import/widgets/import_formal_project_dialog.dart';
@@ -101,6 +102,15 @@ void main() {
   L10N l10nOf(WidgetTester tester) => L10N.of(
     tester.element(find.byKey(const ValueKey('importFormalProjectDialog'))),
   );
+
+  testWidgets('the title row carries a help link to the formal import docs', (
+    tester,
+  ) async {
+    await open(tester);
+    final link = tester.widget<CruxHelpLink>(find.byType(CruxHelpLink));
+    expect(link.url, HelpUrls.formalImport);
+    expect(link.url, 'https://docs.simcrux.app/formal#import');
+  });
 
   testWidgets('Import stays disabled until a job file is chosen', (
     tester,

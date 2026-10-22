@@ -31,6 +31,6 @@ links straight to that page so you can go deeper without leaving the workflow.
 
 !!! note "More on the way"
     This is the opening set of recipes. If there is a regression workflow you
-    keep repeating and would like written up — a nightly sign-off pass, a
+    keep repeating and would like written up — a nightly full-regression pass, a
     bring-up checklist, a CI migration — tell us at
     [support@ferriteengineering.com](mailto:support@ferriteengineering.com).

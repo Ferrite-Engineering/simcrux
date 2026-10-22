@@ -30,7 +30,8 @@ want depends on whether a display exists:
   with `tool/build_cli.sh` (`dart build cli`), landing at
   `build/cli/bundle/bin/simcrux`. No window, no display server, no Flutter
   engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
-  subcommands, `export-dashboard` and `license`. It does not carry the
+  subcommands, `export-dashboard` and `license`, and from 1.2 `import-sby`,
+  `import-eqy` and the `flow` family. It does not carry the
   regression comparison engine, so it refuses `--fail-on-regression` with
   exit `2`.
 
@@ -59,7 +60,7 @@ nothing (see
 | `--fail-threshold <n>` | In `--ci` mode, exit `1` when the number of failed, timed-out or `unknown` tests is `>= n`. Defaults to `1`, or to the organization's [failure ceiling](administration.md#ci-ceiling) where one is set; a value typed here always wins. |
 | `--fail-on-vacuous` | In `--ci` mode, also count tests classified `vacuous` (the testbench completed without exercising its checks) toward `--fail-threshold`. |
 | `--baseline <path>` | A `results.ndjson` from an earlier `--ci` run, used by `--fail-on-regression`. |
-| `--allow-project-tooling` | Honour the project file's tooling keys: `simulators.<id>.path` and `.env`; the `riscv` `target` / `riscof` / `compile` / `formal` `command:` lists; and the `riscv` executable paths `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary` and `formal.sby_binary`. Each of them chooses what this run executes or its environment, so without this flag a `command:` fails the load and the others are dropped with an advisory. It also lets `output.results_path` and `output.summary_path` point outside the project directory; without it such a path fails the load, because a `--ci` run creates and truncates those files. It also lets `simulators.<id>.options` values that `make` would expand (`$(`, `${`, a backtick), Verilator `options.args` that name a build tool (`-CFLAGS`, `-LDFLAGS`, `-MAKEFLAGS`, `--compiler`, `--make`, `--Mdir`, `--prefix`, `-o`, `-f`, `-F`) and cocotb `top` / `parameters` values with make expansions through; without it the options are dropped with an advisory and such a cocotb test does not load. Pass it only for project files you trust. The app takes the same decision in **Settings → Engines → Let project files choose simulator binaries and environment** (from 1.2; earlier versions call the category **Simulators**). See [Projects and simulators](projects-and-simulators.md#schema). |
+| `--allow-project-tooling` | Honour the project file's tooling keys: `simulators.<id>.path` and `.env`; the `riscv` `target` / `riscof` / `compile` / `formal` `command:` lists; and the `riscv` executable paths `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary` and `formal.sby_binary`. From 1.2 it also covers the [`formal:` block](formal.md#tooling)'s `command`, `extra_args`, `sby_binary`, `eqy_binary`, `ghdl_binary` and `tools`, and each [`flow:` entry](flow.md#flow-block)'s `launcher`, `librelane_binary`, `docker_image`, `fusesoc` (with `fusesoc.binary`), `extra_args` and `handoff`. Each of them chooses what this run executes or its environment, so without this flag a `command:` fails the load and the others are dropped with an advisory. It also lets `output.results_path` and `output.summary_path` point outside the project directory; without it such a path fails the load, because a `--ci` run creates and truncates those files. It also lets `simulators.<id>.options` values that `make` would expand (`$(`, `${`, a backtick), Verilator `options.args` that name a build tool (`-CFLAGS`, `-LDFLAGS`, `-MAKEFLAGS`, `--compiler`, `--make`, `--Mdir`, `--prefix`, `-o`, `-f`, `-F`) and cocotb `top` / `parameters` values with make expansions through; without it the options are dropped with an advisory and such a cocotb test does not load. Pass it only for project files you trust. The app takes the same decision in **Settings → Engines → Let project files choose simulator binaries and environment** (from 1.2; earlier versions call the category **Simulators**). See [Projects and simulators](projects-and-simulators.md#schema). |
 | `--license-file <path>` | In `--ci` mode, the SimCrux license file to run under. See [License tier in CI](#license-in-ci). |
 | `--fail-on-regression` <span class="tier tier-pro">Pro</span> | Exit `1` when a test that passed in `--baseline` now fails. Exit `2`, with an `error: regression gate:` line on stderr, when the `--baseline` file is missing, unreadable or holds no results, or when the run's license does not include the gate (see [License tier in CI](#license-in-ci)). Only the desktop app's executable runs the gate, with `--ci` and a Pro, EDU or Enterprise license. The standalone `simcrux` binary and open-source builds refuse it: exit `2` and an `error: regression gate:` line naming the desktop executable. Without `--baseline` it warns and leaves the exit code unchanged. See [Baseline comparison](baselines-ci-exports.md#baseline). |
 | `--import-fusesoc <core>` | Convert a FuseSoC `.core` file to `<name>.simcrux.yaml` next to it, print the output path and any warnings on stdout, and exit `0` (or `2` on failure). See [Importing FuseSoC files](fusesoc-import.md). |
@@ -145,6 +146,15 @@ exit `2` and a message naming the detector. Spell detectors out in
 | `0` | All tests passed, or failures stayed below `--fail-threshold`. |
 | `1` | At least `--fail-threshold` tests failed, timed out or ended `unknown` (plus `vacuous` ones under `--fail-on-vacuous`), or `--fail-on-regression` found a new failure. |
 | `2` | SimCrux could not do what was asked: a usage error, a `simcrux.yaml` that fails to load, an import or export that could not be written, a `--fail-on-regression` baseline that could not be read, a license that does not include the regression gate, or a build without the regression comparison engine (the standalone binary), a test that was scheduled but never reported a result (stderr names it), or an unexpected error in the runner. |
+| `3` | From 1.2, <span class="tier tier-enterprise">Enterprise</span>: an organization's threshold for implementation runs failed. See below. |
+
+From 1.2 a `3` is possible when an organization's signed policy sets thresholds
+for implementation runs and one of them fails: the desktop app's `--ci` returns
+it over a run whose own code was `0` or `1`, and a `2` always stands over it.
+See [Organization thresholds](flow-ci.md#org). The `simcrux flow` subcommands
+have [their own table](flow-ci.md#exit-codes) and exit `64` for a bad command
+line, where everything above keeps `2`. The standalone `simcrux` binary never
+exits `3`.
 
 A test ends `unknown` when SimCrux could not decide its outcome — for example
 when its simulator binary could not be started, or no driver is registered for
@@ -192,6 +202,9 @@ own `--help`.
 | `simcrux export-dashboard <out-dir>` | Write a self-contained static results dashboard you can serve from any static host. |
 | `simcrux import-riscv-arch-test <suite-path>` | Import a RISC-V architectural-test suite into a SimCrux project. |
 | `simcrux import-riscv-formal <checks-path>` | Import a `riscv-formal` check set. |
+| `simcrux import-sby <file.sby\|dir>` | From 1.2. Import a SymbiYosys job file, or every one in a directory, as one test per task. See [below](#import-sby). |
+| `simcrux import-eqy <file.eqy>` | From 1.2. Import an EQY file as one test. See [below](#import-eqy). |
+| `simcrux flow run\|ingest\|gate\|export` | From 1.2. Run, read, gate and export implementation runs. See [CI gate](flow-ci.md). |
 | `simcrux license fingerprint` | Print this install's machine fingerprint, the value a machine file is issued for. From 1.1. |
 | `simcrux license request --out <file>` | Write an offline activation request for this install to `<file>`, as **Settings → License** would, without the app. From 1.1. |
 
@@ -315,6 +328,49 @@ into the checkout you scanned — that is somebody else's git repository. The ap
 runs the importers with no options, so a `riscv-arch-test` import saved this way
 carries the `missing_target_command` warning until you add
 `riscv.target.command` by hand.
+
+### `simcrux import-sby <file.sby|dir>` {#import-sby}
+
+From 1.2. Reads a SymbiYosys job file, or every `.sby` file directly inside a
+directory, into **one SimCrux test per task** in its `[tasks]` section (one test
+for a file with none) and writes a `simcrux.yaml` you own. Nothing is run. See
+[Formal verification](formal.md#import).
+
+| Flag | Description |
+|---|---|
+| `--task <name>` | Import only this task. Repeatable, or a comma-separated list. A task that only some of a directory's job files declare imports those files and skips the rest; one that none declares is an error that lists the declared tasks. |
+| `--out <path>` / `-o` | Where to write the project file. Defaults to `./simcrux.yaml`. |
+| `--sby-binary <path>` | The `sby` to run, when it is not on `PATH`. It names a program SimCrux runs, so the loader ignores it until you [allow project tooling](formal.md#tooling); the importer prints a reminder. |
+
+```bash
+simcrux import-sby formal/ --task prove --out simcrux.yaml
+simcrux simcrux.yaml --ci
+```
+
+A good import prints `simcrux: wrote <path> (N tests from M job files: ...)` on
+stdout, with any warnings on stderr. A job file that reads the design with
+assertions turned off still imports, with an `assertions_disabled` warning in the
+file's header. A usage mistake, a path with no job file, or an unknown task prints
+the reason on stderr and exits `2`, like every `import-*` subcommand; `-h` or
+`--help` anywhere prints the usage and exits `0` before any file is read.
+
+### `simcrux import-eqy <file.eqy>` {#import-eqy}
+
+From 1.2. Reads an EQY file into one test, with the same contract as `import-sby`.
+
+| Flag | Description |
+|---|---|
+| `--out <path>` / `-o` | Where to write the project file. Defaults to `./simcrux.yaml`. |
+| `--eqy-binary <path>` | The `eqy` to run, when it is not on `PATH`. Ignored until you [allow project tooling](formal.md#tooling). |
+
+A file with no `[gold]` or `[gate]` section is refused. One with a `ghdl` line
+SimCrux cannot lower to Verilog, or with no strategy, imports with a warning in the
+file's header. Exit codes are those of `import-sby`.
+
+### The formal imports, from the app {#import-formal}
+
+**File → Import Formal Project…** does the same from the app and takes an `.sby`
+or an `.eqy` file; see [Formal verification](formal.md#import).
 
 ## FuseSoC and Edalize {#fusesoc}
 

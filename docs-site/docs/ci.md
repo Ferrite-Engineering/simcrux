@@ -94,6 +94,13 @@ simcrux simcrux.yaml --ci --fail-threshold 4
 # fails the build only if 4 or more tests fail
 ```
 
+## Formal jobs and implementation runs
+
+From 1.2, a `sby` or `eqy` test counts toward `--fail-threshold` like any test:
+every result but **Proved** (or a `cover` that was **Reached**) is a failure. See
+[Formal verification](formal.md#ci). Implementation runs have their own commands
+and a recipe that matches every exit code: [CI gate](flow-ci.md#recipes).
+
 ## Dashboard publishing
 
 The `--export html=…` target produces a single self-contained HTML

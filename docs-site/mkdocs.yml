@@ -49,6 +49,12 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.keys
+  # The SVA support table on formal.md is generated from the measured probe
+  # matrix (tool/generate_sva_support_table.dart) into generated/, outside
+  # docs_dir, and included from there so it is never copied by hand.
+  - pymdownx.snippets:
+      base_path: [generated]
+      check_paths: true
 validation:
   omitted_files: warn
   absolute_links: info
@@ -68,6 +74,15 @@ nav:
       - Pass/fail detection: pass-fail-detection.md
       - The results dashboard: results-dashboard.md
       - Waveforms & debug: waveforms-and-debug.md
+  - Formal & implementation flow:
+      - Formal verification, from 1.2: formal.md
+      - Implementation flow, from 1.2: flow.md
+      - nextpnr runs: flow-nextpnr.md
+      - Ingesting runs: flow-ingest.md
+      - The Flow Runs panel: flow-runs.md
+      - Hand-off to viewers: flow-handoff.md
+      - CI gate for implementation runs: flow-ci.md
+      - Troubleshooting implementation runs: flow-troubleshooting.md
   - Track & ship:
       - Trends, flaky tests & seeds: trends-and-flaky.md
       - Baselines, CI & exports: baselines-ci-exports.md

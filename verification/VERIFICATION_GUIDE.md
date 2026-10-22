@@ -5079,6 +5079,14 @@ pre-trace and EQY explorer seams beside it in
 `lib/features/dashboard/providers/formal_openers.dart`) is null in open core
 for every tier, and the overlay that overrides it owns the gate.
 
+**Help links.** The Import Formal Project dialog's title row and the Formal
+tools group beside Check formal tools each carry the suite's help icon
+(`CruxHelpLink`). They open `HelpUrls.formalImport` and `HelpUrls.formalTools`,
+the `#import` and `#tools` headings of `docs-site/docs/formal.md`;
+`test/core/help_urls_test.dart` resolves both against that page. The page's
+Flow siblings, the generated SVA table it includes and the nav entries are held
+by `test/static/docs_site_formal_flow_pages_test.dart`.
+
 **The engine canary** (`.github/workflows/engine-canary.yml`). Monthly and
 on dispatch, on Linux, with an OSS CAD Suite pinned by tag and SHA-256 (a
 build from 2026-10-21 or newer; earlier yosys-slang builds refuse

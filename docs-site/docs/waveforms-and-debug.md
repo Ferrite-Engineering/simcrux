@@ -71,6 +71,25 @@ default). SimCrux then reports what WaveCrux did — for example "Sent to WaveCr
 full list of notices, and how the hand-off works, is on
 [Cross-probe & the suite](integrations.md#deep-link).
 
+## Formal counterexamples, from 1.2 {#formal}
+
+A [formal](formal.md) row has a waveform too: the counterexample (or cover
+witness) trace SymbiYosys or EQY wrote for the failing property, which SimCrux
+records on the row as it would a simulation dump. **Debug in WaveCrux**,
+**Cross-probe to** and **Cross-probe Selection** send it to WaveCrux together
+with the step the solver reported, counting the trace's initial state as step 0.
+From WaveCrux 1.2 the cursor lands on that step. When no property states a step,
+or the task checks more than one clock, the trace opens without one; SimCrux
+never guesses.
+
+An equivalence check sends one trace for each failing partition, and WaveCrux
+groups its gold and gate scopes as a pair with the miter's comparison signals
+first. The trace also carries the solver's own `smt_step` and `smt_clock`
+counters. From WaveCrux 1.2 they are listed, in one unnamed root scope ahead of
+the named scopes; earlier versions did not show a variable declared outside every
+scope. See
+[Receiving a formal trace](https://docs.wavecrux.app/automation-and-collaboration#cxp-formal).
+
 ## Re-run with waveform {#rerun}
 
 If a test ran under `capture: on_demand` or `never` and then failed, you do not

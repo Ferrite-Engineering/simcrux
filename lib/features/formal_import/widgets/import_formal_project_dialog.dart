@@ -7,6 +7,7 @@ import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/models/formal_import_result.dart';
 import 'package:simcrux/domain/models/sby_script.dart';
 import 'package:simcrux/features/dialogs/confirm_dialog.dart';
@@ -235,6 +236,10 @@ class _ImportFormalProjectDialogState extends State<ImportFormalProjectDialog> {
       child: CruxDialog(
         key: const ValueKey('importFormalProjectDialog'),
         title: l10n.importFormalTitle,
+        titleTrailing: CruxHelpLink(
+          url: HelpUrls.formalImport,
+          tooltip: l10n.helpLinkLearnMore,
+        ),
         width: 560,
         onSubmit: _canImport ? () => unawaited(_import()) : null,
         content: Column(

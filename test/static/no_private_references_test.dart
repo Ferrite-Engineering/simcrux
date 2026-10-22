@@ -196,6 +196,16 @@ const _allowlist = <_Allowance>[
         'documented for users',
   ),
   _Allowance(
+    'docs-site/docs/flow.md',
+    'simcrux-pro',
+    'the shipped Pro CLI executable whose flow verbs are documented for users',
+  ),
+  _Allowance(
+    'docs-site/docs/flow-ci.md',
+    'simcrux-pro',
+    'the shipped Pro CLI executable whose flow gate a CI job runs',
+  ),
+  _Allowance(
     'docs-site/docs/integrations.md',
     'simcrux-pro push-results',
     'the shipped Pro CLI executable a CI job runs, documented for users',

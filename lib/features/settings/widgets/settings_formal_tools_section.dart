@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/enums/riscv_host_platform.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
 import 'package:simcrux/domain/models/formal_toolchain_report.dart';
@@ -120,6 +121,11 @@ class _FormalToolchainCheckState extends ConsumerState<FormalToolchainCheck> {
                 key: const ValueKey('formalToolsCheck'),
                 onPressed: _running ? null : () => unawaited(_check()),
                 child: Text(l10n.settingsFormalToolsCheck),
+              ),
+              const SizedBox(width: 4),
+              CruxHelpLink(
+                url: HelpUrls.formalTools,
+                tooltip: l10n.helpLinkLearnMore,
               ),
               if (_running) ...[
                 const SizedBox(width: 12),

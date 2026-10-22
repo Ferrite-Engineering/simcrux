@@ -183,7 +183,7 @@ and `request_open_artifact`. Anything else is ignored without throwing.
 | --- | --- | --- |
 | `test` | Verified against the active tab's loaded config, then selected in the dashboard | `honored: true`, or `false` with a reason when the id is unknown |
 | `source` | Recorded as the explicit source selection | `honored: true` |
-| `signal`, `net`, `port`, `instance`, `scope` | The leaf name is applied as the dashboard's test-name filter — so highlighting `top.cpu.alu` filters the dashboard to tests whose id contains `alu` | `honored: true` |
+| `signal`, `net`, `port`, `instance`, `scope` | The leaf name is applied as the dashboard's test-name filter — so highlighting `top.cpu.alu` filters the dashboard to tests whose id contains `alu`. From 1.2, a `signal` that names its design with `crux.design_id` filters differently; see [Formal and flow](#cxp-formal-flow) | `honored: true` |
 | `breakpoint` | Refused — "breakpoint editor not yet implemented in this build" | `honored: false` |
 | `marker`, `rule` | Refused — SimCrux does not own those element kinds | `honored: false` |
 | anything else | Refused, forward-compatibly | `honored: false` |
@@ -197,6 +197,26 @@ editor and acks `honored: true`.
 success. `request_open_artifact` does the same for `source` artifacts, resolving
 the file through the shared workspace; other artifact kinds are refused. Every
 inbound request lands in the tab you are looking at.
+
+### Formal and flow results, from 1.2 {#cxp-formal-flow}
+
+From 1.2, SimCrux sends and receives these as well. All of it is free in every
+tier, and none of it carries a badge.
+
+| Direction | What | Detail |
+| --- | --- | --- |
+| Sends | A formal counterexample or cover trace | An element of kind `source` (the trace file) with the `formal.trace_step` coordinate, the step the solver reported, counting the initial state as step 0, plus `formal.property_kind` and, when the frontend kept one, `formal.property_label`. The step is absent, never guessed, when no property states one and for a task that checks more than one clock. An equivalence check's partition is the coordinate's `sub_id`, and each of its hand-offs carries `formal.eqy.gold_scope` and `formal.eqy.gate_scope`. |
+| Sends | **Show in NetCrux** on a failing property | A `signal` (the first signal the property reads) with `formal.property_kind` and the label, then the property itself as `<file>:<line>`. NetCrux needs one of those two keys to draw the fan-in. |
+| Sends | A worst timing path | The mapped endpoint register as a `signal` for WaveCrux and NetCrux, a statement as a `source` for LintCrux, or the opaque `timing_path` when nothing else is known. A selection broadcast carries the whole path with `crux.mapping` as mapped. |
+| Receives | A `signal` that names its design with `crux.design_id` | In a project with `sby` tests, the results table shows only the formal rows with a property that reads it, under **Cross-probe** as "Properties that read `<signal>`". In a project with a `flow:` block, Flow Runs shows its **Worst paths** filtered to the paths that start or end at that register. |
+| Receives | `request_open_artifact` of kind `flow_run` | Answered with the run SimCrux holds for the design: the run the hint names when it is one of the project's own, else the selected run, else the newest. Flow Runs comes forward. Nothing is written. |
+| Receives | `request_open_artifact` of kind `project` | A `simcrux.yaml` or `<design>.crux-project` opens as a config tab. SimCrux publishes each open project as its design's `project` artifact. |
+
+No acknowledgement reason repeats a path, design id or kind that the sender
+supplied. A kind SimCrux does not open (`timing_report`, `waveform`, `netlist`) is
+answered `honored: false` with the reason `unsupported`. See
+[Formal verification](formal.md#cross-probe) and
+[The Flow Runs panel](flow-runs.md#cross-probe).
 
 ### Troubleshooting {#troubleshooting}
 

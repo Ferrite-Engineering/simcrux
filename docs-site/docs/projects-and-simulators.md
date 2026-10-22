@@ -67,7 +67,7 @@ suites:
 | `project_id:` | top level | Optional. The project's identity across machines, 1 to 64 letters, digits, `.`, `_` or `-`. The shared team database pools runs under it, so two checkouts of one repository and the CI job that pushes with `push-results --project <id>` share one history; a project that declares none keeps its history local. See [Team database](team-database.md#project-identity). |
 | `name:` | test | Required. The test name; the test id is `<suite>/<name>`. |
 | `top:` | test | Required. The top-level module or entity to elaborate and run. |
-| `simulator:` | defaults, suite, test | Required at one of the three levels: `icarus`, `verilator`, `ghdl`, `cocotb`, `riscv_arch` or `riscv_formal`. There is no built-in default, so a test that inherits none does not load. |
+| `simulator:` | defaults, suite, test | Required at one of the three levels: `icarus`, `verilator`, `ghdl`, `cocotb`, `riscv_arch` or `riscv_formal`, and from 1.2 `sby` or `eqy` (see [Formal verification](formal.md#config)). There is no built-in default, so a test that inherits none does not load. |
 | `sources:` | suite, test | HDL (and testbench) files, relative to the project file. `.f` filelists are expanded. |
 | `include_dirs:` | suite, test | Include / library search directories. |
 | `defines:` | suite, test | Preprocessor defines, `KEY: 'value'`. |
@@ -80,6 +80,8 @@ suites:
 | `description:` | suite | Free text. |
 | `includes:` | top level | Other project files to merge in. |
 | `output:` | top level | Where `simcrux --ci` writes `results.ndjson` and `results.summary.json`. See [Streaming results](baselines-ci-exports.md#streaming-results). |
+| `formal:` | defaults, suite, test | From 1.2. The SymbiYosys or EQY job a test runs: `sby_file`, `eqy_file`, `task`, and the keys that choose a program. See [Formal verification](formal.md#config). |
+| `flow:` | top level | From 1.2. The implementation runs to launch (`entries:`) and the runs to read (`ingest:`). Not inherited. See [Implementation flow](flow.md#flow-block). |
 
 `parameters:` values make up the test id (`axi/burst+BURST_LEN=16`) but are
 **not** passed to Icarus, Verilator or GHDL. The cocotb driver reads a few
@@ -105,6 +107,8 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
     | `simulators.<id>.path`, `simulators.<id>.env` | Ignored, with a load advisory |
     | `riscv` `target.command`, `riscof.command`, `compile.command`, `formal.command` | The project does not load |
     | `riscv` `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary`, `formal.sby_binary` | Ignored, with a load advisory; the conventional name is looked up on `PATH` |
+    | From 1.2, the `formal:` block's `command` and `extra_args`; a `flow:` entry's `fusesoc`, `extra_args` and `handoff` | The project does not load |
+    | From 1.2, the `formal:` block's `sby_binary`, `eqy_binary`, `ghdl_binary` and `tools.<tool>`; a `flow:` entry's `launcher`, `librelane_binary`, `docker_image` and `fusesoc.binary` | Ignored, with one load advisory naming them; the Settings choice, or the conventional name on `PATH`, is used |
     | `output.results_path`, `output.summary_path` outside the project directory | The project does not load |
     | `simulators.<id>.options` values containing `$(`, `${`, a backtick or a line break (cocotb hands every option to `make`, where `$(shell …)` runs a command) | Ignored, with a load advisory |
     | `simulators.verilator.options.args` naming a build tool or where the build writes: `-CFLAGS`, `-LDFLAGS`, `-MAKEFLAGS`, `--compiler`, `--make`, `--Mdir`, `--prefix`, `-o`, `-f`, `-F` | The `args` option is ignored, with a load advisory |
@@ -190,6 +194,15 @@ directory works too (`simcrux uart_tx/`), as long as it holds exactly one
 manifest; with more than one, SimCrux opens nothing and names them. `simcrux
 --ci` takes the `simcrux.yaml` itself.
 
+From 1.2 a manifest may also name one SymbiYosys or EQY file under
+`artifacts:`, as `formal: formal/uart_tx.sby`. Opening the manifest does **not**
+import it, because an import writes a `simcrux.yaml` you own. With both
+`simulation:` and `formal:` the simulation config opens as before and the formal
+file's path rides beside it; with `formal:` and no `simulation:` nothing opens,
+and SimCrux names the formal file and says to choose **File → Import Formal
+Project…** (see [Formal verification](formal.md#import)). There is no `flow:`
+artifact: an implementation flow is configured in `simcrux.yaml`.
+
 All four products also derive the same design identity from it, so
 cross-probing between them works exactly as it does when you open each file by
 hand — the manifest is a shortcut, not a different mode.
@@ -216,10 +229,12 @@ Settings cascade from the project's `defaults:`, to the suite, to the individual
 test — the test wins last. `sources:`, `include_dirs:` and `resources:` are
 appended to the suite's lists, so a suite can declare shared RTL once and each
 test adds only its own testbench. `defines:` and `riscv:` merge key by key with
-the test's value winning. Every other key (`simulator`, `timeout`, `pass_fail`,
-`waveform`) replaces the inherited value outright.
+the test's value winning. From 1.2 `formal:` merges the same way. Every other key
+(`simulator`, `timeout`, `pass_fail`, `waveform`) replaces the inherited value
+outright.
 
-`defaults:` accepts `simulator`, `pass_fail`, `waveform`, `timeout` and `riscv`.
+`defaults:` accepts `simulator`, `pass_fail`, `waveform`, `timeout` and `riscv`,
+and from 1.2 `formal`.
 Shared `sources:`, `include_dirs:`, `defines:` and `resources:` belong on the
 suite.
 
@@ -337,6 +352,12 @@ only the Verilator driver takes extra flags (below).
 | Cocotb | `cocotb` | `make` in the test's working directory, with `SIM`, `TOPLEVEL` and `TOPLEVEL_LANG` | Copies the test's `sources:` (list your `Makefile` and Python module there too) into the working directory. |
 | RISC-V architectural tests | `riscv_arch` | Your core's command per test, then a signature comparison | See [RISC-V](#riscv). |
 | riscv-formal | `riscv_formal` | One SymbiYosys `sby` job per bounded proof | See [RISC-V](#riscv). |
+| SymbiYosys | `sby` | `sby -f -d <work dir>/<task> --live jsonl …` per task | From 1.2. See [Formal verification](formal.md). |
+| EQY | `eqy` | `eqy -f -d <work dir>/<file name> …` per `.eqy` file | From 1.2. See [Formal verification](formal.md#eqy). |
+
+From 1.2, a `flow:` entry runs through the `nextpnr` driver (and a LibreLane
+driver, described separately) rather than a `simulator:` key; see
+[Implementation flow](flow.md).
 
 ### Verilator flags {#verilator}
 

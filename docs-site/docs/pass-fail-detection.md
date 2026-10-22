@@ -163,11 +163,33 @@ distinguishes:
   produces them today; `--fail-on-vacuous` counts vacuous results when a driver
   reports them.
 
+## Formal and flow verdicts, from 1.2 {#formal}
+
+A formal job (`sby` or `eqy`) and an implementation run (`nextpnr`) do not use the
+detectors above to decide. Each reads its verdict from the tool's own log, status
+files or report, and the scheduler's status follows that verdict:
+
+- A formal task is a **pass** only when it was **Proved** (or a `cover` was
+  **Reached**). **Counterexample**, **Inconclusive** and **Did not run** are all a
+  **fail**, and a bounded result stays "Proved over N steps". See
+  [Verdicts](formal.md#verdicts).
+- A flow run is a **pass** only when its verdict is **Met**. **Violated**,
+  **Stopped**, **Did not run** and **Unrecognised** are all a **fail**. See
+  [The verdict](flow.md#verdict).
+- **The exit code never decides.** It is recorded (`formal.process_exit_code`,
+  `flow.process_exit_code`). An exit `0` under any result that is not a pass is
+  withheld from the scheduler, and a `string_match` on the tool's pass line cannot
+  turn such a result into a pass: a detector never overrides a verdict that is
+  not a pass.
+
+The importer for a job file writes a `string_match` on the tool's pass line
+(`DONE (PASS`). It can only agree with a pass the verdict already reached.
+
 ## UVM & cocotb results {#parsers}
 
 - **UVM report** — `uvm_report` reads the report summary block and fails the
   test on `UVM_FATAL` or `UVM_ERROR` counts at or above their thresholds, the way
-  a UVM sign-off expects, rather than relying on a hand-rolled string.
+  a UVM flow expects, rather than relying on a hand-rolled string.
 - **Cocotb** — the cocotb driver reads the `results.xml` cocotb writes beside
   every run, falling back to cocotb's end-of-run summary table when a run
   produces no report, and records each cocotb testcase's status and simulated

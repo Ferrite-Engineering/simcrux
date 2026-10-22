@@ -8,14 +8,16 @@ reference lives in one place on the suite site:
 
 | Tier | What it adds |
 |---|---|
-| Open Core | The complete regression runner: every simulator driver, every pass/fail detector, the results dashboard, the Details panel and Log Viewer, the last-10-runs history sparkline, exports, `--ci`, the FuseSoC and RISC-V importers, the web dashboard, and cross-probe. |
-| <span class="tier tier-pro">Pro</span> | [Trend charts, flaky-test detection and seed / parameter sweeps](trends-and-flaky.md), [baseline comparison and PR annotations](baselines-ci-exports.md), [custom driver plugins](projects-and-simulators.md#plugins), and [multi-project workspaces](integrations.md#workspaces). |
-| <span class="tier tier-enterprise">Enterprise</span> | The [team results database](team-database.md), [org-wide retention and distributed execution](administration.md) from the signed policy file, and the audit log. |
+| Open Core | The complete regression runner: every simulator driver, every pass/fail detector, the results dashboard, the Details panel and Log Viewer, the last-10-runs history sparkline, exports, `--ci`, the FuseSoC and RISC-V importers, the web dashboard, and cross-probe. From 1.2 also [formal verification](formal.md) (the `sby` and `eqy` drivers, every verdict, the unsupported-SVA and pre-trace explanations, importers and `import-sby` / `import-eqy`) and the [implementation flow](flow.md) (nextpnr runs, ingest, the Flow Runs panel, hand-off, and `simcrux flow`). |
+| <span class="tier tier-pro">Pro</span> | [Trend charts, flaky-test detection and seed / parameter sweeps](trends-and-flaky.md), [baseline comparison and PR annotations](baselines-ci-exports.md), [custom driver plugins](projects-and-simulators.md#plugins), and [multi-project workspaces](integrations.md#workspaces). From 1.2 also the [formal analysis screens](formal.md#pro) (properties dashboard, proof history and regressions, vacuity and pre-trace analysis, the equivalence partition explorer) and the [flow comparison screens](flow.md#pro) (metric trends, compare, PPA, design-space sweep, baselines). |
+| <span class="tier tier-enterprise">Enterprise</span> | The [team results database](team-database.md), [org-wide retention and distributed execution](administration.md) from the signed policy file, and the audit log. From 1.2 also the [formal policy](administration.md#formal-policy) and [flow thresholds](administration.md#flow-thresholds). |
 | <span class="tier tier-edu">EDU</span> | Every Pro feature, free for verified students, non-commercial. |
 
 In the app, actions that need a paid tier carry a **PRO** badge in the command
 palette and a tier suffix in the menu bar. The simulator drivers, the
-detectors and the RISC-V compatibility verdict are never tier-gated.
+detectors and the RISC-V compatibility verdict are never tier-gated, and from 1.2
+neither is any formal verdict or flow verdict: a result is correctness, and the
+paid screens only analyse what the free row already shows.
 
 ## What the badges mean {#badges}
 

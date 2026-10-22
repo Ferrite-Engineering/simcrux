@@ -4,6 +4,7 @@
 @TestOn('vm')
 library;
 
+import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,6 +97,14 @@ void main() {
     expect(find.text(l10n.settingsFormalToolsMissing('eqy')), findsOneWidget);
     expect(find.text(l10n.settingsFormalToolsMissing('z3')), findsOneWidget);
     expect(find.text(l10n.settingsFormalToolsGuidanceMacos), findsOneWidget);
+  });
+
+  testWidgets('the group has a help link to the formal tools docs', (
+    tester,
+  ) async {
+    await pump(tester, answers: const {});
+    final link = tester.widget<CruxHelpLink>(find.byType(CruxHelpLink));
+    expect(link.url, 'https://docs.simcrux.app/formal#tools');
   });
 
   testWidgets('the probe starts from the sby path set above it', (

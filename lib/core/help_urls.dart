@@ -63,4 +63,12 @@ abstract final class HelpUrls {
   /// Docs — test-name search in the results dashboard.
   static const String resultsDashboard =
       'https://docs.simcrux.app/results-dashboard#search';
+
+  /// Docs — importing a SymbiYosys or EQY job file, the target of the Import
+  /// Formal Project dialog's help icon.
+  static const String formalImport = 'https://docs.simcrux.app/formal#import';
+
+  /// Docs — setting up and checking the formal tools, the target of the
+  /// Formal tools group's help icon in Settings → Engines.
+  static const String formalTools = 'https://docs.simcrux.app/formal#tools';
 }
