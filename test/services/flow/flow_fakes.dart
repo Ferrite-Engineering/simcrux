@@ -64,10 +64,7 @@ typedef FlowSpawn = ({
 /// A launcher that records every spawn and plays the tool through [onSpawn].
 class FlowSpawnRecorder {
   /// Creates the recorder. [missing] names executables that "do not exist".
-  FlowSpawnRecorder({
-    this.onSpawn,
-    this.missing = const <String>{},
-  });
+  FlowSpawnRecorder({this.onSpawn, this.missing = const <String>{}});
 
   /// Plays the tool: writes what it would leave, returns its process.
   final FakeFlowProcess Function(FlowSpawn spawn)? onSpawn;
@@ -131,14 +128,19 @@ class FakeYosysRunner extends YosysRunner {
   /// Every request.
   final List<YosysRunRequest> requests = <YosysRunRequest>[];
 
+  /// The child environment each request was run with.
+  final List<Map<String, String>?> environments = <Map<String, String>?>[];
+
   @override
   Future<YosysRunResult> run(
     YosysRunRequest request, {
     Duration? timeout,
     Future<void>? cancelSignal,
     void Function(String line)? onStderrLine,
+    Map<String, String>? environment,
   }) async {
     requests.add(request);
+    environments.add(environment);
     if (hangUntilCancelled) {
       await cancelSignal;
       return const YosysRunCancelled(stdout: '', stderr: '');
