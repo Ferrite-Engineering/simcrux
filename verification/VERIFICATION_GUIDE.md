@@ -6077,6 +6077,66 @@ open core under both `kBetaPeriod` values.
 | The per-tab providers and every caller | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart`, `test/static/cxp_reachability_test.dart` |
 | The drive above | `[Coverage: MANUAL]` | needs release builds of four products |
 
+### 27.10 LibreLane fixtures and the ASIC mapping gate
+
+**What it covers.** Captured LibreLane run directories under
+`verification/fixtures/flow/librelane/<version>/`, for the current release
+(3.0.16) and the one before it (3.0.15): the designed-path adder completed on
+sky130A, gf180mcuD and IHP sg13g2, and four failing classes on sky130A
+(stopped at a step by a bad configuration, completed with setup violations,
+completed with DRC and LVS errors, completed with an antenna violation). Each
+case holds the trimmed `run/`, the exit status, the console's last lines and a
+hand-written `case.expected.json`. `tool/flow/trim_run_fixture.py` trims a run:
+it keeps JSON, logs, reports, metrics, the synthesis sidecar and the final text
+netlists and SDF, and replaces layout and binary views with zero-byte
+placeholders listed in `run/TRIMMED.json`. `PROVENANCE.md` records the tool and
+PDK versions, the commands, the run layout, how a failed, deferred or skipped
+step shows on disk, that the STA text reports parse, and the hand-off commands.
+`MAPPING-GATE.md` records the ASIC mapping gate: on PicoRV32 (1,597
+flip-flops, sky130A, after clock tree synthesis and the resizer) 98 of the
+worst 100 setup endpoints map to an RTL register through the sidecar, so ASIC
+paths are labelled "nearest register".
+
+**Setup.** None for the committed corpus. To regenerate, inside a LibreLane
+checkout's Nix shell: `tool/flow/regen_librelane_fixtures.sh [--case <name>]`.
+
+**Expected behaviour.**
+
+1. `flutter test test/static/flow_librelane_fixtures_test.dart` passes with no
+   tools installed; a missing case, capture, expectation or provenance file
+   fails it.
+2. Every kept file is under 5 MB, no capture names a machine path, every
+   placeholder in `TRIMMED.json` is an empty file and every dropped file is
+   gone.
+3. Each case's exit status, version, PDK, final metrics, the steps without
+   `state_out.json`, step ids, gated-off steps, `error.log` and headline
+   metrics match its expectation. The worst register-to-register setup path
+   of each completed adder run starts at `src_a` or `src_b` and ends at
+   `sum_q`, found through the sidecar.
+4. Every kept STA path listing parses into rank, endpoints, slack and
+   segments, with the slack arithmetic closing.
+5. 3.0.15 and 3.0.16 write the same step sequence.
+6. `FLOW_LIVE_REQUIRED=1 LIBRELANE_NIX_SHELL=<checkout>/shell.nix flutter test
+   test/static/flow_librelane_live_test.dart` reruns LibreLane and passes;
+   metric values are compared by sign only. The weekly `flow-live.yml` job
+   `librelane` does this for both releases (`timeout-minutes: 150`) and fails
+   if the mapping gate's outcome changes.
+
+**Edge cases.** A checker's deferred error leaves its step without
+`state_out.json` while later steps run. The setup-violation checker writes
+nothing to `error.log`. gf180mcuD runs carry no KLayout DRC count by default:
+absent, not zero. Without a toolchain the live test skips, and fails instead
+with `FLOW_LIVE_REQUIRED=1`.
+
+**Tier-gate scenarios.** Open Core only; no gated feature.
+
+| Test | Coverage | File |
+|---|---|---|
+| Corpus present, trimmed, scrubbed, documented; each case's facts match its expectation; STA listings parse; the sidecar joins the netlist | `[Coverage: UNIT]` | `test/static/flow_librelane_fixtures_test.dart` |
+| The trimming tool: kept, placeholder, dropped, scrubbed, corners, size limit, refusals | `[Coverage: UNIT]` | `test/static/flow_trim_run_fixture_test.dart` |
+| LibreLane rerun against the same expectations, and the mapping gate (gated on the toolchain) | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_librelane_live_test.dart`, `.github/workflows/flow-live.yml` |
+| The LibreLane job is capped at 150 minutes and caches PDKs by version hash | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
+
 ---
 
 ## 9+. Subsequent features

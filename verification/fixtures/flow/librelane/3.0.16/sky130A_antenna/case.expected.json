@@ -1,0 +1,36 @@
+{
+  "config": "designs/path_adder/config_antenna.yaml",
+  "verdict": "violated",
+  "why": "An 800 by 800 um die with antenna repair, heuristic diodes and port diodes off leaves the long met1 net into the output buffer over its antenna ratio; no checker fails on antenna violations, so the flow exits 0",
+  "librelane_version": "3.0.16",
+  "pdk": "sky130A",
+  "std_cell_library": "sky130_fd_sc_hd",
+  "exit_code": 0,
+  "final_metrics": true,
+  "last_step": "74-misc-reportmanufacturability",
+  "steps_without_state_out": [],
+  "step_ids": {
+    "40-openroad-checkantennas": "OpenROAD.CheckAntennas",
+    "45-openroad-checkantennas-1": "OpenROAD.CheckAntennas-1"
+  },
+  "gated_off_steps": [
+    "Repair Design (Post-Global Routing)",
+    "Heuristic Diode Insertion",
+    "Antenna Repair",
+    "Resizer Timing Optimizations (Post-Global Routing)",
+    "IR Drop Report",
+    "Equivalence Check"
+  ],
+  "error_log_contains": [],
+  "metrics": {
+    "timing__setup_vio__count": 0,
+    "route__drc_errors": 0,
+    "magic__drc_error__count": 0,
+    "klayout__drc_error__count": 0,
+    "design__lvs_error__count": 0,
+    "route__antenna_violation__count": 1,
+    "antenna__violating__nets": 1,
+    "antenna__violating__pins": 1,
+    "design__instance__count__class:sequential_cell": 73
+  }
+}

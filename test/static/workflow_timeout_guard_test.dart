@@ -108,6 +108,34 @@ void main() {
       expect(timeouts['fusesoc'], 30);
     });
 
+    test('the LibreLane job is capped at 150 minutes', () {
+      final timeouts = jobTimeouts(file.readAsStringSync());
+      expect(timeouts['librelane'], 150);
+    });
+
+    test('the LibreLane job runs its live test with a cached PDK', () {
+      final text = file.readAsStringSync();
+      const live = 'test/static/flow_librelane_live_test.dart';
+      expect(text, contains(live));
+      expect(File(live).existsSync(), isTrue);
+      expect(File(live).readAsStringSync(), contains("'oss-cad-live'"));
+      expect(text, contains('LIBRELANE_NIX_SHELL'));
+      final doc = loadYaml(text) as YamlMap;
+      final steps =
+          ((doc['jobs'] as YamlMap)['librelane'] as YamlMap)['steps']
+              as YamlList;
+      final caches = [
+        for (final s in steps)
+          if ('${(s as YamlMap)['uses']}'.startsWith('actions/cache@'))
+            (s['with'] as YamlMap)['key'] as String,
+      ];
+      expect(caches, isNotEmpty);
+      for (final key in caches) {
+        expect(key, startsWith('ciel-'));
+        expect(key, contains('steps.pdk.outputs.'));
+      }
+    });
+
     test('runs weekly and on dispatch, on Linux', () {
       final doc = loadYaml(file.readAsStringSync()) as YamlMap;
       final on = doc['on'] as YamlMap;

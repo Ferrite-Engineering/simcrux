@@ -18,7 +18,8 @@ fixtures/
 │   └── schemas/<build>/ # status-stream, status.sqlite and EQY work-dir shapes, one directory per OSS CAD Suite build
 └── flow/
     ├── nextpnr/         # captured nextpnr runs (iCE40, ECP5, Gowin, GateMate) + the RTL; see its PROVENANCE.md
-    └── fusesoc/         # one FuseSoC/Edalize servant run with no nextpnr report; see its PROVENANCE.md
+    ├── fusesoc/         # one FuseSoC/Edalize servant run with no nextpnr report; see its PROVENANCE.md
+    └── librelane/       # trimmed LibreLane runs per release (<version>/<case>/run) + designs; see its PROVENANCE.md and MAPPING-GATE.md
 ```
 
 Each corpus has a regenerator under `../../tool/`:
@@ -31,6 +32,7 @@ Each corpus has a regenerator under `../../tool/`:
 | `formal/` | `tool/regenerate_formal_fixtures.sh --suite <newest oss-cad-suite> --suite <previous> --suite <one before>` (captures only; it never writes or touches a `*.expected.*` file) |
 | `flow/nextpnr/` | `tool/flow/regen_nextpnr_fixtures.sh --suite <oss-cad-suite dir>` (captures only; the expectation JSON files beside the captures are hand-written) |
 | `flow/fusesoc/` | `tool/flow/regen_fusesoc_fixture.sh --suite <oss-cad-suite dir> --yosys-dir <dir>` (needs network) |
+| `flow/librelane/` | `tool/flow/regen_librelane_fixtures.sh [--case <name>]`, inside a LibreLane checkout's Nix shell (captures and trims with `tool/flow/trim_run_fixture.py`; the expectation JSON files are hand-written) |
 
 ## Adding a new fixture
 

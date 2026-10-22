@@ -1,0 +1,7 @@
+set circuit1 [readnet spice <run>/68-magic-spiceextraction/path_adder.spice]
+set circuit2 [readnet verilog /dev/null]
+puts "Reading SPICE netlist file '<home>/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/spice/gf180mcu_fd_sc_mcu7t5v0.spice'..."
+readnet spice <home>/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/spice/gf180mcu_fd_sc_mcu7t5v0.spice $circuit2
+puts "Reading Verilog netlist file '<run>/52-openroad-fillinsertion/path_adder.pnl.v'..."
+readnet verilog <run>/52-openroad-fillinsertion/path_adder.pnl.v $circuit2
+lvs "$circuit1 path_adder" "$circuit2 path_adder" /nix/store/gaqvv85phz5jxhkxv1sk482aa46sgij3-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/netgen/setup.tcl <run>/70-netgen-lvs/reports/lvs.netgen.rpt -blackbox -json

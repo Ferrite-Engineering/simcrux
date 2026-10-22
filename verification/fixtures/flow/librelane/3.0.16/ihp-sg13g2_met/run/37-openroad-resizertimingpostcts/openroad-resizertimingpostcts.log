@@ -1,0 +1,67 @@
+Reading timing models for corner nom_fast_1p32V_m40C…
+Reading timing library for the 'nom_fast_1p32V_m40C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_fast_1p32V_m40C.lib'…
+Reading timing library for the 'nom_fast_1p32V_m40C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_fast_1p32V_3p6V_m40C.lib'…
+Reading timing models for corner nom_slow_1p08V_125C…
+Reading timing library for the 'nom_slow_1p08V_125C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_slow_1p08V_125C.lib'…
+Reading timing library for the 'nom_slow_1p08V_125C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_slow_1p08V_3p0V_125C.lib'…
+Reading timing models for corner nom_typ_1p20V_25C…
+Reading timing library for the 'nom_typ_1p20V_25C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_typ_1p20V_25C.lib'…
+Reading timing library for the 'nom_typ_1p20V_25C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_typ_1p2V_3p3V_25C.lib'…
+Reading OpenROAD database at '<run>/35-openroad-cts/path_adder.odb'…
+Reading design constraints file at '/nix/store/gaqvv85phz5jxhkxv1sk482aa46sgij3-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/base.sdc'…
+[INFO] Using clock clk…
+[INFO] Setting output delay to: 2.0
+[INFO] Setting input delay to: 2.0
+[INFO] Setting load to: 0.006
+[INFO] Setting clock uncertainty to: 0.25
+[INFO] Setting clock transition to: 0.15
+[INFO] Setting timing derate to: 5.0%
++ repair_timing -verbose -setup -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -max_buffer_percent 50.0
+[INFO RSZ-0100] Repair move sequence: UnbufferMove SizeUpMove SwapPinsMove BufferMove CloneMove SplitLoadMove 
+[INFO RSZ-0098] No setup violations found
++ repair_timing -verbose -hold -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -hold_margin 0.1000000000000000055511151231257827021181583404541015625 -max_buffer_percent 50.0
+[INFO RSZ-0046] Found 72 endpoints with hold violations.
+Iteration | Resized | Buffers | Cloned Gates |   Area   |   WNS   |   TNS   | Endpoint
+--------------------------------------------------------------------------------------
+        0 |       0 |       0 |            0 |    +0.0% |  -0.119 |  -5.215 | _414_/D
+       10 |       0 |       9 |            0 |    +2.3% |  -0.112 |  -4.174 | _419_/D
+       20 |       0 |      19 |            0 |    +4.9% |  -0.107 |  -2.981 | _436_/D
+       30 |       0 |      29 |            0 |    +7.4% |  -0.104 |  -1.869 | _406_/D
+       40 |       0 |      39 |            0 |   +10.0% |  -0.098 |  -0.805 | _434_/D
+       50 |       0 |      47 |            0 |   +12.0% |  -0.022 |  -0.022 | _470_/D
+       60 |       0 |      49 |            0 |   +12.5% |   0.120 |   0.000 | _414_/D
+       70 |       0 |      49 |            0 |   +12.5% |   0.120 |   0.000 | _414_/D
+    final |       0 |      49 |            0 |   +12.5% |   0.120 |   0.000 | _414_/D
+--------------------------------------------------------------------------------------
+[INFO RSZ-0032] Inserted 49 hold buffers.
++ detailed_placement -max_displacement  500 100 
+Placement Analysis
+---------------------------------
+total displacement        278.9 u
+average displacement        0.7 u
+max displacement            7.7 u
+original HPWL            4941.4 u
+legalized HPWL           5477.6 u
+delta HPWL                   11 %
+
+[INFO DPL-0020] Mirrored 135 instances
+[INFO DPL-0021] HPWL before            5477.6 u
+[INFO DPL-0022] HPWL after             5093.2 u
+[INFO DPL-0023] HPWL delta               -7.0 %
+Setting global connections for newly added cells…
+[INFO] Setting global connections...
+[INFO ODB-0403] 98 connections made, 0 conflicts skipped.
+Updating metrics…
+Cell type report:                       Count       Area
+  Clock buffer                             17     422.76
+  Timing Repair Buffer                     51     814.67
+  Inverter                                  2      10.89
+  Clock inverter                            7      38.10
+  Sequential cell                          73    3576.18
+  Multi-Input combinational cell          234    2331.50
+  Total                                   384    7194.10
+Writing OpenROAD database to '<run>/37-openroad-resizertimingpostcts/path_adder.odb'…
+Writing netlist to '<run>/37-openroad-resizertimingpostcts/path_adder.nl.v'…
+Writing powered netlist to '<run>/37-openroad-resizertimingpostcts/path_adder.pnl.v'…
+Writing layout to '<run>/37-openroad-resizertimingpostcts/path_adder.def'…
+Writing timing constraints to '<run>/37-openroad-resizertimingpostcts/path_adder.sdc'…

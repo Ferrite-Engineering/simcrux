@@ -1,0 +1,8 @@
+{
+  "design": "designs/path_adder/path_adder.v",
+  "top": "path_adder",
+  "registers": ["src_a", "src_b", "sum_q"],
+  "start_registers": ["src_a", "src_b"],
+  "end_register": "sum_q",
+  "path_statement_line": 16
+}

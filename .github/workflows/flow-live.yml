@@ -1,10 +1,10 @@
 name: Flow live
 
-# Re-runs the real FPGA flow tools and fails when what they print no longer
-# matches the committed, hand-written expectations under
+# Re-runs the real FPGA and ASIC flow tools and fails when what they produce no
+# longer matches the committed, hand-written expectations under
 # verification/fixtures/flow/. Weekly, because the tools move and no push
-# changes them. It installs its own OSS CAD Suite: nothing here depends on a
-# path on any developer machine.
+# changes them. It installs its own OSS CAD Suite, Nix, LibreLane and PDKs:
+# nothing here depends on a path on any developer machine.
 #
 # The suite is pinned by tag and by SHA-256 (the release digest). Bumping it is
 # a deliberate commit that also records the new tag in the fixtures'
@@ -137,3 +137,133 @@ jobs:
         run: |
           set -euo pipefail
           flutter test test/static/flow_nextpnr_live_test.dart --plain-name 'FuseSoC live' --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/fusesoc-live.log"
+
+  # LibreLane through its own Nix shell, pinned by release commit, with the
+  # PDKs from ciel. Each PDK family is cached under the version hash that
+  # LibreLane itself pins (librelane/pdk_hashes.yaml), so a LibreLane bump
+  # that moves a PDK misses the cache and fetches the new one; a cache that
+  # GitHub evicted is fetched again the same way. The current release runs
+  # every case and the mapping gate; the previous release runs the sky130A
+  # reference case its fixture set holds.
+  librelane:
+    name: LibreLane fixtures (${{ matrix.librelane }})
+    runs-on: ubuntu-latest
+    # LibreLane live: 150 minutes. The mapping-gate design is most of it.
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - librelane: '3.0.16'
+            commit: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+            cases: ''
+            all_pdks: true
+          - librelane: '3.0.15'
+            commit: 'd7538eca6b526387ebba3bbcdce0a86aee7cffd7'
+            cases: 'sky130A_met'
+            all_pdks: false
+    steps:
+      - name: Free disk space for the Nix store and the PDKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Check out LibreLane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: librelane/librelane
+          ref: ${{ matrix.commit }}
+          path: .librelane
+          persist-credentials: false
+
+      - name: Confirm the release
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -qx 'version = "${{ matrix.librelane }}"' .librelane/pyproject.toml
+
+      - name: Install Nix with the FOSSi binary cache
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+        with:
+          determinate: false
+          extra-conf: |
+            extra-substituters = https://nix-cache.fossi-foundation.org
+            extra-trusted-public-keys = nix-cache.fossi-foundation.org:3+K59iFwXqKsL7BNu6Guy0v+uTlwsxYQxjspXzqLYQs=
+
+      - name: Read the PDK versions LibreLane pins
+        id: pdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          for family in sky130 gf180mcu ihp-sg13g2; do
+            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" .librelane/librelane/pdk_hashes.yaml)"
+            test -n "$hash"
+            echo "${family//-/_}=${hash}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Cache sky130
+        id: sky130
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/sky130/versions/${{ steps.pdk.outputs.sky130 }}
+          key: ciel-sky130-${{ steps.pdk.outputs.sky130 }}
+
+      - name: Cache gf180mcu
+        id: gf180mcu
+        if: matrix.all_pdks
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/gf180mcu/versions/${{ steps.pdk.outputs.gf180mcu }}
+          key: ciel-gf180mcu-${{ steps.pdk.outputs.gf180mcu }}
+
+      - name: Cache ihp-sg13g2
+        id: ihp
+        if: matrix.all_pdks
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/ihp-sg13g2/versions/${{ steps.pdk.outputs.ihp_sg13g2 }}
+          key: ciel-ihp-sg13g2-${{ steps.pdk.outputs.ihp_sg13g2 }}
+
+      - name: Fetch the PDKs the cache did not hold
+        shell: bash
+        env:
+          FETCH_SKY130: ${{ steps.sky130.outputs.cache-hit != 'true' }}
+          FETCH_GF180: ${{ matrix.all_pdks && steps.gf180mcu.outputs.cache-hit != 'true' }}
+          FETCH_IHP: ${{ matrix.all_pdks && steps.ihp.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          fetch() {
+            nix-shell .librelane/shell.nix --run "ciel fetch --pdk-family $1 $2"
+          }
+          if [ "$FETCH_SKY130" = true ]; then fetch sky130 '${{ steps.pdk.outputs.sky130 }}'; fi
+          if [ "$FETCH_GF180" = true ]; then fetch gf180mcu '${{ steps.pdk.outputs.gf180mcu }}'; fi
+          if [ "$FETCH_IHP" = true ]; then fetch ihp-sg13g2 '${{ steps.pdk.outputs.ihp_sg13g2 }}'; fi
+          nix-shell .librelane/shell.nix --run "librelane --version" | tee "${RUNNER_TEMP}/versions.txt"
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Regenerate and check the LibreLane fixtures
+        shell: bash
+        env:
+          LIBRELANE_NIX_SHELL: ${{ github.workspace }}/.librelane/shell.nix
+          FLOW_LIVE_REQUIRED: '1'
+          FLOW_LIVE_LIBRELANE_CASES: ${{ matrix.cases }}
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_librelane_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-live.log"

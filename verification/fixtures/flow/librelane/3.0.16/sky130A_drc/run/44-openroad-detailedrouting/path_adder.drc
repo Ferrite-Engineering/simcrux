@@ -1,0 +1,132 @@
+violation type: Metal Spacing
+	srcs: net:_043_ net:clknet_0_clk
+	bbox = (22.9150, 26.1250) - (22.9300, 26.2800) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_043_ net:clknet_0_clk
+	bbox = (22.9150, 26.0800) - (22.9300, 26.2800) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (30.8900, 28.5200) - (31.1200, 28.6600) on Layer met1
+violation type: Metal Spacing
+	srcs: net:src_b\[3\]
+	bbox = (26.7650, 17.6250) - (27.0550, 17.7200) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_041_
+	bbox = (29.0800, 23.1100) - (29.2800, 23.2200) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_043_
+	bbox = (22.6250, 25.8000) - (22.9150, 25.8950) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (30.8900, 28.4600) - (31.1200, 28.6600) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_049_
+	bbox = (19.8650, 33.6200) - (20.1550, 33.7150) on Layer met1
+violation type: Metal Spacing
+	srcs: net:net32
+	bbox = (47.4650, 23.0650) - (47.7550, 23.1600) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_044_ net:clknet_0_clk
+	bbox = (26.1200, 26.1900) - (26.3800, 26.5100) on Layer met2
+violation type: Metal Spacing
+	srcs: net:_044_ net:clknet_0_clk
+	bbox = (26.1200, 26.1100) - (26.3800, 26.5100) on Layer met2
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (29.8300, 72.4600) - (30.0600, 72.6600) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (29.8300, 72.3200) - (30.0600, 72.4600) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (25.1400, 72.3200) - (25.1450, 72.5200) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_4_10_0_clk
+	bbox = (13.8850, 69.6450) - (14.1750, 69.7400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:src_a\[15\]
+	bbox = (36.8850, 82.5800) - (37.1750, 82.6750) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_140_ net:clknet_0_clk
+	bbox = (55.3600, 20.7150) - (55.5150, 20.8400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_140_ net:clknet_0_clk
+	bbox = (55.3600, 20.6700) - (55.5150, 20.8400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_136_ net:clknet_0_clk
+	bbox = (58.1200, 20.6850) - (58.2600, 20.8400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_136_ net:clknet_0_clk
+	bbox = (58.0450, 20.6850) - (58.3350, 20.8400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (48.2150, 47.1600) - (48.2300, 47.3150) on Layer met1
+violation type: Metal Spacing
+	srcs: net:sum_q\[2\] net:net32
+	bbox = (48.3700, 26.1700) - (48.4000, 26.2800) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_140_ net:clknet_0_clk
+	bbox = (55.2250, 20.7150) - (55.5150, 20.8400) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (48.2150, 47.3150) - (48.2300, 47.5000) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_140_
+	bbox = (55.2700, 20.3600) - (55.5150, 20.4850) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_4_5_0_clk
+	bbox = (62.1850, 22.7400) - (62.4750, 22.8350) on Layer met1
+violation type: Metal Spacing
+	srcs: net:src_a\[18\]
+	bbox = (48.2150, 66.4000) - (48.2300, 66.5850) on Layer met1
+violation type: Metal Spacing
+	srcs: net:src_a\[20\]
+	bbox = (62.0150, 48.2250) - (62.0550, 48.3350) on Layer met1
+violation type: Metal Spacing
+	srcs: net:src_a\[20\]
+	bbox = (62.1700, 48.2250) - (62.3450, 48.3200) on Layer met1
+violation type: Metal Spacing
+	srcs: net:_011_
+	bbox = (71.1400, 69.8000) - (71.2300, 69.9850) on Layer met1
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (62.4600, 61.4700) - (62.7200, 61.8700) on Layer met2
+violation type: Metal Spacing
+	srcs: net:clknet_0_clk
+	bbox = (62.4600, 61.5500) - (62.7200, 61.8700) on Layer met2
+violation type: Short
+	srcs: net:net31 net:net32
+	bbox = (47.7050, 22.8800) - (47.7550, 23.0200) on Layer met1
+violation type: Short
+	srcs: net:_044_ net:clknet_0_clk
+	bbox = (26.3800, 26.1900) - (26.5200, 26.2500) on Layer met2
+violation type: Short
+	srcs: net:_044_ net:clknet_0_clk
+	bbox = (26.3800, 26.1100) - (26.5200, 26.2500) on Layer met2
+violation type: Short
+	srcs: net:src_a\[9\] net:src_b\[10\]
+	bbox = (23.0700, 50.0800) - (23.3900, 50.2200) on Layer met1
+violation type: Short
+	srcs: net:src_a\[9\] net:src_b\[10\]
+	bbox = (23.0700, 50.0800) - (23.5750, 50.2200) on Layer met1
+violation type: Short
+	srcs: net:_071_ net:src_a\[10\]
+	bbox = (23.6200, 52.8000) - (23.7600, 52.9400) on Layer met1
+violation type: Short
+	srcs: net:_070_ net:clknet_4_9_0_clk
+	bbox = (31.4400, 49.7400) - (31.5800, 49.8800) on Layer met1
+violation type: Short
+	srcs: net:_139_ net:net32
+	bbox = (67.7800, 17.1000) - (67.9200, 17.2400) on Layer met1
+violation type: Short
+	srcs: net:_126_ net:net36
+	bbox = (62.2600, 38.8600) - (62.4000, 39.0000) on Layer met1
+violation type: Short
+	srcs: net:_126_ net:src_b\[21\]
+	bbox = (67.7800, 39.5400) - (67.9200, 39.6800) on Layer met1
+violation type: Short
+	srcs: net:clknet_4_6_0_clk net:net36
+	bbox = (62.2300, 39.2000) - (62.5200, 39.3400) on Layer met1
+violation type: Short
+	srcs: net:clknet_4_6_0_clk net:net36
+	bbox = (62.2600, 39.2000) - (62.4000, 39.3400) on Layer met1

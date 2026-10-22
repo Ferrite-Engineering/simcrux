@@ -1,0 +1,6 @@
+DESIGN_NAME: path_adder
+VERILOG_FILES: dir::path_adder.v
+CLOCK_PORT: clk
+CLOCK_PERIOD: 10
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 30, 30]

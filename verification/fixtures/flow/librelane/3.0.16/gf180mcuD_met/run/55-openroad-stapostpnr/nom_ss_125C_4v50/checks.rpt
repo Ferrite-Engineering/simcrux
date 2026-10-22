@@ -1,0 +1,108 @@
+
+===========================================================================
+report_checks -unconstrained
+===========================================================================
+======================= nom_ss_125C_4v50 Corner ===================================
+
+Startpoint: _391_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: q (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout         Cap        Slew       Delay        Time   Description
+---------------------------------------------------------------------------------------------
+                                  0.000000    0.000000   clock clk (rise edge)
+                                  0.000000    0.000000   clock source latency
+     1    0.036235    0.308835    0.154644    0.154644 ^ clk (in)
+                                                         clk (net)
+                      0.308839    0.000000    0.154644 ^ clkbuf_0_clk/I (gf180mcu_fd_sc_mcu7t5v0__clkbuf_16)
+    16    0.215585    0.460515    0.679727    0.834372 ^ clkbuf_0_clk/Z (gf180mcu_fd_sc_mcu7t5v0__clkbuf_16)
+                                                         clknet_0_clk (net)
+                      0.460517    0.001327    0.835699 ^ clkbuf_4_6_0_clk/I (gf180mcu_fd_sc_mcu7t5v0__clkbuf_8)
+     5    0.025062    0.202494    0.514334    1.350033 ^ clkbuf_4_6_0_clk/Z (gf180mcu_fd_sc_mcu7t5v0__clkbuf_8)
+                                                         clknet_4_6_0_clk (net)
+                      0.202494    0.000382    1.350414 ^ _391_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+     1    0.006554    0.222822    1.297934    2.648348 v _391_/Q (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+                                                         sum_q[8] (net)
+                      0.222822    0.000147    2.648495 v _330_/A1 (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+     1    0.008742    0.547017    2.168787    4.817282 v _330_/Z (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+                                                         _163_ (net)
+                      0.547017    0.000210    4.817492 v _332_/A2 (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+     1    0.012195    0.624970    2.291195    7.108686 v _332_/Z (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+                                                         _165_ (net)
+                      0.624970    0.000350    7.109036 v _333_/A3 (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+     1    0.014445    0.674306    1.104410    8.213447 v _333_/Z (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+                                                         _166_ (net)
+                      0.674306    0.000448    8.213894 v _334_/A3 (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+     1    0.005871    0.483534    0.995442    9.209335 v _334_/Z (gf180mcu_fd_sc_mcu7t5v0__xor3_1)
+                                                         net2 (net)
+                      0.483534    0.000137    9.209473 v output2/I (gf180mcu_fd_sc_mcu7t5v0__dlyb_1)
+     1    0.074538    1.407010    3.008641   12.218114 v output2/Z (gf180mcu_fd_sc_mcu7t5v0__dlyb_1)
+                                                         q (net)
+                      1.407010    0.001137   12.219251 v q (out)
+                                             12.219251   data arrival time
+
+                                 25.000000   25.000000   clock clk (rise edge)
+                                  0.000000   25.000000   clock network delay (propagated)
+                                 -0.250000   24.750000   clock uncertainty
+                                  0.000000   24.750000   clock reconvergence pessimism
+                                 -5.000000   19.750000   output external delay
+                                             19.750000   data required time
+---------------------------------------------------------------------------------------------
+                                             19.750000   data required time
+                                            -12.219251   data arrival time
+---------------------------------------------------------------------------------------------
+                                              7.530749   slack (MET)
+
+
+
+
+===========================================================================
+report_checks --slack_max -0.01
+============================================================================
+======================= nom_ss_125C_4v50 Corner ===================================
+
+No paths found.
+
+
+===========================================================================
+ report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= nom_ss_125C_4v50 Corner ===================================
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+clkbuf_0_clk/Z                           10     16     -6 (VIOLATED)
+
+max capacitance
+
+Pin                                        Limit         Cap       Slack
+------------------------------------------------------------------------
+clkbuf_0_clk/Z                          0.200000    0.215585   -0.015585 (VIOLATED)
+
+
+
+===========================================================================
+report_parasitic_annotation -report_unannotated
+============================================================================
+Found 7 unannotated drivers.
+ clkload0/Z
+ clkload1/Z
+ clkload2/Z
+ clkload3/Z
+ clkload4/Z
+ clkload5/Z
+ clkload6/Z
+Found 0 partially unannotated drivers.
+
+===========================================================================
+max slew violation count 0
+max fanout violation count 1
+max cap violation count 1
+============================================================================
+
+===========================================================================
+check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks
+===========================================================================

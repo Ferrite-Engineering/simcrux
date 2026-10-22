@@ -1,0 +1,51 @@
+Reading timing models for corner nom_tt_025C_1v80…
+Reading timing library for the 'nom_tt_025C_1v80' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib'…
+Reading OpenROAD database at '<run>/43-openroad-detailedrouting/path_adder.odb'…
+Reading design constraints file at '/nix/store/gaqvv85phz5jxhkxv1sk482aa46sgij3-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/base.sdc'…
+[INFO] Using clock clk…
+[INFO] Setting output delay to: 2.0
+[INFO] Setting input delay to: 2.0
+[INFO] Setting load to: 0.033442
+[INFO] Setting clock uncertainty to: 0.25
+[INFO] Setting clock transition to: 0.1499999999999999944488848768742172978818416595458984375
+[INFO] Setting timing derate to: 5.0%
+%OL_CREATE_REPORT <run>/45-openroad-checkantennas-1/reports/antenna.rpt
+Net: net3
+  Pin:   output2/A (sky130_fd_sc_hd__clkdlybuf4s25_1)
+    Layer: mcon
+      Partial area ratio:    0.14
+      Required ratio:    3.00 (Gate area) 
+      Cumulative area ratio:    0.14
+      Required ratio:    0.00 (Cumulative area) 
+
+    Layer: met1
+      Partial area ratio:  157.42
+      Required ratio:    0.00 (Gate area) 
+      Cumulative area ratio:  157.42
+      Required ratio:    0.00 (Cumulative area) 
+      Partial area ratio:  786.74
+      Required ratio:  400.00 (Side area) (VIOLATED)
+      Cumulative area ratio:  786.74
+      Required ratio:    0.00 (Cumulative side area) 
+
+    Layer: via
+      Partial area ratio:    0.11
+      Required ratio:    6.00 (Gate area) 
+      Cumulative area ratio:    0.24
+      Required ratio:    0.00 (Cumulative area) 
+
+    Layer: met2
+      Partial area ratio:  181.14
+      Required ratio:    0.00 (Gate area) 
+      Cumulative area ratio:  338.56
+      Required ratio:    0.00 (Cumulative area) 
+      Partial area ratio:  905.14
+      Required ratio: 2956.40 (Side area) 
+      Cumulative area ratio: 1691.88
+      Required ratio:    0.00 (Cumulative side area) 
+
+
+
+[INFO ANT-0002] Found 1 net violations.
+[INFO ANT-0001] Found 1 pin violations.
+%OL_END_REPORT

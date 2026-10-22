@@ -1,0 +1,36 @@
+{
+  "config": "designs/path_adder/config.yaml",
+  "verdict": "met",
+  "librelane_version": "3.0.16",
+  "pdk": "gf180mcuD",
+  "std_cell_library": "gf180mcu_fd_sc_mcu7t5v0",
+  "exit_code": 0,
+  "final_metrics": true,
+  "last_step": "76-misc-reportmanufacturability",
+  "steps_without_state_out": [],
+  "step_ids": {
+    "06-yosys-synthesis": "Yosys.Synthesis",
+    "55-openroad-stapostpnr": "OpenROAD.STAPostPNR",
+    "65-klayout-drc": "KLayout.DRC"
+  },
+  "gated_off_steps": [
+    "Repair Design (Post-Global Routing)",
+    "Heuristic Diode Insertion",
+    "Resizer Timing Optimizations (Post-Global Routing)",
+    "Equivalence Check"
+  ],
+  "error_log_contains": [],
+  "metrics": {
+    "timing__setup__wns": 0,
+    "timing__setup_vio__count": 0,
+    "timing__hold_vio__count": 0,
+    "route__drc_errors": 0,
+    "magic__drc_error__count": 0,
+    "design__lvs_error__count": 0,
+    "route__antenna_violation__count": 0,
+    "antenna__violating__nets": 0,
+    "design__instance__count__class:sequential_cell": 73
+  },
+  "absent_metrics": ["klayout__drc_error__count"],
+  "worst_register_setup_path": {"corner": "nom_tt_025C_5v00", "met": true}
+}

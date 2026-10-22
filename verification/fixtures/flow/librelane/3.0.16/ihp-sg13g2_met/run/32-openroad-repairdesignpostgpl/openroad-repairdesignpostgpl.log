@@ -1,0 +1,87 @@
+Reading timing models for corner nom_fast_1p32V_m40C…
+Reading timing library for the 'nom_fast_1p32V_m40C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_fast_1p32V_m40C.lib'…
+Reading timing library for the 'nom_fast_1p32V_m40C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_fast_1p32V_3p6V_m40C.lib'…
+Reading timing models for corner nom_slow_1p08V_125C…
+Reading timing library for the 'nom_slow_1p08V_125C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_slow_1p08V_125C.lib'…
+Reading timing library for the 'nom_slow_1p08V_125C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_slow_1p08V_3p0V_125C.lib'…
+Reading timing models for corner nom_typ_1p20V_25C…
+Reading timing library for the 'nom_typ_1p20V_25C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_typ_1p20V_25C.lib'…
+Reading timing library for the 'nom_typ_1p20V_25C' corner at '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/lib/sg13g2_io_typ_1p2V_3p3V_25C.lib'…
+Reading OpenROAD database at '<run>/28-openroad-globalplacement/path_adder.odb'…
+Reading design constraints file at '/nix/store/gaqvv85phz5jxhkxv1sk482aa46sgij3-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/base.sdc'…
+[INFO] Using clock clk…
+[INFO] Setting output delay to: 2.0
+[INFO] Setting input delay to: 2.0
+[INFO] Setting load to: 0.006
+[INFO] Setting clock uncertainty to: 0.25
+[INFO] Setting clock transition to: 0.15
+[INFO] Setting timing derate to: 5.0%
+[INFO RSZ-0027] Inserted 1 sg13g2_buf_1 input buffers.
+[INFO RSZ-0028] Inserted 1 sg13g2_buf_1 output buffers.
++ repair_design -verbose -max_wire_length 0.0 -slew_margin 20.0 -cap_margin 20.0
+Iteration |   Area    | Resized | Buffers | Nets repaired | Remaining
+---------------------------------------------------------------------
+        0 |     +0.0% |       0 |       0 |             0 |       313
+       10 |     +0.0% |       0 |       0 |             0 |       303
+       20 |     +0.0% |       0 |       0 |             0 |       293
+       30 |     +0.0% |       0 |       0 |             0 |       283
+       40 |     +0.0% |       0 |       0 |             0 |       273
+       50 |     +0.0% |       0 |       0 |             0 |       263
+       60 |     +0.0% |       0 |       0 |             0 |       253
+       70 |     +0.0% |       0 |       0 |             0 |       243
+       80 |     +0.0% |       0 |       0 |             0 |       233
+       90 |     +0.0% |       0 |       0 |             0 |       223
+      100 |     +0.0% |       0 |       0 |             0 |       213
+      110 |     +0.0% |       0 |       0 |             0 |       203
+      120 |     +0.0% |       0 |       0 |             0 |       193
+      130 |     +0.0% |       0 |       0 |             0 |       183
+      140 |     +0.0% |       0 |       0 |             0 |       173
+      150 |     +0.0% |       0 |       0 |             0 |       163
+      160 |     +0.0% |       0 |       0 |             0 |       153
+      170 |     +0.0% |       0 |       0 |             0 |       143
+      180 |     +0.0% |       0 |       0 |             0 |       133
+      190 |     +0.0% |       0 |       0 |             0 |       123
+      200 |     +0.0% |       0 |       0 |             0 |       113
+      210 |     +0.0% |       0 |       0 |             0 |       103
+      220 |     +0.0% |       0 |       0 |             0 |        93
+      230 |     +0.0% |       0 |       0 |             0 |        83
+      240 |     +0.0% |       0 |       0 |             0 |        73
+      250 |     +0.0% |       0 |       0 |             0 |        63
+      260 |     +0.0% |       0 |       0 |             0 |        53
+      270 |     +0.0% |       0 |       0 |             0 |        43
+      280 |     +0.0% |       0 |       0 |             0 |        33
+      290 |     +0.0% |       0 |       0 |             0 |        23
+      300 |     +0.0% |       0 |       0 |             0 |        13
+      310 |     +0.0% |       0 |       0 |             0 |         3
+    final |     +0.0% |       0 |       0 |             0 |         0
+---------------------------------------------------------------------
+[INFO RSZ-0042] Inserted 73 tie sg13g2_tiehi instances.
++ detailed_placement -max_displacement  500 100 
+Placement Analysis
+---------------------------------
+total displacement        780.5 u
+average displacement        2.5 u
+max displacement           14.9 u
+original HPWL            3435.1 u
+legalized HPWL           4036.2 u
+delta HPWL                   18 %
+
+[INFO DPL-0020] Mirrored 105 instances
+[INFO DPL-0021] HPWL before            4036.2 u
+[INFO DPL-0022] HPWL after             3873.5 u
+[INFO DPL-0023] HPWL delta               -4.0 %
+Setting global connections for newly added cells…
+[INFO] Setting global connections...
+[INFO ODB-0403] 150 connections made, 0 conflicts skipped.
+Updating metrics…
+Cell type report:                       Count       Area
+  Timing Repair Buffer                      2      14.52
+  Inverter                                  2      10.89
+  Sequential cell                          73    3576.18
+  Multi-Input combinational cell          234    2331.50
+  Total                                   311    5933.09
+Writing OpenROAD database to '<run>/32-openroad-repairdesignpostgpl/path_adder.odb'…
+Writing netlist to '<run>/32-openroad-repairdesignpostgpl/path_adder.nl.v'…
+Writing powered netlist to '<run>/32-openroad-repairdesignpostgpl/path_adder.pnl.v'…
+Writing layout to '<run>/32-openroad-repairdesignpostgpl/path_adder.def'…
+Writing timing constraints to '<run>/32-openroad-repairdesignpostgpl/path_adder.sdc'…

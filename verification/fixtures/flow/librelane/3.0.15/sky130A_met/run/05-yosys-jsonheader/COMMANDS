@@ -1,0 +1,1 @@
+yosys -y /nix/store/6ssxvbxbnag37lr0ixi7c32s5kd1pca2-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/pyosys/json_header.py -- --config-in <run>/05-yosys-jsonheader/config.json --extra-in <run>/05-yosys-jsonheader/extra.json --output <run>/05-yosys-jsonheader/path_adder.h.json

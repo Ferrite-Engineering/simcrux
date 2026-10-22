@@ -84,3 +84,8 @@ verification/**     text eol=lf
 # normalises on the way in but never strips CR on checkout, so the worktree
 # never matches the CRLF blob. That is what kept the submodule detached.
 verification/fixtures/golden_compare/format_variance_*/dut.sig    -text
+
+# LibreLane writes final/metrics.csv with CRLF row endings (Python's csv
+# module). The captured run keeps LibreLane's bytes, and a CRLF file under
+# `eol=lf` would sit dirty in every clone for the reason given above.
+verification/fixtures/flow/librelane/**/metrics.csv    -text

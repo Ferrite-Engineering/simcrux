@@ -1270,6 +1270,14 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The active tab's name is the window's CXP active document — `[Coverage: UNIT]` (`cxp_presence_provider_test.dart`)
 - [ ] The release-build drive across four products — `[Coverage: MANUAL]` (guide §27.9)
 
+### LibreLane fixtures and the ASIC mapping gate (guide §27.10)
+
+- [ ] The LibreLane corpus (3.0.16: the adder met on sky130A, gf180mcuD and IHP sg13g2, stopped, setup-violated, DRC and LVS errors, antenna violation; 3.0.15: the sky130A reference) is present, trimmed (every placeholder empty and listed, `tmp/` gone, no layout view kept), under 5 MB per file, scrubbed and documented; a missing directory fails — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`)
+- [ ] Each case's exit status, version, PDK, final metrics, steps without `state_out.json`, step ids, gated-off steps, `error.log` and headline metrics match its hand-written expectation, and each completed adder run's worst register-to-register setup path maps through the sidecar from `src_a` or `src_b` to `sum_q` — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`)
+- [ ] Every kept STA path listing parses into rank, endpoints, slack and segments with the slack arithmetic closing; the sidecar's rebuilt names all appear in the synthesis netlist; 3.0.15 and 3.0.16 write the same step sequence — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`)
+- [ ] `trim_run_fixture.py` keeps records, empties views, drops `tmp/`, scrubs paths, keeps only the chosen corners' listings, enforces the size limit and refuses an output inside the run — `[Coverage: UNIT]` (`flow_trim_run_fixture_test.dart`)
+- [ ] The mapping gate is recorded in `MAPPING-GATE.md` (98 of 100, outcome `>=90`) and LibreLane rerun weekly still matches every expectation and the gate's outcome — `[Coverage: UNIT]` (`flow_librelane_fixtures_test.dart`), `[Coverage: AUTOMATED — GitHub Actions]` (`flow_librelane_live_test.dart`, `flow-live.yml`)
+
 ---
 
 ## Subsequent features

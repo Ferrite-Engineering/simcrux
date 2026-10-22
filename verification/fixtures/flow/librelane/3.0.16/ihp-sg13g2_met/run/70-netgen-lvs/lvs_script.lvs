@@ -1,0 +1,9 @@
+set circuit1 [readnet spice <run>/68-magic-spiceextraction/path_adder.spice]
+set circuit2 [readnet verilog /dev/null]
+puts "Reading SPICE netlist file '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/spice/sg13g2_stdcell.spice'..."
+readnet spice <home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_stdcell/spice/sg13g2_stdcell.spice $circuit2
+puts "Reading SPICE netlist file '<home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/spice/sg13g2_io.spi'..."
+readnet spice <home>/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.ref/sg13g2_io/spice/sg13g2_io.spi $circuit2
+puts "Reading Verilog netlist file '<run>/52-openroad-fillinsertion/path_adder.pnl.v'..."
+readnet verilog <run>/52-openroad-fillinsertion/path_adder.pnl.v $circuit2
+lvs "$circuit1 path_adder" "$circuit2 path_adder" /nix/store/gaqvv85phz5jxhkxv1sk482aa46sgij3-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/netgen/setup.tcl <run>/70-netgen-lvs/reports/lvs.netgen.rpt -blackbox -json

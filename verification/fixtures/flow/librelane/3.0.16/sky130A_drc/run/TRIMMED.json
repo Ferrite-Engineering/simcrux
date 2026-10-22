@@ -1,0 +1,1894 @@
+{
+ "final_views": false,
+ "keep_corners": [
+  "nom_t*"
+ ],
+ "kept_bytes": 6090699,
+ "max_file_bytes": 5242880,
+ "removed": [
+  {
+   "action": "placeholder",
+   "bytes": 6808,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/_env_ThreadPoolExecutor-2_2.tcl",
+   "reason": "design view or binary",
+   "sha256": "2fec5a7a8143cdd4165a8767dada7ecc7f372b8fdbb35b9c05f09ffcf610eda5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182210,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "7a75fd069c198d5af9a29e0274e762c5958c1c24e243e53cc9c9f829ca67d214"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 157865,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "8303b6b4d5b200437e9261a213563f75604c7497793666ab97a69ae189af687f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113820,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "84d2018fa31bc56ad6f1f0f56533056361b96e1d92a230b18364308d836d547d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 356056,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "3808375db571c68c71188ddb46212dfef82b0a799490aead5e2d7d699309c18b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6808,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/_env_ThreadPoolExecutor-2_1.tcl",
+   "reason": "design view or binary",
+   "sha256": "2fec5a7a8143cdd4165a8767dada7ecc7f372b8fdbb35b9c05f09ffcf610eda5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182093,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "87dba988aac11c9a1854930072f1adec08e468f9f09f2169451d00a5fdf04cf2"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 157706,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "f16ca522b71d645ed8af636477106c0eeae50f1c40a5e0110d6c0e0e61e07119"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113820,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "f469658d29cf8ebb9e2db6cfa3a7cf85df0887376b0d47b052cadeb42b9a6959"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 355171,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "0fd722b52969a5d66ed2ddb0634dd7cf01fc7b7b2021b054804f3c17e696d523"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6808,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/_env_ThreadPoolExecutor-2_0.tcl",
+   "reason": "design view or binary",
+   "sha256": "2fec5a7a8143cdd4165a8767dada7ecc7f372b8fdbb35b9c05f09ffcf610eda5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182093,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "c1f930fc4ab73882e3943cd68dbeed779f193db3a89abf4af9679a46a3886bad"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 157706,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "d2ac8daccfd821b076bc05d5d7c1c9fa52486cfa817d6c8971174ea9a348f7f3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113818,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "f6196bb81f41b91e6f379e14618a0679c667490903899635d873f2cc4e138c7e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 354270,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "13d8e6e9927a1fb852b92b9ce18af5b2e833293b61ac1eab003b526298357457"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7940,
+   "path": "13-openroad-floorplan/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "14a533550a7d0d446765972b3cacd54f8a473edcae329ca77736b051a8bdf9be"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 28276,
+   "path": "13-openroad-floorplan/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "fde831dac473124bd373d8112b334df4e6a20be5668f7a895e9638938f4fb360"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 23930,
+   "path": "13-openroad-floorplan/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "c6eb3f2adfa28acace7a3c6119265e2e8a3f747ed9490661e7bbc2d904da97ea"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1541529,
+   "path": "13-openroad-floorplan/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "64fe02e9492b63b793464b200e6c1637eb848951ac85bf07f9be1d64280b8627"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 39662,
+   "path": "13-openroad-floorplan/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "2ee5056cc731aacee02d1bdda8b69a11112c5530b7f54314b013a5cc3097cb01"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7399,
+   "path": "14-openroad-dumprcvalues/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "8cf5e7b3e14c3bbadd6d086f0113733cd2494b43bed9204dcee6925179dbf9df"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 28276,
+   "path": "16-odb-setpowerconnections/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "fde831dac473124bd373d8112b334df4e6a20be5668f7a895e9638938f4fb360"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1541529,
+   "path": "16-odb-setpowerconnections/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "64fe02e9492b63b793464b200e6c1637eb848951ac85bf07f9be1d64280b8627"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6975,
+   "path": "18-openroad-cutrows/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "262bbdfd81f4928e51723554ab85830034fe03061363d865b745242d3b6c93c6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 28276,
+   "path": "18-openroad-cutrows/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "fde831dac473124bd373d8112b334df4e6a20be5668f7a895e9638938f4fb360"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1541529,
+   "path": "18-openroad-cutrows/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "64fe02e9492b63b793464b200e6c1637eb848951ac85bf07f9be1d64280b8627"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7545,
+   "path": "19-openroad-tapendcapinsertion/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "e2a288d6f283a95689d9781ba60c0af21fd3e3e3d4890a46f1afb0553efd16bc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 40808,
+   "path": "19-openroad-tapendcapinsertion/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "052ab3ca45be6f7ad8cfe3a3be0df47a8d831dd6fe45a0b0f1d7b09fb4550b9a"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31018,
+   "path": "19-openroad-tapendcapinsertion/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "19f9714714d4ae0780ad2ee241843caad97e9f7c1d735a0408134f8696aed5fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1580149,
+   "path": "19-openroad-tapendcapinsertion/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "a4e324ca0d7e1b3549fd562b0c737849a382d32050459d4e6ec8cddda0f2d217"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52006,
+   "path": "19-openroad-tapendcapinsertion/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "93e3744f8eaae23d1a4445d20cb38053e247b62d7fe303d4841170173077f166"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8501,
+   "path": "21-openroad-generatepdn/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "6cbee1fbe740cd102057c133fe192d794c423e2b3b8ba032a67d0c390bbc8454"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 54393,
+   "path": "21-openroad-generatepdn/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "92ed3c6e249a8fa721e76cd385d563b2a6230349756f05c6fa90d806ade12e2a"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31064,
+   "path": "21-openroad-generatepdn/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "f380f2809297372a1bbce63bb358df100d0a6c065ebf63e672d5ab8a556f8dfc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1600320,
+   "path": "21-openroad-generatepdn/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "181b91d8dfee7d18fee094da9417899dae42a61d9f18ebf62dc797a30ddfadd1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52028,
+   "path": "21-openroad-generatepdn/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "ddffe226397b8c64488a06a2229b860dc5ce8c088f99caece3ca49df2d4c674c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8019,
+   "path": "24-openroad-globalplacementskipio/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "c2e63b97991f66439951c5814f83de6a383e7d379384e7df5594e7f57148dea6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 60806,
+   "path": "24-openroad-globalplacementskipio/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "d245baee689c3a755a1bb12c59c6f26b1112731c219235445462da988f481014"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31018,
+   "path": "24-openroad-globalplacementskipio/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "19f9714714d4ae0780ad2ee241843caad97e9f7c1d735a0408134f8696aed5fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1600320,
+   "path": "24-openroad-globalplacementskipio/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "739f60a5c62bf703535301995f417a4f55c796d8b6ce670dba6a78a631852474"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52028,
+   "path": "24-openroad-globalplacementskipio/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "ddffe226397b8c64488a06a2229b860dc5ce8c088f99caece3ca49df2d4c674c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7655,
+   "path": "25-openroad-ioplacement/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "23b4e8650841dbb4ef1ea27e3a2b58e2e34af170d3588abfe8285184310c6b34"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 61087,
+   "path": "25-openroad-ioplacement/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "6d21129de73ffc457f8cd332949fdf07e04c36cceab9be1fe97bd896471cb122"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31018,
+   "path": "25-openroad-ioplacement/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "19f9714714d4ae0780ad2ee241843caad97e9f7c1d735a0408134f8696aed5fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1600452,
+   "path": "25-openroad-ioplacement/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "a7318fa06d854879dfecdce7b757929e6c9d857b9a3cf4e823b41842f57ff8ae"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52028,
+   "path": "25-openroad-ioplacement/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "ddffe226397b8c64488a06a2229b860dc5ce8c088f99caece3ca49df2d4c674c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8006,
+   "path": "28-openroad-globalplacement/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "33287bf765b4e26ceddd6d4f00db187ea660e3149b848990c951bf0fbacad881"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 61085,
+   "path": "28-openroad-globalplacement/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "9473ede51c1f52b4bc6cc58c537ee90f1e25bbb0422954800919fd63c0d1234f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31018,
+   "path": "28-openroad-globalplacement/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "19f9714714d4ae0780ad2ee241843caad97e9f7c1d735a0408134f8696aed5fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1600452,
+   "path": "28-openroad-globalplacement/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "adabd632674bcb47d68a86183076ab86836da993bc33bfb0c8e0fba36715a696"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52028,
+   "path": "28-openroad-globalplacement/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "ddffe226397b8c64488a06a2229b860dc5ce8c088f99caece3ca49df2d4c674c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 155,
+   "path": "29-odb-writeverilogheader/path_adder.vh",
+   "reason": "design view or binary",
+   "sha256": "aa943a8ba722d8335b5afda4b7959f9ac40df0fc51cea2cd97767d8174ba1361"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6580,
+   "path": "31-openroad-stamidpnr/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "52de6356bf614b140f07d4913126d400a80b1919f854c18774f61229af590f2d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 200378,
+   "path": "31-openroad-stamidpnr/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "9d0198e970773097584bdf87405b8580ba8d5e86eea6fffc735665e9f768b61f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 176112,
+   "path": "31-openroad-stamidpnr/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "5f08869d7a711bbb4581cb0b3d61024578506c930d00935ae2a9921bbe73f1c4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 395471,
+   "path": "31-openroad-stamidpnr/openroad-stamidpnr.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "f475858209465a80fcbdbfff420bd4219ca5effd2e9cbe01e486b01893324ab0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8374,
+   "path": "32-openroad-repairdesignpostgpl/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "ca50dd32864ee426f524714a3bbeb6f628cef69d19d1fc41e45ba24cd258c449"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 61503,
+   "path": "32-openroad-repairdesignpostgpl/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "9f7b2fa33be5ea4f4525a6064cdfecf0122ec0e4bdfdade56d54ae67098f50fb"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31180,
+   "path": "32-openroad-repairdesignpostgpl/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "4190be4510dfe8b8ad0033b20afad366794d072417a47a2a160f8ed914c4f472"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1603808,
+   "path": "32-openroad-repairdesignpostgpl/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "853cc10c2c909e74a4d22541bf74abb4f735c474e80e87606dbd4c54830051e8"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52322,
+   "path": "32-openroad-repairdesignpostgpl/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "c379be9b8fe5d9058856df93a41ac31efaf848f578a8537be9d61bd247ef3e05"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7578,
+   "path": "34-openroad-detailedplacement/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "e8c9b937670a8e63afca36aea5002cd6faf774cbacedc56bfe572f65bb7dde98"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 61503,
+   "path": "34-openroad-detailedplacement/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "9f7b2fa33be5ea4f4525a6064cdfecf0122ec0e4bdfdade56d54ae67098f50fb"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 31180,
+   "path": "34-openroad-detailedplacement/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "4190be4510dfe8b8ad0033b20afad366794d072417a47a2a160f8ed914c4f472"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1603808,
+   "path": "34-openroad-detailedplacement/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "853cc10c2c909e74a4d22541bf74abb4f735c474e80e87606dbd4c54830051e8"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52322,
+   "path": "34-openroad-detailedplacement/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "c379be9b8fe5d9058856df93a41ac31efaf848f578a8537be9d61bd247ef3e05"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7872,
+   "path": "35-openroad-cts/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "b270131a0d3a2001f59f605fe1320e29a253b9038d47cb75975fe75ffa4392c1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 65550,
+   "path": "35-openroad-cts/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "409ed8fa32481529aa2b22d4ce66081caaaefde11666627d020ece67ca352786"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 34515,
+   "path": "35-openroad-cts/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "22e3142f3fe891175e3b9671d13f042ac6d0762698bb118716831ae1e7bcc8ed"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1616287,
+   "path": "35-openroad-cts/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "72c9626231f7a2e974a3ab5535181dd9503909e658f0cd4db643c0986e04b340"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 57241,
+   "path": "35-openroad-cts/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "87f1d7d519a7d5a5e702079f1cad7b808b9ee0308caca805c217dfe07bba4fe9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6568,
+   "path": "36-openroad-stamidpnr-1/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "1669d6df30475ae25f5835ab819594c4ac24a4338ef328dbff2fdeea1bb27ccb"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 283512,
+   "path": "36-openroad-stamidpnr-1/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "7b40c791b6e2a738fa360509685a455bc6c1f3df6c6664af6ae9c6ddb51e72fb"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 259446,
+   "path": "36-openroad-stamidpnr-1/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "57b9b89291c0986a7e68e23341d33ad957a3f9c35c8d42285d2578a588a70f76"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 556476,
+   "path": "36-openroad-stamidpnr-1/openroad-stamidpnr-1.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "2585b145c5ed17aa7aaaaeec83d6cbdac6130b393e20fa866123b252cdb1cde3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8524,
+   "path": "37-openroad-resizertimingpostcts/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "f845d114b006cfff3db466dc862c9ce53965ca1fec96fcc6e34cc99291834289"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 72792,
+   "path": "37-openroad-resizertimingpostcts/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "591213493ea9ad750abc5d4eceb78bf4b1b3e1b997b342fbe14de8f82f32c8a6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 38512,
+   "path": "37-openroad-resizertimingpostcts/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "a618a381ed9d01ba8cc1553fefcc35f02b7e95ece273a03b799ade3f7d9a933e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1636564,
+   "path": "37-openroad-resizertimingpostcts/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "7d39cd29681b002b6a52003ae36e12b5906941c5ce2b042a1b6f58976850d232"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 64604,
+   "path": "37-openroad-resizertimingpostcts/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "99bac5084798f425ea93eb0ccbfed5c6586fb36dd570c09be0accf61e9056825"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6585,
+   "path": "38-openroad-stamidpnr-2/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "2b806bc4961aab7a36ba313b9975d13eabf2fe70b2e0740f055fd4a8bc54f337"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302715,
+   "path": "38-openroad-stamidpnr-2/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "44fee99d3742de0bd2145f63af62bf04d40b9b34264fcdf04dc39aa43764d9f9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "38-openroad-stamidpnr-2/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "3e0f23e35302ece445b83ce56c19ef2de5bbed334c33d45c75fd073ed0c0a9da"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 591112,
+   "path": "38-openroad-stamidpnr-2/openroad-stamidpnr-2.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "2b5292262a50bc8c8621ebdcbbfefe5d27e5b7ea6df609e82a62e3c10eae0512"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7466,
+   "path": "39-openroad-globalrouting/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "4c08b70916c5ec4d352224f7749c593bd2a8791b3d93030795a5c6b488552b89"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 56798,
+   "path": "39-openroad-globalrouting/after_grt.guide",
+   "reason": "design view or binary",
+   "sha256": "cb2a0ec588c127ecdf22404cb63e68fdf3147c3bcdec8ca559d3d778609caa58"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 72856,
+   "path": "39-openroad-globalrouting/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "f91ff6a4ed712a624942c3cd71875b5447c3f65af9fb62544e95618812f4f4d3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1711807,
+   "path": "39-openroad-globalrouting/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "69ca6e921459930aa91259e024f28be855ab9ec61d047fe2fdbbccbf0410f9d2"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6582,
+   "path": "40-openroad-checkantennas/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "72d8fd831fb9ebe65aaea46269b69f75c77c425d06fd5ead863041af775162a3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7514,
+   "path": "42-openroad-repairantennas/1-openroad-diodeinsertion/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "958467eff93eae89bd5683d87028461fbb960f9b120c9c5346873056f6905213"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 72856,
+   "path": "42-openroad-repairantennas/1-openroad-diodeinsertion/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "f91ff6a4ed712a624942c3cd71875b5447c3f65af9fb62544e95618812f4f4d3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1715263,
+   "path": "42-openroad-repairantennas/1-openroad-diodeinsertion/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "81d18b0d2ae7609207b4a021cfa60483bc4f6ccba34c391a116f72817955b253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6609,
+   "path": "42-openroad-repairantennas/2-openroad-checkantennas/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "052163cc3c59c56eb120a480236818291f4a7b10291893c874c2aec1c1c62a57"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6605,
+   "path": "43-openroad-stamidpnr-3/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "644351b408894db875c2ab7263e0b510ef7590b475cc21649a316d50cdb13f1e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302715,
+   "path": "43-openroad-stamidpnr-3/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "673dae309db8c9570622bc692931457536f2a7a796ae283e47b7b7bd9d38bfea"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272768,
+   "path": "43-openroad-stamidpnr-3/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "356e74be1bbc41991696ae74399cff7fa516aba049a6524db8a8de642ac4407d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 591143,
+   "path": "43-openroad-stamidpnr-3/openroad-stamidpnr-3.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "70608ae31e3277a0cfb3dd6936d186be78d957a46f95a16907c8538692d12e30"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8106,
+   "path": "44-openroad-detailedrouting/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "6280432396a9a99ecbd735cf510c62204c6176632e2e2be8cf753b956618fc2f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 213236,
+   "path": "44-openroad-detailedrouting/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "843d261609515b0c9d8a8f738fb102e8de5fd3ecd4995471b11b6105f43d6ac1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 38512,
+   "path": "44-openroad-detailedrouting/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "a618a381ed9d01ba8cc1553fefcc35f02b7e95ece273a03b799ade3f7d9a933e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1940198,
+   "path": "44-openroad-detailedrouting/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "ac9c944cee98f1d3926d3ea800731c349e2322bb4e399e83fd9d206d38ef4bcc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 64604,
+   "path": "44-openroad-detailedrouting/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "99bac5084798f425ea93eb0ccbfed5c6586fb36dd570c09be0accf61e9056825"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1940198,
+   "path": "44-openroad-detailedrouting/drt-run-0/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "ac9c944cee98f1d3926d3ea800731c349e2322bb4e399e83fd9d206d38ef4bcc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6584,
+   "path": "46-openroad-checkantennas-1/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "718ae4f9d7a751751a510ebfee6f6a5b9572bd51afddd5e3c90eea56a70d8352"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 213236,
+   "path": "48-odb-reportdisconnectedpins/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "843d261609515b0c9d8a8f738fb102e8de5fd3ecd4995471b11b6105f43d6ac1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1940198,
+   "path": "48-odb-reportdisconnectedpins/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "ac9c944cee98f1d3926d3ea800731c349e2322bb4e399e83fd9d206d38ef4bcc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7413,
+   "path": "52-openroad-fillinsertion/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "b54b4ccf5e4fca4ad44030e4018edf85317388b7669378d58dbc86375d16f843"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 241637,
+   "path": "52-openroad-fillinsertion/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "cf10df75c8606df4207188e71dd2504186bbbe4edec4f81b359863825bd34973"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52434,
+   "path": "52-openroad-fillinsertion/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "67665ac52188df6da70a970e4c4b2e2a46646767b6ed824a5caee444db4cd2fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2036165,
+   "path": "52-openroad-fillinsertion/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "6d6b659ab3ccdca4c8220935efde280baa5e4ea103e3cc3a6cd218f9ed43796f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 98146,
+   "path": "52-openroad-fillinsertion/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "4cd4e16562d8a9e6e42ffa17f4f7e10cd38b1aadc619b221d3494e66d0ef6a7f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 241637,
+   "path": "53-odb-cellfrequencytables/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "cf10df75c8606df4207188e71dd2504186bbbe4edec4f81b359863825bd34973"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2036165,
+   "path": "53-odb-cellfrequencytables/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "6d6b659ab3ccdca4c8220935efde280baa5e4ea103e3cc3a6cd218f9ed43796f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7588,
+   "path": "54-openroad-rcx/_env_ThreadPoolExecutor-3_0.tcl",
+   "reason": "design view or binary",
+   "sha256": "33349ed9cdf228ea262fb667f77334912d88ab97d46c3bbbb5e6761f522702db"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7588,
+   "path": "54-openroad-rcx/_env_ThreadPoolExecutor-3_1.tcl",
+   "reason": "design view or binary",
+   "sha256": "de992727b2c139958589853b774f2a8a254174d7b8aa140fa1509491cafd0444"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7588,
+   "path": "54-openroad-rcx/_env_ThreadPoolExecutor-3_2.tcl",
+   "reason": "design view or binary",
+   "sha256": "13148a82783f42385d73f9b81f1a2681985a238f4f72bb5637b0fd09d89ffea5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 210946,
+   "path": "54-openroad-rcx/max/path_adder.max.spef",
+   "reason": "design view or binary",
+   "sha256": "f1a5badb891fca52d3dcd6a4252f149f9a72e45ec5ecd6164e4b19e98c0ef95f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 196832,
+   "path": "54-openroad-rcx/min/path_adder.min.spef",
+   "reason": "design view or binary",
+   "sha256": "7ff130b630afa98fe6a5ee46ffcf55834f3ea58842716880ffbeaee5c154b87d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 198652,
+   "path": "54-openroad-rcx/nom/path_adder.nom.spef",
+   "reason": "design view or binary",
+   "sha256": "9bdf57f605b29164f202a4f4f7eebe76a543ce0731ea999be90180744baaaf85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/_env_ThreadPoolExecutor-4_8.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302715,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "9b8893a7310f0703e4f9bbc98456fa934de0dfe5804bc0c1594df880ed16671b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272768,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "35e541576b7cfaf10acb2c91fa1cea94661621be935e2da9001bef20449c50ed"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/path_adder__max_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "b367b14fd391eeb01cc4137f1012d78e52fbf3f67eb58392072b008c37fb45e9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/path_adder__max_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "9518df393a20983f928d8d4cd9f9c19a11c5278a281dd5e0f90ca590342b68b4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 590360,
+   "path": "55-openroad-stapostpnr/max_ff_n40C_1v95/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "85a33d8044706b12c274ec1cf4c0f5708b5c32a2490c7bc0f026dac569d5dc0d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/_env_ThreadPoolExecutor-4_7.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 303468,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "a5e5e58d758a35197c1ac203af019de3db2350f6d3a947cbcf8ee52578cf9f0a"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "cd3f3cd3fdc2c06b742f416e584e4c993e0189d3f62f62d8f0ecb61d11e29d6f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/path_adder__max_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "20094ac66429b18c0c49ee06238f745dc1144fe4796e733a1f7449546a63acca"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/path_adder__max_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "3f6e7d602c208bb55fc339f16323a2506a921545751c562bcec1509563ed5021"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 593210,
+   "path": "55-openroad-stapostpnr/max_ss_100C_1v60/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "9f554dd96359a2361cd1047fd01e1f9c28d4c5e63ba3b249ee441c2feef31900"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/_env_ThreadPoolExecutor-4_6.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302712,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "e4705193970abcf811468cf48928ef40dc2932c1e26e84ec4cdced63cc3e6370"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "c1141c36d03d125eeca6ea50a75675e57a801c0324bd84dcf6c055f7e8433f3b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/path_adder__max_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "b4759581d27a12eb87d149197978455a3ac538ce78ab7e9609741e0ce117abb0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/path_adder__max_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "9c9f49e292b46c92d2ae436522eb959465630d9c0d5877883269683906cf5829"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 592451,
+   "path": "55-openroad-stapostpnr/max_tt_025C_1v80/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "636a7218296afb99cf6750fe2eb7d8751dbf57748814bf6598dcf4b7bcd1d663"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/_env_ThreadPoolExecutor-4_5.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302715,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "df8f2d7b8f87edc8bbacd4f4496cf5ca3070bc4c23ee19541c5216fa20bf31c5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272768,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "61a82f562f3079541c6a8f1c4e061259b38bcbf7add94a5321aece434f3c8706"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/path_adder__min_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "aeccdfb489f50e0be44d35b2ddfbd05509b302dd75d4fe3ca5a2d4ebed9e6c01"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/path_adder__min_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "acdce67ff40a6d993f981144d3a2b5731c7f62eb561fa2c3a689b19d2aef4717"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 590356,
+   "path": "55-openroad-stapostpnr/min_ff_n40C_1v95/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "678a4b464b313b04a7ab051dc309dc5accef60a987df9fd652d03aa5351eb52f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/_env_ThreadPoolExecutor-4_4.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 303468,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "84d8a73cdab5bf47b76a36689b3dcdd806fedb1a13097be988c9840086bf17da"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "cfcf14d88f3e0a451ba3a20d540a4fe20cb8fd6e169038066284b2e8ad11331f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3102,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/path_adder__min_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "a5f014b72dd0050ba6bf8a208c64adfa5a35faf043c939e239c5d0436bd34b91"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143179,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/path_adder__min_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "5ded704a7878bf52142fcdbbbad1532bd2d0f1d64c077f45fb339d4752e9cf6b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 593209,
+   "path": "55-openroad-stapostpnr/min_ss_100C_1v60/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "c0e8693f6493140f0a825bc0c4345a0651c83f6ce606f34c3a1e6c9849a11a39"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/_env_ThreadPoolExecutor-4_3.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302711,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "74b92d48dcd886d4539006228d6819371544549b4b244907f31e1593f49a1e17"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "39dc797f370d2bc4635754ed6832f99a0856b9ddb4bed572546a54e6ba244108"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/path_adder__min_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "0179c4ab72a55b5c8e054a1821f2d0e9298f3218669526d37471be755c9c487b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/path_adder__min_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "7a16d86570f29da4b21e81ba9eb03f413604868a7a0afdced6c5ce6428eb9b09"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 592452,
+   "path": "55-openroad-stapostpnr/min_tt_025C_1v80/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "a3f894c7115fa8234099182383b5adf59d619d8e632fac4e57b8d6032d0d5fb5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/_env_ThreadPoolExecutor-4_2.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 302715,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "9b5edd3f9cddddc114803bfd6ac4193d52258a3f997ad7e3bbcb480bc23afa1c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272768,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "ba89247f45a86a871e210b4232e8bda78267df247f908e2a6d2450619e78e6c6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "bf2f78e5bad4d45bd7a6cb37297de55320482604c87c30bfffd1761eac0becc1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "91178c6f84e41a5744f2cd933ac0e9c75bfcbee6ec06f431cf565dc339d7b2f2"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 590359,
+   "path": "55-openroad-stapostpnr/nom_ff_n40C_1v95/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "e4df5d2df99e577ee5fe5544865025e097741b018eccb8f025d77784c1a07138"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/_env_ThreadPoolExecutor-4_1.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 563,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/filter_unannotated.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "83bfda154a940fd5755025c025bf94c2b44ef88ebfd0920ace5f8a0f676cd6cc"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 303468,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/max.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "082dbd768b9f49341d9870f3ec27bca1029f2f8a23c16fb25bf5326e867048e3"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 272763,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/min.rpt",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "70b289f4209cff98f3c990a8081256b7ffcc4054397a744d99ad0667d17c781a"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "604974c59880dfa725a6ba9d825d50bb4d7f15cfb5e29c513b398b33066047fe"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "6551bb15838fb221334279e83f52f7ec1708330fc826681d2a540f4be5e074c6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 593209,
+   "path": "55-openroad-stapostpnr/nom_ss_100C_1v60/sta.log",
+   "reason": "post-PnR STA path listing of a corner not kept",
+   "sha256": "eeca02c0de1d43491212ff5508f14cd7a94f3b3f952283b6998b78619a5b0fb4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7474,
+   "path": "55-openroad-stapostpnr/nom_tt_025C_1v80/_env_ThreadPoolExecutor-4_0.tcl",
+   "reason": "design view or binary",
+   "sha256": "98e484c38ebdf303ccc8fe9236f38d8ac97660ad632d625b5e0acac26bdea253"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "55-openroad-stapostpnr/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "65a2eb8d9bec54155a32257cd45b6ec86817714a84f10d1ba08fd639969a0132"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "55-openroad-stapostpnr/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "eeeb51318be5508193fea71a67b91d10bc9b144efcadbd6ca86df7bde0f695d1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7289,
+   "path": "56-openroad-irdropreport/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "6be4c8c780762306b6ee5404f44da89e5bc8110380ea0322dae97b0c8ec5a4a9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 141407,
+   "path": "57-magic-streamout/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "1174c15a8ed820f11214f8f3657e95fb96efdc3c0fefa2d955cee0a165c4d5f9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 671160,
+   "path": "57-magic-streamout/path_adder.gds",
+   "reason": "design view or binary",
+   "sha256": "628484a1b139563c532df1442fa762c7d4fdb27ecb4560f482779e1b6b0a0e85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 454347,
+   "path": "57-magic-streamout/path_adder.mag",
+   "reason": "design view or binary",
+   "sha256": "09c8ead59cd2d92d538779f460a022bbc92cdc76863a77c1e98ef3801a6ebbae"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 671160,
+   "path": "57-magic-streamout/path_adder.magic.gds",
+   "reason": "design view or binary",
+   "sha256": "628484a1b139563c532df1442fa762c7d4fdb27ecb4560f482779e1b6b0a0e85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 453412,
+   "path": "58-klayout-streamout/path_adder.klayout.gds",
+   "reason": "design view or binary",
+   "sha256": "7b89057e828786a74fd35c99dcea3014ca446f4913f6c9a0695118fa567ef66e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 309879,
+   "path": "59-klayout-render/path_adder.png",
+   "reason": "design view or binary",
+   "sha256": "bd645f0fca8e68ddc10aaf9e4e828dbb7f0973f288a2b4c0b233376f1ea590f0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 141168,
+   "path": "60-magic-writelef/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "20e85cb2c002e74d20904881f549214b4f7dc9adc20f1a20666347c5ef3d5a84"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1711,
+   "path": "60-magic-writelef/path_adder.lef",
+   "reason": "design view or binary",
+   "sha256": "7a51af3241479a46084097fa0a34c6386f54569e7b5edc37e8fd5c6534558cd1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 140929,
+   "path": "64-magic-drc/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "ff1da308b0d5254de349f9ed35f0e9e421fca6c82f0ed5364acb66ce376a98f0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 451379,
+   "path": "64-magic-drc/views/path_adder.drc.mag",
+   "reason": "design view or binary",
+   "sha256": "f91400d21e1b0d791ad1ead22b4c5d5e3ee50b1fbe192a66cb40fba2286b7767"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 141287,
+   "path": "68-magic-spiceextraction/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "bad4e2bed2ea07ddb5cf4c700530bc6b2c02bc6775992e365219df846cbe1f56"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 57442,
+   "path": "68-magic-spiceextraction/path_adder.spice",
+   "reason": "design view or binary",
+   "sha256": "6476747cb2001ea47a8c40a4608dd06d4a948d095b73355d911916d2815a6233"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 279363,
+   "path": "68-magic-spiceextraction/extraction/path_adder.ext",
+   "reason": "design view or binary",
+   "sha256": "a3c84a9301f87588e562d1855197e3f36ef1f1eaf1eb365b58a081ef1e13cf81"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1881,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a211oi_2.ext",
+   "reason": "design view or binary",
+   "sha256": "fa9e51f8b19627501862970c0e59697453c10eaaff904b0ac5f29e47f84520be"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1630,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a21o_2.ext",
+   "reason": "design view or binary",
+   "sha256": "130701a04585edd9c0faed53fbd02a51ab0d952d1c126a9e5ad77424e1429252"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1725,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a21oi_2.ext",
+   "reason": "design view or binary",
+   "sha256": "99d28747af8c376d91221bcc6d4e5be5fb8f7a9b2006837c5b11ad6c6c03cd45"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2180,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a221oi_2.ext",
+   "reason": "design view or binary",
+   "sha256": "c5d5fa85f74221229793d56306fe174fa5eb2d015164e18fd4442ba7464f5999"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1820,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a22o_2.ext",
+   "reason": "design view or binary",
+   "sha256": "d950ae1e2d1165f6100a89b0ad88732918dfe2e9b2daa4056633bbb52a9990db"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2182,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a311oi_2.ext",
+   "reason": "design view or binary",
+   "sha256": "4514e5c7fd4f6043ad8e13b8feff5d41e94fdb5f4d61df4d01e1478e2ddaf6f1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2029,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a31o_2.ext",
+   "reason": "design view or binary",
+   "sha256": "751e00222de6773164e323214572223c324642bd0aac8b66e0c2149670fa3c7e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2039,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__a31oi_2.ext",
+   "reason": "design view or binary",
+   "sha256": "05437b599560891f6312995fe7e3df578fff328485f1027e3e5fc5013156bac9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1528,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__and2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "659b3be46e7f752afe21e9c8bb453679d49bc6356e2e9743d0db2f62ab09528f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1473,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__and2b_2.ext",
+   "reason": "design view or binary",
+   "sha256": "f020608e9c5906c6fe2521ff601907a398126f5301b390a394451a7ca9e02ab4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1748,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__and3b_2.ext",
+   "reason": "design view or binary",
+   "sha256": "dee164e31968995b4c804ccd66fa7b752bc9c280152f41a39f3deeb79b730e73"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1816,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__clkbuf_16.ext",
+   "reason": "design view or binary",
+   "sha256": "3d0a835bce1357b54c573490856d174125a18682ce390bde8a2144814b6d0f4e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1461,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__clkbuf_4.ext",
+   "reason": "design view or binary",
+   "sha256": "dac82aeaaf7788f532aa8b3731cbb5b1d80208f59831020e740231945fe2d003"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1522,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__clkbuf_8.ext",
+   "reason": "design view or binary",
+   "sha256": "60c2b926b3ade56904f311986fd061fe73d709cd3e3fd9cd70e12d142c32e7a5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1312,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__clkdlybuf4s25_1.ext",
+   "reason": "design view or binary",
+   "sha256": "1b32fb9540165cf9d2b1c705f5e549f5ee260a5c330b7c1d371e5bd03d1ffcb8"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 909,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__decap_3.ext",
+   "reason": "design view or binary",
+   "sha256": "5a67ee28190c0c5268c8b9cd2ec440c2c0f53d68c6f6b7faf262d91ab8c1d425"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1649,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__dfxtp_2.ext",
+   "reason": "design view or binary",
+   "sha256": "991e7b41ced784da614e759ef2a568118f1324178b6a783b7a14cd7825140484"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1315,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__dlygate4sd3_1.ext",
+   "reason": "design view or binary",
+   "sha256": "0b730dfa573c4dd6107aee90e2f9880755ee0ffc8e0bc10d489464a5e1db89f5"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 874,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__fill_1.ext",
+   "reason": "design view or binary",
+   "sha256": "25107bffd82c5a39a37f1cc56eb1396ce1111edaed630a4602fc6f97e3f40943"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 879,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__fill_2.ext",
+   "reason": "design view or binary",
+   "sha256": "eb4d79fe997d870961442bde29666b1373824a7f3ce02a38633b7b7fcc72bd6b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1279,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__inv_2.ext",
+   "reason": "design view or binary",
+   "sha256": "44305ac6e92ded9a9b3bea101f1532d8a757c511cfc76501c1de0b48ea449e91"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1500,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__nand2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "17b92accd022533e259cecf1e9255e8905861d2d4128948deaf5f40b137ec8a2"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1624,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__nand2b_2.ext",
+   "reason": "design view or binary",
+   "sha256": "e41d320a0e8ba936d72ce23e8ca2d39c21a2660097180b1a67f0054bab10f026"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1781,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__nand3b_2.ext",
+   "reason": "design view or binary",
+   "sha256": "83ca844efca057edef7a8d3470aa0b80707f6bebfd0784d92536ab1f8d2b0470"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1557,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__nor2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "b320c58eccef46c30b18d12c59944bfb710af03d171fc6b06f1a2791aa36dad1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1817,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o211a_2.ext",
+   "reason": "design view or binary",
+   "sha256": "9a10f5e9cefbbfea82613eb5be1cf6ffdaa852f6bb75995d9db80aced346dd83"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1573,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o21a_2.ext",
+   "reason": "design view or binary",
+   "sha256": "4ad4bad9ff594d81f9e5dfb101251528951f270c5bff20c9aff890455ddccde6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1696,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o21ai_2.ext",
+   "reason": "design view or binary",
+   "sha256": "e8c9b05c984e432c3149b82f7444e7173fcd1dc9e53d54f54b2a0340e52c8b32"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1666,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o21ba_2.ext",
+   "reason": "design view or binary",
+   "sha256": "34f97b27377d665db306021060e751349487b9af23724e85382a0fef704f9c5f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1928,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o2bb2a_2.ext",
+   "reason": "design view or binary",
+   "sha256": "55bed8e40a52df208e5b4b911945187c7d097421d4573d718a0d1eda48accf29"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2015,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o311a_2.ext",
+   "reason": "design view or binary",
+   "sha256": "a2dd4fe72e2568e82898714321ccc4b023249bde2dfed485025244ac570a7ded"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1851,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__o31a_2.ext",
+   "reason": "design view or binary",
+   "sha256": "2be35cb694d6e586c301c75cb22adff37d3110d1ad355d64483c7eadaa938b55"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1529,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__or2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "8ef8d8616ad69b7a4d724f9fe31f7c99ebc38f22e9173171935485a363a7290f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1684,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__or3_2.ext",
+   "reason": "design view or binary",
+   "sha256": "9facde3843ed915ca842a5607c5b6de89723a692a22a1babe70f514e89f0888f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1872,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__or4b_2.ext",
+   "reason": "design view or binary",
+   "sha256": "8cc30ed7b191e6d3644db32472f11c3be4bd02a006c3d5f24cabd2b9d6acd21a"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 875,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__tapvpwrvgnd_1.ext",
+   "reason": "design view or binary",
+   "sha256": "43f090867591d35d99fce26124c417361d4a9a8324e399ce018b021606da1c82"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1697,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__xnor2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "a00a25e63ddcc774b6049e17b7650d0a98a3cfa390a9397fe52c3604b640c41c"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1790,
+   "path": "68-magic-spiceextraction/extraction/sky130_fd_sc_hd__xor2_2.ext",
+   "reason": "design view or binary",
+   "sha256": "98ad5c08bb0715b14c5feb92fa6e9f8f7a7e87c178277e1b12b628cc89dcfe80"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6818,
+   "path": "70-netgen-lvs/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "eb2ae3e7e6a7bb6fa005de000559b62fd4be285b0fbbd685d5cf5b7488480752"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 241637,
+   "path": "final/def/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "cf10df75c8606df4207188e71dd2504186bbbe4edec4f81b359863825bd34973"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 671160,
+   "path": "final/gds/path_adder.gds",
+   "reason": "design view or binary",
+   "sha256": "628484a1b139563c532df1442fa762c7d4fdb27ecb4560f482779e1b6b0a0e85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8633,
+   "path": "final/json_h/path_adder.h.json",
+   "reason": "design view or binary",
+   "sha256": "fe8c45742d82cdaba72a5da682c8b90e6e61b4927178e448ddd4b84e75239b61"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 453412,
+   "path": "final/klayout_gds/path_adder.klayout.gds",
+   "reason": "design view or binary",
+   "sha256": "7b89057e828786a74fd35c99dcea3014ca446f4913f6c9a0695118fa567ef66e"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1711,
+   "path": "final/lef/path_adder.lef",
+   "reason": "design view or binary",
+   "sha256": "7a51af3241479a46084097fa0a34c6386f54569e7b5edc37e8fd5c6534558cd1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "final/lib/max_ff_n40C_1v95/path_adder__max_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "b367b14fd391eeb01cc4137f1012d78e52fbf3f67eb58392072b008c37fb45e9"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "final/lib/max_ss_100C_1v60/path_adder__max_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "20094ac66429b18c0c49ee06238f745dc1144fe4796e733a1f7449546a63acca"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "final/lib/max_tt_025C_1v80/path_adder__max_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "b4759581d27a12eb87d149197978455a3ac538ce78ab7e9609741e0ce117abb0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "final/lib/min_ff_n40C_1v95/path_adder__min_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "aeccdfb489f50e0be44d35b2ddfbd05509b302dd75d4fe3ca5a2d4ebed9e6c01"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3102,
+   "path": "final/lib/min_ss_100C_1v60/path_adder__min_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "a5f014b72dd0050ba6bf8a208c64adfa5a35faf043c939e239c5d0436bd34b91"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "final/lib/min_tt_025C_1v80/path_adder__min_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "0179c4ab72a55b5c8e054a1821f2d0e9298f3218669526d37471be755c9c487b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "final/lib/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.lib",
+   "reason": "design view or binary",
+   "sha256": "bf2f78e5bad4d45bd7a6cb37297de55320482604c87c30bfffd1761eac0becc1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3101,
+   "path": "final/lib/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.lib",
+   "reason": "design view or binary",
+   "sha256": "604974c59880dfa725a6ba9d825d50bb4d7f15cfb5e29c513b398b33066047fe"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 3100,
+   "path": "final/lib/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.lib",
+   "reason": "design view or binary",
+   "sha256": "65a2eb8d9bec54155a32257cd45b6ec86817714a84f10d1ba08fd639969a0132"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 454347,
+   "path": "final/mag/path_adder.mag",
+   "reason": "design view or binary",
+   "sha256": "09c8ead59cd2d92d538779f460a022bbc92cdc76863a77c1e98ef3801a6ebbae"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 671160,
+   "path": "final/mag_gds/path_adder.magic.gds",
+   "reason": "design view or binary",
+   "sha256": "628484a1b139563c532df1442fa762c7d4fdb27ecb4560f482779e1b6b0a0e85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 52434,
+   "path": "final/nl/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "67665ac52188df6da70a970e4c4b2e2a46646767b6ed824a5caee444db4cd2fd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 2036165,
+   "path": "final/odb/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "6d6b659ab3ccdca4c8220935efde280baa5e4ea103e3cc3a6cd218f9ed43796f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 98146,
+   "path": "final/pnl/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "4cd4e16562d8a9e6e42ffa17f4f7e10cd38b1aadc619b221d3494e66d0ef6a7f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 309879,
+   "path": "final/render/path_adder.png",
+   "reason": "design view or binary",
+   "sha256": "bd645f0fca8e68ddc10aaf9e4e828dbb7f0973f288a2b4c0b233376f1ea590f0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1573,
+   "path": "final/sdc/path_adder.sdc",
+   "reason": "design view or binary",
+   "sha256": "751082481cf4aa60fb8d8cd7276a62dcf2a2e22f7207a4c2fca9a965587a0932"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "final/sdf/max_ff_n40C_1v95/path_adder__max_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "9518df393a20983f928d8d4cd9f9c19a11c5278a281dd5e0f90ca590342b68b4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "final/sdf/max_ss_100C_1v60/path_adder__max_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "3f6e7d602c208bb55fc339f16323a2506a921545751c562bcec1509563ed5021"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "final/sdf/max_tt_025C_1v80/path_adder__max_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "9c9f49e292b46c92d2ae436522eb959465630d9c0d5877883269683906cf5829"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "final/sdf/min_ff_n40C_1v95/path_adder__min_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "acdce67ff40a6d993f981144d3a2b5731c7f62eb561fa2c3a689b19d2aef4717"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143179,
+   "path": "final/sdf/min_ss_100C_1v60/path_adder__min_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "5ded704a7878bf52142fcdbbbad1532bd2d0f1d64c077f45fb339d4752e9cf6b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "final/sdf/min_tt_025C_1v80/path_adder__min_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "7a16d86570f29da4b21e81ba9eb03f413604868a7a0afdced6c5ce6428eb9b09"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "final/sdf/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "91178c6f84e41a5744f2cd933ac0e9c75bfcbee6ec06f431cf565dc339d7b2f2"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143199,
+   "path": "final/sdf/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "6551bb15838fb221334279e83f52f7ec1708330fc826681d2a540f4be5e074c6"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 143197,
+   "path": "final/sdf/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "eeeb51318be5508193fea71a67b91d10bc9b144efcadbd6ca86df7bde0f695d1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 210946,
+   "path": "final/spef/max/path_adder.max.spef",
+   "reason": "design view or binary",
+   "sha256": "f1a5badb891fca52d3dcd6a4252f149f9a72e45ec5ecd6164e4b19e98c0ef95f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 196832,
+   "path": "final/spef/min/path_adder.min.spef",
+   "reason": "design view or binary",
+   "sha256": "7ff130b630afa98fe6a5ee46ffcf55834f3ea58842716880ffbeaee5c154b87d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 198652,
+   "path": "final/spef/nom/path_adder.nom.spef",
+   "reason": "design view or binary",
+   "sha256": "9bdf57f605b29164f202a4f4f7eebe76a543ce0731ea999be90180744baaaf85"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 57442,
+   "path": "final/spice/path_adder.spice",
+   "reason": "design view or binary",
+   "sha256": "6476747cb2001ea47a8c40a4608dd06d4a948d095b73355d911916d2815a6233"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 155,
+   "path": "final/vh/path_adder.vh",
+   "reason": "design view or binary",
+   "sha256": "aa943a8ba722d8335b5afda4b7959f9ac40df0fc51cea2cd97767d8174ba1361"
+  },
+  {
+   "action": "dropped",
+   "bytes": 6293499,
+   "path": "tmp/0753f746554c4ec1aa3475231876efd9.lib",
+   "reason": "run scratch (tmp/)",
+   "sha256": "27d24d87f182dd2ccf026d08ec0fc573ad31a2a0a8a4d1b1f4e342be1666b41c"
+  },
+  {
+   "action": "dropped",
+   "bytes": 124815,
+   "path": "tmp/818d2632c5da451eb7e4ccde6f7aca96.bb.v",
+   "reason": "run scratch (tmp/)",
+   "sha256": "380af675c15927c3502aace1dc403b6b8b1344edc3a6a5255fd56fda57cebd2b"
+  },
+  {
+   "action": "dropped",
+   "bytes": 54760,
+   "path": "tmp/818d2632c5da451eb7e4ccde6f7aca96.bb.v_yosys.log",
+   "reason": "run scratch (tmp/)",
+   "sha256": "3b0ff264952fb29b7c5fe83ae26a9746dcdbe6da85f997c806af0fb19b1e68b1"
+  }
+ ],
+ "tool": "tool/flow/trim_run_fixture.py"
+}
