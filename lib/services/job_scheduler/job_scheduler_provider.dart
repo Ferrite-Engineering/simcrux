@@ -16,6 +16,7 @@ import 'package:simcrux/services/job_scheduler/waveform_archive_provider.dart';
 import 'package:simcrux/services/retry_policy/retry_policy_provider.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
 import 'package:simcrux/services/simulator/demo_simulator_driver.dart';
+import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/ghdl_driver.dart';
 import 'package:simcrux/services/simulator/icarus_driver.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
@@ -84,6 +85,10 @@ final Provider<SimulatorDriverRegistry> simulatorDriverRegistryProvider =
           // General SymbiYosys, the driver the RISC-V track is built on.
           // Never gated, for the same reason.
           SbyDriver.kId: SbyDriver(reaper: reaper),
+          // EQY equivalence checks, one test per `.eqy` with its partitions
+          // on the row. Never gated: the verdict and every partition are
+          // correctness.
+          EqyDriver.kId: EqyDriver(reaper: reaper),
         };
         // The hidden no-op demo runner, off unless the
         // `SIMCRUX_DEMO_RUNNER` gate is set. It spawns no process, so a

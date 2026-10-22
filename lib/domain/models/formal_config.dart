@@ -33,11 +33,13 @@ enum FormalRunMode {
   }
 }
 
-/// The general `formal:` block: one SymbiYosys task per SimCrux test.
+/// The general `formal:` block: one SymbiYosys task, or one EQY
+/// equivalence check, per SimCrux test.
 ///
 /// Separate from `riscv.formal:`, and both may appear on one test: the
-/// RISC-V block is read only by the `riscv_formal` driver, this one only
-/// by the `sby` driver. Inherited at the same four levels as `riscv:`
+/// RISC-V block is read only by the `riscv_formal` driver, this one by the
+/// `sby` driver ([sbyFile], [task]) and the `eqy` driver ([eqyFile]).
+/// Inherited at the same four levels as `riscv:`
 /// (an including file's `defaults.formal`, the project's `defaults.formal`,
 /// the suite's `formal:`, the test's `formal:`), merged field by field.
 ///
@@ -45,8 +47,9 @@ enum FormalRunMode {
 ///
 /// The keys that choose what SimCrux executes are read through the
 /// project-tooling gate: [command] and [extraArgs] refuse the load while
-/// the gate is closed, [sbyBinary] and every [tools] entry are dropped with
-/// an advisory and the conventional names on PATH are used instead.
+/// the gate is closed, [sbyBinary], [eqyBinary] and every [tools] entry are
+/// dropped with an advisory and the conventional names on PATH are used
+/// instead.
 @immutable
 class FormalConfig {
   /// Creates a [FormalConfig].
@@ -54,6 +57,8 @@ class FormalConfig {
     this.sbyFile,
     this.task,
     this.sbyBinary,
+    this.eqyFile,
+    this.eqyBinary,
     this.command,
     this.extraArgs,
     this.tools,
@@ -66,8 +71,27 @@ class FormalConfig {
   /// The `simulator:` id of the general SymbiYosys driver.
   static const String kSbySimulatorId = 'sby';
 
+  /// The `simulator:` id of the EQY equivalence driver.
+  static const String kEqySimulatorId = 'eqy';
+
   /// Conventional `sby` executable name, used when [sbyBinary] is unset.
   static const String kDefaultSbyBinary = 'sby';
+
+  /// Conventional `eqy` executable name, used when [eqyBinary] is unset.
+  static const String kDefaultEqyBinary = 'eqy';
+
+  /// The [kToolKeys] `eqy` also accepts as `--<tool> <path>`. The others
+  /// are SymbiYosys-only and are not passed to `eqy`.
+  static const List<String> kEqyToolKeys = <String>[
+    'yosys',
+    'abc',
+    'smtbmc',
+    'suprove',
+    'aigbmc',
+    'avy',
+    'btormc',
+    'pono',
+  ];
 
   /// The `sby` options that name a tool executable, as `formal.tools` keys.
   /// Each becomes `--<key> <path>` on the command line.
@@ -100,9 +124,18 @@ class FormalConfig {
   /// allowed.
   final String? sbyBinary;
 
+  /// The `.eqy` file, relative to the project file's directory or absolute.
+  /// `eqy` runs in its directory, so the `[gold]` and `[gate]` scripts read
+  /// their sources the way `eqy` reads them by hand. Its basename names the
+  /// work directory, so it must be a single safe path segment.
+  final String? eqyFile;
+
+  /// The EQY executable. Gated like [sbyBinary].
+  final String? eqyBinary;
+
   /// Full argv override. Gated: refuses the load unless project tooling is
   /// allowed. Placeholders as [expandRiscvPlaceholders]: `{sby_file}`,
-  /// `{task}`, `{task_dir}`, `{work_dir}`, `{name}`.
+  /// `{eqy_file}`, `{task}`, `{task_dir}`, `{work_dir}`, `{name}`.
   final List<String>? command;
 
   /// Extra `sby` options inserted before the job file. Gated like
@@ -149,11 +182,30 @@ class FormalConfig {
     ];
   }
 
+  /// What is missing for an `eqy` run, in plain English; empty when
+  /// runnable. There is no captured corpus to replay for EQY, so demo mode
+  /// is refused rather than reported as a run.
+  List<String> validateForEqyRun() {
+    if (effectiveMode == FormalRunMode.demo) {
+      const message =
+          '`formal.mode: demo` replays SymbiYosys captures and is not '
+          'available for the eqy driver.';
+      return const <String>[message];
+    }
+    final hasCommand = command != null && command!.isNotEmpty;
+    return <String>[
+      if (!hasCommand && (eqyFile == null || eqyFile!.isEmpty))
+        '`formal.eqy_file` is required to run the eqy driver.',
+    ];
+  }
+
   /// Returns a copy with the given fields replaced.
   FormalConfig copyWith({
     String? sbyFile,
     String? task,
     String? sbyBinary,
+    String? eqyFile,
+    String? eqyBinary,
     List<String>? command,
     List<String>? extraArgs,
     Map<String, String>? tools,
@@ -166,6 +218,8 @@ class FormalConfig {
       sbyFile: sbyFile ?? this.sbyFile,
       task: task ?? this.task,
       sbyBinary: sbyBinary ?? this.sbyBinary,
+      eqyFile: eqyFile ?? this.eqyFile,
+      eqyBinary: eqyBinary ?? this.eqyBinary,
       command: command ?? this.command,
       extraArgs: extraArgs ?? this.extraArgs,
       tools: tools ?? this.tools,
@@ -183,6 +237,8 @@ class FormalConfig {
       sbyFile: sbyFile ?? parent.sbyFile,
       task: task ?? parent.task,
       sbyBinary: sbyBinary ?? parent.sbyBinary,
+      eqyFile: eqyFile ?? parent.eqyFile,
+      eqyBinary: eqyBinary ?? parent.eqyBinary,
       command: command ?? parent.command,
       extraArgs: extraArgs ?? parent.extraArgs,
       tools: tools ?? parent.tools,
@@ -199,6 +255,8 @@ class FormalConfig {
       other.sbyFile == sbyFile &&
       other.task == task &&
       other.sbyBinary == sbyBinary &&
+      other.eqyFile == eqyFile &&
+      other.eqyBinary == eqyBinary &&
       riscvListEquals(other.command, command) &&
       riscvListEquals(other.extraArgs, extraArgs) &&
       _mapEquals(other.tools, tools) &&
@@ -212,6 +270,8 @@ class FormalConfig {
     sbyFile,
     task,
     sbyBinary,
+    eqyFile,
+    eqyBinary,
     command == null ? null : Object.hashAll(command!),
     extraArgs == null ? null : Object.hashAll(extraArgs!),
     tools == null

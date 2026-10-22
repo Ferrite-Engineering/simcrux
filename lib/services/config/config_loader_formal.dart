@@ -14,10 +14,10 @@ part of 'config_loader.dart';
 // - `formal.command` and `formal.extra_args` are argv the driver spawns
 //   verbatim. With the gate closed the load is refused: running a different
 //   invocation than the file asked for is worse than one clear diagnostic.
-// - `formal.sby_binary` and every `formal.tools.<tool>` choose an
-//   executable and each has a safe default (the conventional name on PATH,
-//   or no `--<tool>` option at all). With the gate closed they are dropped,
-//   with one advisory per block naming every dropped key.
+// - `formal.sby_binary`, `formal.eqy_binary` and every `formal.tools.<tool>`
+//   choose an executable and each has a safe default (the conventional name
+//   on PATH, or no `--<tool>` option at all). With the gate closed they are
+//   dropped, with one advisory per block naming every dropped key.
 
 /// The `formal:` keys this reader knows. Anything else is an error, so a
 /// misspelt `sby_bianry` cannot silently fall back to PATH.
@@ -25,6 +25,8 @@ const Set<String> _kFormalKeys = <String>{
   'sby_file',
   'task',
   'sby_binary',
+  'eqy_file',
+  'eqy_binary',
   'command',
   'extra_args',
   'tools',
@@ -95,6 +97,8 @@ FormalConfig? _readFormalConfig(
     sbyFile: _readFormalSbyFile(node, label, filePath, errors),
     task: _readFormalTask(node, label, filePath, errors),
     sbyBinary: gate.read(node, 'sby_binary', label, filePath, errors),
+    eqyFile: _readFormalEqyFile(node, label, filePath, errors),
+    eqyBinary: gate.read(node, 'eqy_binary', label, filePath, errors),
     command: _readRiscvStringList(node, 'command', label, filePath, errors),
     extraArgs: _readRiscvStringList(
       node,
@@ -132,7 +136,7 @@ FormalConfig? _readFormalConfig(
 }
 
 /// Appends one error per completeness problem on the flattened block, for
-/// tests that run under the `sby` driver only. A `formal:` block on any
+/// tests that run under the `sby` or `eqy` driver. A `formal:` block on any
 /// other simulator is inert, never an error.
 void _validateFormalForTest({
   required FormalConfig? formal,
@@ -143,10 +147,18 @@ void _validateFormalForTest({
   required YamlNode? testNode,
   required List<ConfigLoaderError> errors,
 }) {
-  if (simulatorId != FormalConfig.kSbySimulatorId) return;
-  final problems = formal == null
-      ? const <String>['a `formal:` block with `sby_file` is required.']
-      : formal.validateForRun();
+  final List<String> problems;
+  if (simulatorId == FormalConfig.kSbySimulatorId) {
+    problems = formal == null
+        ? const <String>['a `formal:` block with `sby_file` is required.']
+        : formal.validateForRun();
+  } else if (simulatorId == FormalConfig.kEqySimulatorId) {
+    problems = formal == null
+        ? const <String>['a `formal:` block with `eqy_file` is required.']
+        : formal.validateForEqyRun();
+  } else {
+    return;
+  }
   for (final problem in problems) {
     errors.add(
       _error(
@@ -166,6 +178,44 @@ String? _readFormalSbyFile(
   String filePath,
   List<ConfigLoaderError> errors,
 ) => _readRiscvSbyFile(node, label, filePath, errors);
+
+/// `formal.eqy_file`: refused when `eqy` would read it as a flag, and when
+/// its basename cannot name the work directory `eqy -f -d` deletes and
+/// recreates.
+String? _readFormalEqyFile(
+  YamlMap node,
+  String label,
+  String filePath,
+  List<ConfigLoaderError> errors,
+) {
+  final value = _readRiscvString(node, 'eqy_file', label, filePath, errors);
+  if (value == null) return null;
+  String? problem;
+  if (value.startsWith('-') || value.contains('\n') || value.contains('\r')) {
+    problem =
+        'it would reach EQY as a flag rather than a file. Write it as '
+        '`./$value` if that really is its name';
+  } else {
+    final segment = FormalContainment.segmentProblem(
+      p.basenameWithoutExtension(value),
+    );
+    if (segment != null) {
+      problem =
+          'its name cannot name the EQY work directory ($segment), which '
+          '`eqy -f -d` deletes and recreates';
+    }
+  }
+  if (problem == null) return value;
+  errors.add(
+    _error(
+      path: filePath,
+      node: node.nodes['eqy_file'],
+      message:
+          '`$label.eqy_file` "${value.replaceAll('\n', r'\n')}": $problem.',
+    ),
+  );
+  return null;
+}
 
 /// `formal.task`: a SymbiYosys task name that is also one safe path
 /// segment, because it names the directory `sby -f -d` deletes.

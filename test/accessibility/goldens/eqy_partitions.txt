@@ -1,0 +1,6 @@
+# Tab walk: 5 stops, cycles
+1. 2 of 4 partitions proved equivalent text
+2. alu.z: not equivalent, counterexample in strategies/alu.z/sby/alu.z/engine_0/trace.vcd text
+3. alu.q: undecided text
+4. alu.y: proved equivalent text
+5. alu.r: proved equivalent text

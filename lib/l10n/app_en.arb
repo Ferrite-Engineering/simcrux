@@ -2633,6 +2633,100 @@
   "@formalVerdictDidNotRunDropped": {
     "description": "Verdict of a formal check whose properties were accepted by the frontend but never reached the elaborated design, so nothing was checked."
   },
+  "formalVerdictProvedEquivalent": "{count, plural, =1{Proved equivalent, 1 partition} other{Proved equivalent, all {count} partitions}}",
+  "@formalVerdictProvedEquivalent": {
+    "description": "Verdict of an EQY equivalence check that proved every one of its {count} partitions equivalent.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formalVerdictNoPartitionsChecked": "Passed, no partitions checked",
+  "@formalVerdictNoPartitionsChecked": {
+    "description": "Verdict of an EQY equivalence check that passed with no partition to prove, so nothing was proved."
+  },
+  "formalVerdictNotProvedEquivalent": "{total, plural, =1{Not proved equivalent, {count} of 1 partition} other{Not proved equivalent, {count} of {total} partitions}}",
+  "@formalVerdictNotProvedEquivalent": {
+    "description": "Verdict of an EQY equivalence check in which {count} of its {total} partitions were not proved equivalent (a counterexample, undecided, or not run). Never claims the designs are equivalent.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "formalEqyPartitionsHeading": "{total, plural, =1{{proved} of 1 partition proved equivalent} other{{proved} of {total} partitions proved equivalent}}",
+  "@formalEqyPartitionsHeading": {
+    "description": "First line of the partition list in the inspector for an EQY row: how many of its partitions were proved equivalent.",
+    "placeholders": {
+      "proved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "formalEqyPartitionProved": "{partition}: proved equivalent",
+  "@formalEqyPartitionProved": {
+    "description": "One partition of an EQY row that was proved equivalent. {partition} is the partition's name from the design and is never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String"
+      }
+    }
+  },
+  "formalEqyPartitionCounterexample": "{partition}: not equivalent, counterexample in {path}",
+  "@formalEqyPartitionCounterexample": {
+    "description": "One partition of an EQY row that is not equivalent, with its counterexample trace file {path} (relative to the run's work directory). {partition} is never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "formalEqyPartitionNotEquivalent": "{partition}: not equivalent, no counterexample trace found",
+  "@formalEqyPartitionNotEquivalent": {
+    "description": "One partition of an EQY row that is not equivalent but whose counterexample trace was not found. {partition} is never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String"
+      }
+    }
+  },
+  "formalEqyPartitionUndecided": "{partition}: undecided",
+  "@formalEqyPartitionUndecided": {
+    "description": "One partition of an EQY row whose equivalence was neither proved nor refuted. {partition} is never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String"
+      }
+    }
+  },
+  "formalEqyPartitionDidNotRun": "{partition}: did not run",
+  "@formalEqyPartitionDidNotRun": {
+    "description": "One partition of an EQY row that no strategy ran. {partition} is never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String"
+      }
+    }
+  },
+  "formalEqyPartitionsMore": "{count, plural, =1{1 more partition not shown} other{{count} more partitions not shown}}",
+  "@formalEqyPartitionsMore": {
+    "description": "Last line of a long partition list in the inspector: how many partitions are not shown.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "formalVerdictWithPretrace": "{verdict}, depends on state before the trace began",
   "@formalVerdictWithPretrace": {
     "description": "What a screen reader hears for a formal row whose result depends on values from before the first step of the trace. {verdict} is the row's verdict, for example Reached.",
@@ -2775,7 +2869,7 @@
   "@importFormalTitle": {
     "description": "Title of the Import Formal Project dialog."
   },
-  "importFormalIntro": "Reads a SymbiYosys job file into one test per task and writes a simcrux.yaml you own. Nothing is run.",
+  "importFormalIntro": "Reads a SymbiYosys job file into one test per task, or an EQY file into one test, and writes a simcrux.yaml you own. Nothing is run.",
   "@importFormalIntro": {
     "description": "One-line explanation at the top of the Import Formal Project dialog."
   },
@@ -2783,9 +2877,17 @@
   "@importFormalJobFileLabel": {
     "description": "Label of the row that shows the chosen SymbiYosys .sby job file."
   },
-  "importFormalJobFileNone": "No .sby file chosen",
+  "importFormalJobFileNone": "No .sby or .eqy file chosen",
   "@importFormalJobFileNone": {
     "description": "Shown in the job file row before a file is chosen."
+  },
+  "importFormalEqyHeading": "Equivalence check",
+  "@importFormalEqyHeading": {
+    "description": "Heading of the Import Formal Project dialog's section for a chosen EQY (.eqy) file."
+  },
+  "importFormalEqyOneTest": "An EQY file becomes one test. EQY partitions the designs when it runs, and each partition is reported on that test's row.",
+  "@importFormalEqyOneTest": {
+    "description": "Shown in the Import Formal Project dialog when the chosen file is an EQY (.eqy) file: it becomes one test whose row reports every partition."
   },
   "importFormalProjectFileLabel": "Project file",
   "@importFormalProjectFileLabel": {

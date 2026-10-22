@@ -103,6 +103,7 @@ abstract final class SimcruxColors {
   ) {
     return switch (wording) {
       FormalVerdictWording.proved ||
+      FormalVerdictWording.provedEquivalent ||
       FormalVerdictWording.provedOverSteps ||
       FormalVerdictWording.provedBounded ||
       FormalVerdictWording.reached => statusPass,

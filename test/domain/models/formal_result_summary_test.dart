@@ -3,8 +3,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/enums/formal_bucket.dart';
+import 'package:simcrux/domain/enums/formal_property_status.dart';
 import 'package:simcrux/domain/models/formal_diagnostic.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
+import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/riscv_formal_driver.dart';
 import 'package:simcrux/services/simulator/sby_driver.dart';
 
@@ -131,6 +133,75 @@ void main() {
         'formal.verdict': 'PASS',
       })!;
       expect(s.tool, 'eqy');
+    });
+  });
+
+  group('EQY rows', () {
+    Map<String, String> eqy(String verdict, {String? partitions}) => {
+      SbyDriver.kMetricTool: EqyDriver.kId,
+      SbyDriver.kMetricVerdict: verdict,
+      SbyDriver.kMetricMode: EqyDriver.kModeEquiv,
+      SbyDriver.kMetricProperties: ?partitions,
+    };
+
+    test(
+      'a PASS is proved equivalent; with no partition it proved nothing',
+      () {
+        expect(
+          FormalResultSummary.fromMetrics(
+            eqy('PASS', partitions: '2'),
+          )!.wording,
+          FormalVerdictWording.provedEquivalent,
+        );
+        expect(
+          FormalResultSummary.fromMetrics(
+            eqy('PASS', partitions: '0'),
+          )!.wording,
+          FormalVerdictWording.noPropertiesChecked,
+        );
+      },
+    );
+
+    test('anything but PASS is never worded as a proof', () {
+      for (final token in ['FAIL', 'UNKNOWN', 'ERROR', 'NO_OUTCOME', 'NEW']) {
+        expect(
+          FormalResultSummary.fromMetrics(eqy(token, partitions: '3'))!.wording,
+          isNot(
+            anyOf(
+              FormalVerdictWording.provedEquivalent,
+              FormalVerdictWording.proved,
+            ),
+          ),
+        );
+      }
+    });
+
+    test('partitionsOf reads the partition rows, never as proved when the '
+        'status is unreadable', () {
+      final rows = FormalResultSummary.partitionsOf({
+        ...eqy('FAIL', partitions: '3'),
+        'formal.property.0.kind': 'partition',
+        'formal.property.0.label': 'alu.z',
+        'formal.property.0.status': 'counterexample',
+        'formal.property.0.trace':
+            'strategies/alu.z/sby/alu.z/engine_0/trace.vcd',
+        'formal.property.1.kind': 'partition',
+        'formal.property.1.label': 'alu.y',
+        'formal.property.1.status': 'proved',
+        'formal.property.2.kind': 'partition',
+        'formal.property.2.location': 'alu.r',
+        'formal.property.2.status': 'something_new',
+      });
+      expect(rows.map((r) => r.name), ['alu.z', 'alu.y', 'alu.r']);
+      expect(rows[0].status, FormalPropertyStatus.counterexample);
+      expect(rows[0].trace, endsWith('trace.vcd'));
+      expect(rows[1].status, FormalPropertyStatus.proved);
+      expect(rows[2].status, FormalPropertyStatus.didNotRun);
+      expect(
+        FormalResultSummary.partitionsOf(_sby('FAIL', mode: 'prove')),
+        isEmpty,
+        reason: 'an sby row has properties, not partitions',
+      );
     });
   });
 

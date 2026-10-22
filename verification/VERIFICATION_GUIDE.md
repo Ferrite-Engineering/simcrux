@@ -5177,7 +5177,176 @@ reached before step 0, and how to constrain it, is a separate Pro screen.
 
 ### 26.11 The `eqy` driver
 
-Not yet built.
+**What it does.** `simulator: eqy` runs one EQY equivalence check per
+SimCrux test (`lib/services/simulator/eqy_driver.dart`). EQY cuts the gold
+and gate designs into partitions at run time and proves each one, so the
+partitions are child rows of the one test, not tests of their own.
+
+```yaml
+suites:
+  equiv:
+    tests:
+      - name: alu
+        top: alu
+        simulator: eqy
+        formal:
+          eqy_file: equiv/alu.eqy   # relative to this file
+```
+
+Keys for an eqy test: `eqy_file` (required), `extra_args`, `command`, and
+the gated `eqy_binary` and `tools.<tool>` (only `yosys`, `abc`, `smtbmc`,
+`suprove`, `aigbmc`, `avy`, `btormc` and `pono` reach `eqy`; any other is
+named in the run log and left out). `mode: demo` is refused: there is no
+captured EQY corpus to replay.
+
+**The spawn.** `eqy -f -d <work dir>/<the .eqy file's name> [--<tool>
+<path>] [extra args] <file.eqy>`, in the `.eqy` file's directory. The
+binary is `formal.eqy_binary` when project tooling is allowed, else the
+Settings > Engines path for `eqy`, else `eqy` on PATH.
+
+**Where the verdict comes from.**
+
+1. The log's `DONE (<TOKEN>, rc=<n>)` line (`EqyLogReader`): the run's
+   token. EQY writes `FAIL` for any partition not proved, undecided ones
+   included. The exit code is recorded in `formal.process_exit_code` and
+   decides nothing; an exit 0 under any verdict but `PASS` is withheld from
+   the scheduler, and a `PASS` with a non-zero exit is a failing row.
+2. Each partition's status file, `strategies/<partition>/<strategy>/status`,
+   the one `summary_targets.list` names and EQY's own summary reads
+   (`EqyWorkdirReader`, run off the calling isolate): `PASS` proved, `FAIL`
+   counterexample, `UNKNOWN` or `TIMEOUT` undecided, `ERROR` or anything
+   else did not run. A carried-over `PASS (cached)` or `FAIL (cached)` reads
+   as its first word.
+3. The log's partition lines (`Proved equivalence of partition …`,
+   `Could not prove … : partitions not equivalent | equivalence unknown |
+   timeout`, `Execution of strategy … encountered an error`, the closing
+   `Failed to prove equivalence of partition …`): a second source per
+   partition. Where it and the status file differ, the more conservative
+   wins and the disagreement is recorded; a partition with no status file
+   did not run, whatever the log says.
+
+**The agreement rule** (`EqyReconciliation`), on the worst partition:
+
+| DONE | Partitions | Row verdict | `formal.verdict_disagreement` |
+|---|---|---|---|
+| `PASS` | all proved | `PASS` | `0` |
+| `PASS` | any not proved | the worst partition's token | `1` |
+| `FAIL` | any counterexample | `FAIL` | `0` |
+| `FAIL` | none worse than undecided | `FAIL`, never softened | `1` |
+| `PASS` | no `partition.list` | `NO_OUTCOME` | `1` |
+| anything else | anything | the token, or a worse partition's | as above |
+
+A row is Proved only when every partition was. Otherwise the failure message
+names each partition that was not proved and its result, then the ones that
+were, and says the designs are not proved equivalent as a whole.
+
+**The counterexample per failing partition.** For an `sby` strategy, the
+partition's own SymbiYosys log (`strategies/<p>/<s>/<p>/logfile.txt`) names
+its base-case trace; the induction trace is never taken. For `sat`, the
+`trace.vcd` beside the status. For a `FAIL (cached)`, the strategy that
+decided it. Each trace is used only when it resolves inside the work
+directory with symlinks resolved. The row's `waveformPath` is the first
+failing partition's trace, which Cross-probe to and Cross-probe Selection
+send to WaveCrux.
+
+**Metrics.** `formal.tool` (`eqy`), `formal.run_mode`, `formal.mode`
+(`equiv`), `formal.verdict`, `formal.rc`, `formal.process_exit_code`,
+`formal.wall_time_ms`, `formal.wall_time_source`, `formal.engine` and
+`formal.solver` (from the strategies: `smtbmc`, `aiger` for `imctk`, `sat`,
+`mixed`), `formal.properties` (partitions), `formal.properties_failed`,
+`formal.properties_undecided`, `formal.trace_count`,
+`formal.verdict_disagreement`, `formal.properties_truncated`. Each
+partition is a row of the same indexed keys as an `sby` property:
+`formal.property.<n>.kind` = `partition`, `.location`, `.label` and `.id` =
+its name, `.status`, `.trace` (relative to the work directory) and
+`.strategy`, for at most 256 partitions.
+
+**Containment.** The work directory is one safe segment (the loader and the
+driver both refuse an `eqy_file` whose name has a separator, a colon, a line
+break or is `.`/`..`), because `eqy -f` deletes it. `extra_args` may not
+pass `-d`, `-f`/`--force`, `-b`/`--backup`, `-t`/`--tmp`,
+`-c`/`--continue`, `-m`/`--setup`, `-P`/`--purge`, `-p` or
+`--init-config-file`. Partition names from `partition.list` and strategy
+names from `summary_targets.list` are joined only when each is one safe
+segment; the rest are listed and never read. Every read is capped
+(`partition.list` 4 MiB and 4096 partitions, a status file 4 KiB, a
+partition's log 2 MiB). Cancel and timeout kill the whole tree (`eqy`,
+`make`, `sby`, `yosys`, the solvers).
+
+**VHDL.** A `[gold]`, `[gate]` or `[script]` line that calls the GHDL Yosys
+plugin (`ghdl …`) refuses the run before spawn: SimCrux reads VHDL only
+after lowering it with `ghdl --synth --out=verilog`. Lower it and read the
+Verilog it writes.
+
+**The Verdict column and the inspector.** A full proof reads "Proved
+equivalent, all N partitions"; any other failing EQY row reads "Not proved
+equivalent, K of N partitions"; a pass with no partition reads "Passed, no
+partitions checked". The inspector's Formal result lists the count proved,
+then each partition (unproved first, at most 20 lines), a counterexample
+with its trace file. Never a bare "Proved", never "verified".
+
+**Import.** `simcrux import-eqy <file.eqy> [--out <path>] [--eqy-binary
+<path>]` writes one suite with one test, `defaults.simulator: eqy` and the
+`string_match` detector on `DONE (PASS` (the constant `EqyLogReader`
+parses); help first, usage errors exit 2, as `import-sby`. File > Import
+Formal Project… takes a `.sby` or an `.eqy`; for an `.eqy` it shows "An
+EQY file becomes one test" instead of the task list and records
+`formal.import.completed{kind: eqy, tasks: 1}`. A file with no `[gold]` or
+`[gate]` is refused; one that calls the GHDL plugin, or has no strategy,
+imports with a warning in its header.
+
+**Telemetry.** `formal.run.completed{tool: eqy, mode: equiv, engine, …}`
+with the partition counts, and `engine.missing{simulator: eqy}`. Never a
+partition name, a path or a count of anything but partitions.
+
+**Setup.** As §26.9. The fixtures are the four EQY runs of §26.1; tests
+rebuild the work directory each run left from `eqy/captured/<run>/`
+(`test/support/eqy_workdir_fixture.dart`, whose table is the mapping) and
+take each partition's expected result from `eqy.expected.json`.
+
+**Expected behaviour (manual).**
+
+1. `simcrux import-eqy verification/fixtures/formal/eqy/alu_pass2.eqy --out
+   /tmp/eq/simcrux.yaml`, open it, run with `eqy` set in Settings > Engines:
+   Verdict reads "Proved equivalent, all 2 partitions".
+2. Import `alu_pass.eqy` and run: "Not proved equivalent, 1 of 3
+   partitions"; the inspector lists alu.z with its counterexample, then
+   alu.y and alu.r proved equivalent; Cross-probe to WaveCrux opens alu.z's
+   trace.
+3. Import `alu_fail2.eqy` and run: "Not proved equivalent, 2 of 2
+   partitions", each with its own trace.
+
+**Edge cases.**
+
+- `alu_pass` is a correct netlist EQY cannot prove at its default
+  configuration (§26.5). It is a failing row; the explanation and the
+  `gold-nomatch` suggestion belong to the Pro partition explorer.
+- A `PASS (cached)` or `FAIL (cached)` status is read by its first word.
+- A partition the log calls proved but that has no status file did not
+  run.
+
+**Tier-gate scenarios.** None: the driver, every partition, every
+counterexample and every word above are open core under both `kBetaPeriod`
+values. The partition explorer is a separate Pro screen.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| Sections, strategies in order, engine word, the GHDL plugin | `[Coverage: UNIT]` | `test/domain/models/eqy_script_test.dart` |
+| Every committed log: DONE token, every partition; reasons; precedence; the shared pass marker | `[Coverage: UNIT]` | `test/domain/models/eqy_outcome_test.dart` |
+| The corpus partitions and traces; the agreement rule; status file against log; cached; containment (`..`, absolute, Windows-shaped, colon, symlink, traversing targets); bounds | `[Coverage: UNIT]` | `test/services/formal/eqy_workdir_reader_test.dart` |
+| Command line, refusals before spawn, not available, the four acceptance rows through the scheduler, exit-code rule, detector | `[Coverage: UNIT]` | `test/services/simulator/eqy_driver_test.dart` |
+| The `formal:` keys and the tooling gate for eqy, one test per key | `[Coverage: UNIT]` | `test/services/config/config_loader_formal_test.dart` |
+| Ungated at Open Core after the beta, identical at Pro and Enterprise | `[Coverage: UNIT]` | `test/services/simulator/eqy_ungated_verdict_test.dart` |
+| The importer and `import-eqy`, through the binary, `IOOverrides` | `[Coverage: UNIT]` | `test/services/import/eqy_project_importer_test.dart` |
+| The dialog takes an `.eqy`; the flow records `kind: eqy` | `[Coverage: WIDGET]` | `test/features/formal_import/import_formal_project_dialog_test.dart` |
+| Wording and `partitionsOf` | `[Coverage: UNIT]` | `test/domain/models/formal_result_summary_test.dart` |
+| The Verdict column for EQY rows at Open Core, five locales | `[Coverage: WIDGET]` | `test/features/dashboard/widgets/dashboard_formal_verdict_test.dart` |
+| The inspector partition lines: Tab walk transcript, order, cap, five locales | `[Coverage: WIDGET]` | `test/accessibility/eqy_partitions_focus_walk_test.dart` |
+| `formal.run.completed` for an EQY row; `engine.missing` for eqy | `[Coverage: UNIT]` | `test/services/telemetry/formal_events_test.dart`, `test/services/telemetry/catalog_events_test.dart` |
+| Both registries, the sub-command, the importer's callers | `[Coverage: UNIT]` | `test/static/eqy_driver_reachability_test.dart` |
+| Every corpus run and the import-load-run round trip against a real eqy | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/eqy_driver_live_test.dart` |
 
 ---
 

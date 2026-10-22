@@ -1165,6 +1165,22 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The 51-probe matrix through the driver on both frontends: every refusal diagnosed, nothing refused reported passing, nothing accepted reported dropped; the measured rows match the table — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sva_matrix_driver_live_test.dart`, `engine-canary.yml`)
 - [ ] Every corpus case through the driver carries the hand-expected diagnostic and markers — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sby_driver_live_test.dart`)
 
+### The `eqy` driver (guide §26.11)
+
+- [ ] `EqyScript` reads `[gold]`, `[gate]`, `[script]`, the pattern sections and the strategies in order; a `ghdl` plugin call is found — `[Coverage: UNIT]` (`eqy_script_test.dart`)
+- [ ] `EqyLogReader` gives each committed run its DONE token and every partition the hand expectation names; the pass marker is the importer's — `[Coverage: UNIT]` (`eqy_outcome_test.dart`)
+- [ ] The work-directory reader reproduces every corpus partition, attaches only a base-case counterexample inside the work directory, and refuses partition and strategy names that would leave it (`..`, absolute, separators, colon, symlinks) — `[Coverage: UNIT]` (`eqy_workdir_reader_test.dart`)
+- [ ] The agreement rule: PASS only when every partition was proved, a FAIL never softened, no partition list never a pass — `[Coverage: UNIT]` (`eqy_workdir_reader_test.dart`)
+- [ ] `eqy -f -d <work dir>/<file name> <file.eqy>` beside the file; reserved options, an unsafe file name, demo mode and the GHDL plugin refused before spawn; the exit-code rule through the real scheduler; alu_pass Counterexample, alu_pass2 Proved, alu_fail2 two of two partitions — `[Coverage: UNIT]` (`eqy_driver_test.dart`)
+- [ ] `formal.eqy_file`, `formal.eqy_binary` (gated, dropped with an advisory), `command`, `extra_args` and `tools` for an eqy test — `[Coverage: UNIT]` (`config_loader_formal_test.dart`)
+- [ ] Ungated at Open Core after the beta, identical at Pro and Enterprise — `[Coverage: UNIT]` (`eqy_ungated_verdict_test.dart`)
+- [ ] `simcrux import-eqy`: help first, usage errors exit 2, one test, the emitted file loads clean; File > Import Formal Project… takes an `.eqy` and records `kind: eqy` — `[Coverage: UNIT]` (`eqy_project_importer_test.dart`), `[Coverage: WIDGET]` (`import_formal_project_dialog_test.dart`)
+- [ ] The Verdict column says "Proved equivalent, all N partitions" only for a full proof and "Not proved equivalent, K of N partitions" otherwise, in five locales — `[Coverage: WIDGET]` (`dashboard_formal_verdict_test.dart`)
+- [ ] The inspector lists the partitions, unproved first, each a Tab stop — `[Coverage: WIDGET]` (`eqy_partitions_focus_walk_test.dart`)
+- [ ] `formal.run.completed{tool: eqy, mode: equiv}` and `engine.missing{simulator: eqy}` on the real paths — `[Coverage: UNIT]` (`formal_events_test.dart`, `catalog_events_test.dart`)
+- [ ] Registered in both registries; `import-eqy` dispatched — `[Coverage: UNIT]` (`eqy_driver_reachability_test.dart`)
+- [ ] Every corpus run and the import-load-run round trip against a real eqy — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`eqy_driver_live_test.dart`, `engine-canary.yml`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)

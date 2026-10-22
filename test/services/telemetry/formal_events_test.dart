@@ -88,6 +88,20 @@ final Map<String, Map<String, String>> _metricsById = {
     'formal.pretrace.step': '2',
     'formal.pretrace.location': 'rtl/fifo.sv:47',
   },
+  // An EQY run, as the eqy driver records it (its own run).
+  'equiv/alu_pass': {
+    'formal.tool': 'eqy',
+    'formal.verdict': 'FAIL',
+    'formal.mode': 'equiv',
+    'formal.engine': 'smtbmc',
+    'formal.solver': 'yices',
+    'formal.properties': '3',
+    'formal.properties_failed': '1',
+    'formal.properties_undecided': '0',
+    'formal.property.0.kind': 'partition',
+    'formal.property.0.label': 'alu.z',
+    'formal.property.0.status': 'counterexample',
+  },
 };
 
 class _FormalDriver implements SimulatorDriver {
@@ -272,6 +286,23 @@ void main() {
       for (final event in runs) {
         expect(event.properties.length, lessThanOrEqualTo(6));
       }
+    });
+
+    test('an EQY run is formal.run.completed{tool: eqy, mode: equiv} with '
+        'its partitions counted, and nothing of the design', () async {
+      await runSuite('equiv');
+      await pollUntil(() => telemetry.named('formal.run.completed').isNotEmpty);
+      final run = telemetry.named('formal.run.completed').single;
+      expect(run.properties, <String, Object?>{
+        'tool': 'eqy',
+        'mode': 'equiv',
+        'engine': 'smtbmc',
+        'properties': 3,
+        'failed': 1,
+        'undecided': 0,
+      });
+      expectMatchesCatalog(run);
+      expect(run.properties.values.join(' '), isNot(contains('alu')));
     });
   });
 

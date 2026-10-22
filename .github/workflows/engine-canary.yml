@@ -3,7 +3,8 @@ name: Engine canary
 # Re-runs the real formal engines (sby, eqy, yosys with yosys-slang) on every
 # committed formal fixture and fails when what they print no longer matches
 # the hand-written expectations under verification/fixtures/formal/, then runs
-# the sby driver end to end against the same engines. Monthly and on demand,
+# the sby and eqy drivers end to end against the same engines. Monthly and on
+# demand,
 # because the engines move and no push changes them. It installs its own OSS
 # CAD Suite: nothing here depends on a path on any developer machine.
 #
@@ -101,6 +102,18 @@ jobs:
         run: |
           set -euo pipefail
           flutter test test/integration/sby_driver_live_test.dart test/integration/formal_toolchain_probe_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/sby-driver-live.log"
+
+      # Every EQY run of the corpus through the eqy driver: the row verdict,
+      # each partition's result and every counterexample against the hand
+      # expectations, and the import-load-run round trip.
+      - name: Run the eqy driver against the real engines
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          FORMAL_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/integration/eqy_driver_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/eqy-driver-live.log"
 
       # The 51-probe SVA matrix through the driver on both open
       # frontends (every refusal diagnosed, nothing refused reported

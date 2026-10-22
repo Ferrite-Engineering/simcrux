@@ -184,7 +184,8 @@ class CliArgParser {
             'and .env; the riscv target/riscof/compile/formal command '
             'lists; and riscv reference.path, toolchain.path and .prefix, '
             "riscof.binary and formal.sby_binary; and the formal block's "
-            'command, extra_args, sby_binary and tools. Each chooses what '
+            'command, extra_args, sby_binary, eqy_binary and tools. Each '
+            'chooses what '
             'this run executes or its environment, so without this flag a '
             'command or extra_args fails the load and the rest are ignored '
             'with a warning. Pass it only for project files you trust. The app '
@@ -221,7 +222,8 @@ class CliArgParser {
   ///
   /// A sub-command owns its own `ArgParser` (`DashboardBundleWriter` for
   /// `export-dashboard`, `RiscvImportCli` for the two RISC-V imports,
-  /// `FormalImportCli` for `import-sby`, `LicenseCli` for `license`), so the
+  /// `FormalImportCli` for `import-sby` and `import-eqy`, `LicenseCli` for
+  /// `license`), so the
   /// words are matched *before* the primary option parser runs and
   /// everything after one is forwarded verbatim.
   static List<String> get kSubcommands => <String>[

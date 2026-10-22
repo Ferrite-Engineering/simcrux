@@ -22,8 +22,11 @@ class ImportFormalProjectRequest {
     this.tasks = const <String>[],
   });
 
-  /// The `.sby` job file.
+  /// The job file: a SymbiYosys `.sby` file or an EQY `.eqy` file.
   final String sbyPath;
+
+  /// Whether [sbyPath] is an EQY file.
+  bool get isEqy => isEqyJobFile(sbyPath);
 
   /// Where the project file goes.
   final String outputPath;
@@ -41,6 +44,10 @@ typedef ImportFormalProjectCommit =
 /// The `ModalGuard` key for the dialog: a repeated shortcut or a double
 /// click on the menu item opens one copy.
 const String kImportFormalProjectGuardKey = 'importFormalProject';
+
+/// Whether [path] names an EQY file (`.eqy`), which imports as one test,
+/// rather than a SymbiYosys job file, which imports one test per task.
+bool isEqyJobFile(String path) => p.extension(path).toLowerCase() == '.eqy';
 
 /// Opens File > Import Formal Project….
 ///
@@ -86,14 +93,15 @@ class ImportFormalProjectDialog extends StatefulWidget {
   /// Runs the import; see [ImportFormalProjectCommit].
   final ImportFormalProjectCommit onImport;
 
-  /// Asks for a `.sby` file; null when the user cancelled.
+  /// Asks for a `.sby` or `.eqy` file; null when the user cancelled.
   final Future<String?> Function() pickJobFile;
 
   /// Asks where to save, starting from the suggested path; null when the
   /// user cancelled.
   final Future<String?> Function(String suggestedPath) pickProjectFile;
 
-  /// Reads a job file's `[tasks]` (never throws).
+  /// Reads a SymbiYosys job file's `[tasks]` (never throws). Not called for
+  /// an `.eqy` file, which has no tasks.
   final SbyScript Function(String path) readJobFile;
 
   @override
@@ -123,7 +131,9 @@ class _ImportFormalProjectDialogState extends State<ImportFormalProjectDialog> {
   Future<void> _chooseJobFile() async {
     final path = await widget.pickJobFile();
     if (path == null || !mounted) return;
-    final script = widget.readJobFile(path);
+    final script = isEqyJobFile(path)
+        ? const SbyScript()
+        : widget.readJobFile(path);
     setState(() {
       _sbyPath = path;
       _script = script;
@@ -251,7 +261,18 @@ class _ImportFormalProjectDialogState extends State<ImportFormalProjectDialog> {
                 ),
               ],
             ),
-            if (_script != null) ...[
+            if (_script != null && isEqyJobFile(_sbyPath!)) ...[
+              const SizedBox(height: 12),
+              CruxFormSection(
+                title: l10n.importFormalEqyHeading,
+                children: [
+                  Text(
+                    l10n.importFormalEqyOneTest,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ] else if (_script != null) ...[
               const SizedBox(height: 12),
               CruxFormSection(
                 title: l10n.importFormalTasksHeading,

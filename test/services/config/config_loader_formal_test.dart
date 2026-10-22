@@ -9,6 +9,7 @@ import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/config/config_loader.dart';
+import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/sby_driver.dart';
 
 import '../../support/posix_keyed_files.dart';
@@ -332,6 +333,120 @@ suites:
       });
     });
   });
+
+  group('the eqy driver', () {
+    String eqyYaml(String body) => testYaml(body, simulator: 'eqy');
+
+    test('eqy_file and eqy_binary land on the test', () {
+      final formal = onlyFormal(
+        allowed.parse(
+          eqyYaml('          eqy_file: eq/alu.eqy\n          eqy_binary: /e'),
+          '/p/simcrux.yaml',
+        ),
+      );
+      expect(formal.eqyFile, 'eq/alu.eqy');
+      expect(formal.eqyBinary, '/e');
+    });
+
+    test('an eqy test without eqy_file does not load', () {
+      final ex = capture(
+        () => denied.parse(eqyYaml('          sby_file: a.sby'), '/p.yaml'),
+      );
+      expect(
+        ex.errors.map((e) => e.message),
+        anyElement(contains('`formal.eqy_file` is required')),
+      );
+    });
+
+    test('demo mode is refused for eqy', () {
+      final ex = capture(
+        () => denied.parse(
+          eqyYaml('          eqy_file: a.eqy\n          mode: demo'),
+          '/p.yaml',
+        ),
+      );
+      expect(
+        ex.errors.map((e) => e.message),
+        anyElement(contains('not available for the eqy driver')),
+      );
+    });
+
+    for (final value in ['-d/tmp', 'dir/bad:name.eqy']) {
+      test('eqy_file "$value" is refused, gate open or closed', () {
+        for (final loader in [denied, allowed]) {
+          final ex = capture(
+            () => loader.parse(
+              eqyYaml('          eqy_file: "$value"'),
+              '/p.yaml',
+            ),
+          );
+          expect(
+            ex.errors.map((e) => e.message),
+            anyElement(contains('`formal.eqy_file`')),
+          );
+        }
+      });
+    }
+
+    test('formal.eqy_binary is dropped with an advisory', () {
+      final config = denied.parse(
+        eqyYaml('          eqy_file: a.eqy\n          eqy_binary: /tmp/pwn'),
+        '/p.yaml',
+      );
+      expect(onlyFormal(config).eqyBinary, isNull);
+      expect(
+        config.loadWarnings.single.message,
+        contains('`formal.eqy_binary`'),
+      );
+      final argv = _EqyArgvProbe().job(config.suites.single.tests.single);
+      expect(argv.first, FormalConfig.kDefaultEqyBinary);
+      expect(argv, isNot(contains('/tmp/pwn')));
+      final open = allowed.parse(
+        eqyYaml('          eqy_file: a.eqy\n          eqy_binary: /tmp/pwn'),
+        '/p.yaml',
+      );
+      expect(
+        _EqyArgvProbe().job(open.suites.single.tests.single).first,
+        '/tmp/pwn',
+      );
+    });
+
+    for (final key in ['command', 'extra_args']) {
+      test('formal.$key refuses the load for eqy too', () {
+        final body = '          eqy_file: a.eqy\n          $key: ["/tmp/pwn"]';
+        final ex = capture(() => denied.parse(eqyYaml(body), '/p.yaml'));
+        expect(
+          ex.errors.map((e) => e.message),
+          anyElement(contains('`formal.$key`')),
+        );
+      });
+    }
+
+    test('formal.tools reach eqy only through the gate', () {
+      const body =
+          '          eqy_file: a.eqy\n          tools: { yosys: /tmp/y }';
+      final closed = _EqyArgvProbe().job(
+        denied.parse(eqyYaml(body), '/p.yaml').suites.single.tests.single,
+      );
+      expect(closed, isNot(contains('--yosys')));
+      final open = _EqyArgvProbe().job(
+        allowed.parse(eqyYaml(body), '/p.yaml').suites.single.tests.single,
+      );
+      expect(open, containsAllInOrder(['--yosys', '/tmp/y']));
+    });
+  });
+}
+
+/// The eqy driver's command line for a spec, without spawning.
+class _EqyArgvProbe extends EqyDriver {
+  List<String> job(TestSpec test) => prepareJob(
+    ExecuteRequest(
+      test: test,
+      workingDirectory: '/wd',
+      compileResult: null,
+      binaryConfig: const SimulatorBinaryConfig(simulatorId: EqyDriver.kId),
+    ),
+  ).argv;
 }
 
 /// Exposes the driver's command line for a spec without spawning.

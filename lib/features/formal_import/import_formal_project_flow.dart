@@ -16,6 +16,7 @@ import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/import/eqy_project_importer.dart';
 import 'package:simcrux/services/import/sby_project_importer.dart';
 import 'package:simcrux/services/telemetry/project_opened_event.dart';
 import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
@@ -25,8 +26,8 @@ typedef FormalImportWriter =
     Future<void> Function(String path, String contents);
 
 /// File > Import Formal Project…: opens the dialog, and on Import reads the
-/// job file, writes the project file, records the import and opens the file
-/// as a workspace tab.
+/// job file (a SymbiYosys `.sby` or an EQY `.eqy`), writes the project file,
+/// records the import and opens the file as a workspace tab.
 ///
 /// [root] is the container the handler's `ref` reads from: the dialog and
 /// the write outlive the widget that started them.
@@ -34,11 +35,13 @@ Future<void> runImportFormalProject(
   BuildContext context,
   ProviderContainer root, {
   SbyProjectImporter? importer,
+  EqyProjectImporter? eqyImporter,
   FormalImportWriter? write,
   Future<String?> Function()? pickJobFile,
   Future<String?> Function(String suggestedPath)? pickProjectFile,
 }) async {
   final sby = importer ?? SbyProjectImporter();
+  final eqy = eqyImporter ?? EqyProjectImporter();
   final writeFile =
       write ??
       (String path, String contents) => File(path).writeAsString(contents);
@@ -47,11 +50,16 @@ Future<void> runImportFormalProject(
   Future<String?> commit(ImportFormalProjectRequest request) async {
     final FormalImportResult result;
     try {
-      result = sby.importJobs(
-        path: request.sbyPath,
-        outputDirectory: p.dirname(request.outputPath),
-        tasks: request.tasks,
-      );
+      result = request.isEqy
+          ? eqy.importFile(
+              path: request.sbyPath,
+              outputDirectory: p.dirname(request.outputPath),
+            )
+          : sby.importJobs(
+              path: request.sbyPath,
+              outputDirectory: p.dirname(request.outputPath),
+              tasks: request.tasks,
+            );
       await writeFile(request.outputPath, result.simcruxYaml);
     } on FormalImportException catch (e) {
       return l10n.importFormalFailed(e.message);
@@ -66,7 +74,7 @@ Future<void> runImportFormalProject(
         TelemetryEvent(
           'formal.import.completed',
           properties: <String, Object?>{
-            'kind': 'sby',
+            'kind': request.isEqy ? 'eqy' : 'sby',
             'tasks': telemetryCount(result.testCount),
           },
         ),
@@ -112,7 +120,7 @@ Future<String?> _pickJobFile() async {
   try {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: const <String>['sby'],
+      allowedExtensions: const <String>['sby', 'eqy'],
     );
     if (result == null || result.files.isEmpty) return null;
     return result.files.single.path;

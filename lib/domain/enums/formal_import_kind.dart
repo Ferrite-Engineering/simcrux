@@ -10,7 +10,11 @@
 enum FormalImportKind {
   /// A SymbiYosys `.sby` job file: one SimCrux test per task, driven by
   /// `sby`.
-  sby('import-sby');
+  sby('import-sby'),
+
+  /// An EQY `.eqy` file: one SimCrux test, driven by `eqy`, with its
+  /// partitions reported on that test's row.
+  eqy('import-eqy');
 
   const FormalImportKind(this.subcommand);
 

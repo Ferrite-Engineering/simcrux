@@ -195,8 +195,8 @@ class ConfigLoader {
   ///   `riscv.toolchain.prefix`, `riscv.riscof.binary`,
   ///   `riscv.formal.sby_binary` — dropped, with an advisory;
   /// - `formal.command`, `formal.extra_args` — the load is refused;
-  /// - `formal.sby_binary`, `formal.tools.<tool>` — dropped, with an
-  ///   advisory;
+  /// - `formal.sby_binary`, `formal.eqy_binary`, `formal.tools.<tool>` —
+  ///   dropped, with an advisory;
   /// - `output.results_path`, `output.summary_path` outside the project
   ///   directory — the load is refused.
   ///
@@ -619,12 +619,14 @@ class ConfigLoader {
   }
 
   /// Resolves the general `formal:` block's project paths (`sby_file`,
-  /// `demo_outputs`) against the project file's directory and records that
-  /// directory as the root property locations are reported against.
+  /// `eqy_file`, `demo_outputs`) against the project file's directory and
+  /// records that directory as the root property locations are reported
+  /// against.
   ///
-  /// `sby_binary` and `tools` are install locations and stay verbatim, for
-  /// the reason given on [_resolveRiscvDemoCorpora]; `command` and
-  /// `extra_args` are placeholder-bearing and are expanded at spawn time.
+  /// `sby_binary`, `eqy_binary` and `tools` are install locations and stay
+  /// verbatim, for the reason given on [_resolveRiscvDemoCorpora]; `command`
+  /// and `extra_args` are placeholder-bearing and are expanded at spawn
+  /// time.
   FormalConfig? _resolveFormalPaths(
     FormalConfig? formal,
     String Function(String) resolve,
@@ -632,9 +634,11 @@ class ConfigLoader {
   ) {
     if (formal == null) return null;
     final sbyFile = formal.sbyFile;
+    final eqyFile = formal.eqyFile;
     final demoOutputs = formal.demoOutputs;
     return formal.copyWith(
       sbyFile: sbyFile == null ? null : resolve(sbyFile),
+      eqyFile: eqyFile == null ? null : resolve(eqyFile),
       demoOutputs: demoOutputs == null ? null : resolve(demoOutputs),
       projectRoot: p.normalize(projectRoot),
     );

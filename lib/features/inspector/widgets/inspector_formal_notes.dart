@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter/material.dart';
+import 'package:simcrux/domain/enums/formal_property_status.dart';
 import 'package:simcrux/domain/models/formal_diagnostic.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/features/dashboard/widgets/formal_verdict_label.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
-/// The explanation of a formal row in the inspector: why it did not run
-/// (an SVA construct the frontend refused, or properties it dropped), and
-/// whether its result depends on state from before the trace began.
+/// The explanation of a formal row in the inspector: an EQY row's
+/// partitions, why a row did not run (an SVA construct the frontend
+/// refused, or properties it dropped), and whether its result depends on
+/// state from before the trace began.
 ///
 /// Free, like every formal verdict. Each sentence is its own selectable,
 /// focusable line, in reading order with the **fact first**: the refused
@@ -28,9 +30,14 @@ class InspectorFormalNotes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final summary = FormalResultSummary.fromMetrics(selection.result.metrics);
+    final metrics = selection.result.metrics;
+    final summary = FormalResultSummary.fromMetrics(metrics);
     if (summary == null) return const SizedBox.shrink();
-    final lines = formalNoteLines(L10N.of(context), summary);
+    final lines = formalNoteLines(
+      L10N.of(context),
+      summary,
+      partitions: FormalResultSummary.partitionsOf(metrics),
+    );
     if (lines.isEmpty) return const SizedBox.shrink();
     final theme = Theme.of(context);
     return Padding(
@@ -102,13 +109,70 @@ class _NoteLine extends StatelessWidget {
   }
 }
 
+/// The most partitions [formalNoteLines] lists one by one; the rest are
+/// counted on one line. Each line is a Tab stop, so the list stays short;
+/// every partition is still in the row's metrics and the run log.
+const int kInspectorMaxPartitionLines = 20;
+
 /// The lines [InspectorFormalNotes] shows for [summary], in reading order.
 /// Empty when there is nothing to explain.
+///
+/// An EQY row lists its partitions ([partitions], from
+/// [FormalResultSummary.partitionsOf]): how many were proved equivalent,
+/// then each partition with its own result, a counterexample with its trace
+/// file. Which partitions were proved is always said, never implied by the
+/// row's verdict.
 List<({String text, bool title})> formalNoteLines(
   L10N l10n,
-  FormalResultSummary summary,
-) {
+  FormalResultSummary summary, {
+  List<FormalPartitionRow> partitions = const <FormalPartitionRow>[],
+}) {
   final lines = <({String text, bool title})>[];
+  if (partitions.isNotEmpty) {
+    final proved = partitions
+        .where((x) => x.status == FormalPropertyStatus.proved)
+        .length;
+    lines.add((
+      text: l10n.formalEqyPartitionsHeading(proved, partitions.length),
+      title: true,
+    ));
+    // The partitions that need attention first, each group in run order.
+    final ordered = <FormalPartitionRow>[
+      for (final rank in const <int>[3, 2, 1, 0])
+        ...partitions.where((x) => x.status.conservativeRank == rank),
+    ];
+    for (final partition in ordered.take(kInspectorMaxPartitionLines)) {
+      final trace = partition.trace;
+      lines.add((
+        text: switch (partition.status) {
+          FormalPropertyStatus.proved ||
+          FormalPropertyStatus.reached => l10n.formalEqyPartitionProved(
+            partition.name,
+          ),
+          FormalPropertyStatus.counterexample ||
+          FormalPropertyStatus.notReached =>
+            trace == null
+                ? l10n.formalEqyPartitionNotEquivalent(partition.name)
+                : l10n.formalEqyPartitionCounterexample(partition.name, trace),
+          FormalPropertyStatus.inconclusive => l10n.formalEqyPartitionUndecided(
+            partition.name,
+          ),
+          FormalPropertyStatus.didNotRun => l10n.formalEqyPartitionDidNotRun(
+            partition.name,
+          ),
+        },
+        title: false,
+      ));
+    }
+    if (partitions.length > kInspectorMaxPartitionLines) {
+      lines.add((
+        text: l10n.formalEqyPartitionsMore(
+          partitions.length - kInspectorMaxPartitionLines,
+        ),
+        title: false,
+      ));
+    }
+  }
   final refusal = summary.svaRefusal;
   if (summary.notRunReason == FormalNotRunReason.svaUnsupported &&
       refusal != null) {

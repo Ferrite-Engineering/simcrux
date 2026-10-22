@@ -9,9 +9,11 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/formal_import_kind.dart';
 import 'package:simcrux/domain/models/formal_import_result.dart';
 import 'package:simcrux/services/config/config_loader.dart';
+import 'package:simcrux/services/import/eqy_project_importer.dart';
 import 'package:simcrux/services/import/sby_project_importer.dart';
 
-/// Thrown for a usage-level problem with a `simcrux import-sby` invocation:
+/// Thrown for a usage-level problem with a `simcrux import-sby` or
+/// `simcrux import-eqy` invocation:
 /// an unknown flag, a wrong positional count. The bootstrap prints it to
 /// stderr and exits 2, SimCrux's grandfathered usage code, which every
 /// `simcrux import-*` sub-command shares.
@@ -62,8 +64,8 @@ class FormalImportCliResult {
   final bool helpShown;
 }
 
-/// The `simcrux import-sby` sub-command: the command-line door onto
-/// [SbyProjectImporter].
+/// The `simcrux import-sby` and `simcrux import-eqy` sub-commands: the
+/// command-line doors onto [SbyProjectImporter] and [EqyProjectImporter].
 ///
 /// Same shape as `import-riscv-formal` beside it: the sub-command word is
 /// matched before the primary option parser and everything after it is this
@@ -84,17 +86,20 @@ class FormalImportCli {
     void Function(String line)? stdoutWriter,
     void Function(String line)? stderrWriter,
     SbyProjectImporter? sbyImporter,
+    EqyProjectImporter? eqyImporter,
     String Function()? currentDirectory,
   }) : _writeText = writeText ?? _defaultWriteText,
        _stdoutWriter = stdoutWriter ?? _defaultStdout,
        _stderrWriter = stderrWriter ?? _defaultStderr,
        _sbyImporter = sbyImporter ?? SbyProjectImporter(),
+       _eqyImporter = eqyImporter ?? EqyProjectImporter(),
        _currentDirectory = currentDirectory ?? _defaultCurrentDirectory;
 
   final Future<void> Function(String path, String contents) _writeText;
   final void Function(String line) _stdoutWriter;
   final void Function(String line) _stderrWriter;
   final SbyProjectImporter _sbyImporter;
+  final EqyProjectImporter _eqyImporter;
   final String Function() _currentDirectory;
 
   static Future<void> _defaultWriteText(String path, String contents) async {
@@ -150,10 +155,13 @@ class FormalImportCli {
       );
     }
     if (parsed.rest.length != 1) {
+      final expected = switch (kind) {
+        FormalImportKind.sby => 'a .sby file or a directory holding them',
+        FormalImportKind.eqy => 'a .eqy file',
+      };
       throw FormalImportCliException(
         'simcrux ${kind.subcommand} expects exactly one positional argument '
-        '(a .sby file or a directory holding them), got '
-        '${parsed.rest.length}.\n\n${usageFor(kind)}',
+        '($expected), got ${parsed.rest.length}.\n\n${usageFor(kind)}',
       );
     }
 
@@ -179,6 +187,11 @@ class FormalImportCli {
         ],
         sbyBinary: parsed.option('sby-binary'),
       ),
+      FormalImportKind.eqy => _eqyImporter.importFile(
+        path: p.isAbsolute(input) ? input : p.join(cwd, input),
+        outputDirectory: p.dirname(outPath),
+        eqyBinary: parsed.option('eqy-binary'),
+      ),
     };
     await _writeText(outPath, result.simcruxYaml);
 
@@ -192,11 +205,15 @@ class FormalImportCli {
     for (final warning in result.warnings) {
       _stderrWriter('simcrux: [${warning.code}] ${warning.message}');
     }
-    if (parsed.option('sby-binary') != null) {
+    final binaryOption = switch (kind) {
+      FormalImportKind.sby => 'sby-binary',
+      FormalImportKind.eqy => 'eqy-binary',
+    };
+    if (parsed.option(binaryOption) != null) {
       _stderrWriter(
         'simcrux: this config names a program for SimCrux to run '
-        '(formal.sby_binary), which a project file may not do until you '
-        'allow it. $kProjectToolingRemedy',
+        '(formal.${binaryOption.replaceAll('-', '_')}), which a project '
+        'file may not do until you allow it. $kProjectToolingRemedy',
       );
     }
     return FormalImportCliResult(
@@ -212,6 +229,11 @@ class FormalImportCli {
       'Usage: simcrux ${kind.subcommand} <file.sby|dir> [options]\n\n'
           'Reads a SymbiYosys job file (or every .sby directly in a '
           'directory) into one\nSimCrux test per task and writes an '
+          'inspectable simcrux.yaml you own.\nNothing is run.',
+    FormalImportKind.eqy =>
+      'Usage: simcrux ${kind.subcommand} <file.eqy> [options]\n\n'
+          'Reads an EQY equivalence-check file into one SimCrux test, whose '
+          'row reports\nevery partition EQY proves, and writes an '
           'inspectable simcrux.yaml you own.\nNothing is run.',
   };
 
@@ -241,6 +263,12 @@ class FormalImportCli {
             help: 'Path to the SymbiYosys binary, when `sby` is not on PATH.',
             valueHelp: 'path',
           );
+      case FormalImportKind.eqy:
+        parser.addOption(
+          'eqy-binary',
+          help: 'Path to the EQY binary, when `eqy` is not on PATH.',
+          valueHelp: 'path',
+        );
     }
     return parser..addFlag(
       'help',

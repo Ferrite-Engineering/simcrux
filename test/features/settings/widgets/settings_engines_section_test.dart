@@ -150,14 +150,14 @@ void main() {
     );
   });
 
-  testWidgets('the shipped registry holds sby as its one formal engine and no '
-      'flow engine yet', (tester) async {
+  testWidgets('the shipped registry holds sby and eqy as its formal engines '
+      'and no flow engine yet', (tester) async {
     final container = await makeContainer();
     final shipped = container
         .read(simulatorDriverRegistryProvider)
         .simulatorIds
         .toSet();
-    expect(shipped.intersection(kEngineIdsOutsideSimulators), {'sby'});
+    expect(shipped.intersection(kEngineIdsOutsideSimulators), {'sby', 'eqy'});
     expect(shipped.intersection(kImplementationFlowEngineIds.toSet()), isEmpty);
   });
 

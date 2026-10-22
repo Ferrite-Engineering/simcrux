@@ -403,6 +403,19 @@ void main() {
       expect(events.single.properties['simulator'], 'ghdl');
       expectMatchesCatalog(events.single);
     });
+
+    test('covers eqy, as its own token', () async {
+      // No eqy driver in this container's registry: the same "engine not
+      // usable" fact a missing `eqy` binary surfaces.
+      await container
+          .read(regressionRunnerProvider.notifier)
+          .start(_config([_spec('equiv/alu', simulatorId: 'eqy')]));
+      await waitForFinish();
+      await pollUntil(() => telemetry.named('engine.missing').isNotEmpty);
+      final event = telemetry.named('engine.missing').single;
+      expect(event.properties['simulator'], 'eqy');
+      expectMatchesCatalog(event);
+    });
   });
 
   group('dashboard.view_changed', () {

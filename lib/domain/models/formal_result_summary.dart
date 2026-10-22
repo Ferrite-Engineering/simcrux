@@ -3,6 +3,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/formal_bucket.dart';
+import 'package:simcrux/domain/enums/formal_property_status.dart';
 import 'package:simcrux/domain/enums/formal_verdict.dart';
 import 'package:simcrux/domain/models/formal_diagnostic.dart';
 
@@ -15,6 +16,9 @@ import 'package:simcrux/domain/models/formal_diagnostic.dart';
 enum FormalVerdictWording {
   /// An unbounded proof (`prove`, `live`) held.
   proved,
+
+  /// An EQY run proved every one of its partitions equivalent.
+  provedEquivalent,
 
   /// A bounded proof held over [FormalResultSummary.depthConfigured] steps.
   provedOverSteps,
@@ -43,6 +47,26 @@ enum FormalVerdictWording {
 
   /// A stored verdict this build cannot read.
   unrecognised,
+}
+
+/// One partition of an EQY row, read back from its metrics.
+@immutable
+class FormalPartitionRow {
+  /// Creates a row.
+  const FormalPartitionRow({
+    required this.name,
+    required this.status,
+    this.trace,
+  });
+
+  /// The partition's name (`alu.z`). Never translated.
+  final String name;
+
+  /// What it ended as: proved, counterexample, inconclusive or did not run.
+  final FormalPropertyStatus status;
+
+  /// Its counterexample, relative to the run's work directory.
+  final String? trace;
 }
 
 /// The formal facts of one result row, read back from its metrics.
@@ -270,6 +294,9 @@ class FormalResultSummary {
     switch (bucket) {
       case FormalBucket.proved:
         if (properties == 0) return FormalVerdictWording.noPropertiesChecked;
+        // The `eqy` driver writes `PASS` only when every partition was
+        // proved; a run that proved some is never in this bucket.
+        if (tool == kToolEqy) return FormalVerdictWording.provedEquivalent;
         switch (mode) {
           case 'prove' || 'live':
             return FormalVerdictWording.proved;
@@ -293,6 +320,32 @@ class FormalResultSummary {
       case FormalBucket.unrecognised:
         return FormalVerdictWording.unrecognised;
     }
+  }
+
+  /// The partitions of an `eqy` row, in the order the run listed them;
+  /// empty for every other row. Read from the same indexed
+  /// `formal.property.<n>.*` keys a property row uses, `kind` `partition`.
+  static List<FormalPartitionRow> partitionsOf(Map<String, String> metrics) {
+    if (metrics[kToolKey] != kToolEqy) return const <FormalPartitionRow>[];
+    final rows = <FormalPartitionRow>[];
+    for (var n = 0; ; n++) {
+      final prefix = 'formal.property.$n.';
+      final kind = metrics['${prefix}kind'];
+      if (kind == null) break;
+      if (kind != 'partition') continue;
+      final status = FormalPropertyStatus.fromWireName(
+        metrics['${prefix}status'],
+      );
+      rows.add(
+        FormalPartitionRow(
+          name: metrics['${prefix}label'] ?? metrics['${prefix}location'] ?? '',
+          // A status this build cannot read never reads as proved.
+          status: status ?? FormalPropertyStatus.didNotRun,
+          trace: metrics['${prefix}trace'],
+        ),
+      );
+    }
+    return rows;
   }
 
   /// Sort rank for the Verdict column: the most urgent first.

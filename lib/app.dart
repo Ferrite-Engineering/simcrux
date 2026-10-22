@@ -279,7 +279,8 @@ Future<bool> bootstrap({
     return true;
   }
 
-  // `simcrux import-sby <file.sby|dir>`: the headless binary's own handler,
+  // `simcrux import-sby <file.sby|dir>` and `simcrux import-eqy <file.eqy>`:
+  // the headless binary's own handler,
   // so the app and the binary answer the same command line identically.
   final formalKind = FormalImportKind.fromSubcommand(parsedArgs.subcommand);
   if (formalKind != null) {

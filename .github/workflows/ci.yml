@@ -347,6 +347,8 @@ jobs:
           # Every sub-command answers -h on stdout before touching a file.
           ./simcrux import-sby -h | tee import-sby.txt
           grep -q -- '--task' import-sby.txt
+          ./simcrux import-eqy -h | tee import-eqy.txt
+          grep -q -- '--eqy-binary' import-eqy.txt
 
   # ─────────────────────────────────────────────────────────────────────────
   # Desktop release builds — informational; surfaces build breakage early.

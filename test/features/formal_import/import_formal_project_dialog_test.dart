@@ -65,7 +65,12 @@ void main() {
     failure = null;
   });
 
-  Future<void> open(WidgetTester tester, {Locale? locale}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    Locale? locale,
+    String jobFile = '/designs/hs/top.sby',
+    List<String>? read,
+  }) async {
     await tester.pumpWidget(
       _app(
         (context) => Center(
@@ -77,9 +82,12 @@ void main() {
                 requests.add(request);
                 return failure;
               },
-              pickJobFile: () async => '/designs/hs/top.sby',
+              pickJobFile: () async => jobFile,
               pickProjectFile: (suggested) async => '/designs/hs/project.yaml',
-              readJobFile: (_) => SbyScript.parse(_job),
+              readJobFile: (path) {
+                read?.add(path);
+                return SbyScript.parse(_job);
+              },
             ),
             child: const Text('open'),
           ),
@@ -144,6 +152,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(requests.single.tasks, ['prove', 'cover']);
     expect(requests.single.outputPath, '/designs/hs/project.yaml');
+  });
+
+  testWidgets('an .eqy file is one test: no tasks, the EQY note, Import asks '
+      'for the file', (tester) async {
+    final read = <String>[];
+    await open(tester, jobFile: '/designs/alu/alu_pass.eqy', read: read);
+    await tester.tap(find.byKey(const ValueKey('importFormalChooseJobFile')));
+    await tester.pumpAndSettle();
+    final l10n = l10nOf(tester);
+    expect(read, isEmpty, reason: 'an .eqy file is not read as a .sby');
+    expect(find.text(l10n.importFormalEqyHeading), findsOneWidget);
+    expect(find.text(l10n.importFormalEqyOneTest), findsOneWidget);
+    expect(find.text(l10n.importFormalTasksHeading), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('importFormalImport')));
+    await tester.pumpAndSettle();
+    expect(requests.single.sbyPath, '/designs/alu/alu_pass.eqy');
+    expect(requests.single.isEqy, isTrue);
+    expect(requests.single.tasks, isEmpty);
   });
 
   testWidgets('a failed import stays open and says why', (tester) async {
@@ -293,6 +319,56 @@ void main() {
       );
       final tabs = container.read(workspaceProvider).value?.tabs ?? const [];
       expect(tabs.map((t) => t.payload.configPath), contains(out));
+    });
+
+    testWidgets('an .eqy import writes one eqy test and records kind eqy', (
+      tester,
+    ) async {
+      final eqy = File(p.join(tmp.path, 'alu.eqy'))
+        ..writeAsStringSync(
+          '[gold]\nread_verilog alu.v\n[gate]\nread_verilog gate.v\n'
+          '[strategy sby]\nuse sby\n',
+        );
+      final out = p.join(tmp.path, 'simcrux.yaml');
+      final written = <String, String>{};
+      final container = ProviderContainer(
+        overrides: [telemetryServiceProvider.overrideWithValue(telemetry)],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: _app(
+            (context) => ElevatedButton(
+              key: const Key('open'),
+              onPressed: () => runImportFormalProject(
+                context,
+                container,
+                write: (path, contents) async => written[path] = contents,
+                pickJobFile: () async => eqy.path,
+                pickProjectFile: (_) async => out,
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('open')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('importFormalChooseJobFile')));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('importFormalImport')));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pumpAndSettle();
+
+      expect(written[out], contains('simulator: eqy'));
+      expect(written[out], contains('eqy_file: alu.eqy'));
+      expect(
+        telemetry.named('formal.import.completed').single.properties,
+        <String, Object?>{'kind': 'eqy', 'tasks': 1},
+      );
     });
   });
 }

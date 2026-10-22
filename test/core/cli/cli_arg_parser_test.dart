@@ -452,14 +452,21 @@ void main() {
     });
 
     test('kSubcommands covers export-dashboard, both RISC-V imports, '
-        'import-sby and license', () {
+        'import-sby, import-eqy and license', () {
       expect(CliArgParser.kSubcommands, [
         'export-dashboard',
         'import-riscv-arch-test',
         'import-riscv-formal',
         'import-sby',
+        'import-eqy',
         'license',
       ]);
+    });
+
+    test('import-eqy forwards its words verbatim, flags included', () {
+      final args = parser.parse(<String>['import-eqy', 'alu.eqy', '--bogus']);
+      expect(args.subcommand, 'import-eqy');
+      expect(args.subcommandArgs, ['alu.eqy', '--bogus']);
     });
 
     test('import-sby forwards its words verbatim, flags included', () {

@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:simcrux/domain/models/eqy_outcome.dart';
 import 'package:simcrux/domain/models/sby_outcome.dart';
 
 // The YAML spelling helpers the formal importers share, so the general
@@ -34,9 +35,18 @@ String importYamlScalar(String value) {
 /// driver's parser keys off, so the two cannot drift; and the scheduler
 /// never lets a detector turn a `formal.verdict` other than `PASS` into a
 /// pass, so the detector cannot undo the agreement rule either.
-void writeSbyPassDetector(StringBuffer buf, {String indent = '  '}) {
+void writeSbyPassDetector(StringBuffer buf, {String indent = '  '}) =>
+    _writePassDetector(buf, SbyLogReader.kPassMarker, indent);
+
+/// Writes the `pass_fail:` block the EQY importer emits: the same shape,
+/// keyed on [EqyLogReader.kPassMarker], the constant the `eqy` driver's log
+/// reader parses.
+void writeEqyPassDetector(StringBuffer buf, {String indent = '  '}) =>
+    _writePassDetector(buf, EqyLogReader.kPassMarker, indent);
+
+void _writePassDetector(StringBuffer buf, String marker, String indent) {
   buf
     ..writeln('${indent}pass_fail:')
     ..writeln('$indent  type: string_match')
-    ..writeln("$indent  pass_string: '${SbyLogReader.kPassMarker}'");
+    ..writeln("$indent  pass_string: '$marker'");
 }

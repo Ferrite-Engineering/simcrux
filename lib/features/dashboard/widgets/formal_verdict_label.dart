@@ -13,8 +13,10 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 ///
 /// A bounded pass is "Proved over N steps", never a bare "Proved"; a pass
 /// whose bound was not recorded says it was bounded; a pass that checked no
-/// property says so instead of claiming a proof. The verdict tokens (`PASS`,
-/// `FAIL`) are wire names and never appear here.
+/// property says so instead of claiming a proof. An EQY row is "Proved
+/// equivalent" only when every partition was, and otherwise says how many
+/// of its partitions were not. The verdict tokens (`PASS`, `FAIL`) are wire
+/// names and never appear here.
 String formalVerdictLabel(L10N l10n, FormalResultSummary summary) {
   if (summary.wording == FormalVerdictWording.didNotRun) {
     switch (summary.notRunReason) {
@@ -26,16 +28,32 @@ String formalVerdictLabel(L10N l10n, FormalResultSummary summary) {
         break;
     }
   }
+  final eqy = summary.tool == FormalResultSummary.kToolEqy;
   return switch (summary.wording) {
     FormalVerdictWording.proved => l10n.formalVerdictProved,
+    FormalVerdictWording.provedEquivalent => l10n.formalVerdictProvedEquivalent(
+      summary.properties ?? 0,
+    ),
     FormalVerdictWording.provedOverSteps => l10n.formalVerdictProvedOverSteps(
       summary.depthConfigured ?? 0,
     ),
     FormalVerdictWording.provedBounded => l10n.formalVerdictProvedBounded,
     FormalVerdictWording.reached => l10n.formalVerdictReached,
     FormalVerdictWording.noPropertiesChecked =>
-      l10n.formalVerdictNoPropertiesChecked,
-    FormalVerdictWording.counterexample => l10n.formalVerdictCounterexample,
+      eqy
+          ? l10n.formalVerdictNoPartitionsChecked
+          : l10n.formalVerdictNoPropertiesChecked,
+    // An EQY run that is not Proved names how many of its partitions were
+    // not proved: EQY's FAIL covers an undecided partition as well as a
+    // counterexample, so the bucket word alone would overstate it.
+    FormalVerdictWording.counterexample =>
+      eqy && summary.properties != null
+          ? l10n.formalVerdictNotProvedEquivalent(
+              (summary.propertiesFailed ?? 0) +
+                  (summary.propertiesUndecided ?? 0),
+              summary.properties!,
+            )
+          : l10n.formalVerdictCounterexample,
     FormalVerdictWording.notReached => l10n.formalVerdictNotReached,
     FormalVerdictWording.inconclusive => l10n.formalVerdictInconclusive,
     FormalVerdictWording.didNotRun => l10n.formalVerdictDidNotRun,
@@ -70,6 +88,7 @@ String formalSvaClassPhrase(L10N l10n, SvaConstructClass c) => switch (c) {
 /// as well as the colour.
 IconData formalVerdictIcon(FormalVerdictWording wording) => switch (wording) {
   FormalVerdictWording.proved ||
+  FormalVerdictWording.provedEquivalent ||
   FormalVerdictWording.provedOverSteps ||
   FormalVerdictWording.provedBounded ||
   FormalVerdictWording.reached => Icons.check_circle,

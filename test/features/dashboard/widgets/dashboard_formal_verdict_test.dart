@@ -115,16 +115,18 @@ void main() {
   Future<ProviderContainer> pumpTable(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    Map<String, (TestStatus, Map<String, String>)>? rows,
   }) async {
+    final shown = rows ?? _rows;
     await tester.binding.setSurfaceSize(const Size(1600, 700));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final run = TestRun(
       id: 'r1',
       startedAt: DateTime.utc(2026, 10),
-      testIds: _rows.keys.toList(),
+      testIds: shown.keys.toList(),
     );
     final store = InMemoryResultStore.forRun(run);
-    for (final MapEntry(key: id, value: (status, metrics)) in _rows.entries) {
+    for (final MapEntry(key: id, value: (status, metrics)) in shown.entries) {
       await store.recordResult(
         TestResult(
           testId: id,
@@ -297,6 +299,85 @@ void main() {
       expect(find.text(l10n.formalVerdictInconclusive), findsOneWidget);
     });
   }
+
+  group('EQY rows', () {
+    final eqyRows = <String, (TestStatus, Map<String, String>)>{
+      'equiv/alu_pass2': (
+        TestStatus.pass,
+        const {
+          'formal.tool': 'eqy',
+          'formal.verdict': 'PASS',
+          'formal.mode': 'equiv',
+          'formal.properties': '2',
+        },
+      ),
+      'equiv/alu_pass': (
+        TestStatus.fail,
+        const {
+          'formal.tool': 'eqy',
+          'formal.verdict': 'FAIL',
+          'formal.mode': 'equiv',
+          'formal.properties': '3',
+          'formal.properties_failed': '1',
+          'formal.properties_undecided': '0',
+        },
+      ),
+      'equiv/empty': (
+        TestStatus.pass,
+        const {
+          'formal.tool': 'eqy',
+          'formal.verdict': 'PASS',
+          'formal.mode': 'equiv',
+          'formal.properties': '0',
+        },
+      ),
+    };
+
+    testWidgets('a full proof says all partitions; a partial one is never '
+        'worded as proved', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpTable(tester, rows: eqyRows);
+      final l10n = l10nOf(tester);
+      expect(find.text(l10n.formalVerdictProvedEquivalent(2)), findsOneWidget);
+      expect(
+        find.text(l10n.formalVerdictNotProvedEquivalent(1, 3)),
+        findsOneWidget,
+      );
+      expect(find.text(l10n.formalVerdictNoPartitionsChecked), findsOneWidget);
+      expect(find.text(l10n.formalVerdictProved), findsNothing);
+      expect(find.text(l10n.formalVerdictCounterexample), findsNothing);
+      final partial = tester.widget<Checkbox>(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Checkbox &&
+              (w.semanticLabel ?? '').contains('alu_pass') &&
+              !(w.semanticLabel ?? '').contains('alu_pass2'),
+        ),
+      );
+      expect(
+        partial.semanticLabel,
+        startsWith('${l10n.formalVerdictNotProvedEquivalent(1, 3)}:'),
+      );
+      handle.dispose();
+    });
+
+    for (final locale in const [
+      Locale('zh', 'CN'),
+      Locale('zh'),
+      Locale('ja'),
+      Locale('ko'),
+    ]) {
+      testWidgets('${locale.toLanguageTag()}: EQY words render without '
+          'overflow', (tester) async {
+        await pumpTable(tester, locale: locale, rows: eqyRows);
+        expect(tester.takeException(), isNull);
+        expect(
+          find.text(l10nOf(tester).formalVerdictProvedEquivalent(2)),
+          findsOneWidget,
+        );
+      });
+    }
+  });
 }
 
 class _ImmediateResultStoreNotifier extends ResultStoreNotifier {

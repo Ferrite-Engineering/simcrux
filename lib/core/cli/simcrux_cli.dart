@@ -31,6 +31,7 @@ import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
+import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/ghdl_driver.dart';
 import 'package:simcrux/services/simulator/icarus_driver.dart';
 import 'package:simcrux/services/simulator/riscv_arch_driver.dart';
@@ -156,6 +157,7 @@ class SimcruxCli {
       RiscvArchDriver.kId: RiscvArchDriver(reaper: reaper),
       RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
       SbyDriver.kId: SbyDriver(reaper: reaper),
+      EqyDriver.kId: EqyDriver(reaper: reaper),
     });
   }
 
@@ -254,7 +256,8 @@ class SimcruxCli {
     stderrSink(
       'simcrux: nothing to do headless — pass --ci <config>, '
       '--import-fusesoc, import-riscv-arch-test, import-riscv-formal, '
-      'import-sby, export-dashboard, or license. The graphical workflows '
+      'import-sby, import-eqy, export-dashboard, or license. The graphical '
+      'workflows '
       'need the SimCrux desktop app.',
     );
     stderrSink('');
@@ -312,7 +315,8 @@ class SimcruxCli {
     }
   }
 
-  /// Runs `simcrux import-sby` and returns its exit code: 0 when the file
+  /// Runs `simcrux import-sby` or `simcrux import-eqy` and returns its exit
+  /// code: 0 when the file
   /// was written or help was shown, 2 for a usage error or an input with
   /// nothing to import (the `import-*` family's grandfathered code).
   ///
