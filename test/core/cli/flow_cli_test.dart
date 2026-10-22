@@ -199,7 +199,9 @@ void main() {
     test('130 and 143: a signal cancels the run and re-exits 128+N', () async {
       for (final (signal, code) in [
         (ProcessSignal.sigint, 130),
-        (ProcessSignal.sigterm, 143),
+        // SIGTERM cannot be watched on Windows, so the reaper watches only
+        // SIGINT there and a SIGTERM would wait forever.
+        if (!Platform.isWindows) (ProcessSignal.sigterm, 143),
       ]) {
         final project = _flowProject(tmp, 'sig${signal.signalNumber}');
         final driver = _ScriptedFlowDriver(hang: true);

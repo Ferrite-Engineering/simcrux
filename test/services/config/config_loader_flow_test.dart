@@ -13,7 +13,10 @@ import 'package:simcrux/services/flow/flow_run_importer.dart';
 /// The `flow:` block: parsing, strict validation, the synthesised `flow`
 /// suite, a project that has only flow entries, and includes.
 void main() {
-  final root = p.join(p.separator, 'proj');
+  // Absolute on the host: on Windows the loader resolves the project path
+  // against the current drive (`D:\proj`), so a drive-less key never
+  // matched and every load here failed there.
+  final root = p.absolute(p.join(p.separator, 'proj'));
   final projectFile = p.join(root, 'simcrux.yaml');
 
   ConfigLoader loader({
