@@ -49,6 +49,27 @@ const String kImportFormalProjectGuardKey = 'importFormalProject';
 /// rather than a SymbiYosys job file, which imports one test per task.
 bool isEqyJobFile(String path) => p.extension(path).toLowerCase() == '.eqy';
 
+/// Where the project file goes by default: [FormalImportResult.kSuggestedOutputFilename]
+/// beside [jobPath], written with the separator [jobPath] itself uses, so one
+/// row never mixes `/` and `\`.
+///
+/// A Windows path (a drive letter or a UNC prefix) is joined and normalised in
+/// Windows style, so `C:/designs/top.sby` suggests `C:\designs\simcrux.yaml`.
+/// A path that starts with `/` is joined in POSIX style whatever the host,
+/// because `\` is a legal filename character there and not a separator. Any
+/// other path follows the host.
+String suggestedProjectPath(String jobPath) {
+  final isWindows = RegExp(r'^([A-Za-z]:|\\\\)').hasMatch(jobPath);
+  final context = isWindows
+      ? p.windows
+      : (jobPath.startsWith('/') ? p.posix : p.context);
+  final joined = context.join(
+    context.dirname(jobPath),
+    FormalImportResult.kSuggestedOutputFilename,
+  );
+  return isWindows ? context.normalize(joined) : joined;
+}
+
 /// Opens File > Import Formal Project….
 ///
 /// A workflow dialog: the barrier is not dismissible (closing is Cancel,
@@ -140,21 +161,13 @@ class _ImportFormalProjectDialogState extends State<ImportFormalProjectDialog> {
       _selected
         ..clear()
         ..addAll(script.tasks);
-      _outputPath ??= p.join(
-        p.dirname(path),
-        FormalImportResult.kSuggestedOutputFilename,
-      );
+      _outputPath ??= suggestedProjectPath(path);
       _error = null;
     });
   }
 
   Future<void> _chooseProjectFile() async {
-    final suggested =
-        _outputPath ??
-        p.join(
-          p.dirname(_sbyPath ?? ''),
-          FormalImportResult.kSuggestedOutputFilename,
-        );
+    final suggested = _outputPath ?? suggestedProjectPath(_sbyPath ?? '');
     final path = await widget.pickProjectFile(suggested);
     if (path == null || !mounted) return;
     setState(() => _outputPath = path);

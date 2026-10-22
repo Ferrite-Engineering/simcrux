@@ -126,7 +126,7 @@ void main() {
     for (final task in ['prove', 'prove_bug', 'cover']) {
       expect(find.byKey(ValueKey('importFormalTask-$task')), findsOneWidget);
     }
-    expect(find.text(p.join('/designs/hs', 'simcrux.yaml')), findsOneWidget);
+    expect(find.text('/designs/hs/simcrux.yaml'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('importFormalImport')));
     await tester.pumpAndSettle();
     expect(requests.single.sbyPath, '/designs/hs/top.sby');
@@ -135,6 +135,61 @@ void main() {
       find.byKey(const ValueKey('importFormalProjectDialog')),
       findsNothing,
     );
+  });
+
+  // These run on every host, so a Windows-only separator bug cannot hide
+  // behind the weekly Windows CI.
+  group('suggestedProjectPath', () {
+    test('a POSIX path stays POSIX on any host', () {
+      expect(
+        suggestedProjectPath('/designs/hs/top.sby'),
+        '/designs/hs/simcrux.yaml',
+      );
+    });
+
+    test('a POSIX path may hold a backslash in a directory name', () {
+      expect(
+        suggestedProjectPath(r'/work/a\b/top.sby'),
+        r'/work/a\b/simcrux.yaml',
+      );
+    });
+
+    test('a Windows path stays Windows on any host', () {
+      expect(
+        suggestedProjectPath(r'C:\designs\hs\top.sby'),
+        r'C:\designs\hs\simcrux.yaml',
+      );
+    });
+
+    test('a Windows path with forward slashes is written with backslashes', () {
+      expect(
+        suggestedProjectPath('C:/designs/hs/top.sby'),
+        r'C:\designs\hs\simcrux.yaml',
+      );
+    });
+
+    test('a UNC path stays UNC', () {
+      expect(
+        suggestedProjectPath(r'\\server\share\hs\top.sby'),
+        r'\\server\share\hs\simcrux.yaml',
+      );
+    });
+
+    test('a file at the root of a drive', () {
+      expect(suggestedProjectPath(r'C:\top.sby'), r'C:\simcrux.yaml');
+    });
+  });
+
+  testWidgets('a Windows job file suggests a project file with one separator '
+      'style', (tester) async {
+    await open(tester, jobFile: r'C:\designs\hs\top.sby');
+    await tester.tap(find.byKey(const ValueKey('importFormalChooseJobFile')));
+    await tester.pumpAndSettle();
+    expect(find.text(r'C:\designs\hs\top.sby'), findsOneWidget);
+    expect(find.text(r'C:\designs\hs\simcrux.yaml'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('importFormalImport')));
+    await tester.pumpAndSettle();
+    expect(requests.single.outputPath, r'C:\designs\hs\simcrux.yaml');
   });
 
   testWidgets('unticking a task imports the subset, to the chosen file', (
