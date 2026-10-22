@@ -6293,6 +6293,53 @@ Verilator needs `-Wno-BLKANDNBLK` for sky130's asynchronous-reset cells.
 | Re-measure on the real toolchain and runs; every recorded outcome unchanged | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_gate_level_live_test.dart`, `.github/workflows/flow-live.yml` |
 | The gate-level job is capped at 60 minutes | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
 
+### 27.13 Functional gate-level simulation: the cell models
+
+**What it covers.** `PdkCellModels` (`lib/services/flow/gate_level/pdk_cell_models.dart`)
+finds the Verilog cell models a gate-level simulation compiles with the
+netlist, from the run's own `resolved.json`: `CELL_VERILOG_MODELS` (an ordered
+list, used as it is), `PDK`, `STD_CELL_LIBRARY`, `VERILOG_POWER_DEFINE` and
+`PDK_ROOT`. LibreLane 3.0.16 records `PDK_ROOT` as ciel's versioned directory
+itself (`~/.ciel/ciel/<family>/versions/<open_pdks commit>`). A run from
+another machine records that machine's path, so the same versioned directory
+is looked for under this machine's manager root, ciel and volare both
+(`PDK_ROOT`, then `~/.ciel`, then `~/.volare`); when only another version of
+the PDK is installed (`<root>/<pdk>/`), the models come from it with a
+"version differs" warning on the row, never silently. Every model path is
+resolved through its symbolic links and must lie inside the PDK root or the
+run root. Nothing is searched for, downloaded or edited. The per-PDK table
+(`PdkGlsTable`) says how far each family is measured: sky130A and sky130B
+unbannered (measured on LibreLane 3.0.16, `sky130_fd_sc_hd`); gf180mcuD and
+ihp-sg13g2 bannered (their models resolve and bind, Icarus ran only the
+adder, which never leaves x, and Verilator's gate runs failed); a PDK the
+table does not name is simulated from its recorded models and bannered.
+
+**Setup.** None for the unit test. For a live look, a ciel install of the PDK:
+`ciel enable --pdk-family sky130 <commit>`.
+
+**Expected behaviour.**
+
+1. `flutter test test/services/flow/gate_level/pdk_cell_models_test.dart`
+   passes: recorded paths are used as recorded and in order; a recorded ciel
+   path from another machine rebases onto a fallback root, a volare root or
+   `<home>/.ciel` with no warning; an enabled-only PDK warns; a missing model
+   names its base name only; a run recording no models is not guessed at; a
+   model linked outside the roots is refused; the committed run record's field
+   names resolve.
+2. The defines are `FUNCTIONAL=1` and `UNIT_DELAY=#1`, plus the run's power
+   define for the power-aware netlist.
+
+**Edge cases.** volare was not installed when the layout was measured, so its
+rebase is unit-tested on the layout volare documents, not on a live install.
+A `final/pnl` netlist needs the power define and a supply tie (section 27.14);
+the plain `final/nl` needs neither.
+
+**Tier-gate scenarios.** Open Core only; no gated feature.
+
+| Test | Coverage | File |
+|---|---|---|
+| Resolution from the record, rebasing, version warning, missing, outside, table, defines | `[Coverage: UNIT]` | `test/services/flow/gate_level/pdk_cell_models_test.dart` |
+
 ---
 
 ## 9+. Subsequent features

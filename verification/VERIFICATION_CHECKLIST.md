@@ -1301,6 +1301,12 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] `GLS-GATE.md` records the gate (Icarus 0 real differences on both designs, Verilator 78 real bits on PicoRV32; outcome `verilator_fails_icarus_passes`) and the weekly re-measure on the current LibreLane release still matches every recorded outcome — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`), `[Coverage: AUTOMATED — GitHub Actions]` (`flow_gate_level_live_test.dart`, `flow-live.yml`)
 - [ ] The gate-level job is capped at 60 minutes, needs the LibreLane job and reads its runs — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`)
 
+### Functional gate-level simulation: the cell models (guide §27.13)
+
+- [ ] The cell models come from the run's `resolved.json` (`CELL_VERILOG_MODELS` in the recorded order), rebased onto this machine's ciel or volare root for a run from another machine; a PDK version that differs from the run's is a warning on the row, never a silent substitution; a missing model names its base name only — `[Coverage: UNIT]` (`pdk_cell_models_test.dart`)
+- [ ] A model that resolves outside the PDK root and the run root is refused — `[Coverage: UNIT]` (`pdk_cell_models_test.dart`)
+- [ ] sky130A and sky130B are unbannered; gf180mcuD, ihp-sg13g2 and an unlisted PDK carry the banner — `[Coverage: UNIT]` (`pdk_cell_models_test.dart`)
+
 ---
 
 ## Subsequent features
