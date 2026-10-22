@@ -116,6 +116,12 @@ const Set<String> _proOnlyEvents = <String>{
   'cross_project.searched',
   'riscv.dashboard_opened',
   'riscv.report_exported',
+  // The Pro analysis over flow runs.
+  'flow.compare.run',
+  'flow.trend.opened',
+  'flow.alert.raised',
+  'flow.sweep.opened',
+  'flow.baseline.set',
   // The commercial group. Its one recording site is
   // `showProUpgradeDialog`, which lives in the Pro overlay because the dialog
   // does — open core has no `CruxUpgradeDialog` call at all.
@@ -362,11 +368,37 @@ void main() {
       }
     });
 
-    test('trend.alert_raised.kind is 1:1 with TrendAlertKind', () {
-      expect(
-        valuesFor('trend.alert_raised', 'kind').toSet(),
-        TrendAlertKind.values.map(telemetryEnumToken).toSet(),
-      );
+    test(
+      'trend.alert_raised.kind is 1:1 with the test-history alert kinds',
+      () {
+        // A flow metric alert rides the same model and the same acknowledged
+        // set, but reports as `flow.alert.raised` by metric group, so its kind
+        // is the one value this event never carries.
+        expect(
+          valuesFor('trend.alert_raised', 'kind').toSet(),
+          TrendAlertKind.values
+              .where((k) => k != TrendAlertKind.flowMetricRegression)
+              .map(telemetryEnumToken)
+              .toSet(),
+        );
+        expect(
+          valuesFor('trend.alert_raised', 'kind'),
+          isNot(contains('flow_metric_regression')),
+        );
+      },
+    );
+
+    test('flow.alert.raised.group is the closed metric-group set', () {
+      expect(valuesFor('flow.alert.raised', 'group'), <String>[
+        'timing',
+        'area',
+        'drc',
+        'lvs',
+        'antenna',
+        'slew',
+        'power',
+        'other',
+      ]);
     });
 
     test('cross_project.searched.scope covers every search scope', () {

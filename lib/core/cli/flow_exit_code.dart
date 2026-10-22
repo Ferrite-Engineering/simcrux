@@ -22,12 +22,22 @@
 ///                            unknown subcommand
 ///  65  dataErr               a report or metrics file exists but cannot be
 ///                            converted
+///  77  licenseRequired       the command is a paid analysis and the licence
+///                            this run resolved does not include it
 /// 130  sigint                interrupted; the run's process trees were killed
 /// 143  sigterm               terminated; the run's process trees were killed
 /// ```
 ///
 /// The usage code is 64 for every `flow` subcommand: `flow` never shipped
 /// with the `2` the older importers and `--ci` keep.
+///
+/// [licenseRequired] is returned only by the Pro binary's flow verbs (run
+/// comparison and baseline writing), whose whole output is the analysis the
+/// licence pays for: a refusal there fails the job with a code of its own,
+/// never 64, so a pipeline can tell "the command line was wrong" from "this
+/// agent has no licence for it". Every `simcrux flow` subcommand of the open
+/// binary is free and never returns it. `77` is `EX_NOPERM`, beside the
+/// `EX_USAGE` and `EX_DATAERR` the family already uses.
 class FlowExitCode {
   const FlowExitCode._();
 
@@ -50,13 +60,17 @@ class FlowExitCode {
   /// An input exists but cannot be converted.
   static const int dataErr = 65;
 
+  /// A paid flow analysis was refused for want of a licence tier.
+  static const int licenseRequired = 77;
+
   /// Interrupted by SIGINT, re-exited as 128 + 2.
   static const int sigint = 130;
 
   /// Terminated by SIGTERM, re-exited as 128 + 15.
   static const int sigterm = 143;
 
-  /// Every code `simcrux flow` can return.
+  /// Every code the `flow` command family can return ([licenseRequired] only
+  /// from the Pro binary's verbs).
   static const List<int> all = <int>[
     met,
     violated,
@@ -64,6 +78,7 @@ class FlowExitCode {
     orgThresholdViolated,
     usage,
     dataErr,
+    licenseRequired,
     sigint,
     sigterm,
   ];
@@ -77,6 +92,7 @@ class FlowExitCode {
     orgThresholdViolated => 'org_threshold_violated',
     usage => 'usage',
     dataErr => 'data_err',
+    licenseRequired => 'license_required',
     sigint => 'sigint',
     sigterm => 'sigterm',
     _ => 'unexpected',

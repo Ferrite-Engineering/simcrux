@@ -5,8 +5,8 @@ import 'package:meta/meta.dart';
 
 /// The kind of trend regression an alert was emitted for.
 ///
-/// Detection rules live in the Pro overlay's
-/// `RegressionAlertDetector`, and the acknowledged-alerts store and the
+/// Detection rules live in the Pro overlay's alert detectors (test history
+/// and flow metrics), and the acknowledged-alerts store and the
 /// banner that renders alerts are Pro overlay code too; nothing in the
 /// open core reads this model.
 enum TrendAlertKind {
@@ -22,6 +22,14 @@ enum TrendAlertKind {
   /// the recent window — a mild-flakiness complement to the more
   /// strict `FlakinessScoringEngine` classification.
   flipFlopRunDetected,
+
+  /// An implementation-flow metric crossed one of the user's alert rules: a
+  /// threshold, or worse than the entry's baseline run by more than the
+  /// rule's percentage. [TrendAlert.testId] is the flow entry's test id
+  /// (`flow/<entry>`) and [TrendAlert.suiteId] the METRICS2.1 key, so one
+  /// acknowledgement silences one metric of one entry. Reported as
+  /// `flow.alert.raised` by metric group, never as `trend.alert_raised`.
+  flowMetricRegression,
 }
 
 /// Severity classification of a [TrendAlert].

@@ -227,7 +227,18 @@ void main() {
         expect(FlowExitCode.labelFor(code), isNot('unexpected'));
       }
       expect(FlowExitCode.labelFor(99), 'unexpected');
-      expect(FlowExitCode.all, [0, 1, 2, 3, 64, 65, 130, 143]);
+      expect(FlowExitCode.all, [0, 1, 2, 3, 64, 65, 77, 130, 143]);
+    });
+
+    test('the licence refusal has its own code, never the usage code', () {
+      // R-P6-4: a paid verb that is refused fails the job with a named
+      // outcome, so a pipeline can tell it from a wrong command line.
+      expect(FlowExitCode.licenseRequired, 77);
+      expect(FlowExitCode.licenseRequired, isNot(FlowExitCode.usage));
+      expect(
+        FlowExitCode.labelFor(FlowExitCode.licenseRequired),
+        'license_required',
+      );
     });
   });
 

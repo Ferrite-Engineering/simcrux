@@ -441,6 +441,47 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         },
       ),
       TelemetryCatalogEvent('riscv.report_exported'),
+
+      // ── Pro: implementation-flow analysis ─────────────────────────────
+      // History over runs whose verdicts, metrics and paths are free. Never
+      // a metric value, a design, a tag, a path, a config variable or a
+      // step name: these say which analysis is used, never what it showed.
+      //
+      // Each comparison of two runs: the flow and how many critical metrics
+      // got worse (clamped), which answers "does comparison find
+      // regressions" without one number from the design.
+      TelemetryCatalogEvent(
+        'flow.compare.run',
+        enumeratedValues: <String, List<String>>{'kind': kFlowKindTokens},
+        intProperties: <String>['critical_worse'],
+      ),
+      // Each history view opened: metric trends, the PPA dashboard, or the
+      // calendar of runs.
+      TelemetryCatalogEvent(
+        'flow.trend.opened',
+        enumeratedValues: <String, List<String>>{
+          'view': kFlowTrendViewTokens,
+        },
+      ),
+      // Once per entry per metric group an alert rule raised, after the
+      // acknowledged filter. Never the metric, its value or the entry.
+      TelemetryCatalogEvent(
+        'flow.alert.raised',
+        enumeratedValues: <String, List<String>>{
+          'group': kFlowAlertGroupTokens,
+        },
+      ),
+      // Each sweep view opened, with how many runs it grouped (clamped).
+      TelemetryCatalogEvent(
+        'flow.sweep.opened',
+        intProperties: <String>['runs'],
+      ),
+      // Each baseline written, from the app or the headless verb's GUI
+      // twin; headless never transmits.
+      TelemetryCatalogEvent(
+        'flow.baseline.set',
+        enumeratedValues: <String, List<String>>{'kind': kFlowKindTokens},
+      ),
     ];
 
 /// The ingestion Worker's ceiling on an integer property value: anything with
@@ -630,7 +671,8 @@ const List<String> kSimcruxPrAnnotationTargetTokens = <String>[
   'webhook',
 ];
 
-/// `TrendAlertKind.values` under `telemetryEnumToken`.
+/// `TrendAlertKind.values` under `telemetryEnumToken`, less
+/// `flowMetricRegression`, which reports as `flow.alert.raised` by group.
 ///
 /// Which of the three alert rules actually fired. The alert itself names a
 /// test and carries two runtimes; none of that travels — only which rule
@@ -822,6 +864,21 @@ const List<String> kDebugInWaveCruxOriginTokens = <String>[
 
 /// `flow.*.kind`: the two flows SimCrux runs and reads.
 const List<String> kFlowKindTokens = <String>['librelane', 'nextpnr'];
+
+/// `flow.trend.opened.view`: the Pro history views over flow runs.
+const List<String> kFlowTrendViewTokens = <String>['metric', 'ppa', 'calendar'];
+
+/// `flow.alert.raised.group`: the metric group an alert rule watches.
+const List<String> kFlowAlertGroupTokens = <String>[
+  'timing',
+  'area',
+  'drc',
+  'lvs',
+  'antenna',
+  'slew',
+  'power',
+  'other',
+];
 
 /// `flow.run.completed.source`: SimCrux launched the run, or indexed one it
 /// did not launch.
