@@ -200,6 +200,20 @@ void main() {
               finished.metrics,
             ),
           );
+          for (
+            var n = 0;
+            finished.metrics.containsKey('formal.property.$n.kind');
+            n++
+          ) {
+            final id = finished.metrics['formal.property.$n.id'];
+            final labelled = finished.metrics.containsKey(
+              'formal.property.$n.label',
+            );
+            if (!labelled &&
+                (id == null || !RegExp(r'^[0-9a-f]{16}$').hasMatch(id))) {
+              problems.add('$task: unlabelled property $n has no signature id');
+            }
+          }
           final db = File(p.join(taskDir, 'status.sqlite'));
           if (db.existsSync()) {
             for (final suffix in ['-shm', '-wal', '-journal']) {

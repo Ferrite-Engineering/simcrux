@@ -20,6 +20,7 @@ import 'package:simcrux/domain/models/sby_outcome.dart';
 import 'package:simcrux/domain/models/sby_script.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/services/formal/formal_containment.dart';
+import 'package:simcrux/services/formal/formal_property_identity.dart';
 import 'package:simcrux/services/formal/formal_reconciliation.dart';
 import 'package:simcrux/services/formal/formal_run_analysis.dart';
 import 'package:simcrux/services/formal/sby_status_database.dart';
@@ -164,9 +165,37 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     super.reaper,
     super.killGrace,
     this._analyser = const FormalRunAnalyser(),
+    this._statusReader = SbyStatusDatabase.readDetailed,
   });
 
   final FormalRunAnalyser _analyser;
+
+  /// Reads a finished task's `status.sqlite`. Called only after `sby` has
+  /// exited (a live run is read from the `jsonl` stream); tests pass one
+  /// that records when it is called.
+  final Future<SbyStatusRead> Function(String path, {String? task})
+  _statusReader;
+
+  /// Reads [path] and writes the reason to the run log when the database
+  /// could not be used. A missing file is a run that never created one and
+  /// needs no note; every other reason is one the log must carry, because
+  /// the verdict then rests on the stream and the log alone.
+  Future<SbyStatusSnapshot?> _readStatusDatabase(
+    String path,
+    String? task,
+    StreamController<TestExecutionEvent> controller,
+  ) async {
+    final result = await _statusReader(path, task: task);
+    final reason = result.unreadable;
+    if (reason != null && reason != SbyStatusUnreadable.missing) {
+      faultNotice(
+        controller,
+        'status.sqlite is unreadable (${reason.token}); the verdict is from '
+        'the log and the status stream.',
+      );
+    }
+    return result.snapshot;
+  }
 
   /// Metric key: the frontend that read the design (`builtin`, `slang`,
   /// `verific`, `unknown`).
@@ -550,9 +579,10 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         stopwatch.stop();
         // `-d` is the task directory, and `sby` keeps its status database
         // there. Read only now that `sby` has exited.
-        final database = await SbyStatusDatabase.read(
+        final database = await _readStatusDatabase(
           p.join(job.taskDirectory, 'status.sqlite'),
-          task: job.task,
+          job.task,
+          controller,
         );
         final analysis = await _analyse(
           request,
@@ -745,7 +775,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       if (statusDb != null) {
         final dbPath = FormalContainment.containedPath(caseDir, statusDb);
         if (dbPath != null) {
-          database = await SbyStatusDatabase.read(dbPath, task: job.task);
+          database = await _readStatusDatabase(dbPath, job.task, controller);
         }
       }
     }
@@ -793,7 +823,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     required StreamController<TestExecutionEvent> controller,
     FormalRunAnalysis analysis = FormalRunAnalysis.none,
   }) async {
-    final reconciliation = FormalReconciliation.reconcile(
+    final reconciled = FormalReconciliation.reconcile(
       taskVerdict: outcome.verdict,
       proofMode: script?.proofMode,
       live: live,
@@ -801,6 +831,17 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       files: script?.files ?? const <String, String>{},
       sbyDirectory: job.spawnDirectory,
       projectRoot: job.projectRoot,
+    );
+    // The id of an unlabelled property: a signature over its text, so it
+    // is the same in the next run of the same design.
+    final reconciliation = reconciled.withSignatures(
+      await FormalPropertyIdentity.signatures(
+        properties: reconciled.properties.take(kMaxPropertyRows),
+        projectRoot: job.projectRoot,
+        taskDirectory: job.taskDirectory,
+        sbyDirectory: job.spawnDirectory,
+        files: script?.files ?? const <String, String>{},
+      ),
     );
     if (live.malformedCount > 0) {
       faultNotice(

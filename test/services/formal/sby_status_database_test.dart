@@ -95,6 +95,61 @@ void main() {
     },
   );
 
+  test('a finished database reads, and says nothing was refused', () async {
+    final path = await walDatabase();
+    final result = await SbyStatusDatabase.readDetailed(path);
+    expect(result.unreadable, isNull);
+    expect(result.snapshot!.records, hasLength(1));
+  });
+
+  test('a leftover non-empty -wal is refused, never read and never '
+      'touched', () async {
+    final path = await walDatabase();
+    final wal = File('$path-wal')..writeAsBytesSync(const <int>[1, 2, 3]);
+    final before = tmp.listSync().map((e) => p.basename(e.path)).toSet();
+
+    final result = await SbyStatusDatabase.readDetailed(path);
+
+    expect(result.snapshot, isNull);
+    expect(result.unreadable, SbyStatusUnreadable.notCheckpointed);
+    expect(await SbyStatusDatabase.read(path), isNull);
+    expect(wal.readAsBytesSync(), const <int>[1, 2, 3]);
+    final after = tmp.listSync().map((e) => p.basename(e.path)).toSet();
+    expect(after, before, reason: 'no -shm, and nothing removed');
+    expect(after, isNot(contains('status.sqlite-shm')));
+  });
+
+  test('an empty -wal is what a clean close leaves, and reads', () async {
+    final path = await walDatabase();
+    File('$path-wal').writeAsBytesSync(const <int>[]);
+    final result = await SbyStatusDatabase.readDetailed(path);
+    expect(result.unreadable, isNull);
+    expect(result.snapshot, isNotNull);
+  });
+
+  test('every refusal carries its reason', () async {
+    expect(
+      (await SbyStatusDatabase.readDetailed(
+        p.join(tmp.path, 'nope'),
+      )).unreadable,
+      SbyStatusUnreadable.missing,
+    );
+    expect(
+      (await SbyStatusDatabase.readDetailed(tmp.path)).unreadable,
+      SbyStatusUnreadable.notAFile,
+    );
+    final junk = File(p.join(tmp.path, 'status.sqlite'))
+      ..writeAsStringSync('not a database');
+    final reason = (await SbyStatusDatabase.readDetailed(junk.path)).unreadable;
+    expect(
+      reason,
+      isIn(<SbyStatusUnreadable>[
+        SbyStatusUnreadable.notADatabase,
+        SbyStatusUnreadable.unknownSchema,
+      ]),
+    );
+  });
+
   test('the corpus copy filters by task', () async {
     final path = p.join(
       p.absolute(kFormalFixtureRoot),

@@ -26,7 +26,29 @@ class FormalPropertyResult {
     this.line,
     this.step,
     this.trace,
+    this.signature,
   });
+
+  /// This result with [signature] set (see `FormalPropertyIdentity`).
+  FormalPropertyResult withSignature(String? signature) => FormalPropertyResult(
+    task: task,
+    kind: kind,
+    location: location,
+    rawLocation: rawLocation,
+    name: name,
+    status: status,
+    label: label,
+    file: file,
+    line: line,
+    step: step,
+    trace: trace,
+    signature: signature,
+  );
+
+  /// The `crux-fnv1a64/1` signature over task, kind, file and source text,
+  /// for an unlabelled property whose source was read; null otherwise.
+  /// Reconciliation leaves it null: it reads no source.
+  final String? signature;
 
   /// The `[tasks]` name.
   final String task;
@@ -75,9 +97,9 @@ class FormalPropertyResult {
   }
 
   /// The identity across runs. The label when there is one; for an
-  /// unlabelled property, null until the shared `crux-fnv1a64/1` signature
-  /// over task, kind, file and normalised property text is available.
-  String? get crossRunIdentity => label;
+  /// unlabelled property, its [signature], and null when that was not
+  /// computed (the source could not be read).
+  String? get crossRunIdentity => label ?? signature;
 }
 
 /// The outcome of reconciling a task's `DONE (…)` verdict with its
@@ -277,6 +299,25 @@ class FormalReconciliation {
 
   /// True when a bound cut the per-property data short.
   final bool truncated;
+
+  /// This reconciliation with each property's [FormalPropertyResult.signature]
+  /// set from [signatures] (keyed by [FormalPropertyResult.key]). Nothing
+  /// else changes: no status, no verdict.
+  FormalReconciliation withSignatures(Map<String, String> signatures) {
+    if (signatures.isEmpty) return this;
+    return FormalReconciliation(
+      properties: List<FormalPropertyResult>.unmodifiable(
+        <FormalPropertyResult>[
+          for (final property in properties)
+            property.withSignature(signatures[property.key]),
+        ],
+      ),
+      verdict: verdict,
+      taskVerdict: taskVerdict,
+      disagreement: disagreement,
+      truncated: truncated,
+    );
+  }
 
   /// Properties that ended as a counterexample or an unreached cover.
   int get failedCount => properties

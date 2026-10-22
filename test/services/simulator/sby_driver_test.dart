@@ -18,6 +18,7 @@ import 'package:simcrux/domain/models/sby_outcome.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
+import 'package:simcrux/services/formal/sby_status_database.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/simulator/sby_driver.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
@@ -49,10 +50,30 @@ class _FakeProcess implements TestProcess {
   bool kill([ProcessSignal signal = ProcessSignal.sigterm]) => true;
 }
 
+/// A process whose exit the test decides.
+class _GatedProcess implements TestProcess {
+  _GatedProcess({required this.stdoutLines, required this.exit});
+
+  final List<String> stdoutLines;
+  final Future<int> exit;
+
+  @override
+  Stream<String> get stdout => Stream<String>.fromIterable(stdoutLines);
+
+  @override
+  Stream<String> get stderr => const Stream<String>.empty();
+
+  @override
+  Future<int> get exitCode => exit;
+
+  @override
+  bool kill([ProcessSignal signal = ProcessSignal.sigterm]) => true;
+}
+
 class _Recorder {
   _Recorder({this.process, this.missing = false, this.onSpawn});
 
-  final _FakeProcess? process;
+  final TestProcess? process;
   final bool missing;
 
   /// Plays `sby`: writes what it would leave in the task directory.
@@ -377,6 +398,122 @@ void main() {
       );
       expect(done.metrics['formal.properties'], '3');
       expect(done.metrics['formal.properties_failed'], '1');
+      final left = Directory(
+        p.join(workDir.path, 'prove_bug'),
+      ).listSync().map((e) => p.basename(e.path)).toSet();
+      expect(left, isNot(contains('status.sqlite-shm')));
+      expect(left, isNot(contains('status.sqlite-wal')));
+    });
+
+    test('a leftover -wal makes the database unreadable: the verdict is '
+        'from the log and the stream, and the reason is logged', () async {
+      final log = _capturedLog(
+        'prove_bug',
+      ).where((l) => !l.contains(' jsonl: ')).toList();
+      final recorder = _Recorder(
+        process: _FakeProcess(stdoutLines: log, exit: 2),
+        onSpawn: (args) {
+          writeTrace(args);
+          final taskDir = args[args.indexOf('-d') + 1];
+          File(
+            p.join(_corpus, 'captured', 'status.sqlite'),
+          ).copySync(p.join(taskDir, 'status.sqlite'));
+          File(
+            p.join(taskDir, 'status.sqlite-wal'),
+          ).writeAsBytesSync(const <int>[1, 2, 3]);
+        },
+      );
+      final events = await SbyDriver(launcher: recorder.launch)
+          .execute(request(FormalConfig(sbyFile: sbyFile, task: 'prove_bug')))
+          .toList();
+      final done = events.whereType<TestExecutionFinished>().single;
+      expect(done.metrics['formal.verdict'], 'FAIL');
+      expect(
+        done.metrics.containsKey('formal.properties'),
+        isFalse,
+        reason: 'no rows were guessed from a file that was not read',
+      );
+      expect(
+        events.whereType<TestLogLine>().map((l) => l.line),
+        contains(contains('status.sqlite is unreadable (not_checkpointed)')),
+      );
+      final left = Directory(
+        p.join(workDir.path, 'prove_bug'),
+      ).listSync().map((e) => p.basename(e.path)).toSet();
+      expect(left, isNot(contains('status.sqlite-shm')));
+    });
+
+    group('the id of an unlabelled property', () {
+      Future<Map<String, String>> ids() async {
+        final recorder = _Recorder(
+          process: _FakeProcess(
+            stdoutLines: _capturedLog('prove_bug'),
+            exit: 2,
+          ),
+          onSpawn: writeTrace,
+        );
+        final done = await finished(
+          SbyDriver(launcher: recorder.launch),
+          request(FormalConfig(sbyFile: sbyFile, task: 'prove_bug')),
+        );
+        return <String, String>{
+          for (final e in done.metrics.entries)
+            if (RegExp(r'^formal\.property\.\d+\.id$').hasMatch(e.key))
+              e.key: e.value,
+        };
+      }
+
+      test('is the same in two runs of one design', () async {
+        final first = await ids();
+        expect(first, isNotEmpty);
+        expect(
+          first.values.every((v) => RegExp(r'^[0-9a-f]{16}$').hasMatch(v)),
+          isTrue,
+          reason: '$first',
+        );
+        expect(await ids(), first);
+      });
+
+      test('changes when the property text changes', () async {
+        final before = await ids();
+        final sv = File(p.join(p.dirname(sbyFile), 'handshake_imm.sv'));
+        // Every property line gains a term; line numbers stay put.
+        sv.writeAsStringSync(
+          sv.readAsStringSync().replaceAll('assert (', "assert (1'b1 && "),
+        );
+        final after = await ids();
+        expect(after.keys, before.keys);
+        expect(
+          after.entries.any((e) => e.value != before[e.key]),
+          isTrue,
+          reason: 'no assert line in the source was rewritten',
+        );
+      });
+    });
+
+    test('a run that is still going never opens status.sqlite', () async {
+      final exit = Completer<int>();
+      final opened = <bool>[];
+      final process = _GatedProcess(
+        stdoutLines: const ['SBY 1:00:00 [/w/other] DONE (PASS, rc=0)'],
+        exit: exit.future,
+      );
+      final recorder = _Recorder(process: process);
+      final driver = SbyDriver(
+        launcher: recorder.launch,
+        statusReader: (path, {task}) async {
+          opened.add(exit.isCompleted);
+          return const SbyStatusRead.refused(SbyStatusUnreadable.missing);
+        },
+      );
+      final done = driver
+          .execute(request(FormalConfig(sbyFile: sbyFile, task: 'other')))
+          .firstWhere((e) => e is TestExecutionFinished);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(opened, isEmpty, reason: 'sby has not exited');
+      exit.complete(0);
+      await done;
+      expect(opened, [true], reason: 'read once, after the exit');
     });
 
     test('a PASS whose status.sqlite lists no checked property records zero '

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:crux_sqlite/crux_sqlite.dart';
 import 'package:meta/meta.dart';
 import 'package:simcrux/services/formal/sby_status_reader.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -56,22 +56,63 @@ class SbyStatusSnapshot {
   final bool truncated;
 }
 
+/// Why a `status.sqlite` could not be read.
+enum SbyStatusUnreadable {
+  /// No file at the path: `sby` stopped before it created one.
+  missing('missing'),
+
+  /// The path names something other than a regular file.
+  notAFile('not_a_file'),
+
+  /// A non-empty `-wal` sits beside it: `sby` left committed rows there (it
+  /// was killed, or never closed the database), which a read of the main
+  /// file would silently miss.
+  notCheckpointed('not_checkpointed'),
+
+  /// The bytes are not a SQLite database.
+  notADatabase('not_a_database'),
+
+  /// Its tables could not be read: not `sby`'s schema, or a schema a newer
+  /// `sby` changed (a file that is not a database at all can surface here
+  /// too, when the failure comes at the first query).
+  unknownSchema('unknown_schema');
+
+  const SbyStatusUnreadable(this.token);
+
+  /// The lower-case token written in the log.
+  final String token;
+}
+
+/// What reading one `status.sqlite` produced: a snapshot, or the reason
+/// there is none. Never both, never neither.
+@immutable
+class SbyStatusRead {
+  /// A database that was read.
+  const SbyStatusRead.ok(SbyStatusSnapshot this.snapshot) : unreadable = null;
+
+  /// A database that was not read, and why.
+  const SbyStatusRead.refused(SbyStatusUnreadable this.unreadable)
+    : snapshot = null;
+
+  /// The rows, when the database was read.
+  final SbyStatusSnapshot? snapshot;
+
+  /// Why it was not read.
+  final SbyStatusUnreadable? unreadable;
+}
+
 /// Reads the `status.sqlite` that `sby` writes in a task directory.
 ///
-/// **Read-only, and it writes nothing beside the file.** The database is in
-/// WAL mode, and even a read-only open of a WAL database creates a `-shm`
-/// file next to it. It is opened with the URI flag `immutable=1`, which
-/// tells SQLite the file cannot change while it is open, so no lock, no
-/// `-shm` and no `-wal` is touched. The driver reads it only after `sby`
-/// has exited, which is what makes that promise true. Content still in an
-/// uncheckpointed `-wal` (an `sby` that was killed) is not seen, so a read
-/// can only miss statuses, never invent one.
-///
-/// This is a direct open, pinned in `sqlite_migration_guards_test.dart`:
-/// `crux_sqlite` has no read-only open for a database another program
-/// owns yet, and its policy open would run SimCrux's own migrations
-/// against `sby`'s file. When `crux_sqlite` gains one, this moves onto it
-/// and the pin goes.
+/// **Read only after `sby` has exited, and it writes nothing beside the
+/// file.** The open is `crux_sqlite`'s `openForeignSqliteReadOnly`: the file
+/// is opened immutable, so no lock, no `-shm` and no `-wal` is created. That
+/// is only true of a file nothing is writing, which is why a live run is read
+/// from the `jsonl` stream and never from this database. `sby` checkpoints
+/// when it closes the database; a non-empty `-wal` after the process has
+/// gone (a crash, a kill) means committed rows an immutable read would not
+/// see, so the file is reported unreadable ([SbyStatusUnreadable.notCheckpointed])
+/// and the caller falls back to the stream and the log. A read can only miss
+/// statuses, never invent one.
 ///
 /// The open runs on sqflite's background isolate, and the row count is
 /// capped, so a large status history is never one blocking read.
@@ -82,26 +123,31 @@ abstract final class SbyStatusDatabase {
   static bool _ffiReady = false;
 
   /// Reads [path] for [task] (every task when null), or returns null when
-  /// there is no readable database there.
-  static Future<SbyStatusSnapshot?> read(String path, {String? task}) async {
-    if (!File(path).existsSync()) return null;
+  /// there is no readable database there. [readDetailed] says why.
+  static Future<SbyStatusSnapshot?> read(String path, {String? task}) async =>
+      (await readDetailed(path, task: task)).snapshot;
+
+  /// Reads [path] for [task] (every task when null), and says why when it
+  /// could not.
+  static Future<SbyStatusRead> readDetailed(String path, {String? task}) async {
     // The FFI factory itself, never sqflite's global default: replacing
     // that is the trend store's business (and prints a warning each time).
     if (!_ffiReady) {
       sqfliteFfiInit();
       _ffiReady = true;
     }
-    final uri = Uri.file(
-      File(path).absolute.path,
-    ).replace(queryParameters: const <String, String>{'immutable': '1'});
     final Database db;
     try {
-      db = await databaseFactoryFfi.openDatabase(
-        uri.toString(),
-        options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
-      );
+      db = await openForeignSqliteReadOnly(path, factory: databaseFactoryFfi);
+    } on CruxForeignDatabaseException catch (refused) {
+      return SbyStatusRead.refused(switch (refused.refusal) {
+        CruxForeignDatabaseRefusal.missing => SbyStatusUnreadable.missing,
+        CruxForeignDatabaseRefusal.notAFile => SbyStatusUnreadable.notAFile,
+        CruxForeignDatabaseRefusal.notCheckpointed =>
+          SbyStatusUnreadable.notCheckpointed,
+      });
     } on DatabaseException {
-      return null;
+      return const SbyStatusRead.refused(SbyStatusUnreadable.notADatabase);
     }
     try {
       final where = task == null ? '' : 'WHERE t.name = ?';
@@ -135,16 +181,18 @@ abstract final class SbyStatusDatabase {
       final records = <SbyStatusRecord>[
         for (final row in statusRows.take(kMaxRows)) _record(row),
       ];
-      return SbyStatusSnapshot(
-        properties: List<SbyDeclaredProperty>.unmodifiable(properties),
-        records: List<SbyStatusRecord>.unmodifiable(records),
-        truncated:
-            propertyRows.length > kMaxRows || statusRows.length > kMaxRows,
+      return SbyStatusRead.ok(
+        SbyStatusSnapshot(
+          properties: List<SbyDeclaredProperty>.unmodifiable(properties),
+          records: List<SbyStatusRecord>.unmodifiable(records),
+          truncated:
+              propertyRows.length > kMaxRows || statusRows.length > kMaxRows,
+        ),
       );
     } on DatabaseException {
       // A file that opens but is not sby's schema (or a schema a newer sby
       // changed): no status from it, and the log's verdict stands.
-      return null;
+      return const SbyStatusRead.refused(SbyStatusUnreadable.unknownSchema);
     } finally {
       await db.close();
     }

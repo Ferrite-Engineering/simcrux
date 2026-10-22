@@ -4794,8 +4794,22 @@ Engines binary path, else `sby` on PATH.
    beside it.
 3. The task directory's `status.sqlite`, read after `sby` exits
    (`SbyStatusDatabase`): the property list (including properties no record
-   mentions) and a second set of statuses. It is opened read-only with the
-   URI flag `immutable=1`, so no `-shm` or `-wal` file is written beside it.
+   mentions) and a second set of statuses. It is opened through
+   `crux_sqlite`'s `openForeignSqliteReadOnly` (read-only, immutable), so no
+   `-shm` or `-wal` file is written beside it. It is read only once `sby` has
+   exited, because `sby` checkpoints when it closes the database; while a run
+   is live the jsonl stream is the only source. A non-empty `-wal` after the
+   process has gone (a crash or a kill) holds committed rows an immutable
+   read would miss, so the database is reported unreadable
+   (`status.sqlite is unreadable (not_checkpointed)` in the run log) and the
+   verdict rests on the stream and the log; nothing is guessed from it.
+
+   The `formal.property.<n>.id` of a property with no label is the
+   `crux-fnv1a64/1` signature (`CruxSignature`, the scheme LintCrux and the
+   flow SARIF writer use) over task, kind, project-relative file and the
+   property's source line, so it is the same in the next run of the same
+   design and changes when the property text changes. A property whose source
+   cannot be read has no id.
 
 **The agreement rule** (`FormalReconciliation`). Only the kinds the mode
 checks count: covers in `cover` mode, everything but covers, assumptions and
