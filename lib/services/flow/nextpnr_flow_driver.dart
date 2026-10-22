@@ -273,6 +273,9 @@ class NextpnrFlowDriver extends FlowProcessDriver {
         ),
         cancelSignal: cancel.future,
         onStderrLine: request.stderrCapture?.addLine,
+        // What nextpnr itself gets: the engine PATH a Finder-launched app
+        // lacks, and the test's own XDG_DATA_HOME.
+        environment: synthesisEnvironment(request),
       );
     } finally {
       _synthesisCancels.remove(request.test.id);
@@ -313,6 +316,19 @@ class NextpnrFlowDriver extends FlowProcessDriver {
     }
     return ok;
   }
+
+  /// The environment synthesis runs Yosys under: the one nextpnr runs under
+  /// (the project's `extra_env`, `XDG_DATA_HOME` in the test's work
+  /// directory when none is set), with the engine directories appended to
+  /// `PATH` as every spawn of this driver has them.
+  @visibleForTesting
+  Map<String, String>? synthesisEnvironment(CompileRequest request) =>
+      augmentEnvironment(
+        FlowProcessDriver.flowEnvironment(
+          request.workingDirectory,
+          request.binaryConfig.extraEnv,
+        ),
+      );
 
   static String _firstLine(String text) {
     for (final line in text.split('\n')) {

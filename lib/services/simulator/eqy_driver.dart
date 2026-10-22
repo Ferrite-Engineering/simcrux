@@ -399,7 +399,12 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
       );
     }
     if (job.vhdlReads.isNotEmpty) {
-      final problem = await _lowerVhdl(request.test.id, job, controller);
+      final problem = await _lowerVhdl(
+        request.test.id,
+        job,
+        controller,
+        environment: augmentEnvironment(request.binaryConfig.extraEnv),
+      );
       if (problem != null) {
         await _failBeforeRunning(controller, startedAt, problem);
         return;
@@ -767,8 +772,9 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
   Future<String?> _lowerVhdl(
     String testId,
     EqyJob job,
-    StreamController<TestExecutionEvent> controller,
-  ) async {
+    StreamController<TestExecutionEvent> controller, {
+    Map<String, String>? environment,
+  }) async {
     final dir = job.loweredDirectory!;
     final cancel = Completer<void>();
     _lowering[testId] = cancel;
@@ -793,6 +799,8 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
           outputPath: out,
           timeout: kVhdlLowerTimeout,
           cancelSignal: cancel.future,
+          // The engine PATH a Finder-launched app lacks, as eqy itself gets.
+          environment: environment,
         );
         final why = switch (result) {
           VhdlLowerSuccess() => null,

@@ -242,6 +242,31 @@ void main() {
       expect(request.topModule, 'path_adder');
       expect(recorder.spawns.single.executable, 'nextpnr-ice40');
     });
+
+    test('synthesis runs Yosys under the environment nextpnr gets: the '
+        "project's extra_env and a per-job XDG_DATA_HOME", () async {
+      final yosys = FakeYosysRunner(
+        const YosysRunSuccess(rawJson: '{}', stdout: '', stderr: ''),
+      );
+      final recorder = FlowSpawnRecorder(
+        onSpawn: nextpnrLeaving('path_ice40_met'),
+      );
+      await runOnce(
+        driver(recorder, yosys: yosys),
+        specFor(entry()),
+        config: const SimulatorBinaryConfig(
+          simulatorId: 'nextpnr',
+          extraEnv: <String, String>{'SIMCRUX_FLOW_PROBE': '1'},
+        ),
+      );
+      final env = yosys.environments.single;
+      expect(env, isNotNull, reason: 'a Finder-launched app needs one');
+      expect(env!['SIMCRUX_FLOW_PROBE'], '1');
+      final xdg = env['XDG_DATA_HOME'];
+      if ((Platform.environment['XDG_DATA_HOME'] ?? '').isEmpty) {
+        expect(xdg, p.join(work.path, 'xdg'));
+      }
+    });
   });
 
   group('the run directory', () {
