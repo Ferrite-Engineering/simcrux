@@ -437,6 +437,37 @@ directory, which `sby -f` deletes and recreates, so it must be a single file
 name such as `insn_add_ch0`: a path (`../..`, `/abs/dir`, anything with `/` or
 `\`), `.` or `..` stops the project from loading, with the file and line.
 
+### Flow entries: the netlist behind a worst path {#flow-netlist}
+
+From SimCrux 1.2, a nextpnr run's worst paths are mapped back to your RTL
+through the netlist Yosys wrote for that run, whatever the file is called.
+SimCrux looks for it in this order:
+
+1. the `netlist:` key on the entry's `flow:` block, a path **inside the run
+   directory** (`netlist.json`, `build/top.json`);
+2. `synth.json`, the name SimCrux's own runs write;
+3. the one `.json` file in the run directory that reads as a Yosys netlist.
+   `report.json` and `post.json` (nextpnr's report and its placed netlist) do
+   not count, and when two or more files qualify SimCrux does not guess.
+
+```yaml
+flow:
+  entries:
+    - name: blinky_ecp5
+      kind: nextpnr
+      family: ecp5
+      device: 25k
+      package: CABGA256
+      top: top
+      sources: [rtl/top.v]
+      netlist: netlist.json
+```
+
+`netlist:` is relative to each run directory. An absolute path, or one that
+leaves the run directory with `..`, stops the project from loading, with the
+file and line. A run where none of the three is found is still listed, with
+its paths shown as unmapped and a note that it holds no synthesised netlist.
+
 ## Custom driver plugins <span class="tier tier-pro">Pro</span> {#plugins}
 
 Pro adds custom driver plugins: an external program, speaking a documented

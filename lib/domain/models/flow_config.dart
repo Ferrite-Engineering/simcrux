@@ -204,6 +204,7 @@ class FlowEntry {
     List<String> sources = const <String>[],
     this.freqMhz,
     this.detailedTiming = false,
+    this.netlist,
     this.fusesoc,
     List<String> extraArgs = const <String>[],
     Map<String, List<String>> handoff = const <String, List<String>>{},
@@ -278,6 +279,15 @@ class FlowEntry {
   /// nextpnr: whether `--detailed-timing-report` is passed.
   final bool detailedTiming;
 
+  /// nextpnr: the synthesised netlist a worst path is mapped back to the RTL
+  /// through, as a path inside the run directory (`netlist.json`,
+  /// `build/top.json`). When it names no file the run holds, the mapping
+  /// falls back to `synth.json`, then to the run's single Yosys netlist.
+  ///
+  /// Never absolute and never leaving the run directory
+  /// ([netlistPathProblem]).
+  final String? netlist;
+
   /// nextpnr: a FuseSoC core and target built instead.
   final FlowFusesocConfig? fusesoc;
 
@@ -295,6 +305,27 @@ class FlowEntry {
 
   /// Whether this is a FuseSoC-built nextpnr entry.
   bool get isFusesoc => fusesoc != null;
+
+  /// Why [value] cannot be a [netlist] path, or null when it can: it is
+  /// empty, absolute (a rooted path or a drive), holds a NUL or a line
+  /// break, or has a `..` segment.
+  static String? netlistPathProblem(String value) {
+    if (value.trim().isEmpty) return 'it is empty';
+    if (value.contains('\x00')) return 'it contains a NUL byte';
+    if (value.contains('\n') || value.contains('\r')) {
+      return 'it contains a line break';
+    }
+    if (value.startsWith('/') ||
+        value.startsWith(r'\') ||
+        value.startsWith('~') ||
+        RegExp('^[A-Za-z]:').hasMatch(value)) {
+      return 'it must be relative to the run directory';
+    }
+    if (value.split(RegExp(r'[/\\]')).contains('..')) {
+      return 'it must stay inside the run directory';
+    }
+    return null;
+  }
 
   /// A copy with the given fields replaced.
   FlowEntry copyWith({
@@ -321,6 +352,7 @@ class FlowEntry {
     sources: sources ?? this.sources,
     freqMhz: freqMhz,
     detailedTiming: detailedTiming,
+    netlist: netlist,
     fusesoc: fusesoc,
     extraArgs: extraArgs,
     handoff: handoff,
@@ -354,6 +386,7 @@ class FlowEntry {
         _listEq(other.sources, sources) &&
         other.freqMhz == freqMhz &&
         other.detailedTiming == detailedTiming &&
+        other.netlist == netlist &&
         other.fusesoc == fusesoc &&
         _listEq(other.extraArgs, extraArgs) &&
         other.projectRoot == projectRoot;
@@ -379,6 +412,7 @@ class FlowEntry {
     Object.hashAll(sources),
     freqMhz,
     detailedTiming,
+    netlist,
     fusesoc,
     Object.hashAll(extraArgs),
     Object.hashAllUnordered(

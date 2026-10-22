@@ -5871,7 +5871,9 @@ guard. Everything here is open core; results are findings, not signoff.
   design-wide value and one column per corner, the corner names as the tool
   wrote them.
 - **Worst paths** (nextpnr) are mapped to the RTL from the run's synthesised
-  and placed netlists (`synth.json`, `post.json`) when it holds them: register,
+  and placed netlists when it holds them (the synthesised one is the flow
+  entry's `netlist:`, else `synth.json`, else the run's only Yosys netlist;
+  the placed one is `post.json`): register,
   statement, block or unmapped, a path labelled by its weaker end; an
   unmapped segment is shown beside its nearest mapped neighbour. A report
   ingested without its netlists lists its paths unmapped and says so. A

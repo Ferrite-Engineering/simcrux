@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily, Override;
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
@@ -234,18 +235,34 @@ class FlowPathRegisterFilterNotifier extends Notifier<String?> {
   void clear() => state = null;
 }
 
-/// The worst paths of the run [ref] names, each mapped to the RTL, read on
-/// a background isolate. Per tab.
-final FutureProviderFamily<FlowWorstPaths, FlowRunRef> flowWorstPathsProvider =
-    FutureProvider.family<FlowWorstPaths, FlowRunRef>(
+/// Which run [flowWorstPathsProvider] reads: the run and its design (the
+/// `flow:` entry name the run index files it under), null when not known.
+typedef FlowWorstPathsRequest = ({FlowRunRef run, String? design});
+
+/// The worst paths of the run [FlowWorstPathsRequest.run] names, each mapped
+/// to the RTL, read on a background isolate. Per tab.
+final FutureProviderFamily<FlowWorstPaths, FlowWorstPathsRequest>
+flowWorstPathsProvider =
+    FutureProvider.family<FlowWorstPaths, FlowWorstPathsRequest>(
       flowWorstPaths,
       name: 'flowWorstPathsProvider',
     );
 
 /// Body of [flowWorstPathsProvider], shared with the per-tab override.
-Future<FlowWorstPaths> flowWorstPaths(Ref ref, FlowRunRef runRef) {
+///
+/// The entry's `netlist:`, when it has one, is the first netlist the mapping
+/// looks for.
+Future<FlowWorstPaths> flowWorstPaths(Ref ref, FlowWorstPathsRequest request) {
   final run = ref.watch(flowBackgroundRunnerProvider);
-  return run(() => readFlowWorstPaths(runRef));
+  final design = request.design;
+  String? netlist;
+  if (design != null) {
+    final entries = ref.watch(activeConfigProvider)?.flow?.entries;
+    for (final entry in entries ?? const <FlowEntry>[]) {
+      if (entry.name == design) netlist = entry.netlist;
+    }
+  }
+  return run(() => readFlowWorstPaths(request.run, netlist: netlist));
 }
 
 /// Keeps the Flow Runs panel current while the tab's regression runs:

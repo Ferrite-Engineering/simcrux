@@ -272,6 +272,66 @@ $entryYaml
       expect(errorsOf(nextpnr), isEmpty);
     });
 
+    test('netlist: names a file inside the run directory', () {
+      expect(errorsOf('$nextpnr\n      netlist: netlist.json'), isEmpty);
+      expect(errorsOf('$nextpnr\n      netlist: build/top.json'), isEmpty);
+      final config = loader().parse('''
+version: "1"
+flow:
+  entries:
+$nextpnr
+      netlist: build/top.json
+''', projectFile);
+      // As written: it is relative to each run directory, so the loader does
+      // not resolve it against the project.
+      expect(config.flow!.entries.single.netlist, 'build/top.json');
+    });
+
+    test('netlist: refuses an absolute path and a way out of the run', () {
+      for (final bad in [
+        '/etc/netlist.json',
+        r'\share\netlist.json',
+        r'C:\runs\netlist.json',
+        'C:netlist.json',
+        '~/netlist.json',
+        '../netlist.json',
+        'build/../../netlist.json',
+        r'build\..\..\netlist.json',
+        '..',
+        '',
+      ]) {
+        expect(
+          errorsOf("$nextpnr\n      netlist: '$bad'"),
+          anyElement(contains('`flow.entries[0].netlist`')),
+          reason: bad,
+        );
+      }
+    });
+
+    test('netlist: does not apply to a LibreLane entry', () {
+      expect(
+        errorsOf('''
+    - name: l
+      kind: librelane
+      config: c.yaml
+      netlist: netlist.json'''),
+        anyElement(contains('does not apply to a librelane entry')),
+      );
+    });
+
+    test('netlist: is read on a FuseSoC entry too', () {
+      final config = loader(allowTooling: true).parse('''
+version: "1"
+flow:
+  entries:
+    - name: f
+      kind: nextpnr
+      fusesoc: {core: "a:b:c", target: icebreaker}
+      netlist: default-sim/top.json
+''', projectFile);
+      expect(config.flow!.entries.single.netlist, 'default-sim/top.json');
+    });
+
     test('an unknown key is an error', () {
       expect(
         errorsOf('$nextpnr\n      sourcez: [x.v]'),

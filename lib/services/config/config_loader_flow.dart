@@ -50,6 +50,7 @@ const Set<String> _kFlowNextpnrKeys = <String>{
   'sources',
   'freq_mhz',
   'detailed_timing',
+  'netlist',
   'fusesoc',
   'extra_args',
 };
@@ -427,6 +428,7 @@ FlowEntry? _readNextpnrEntry(
     return FlowEntry(
       name: name,
       kind: FlowKind.nextpnr,
+      netlist: _readFlowNetlist(node, label, filePath, errors),
       fusesoc: fusesoc,
       handoff: handoff,
     );
@@ -575,6 +577,7 @@ FlowEntry? _readNextpnrEntry(
     sources: sources,
     freqMhz: freq,
     detailedTiming: detailed == true,
+    netlist: _readFlowNetlist(node, label, filePath, errors),
     extraArgs: extraArgs,
     handoff: handoff,
   );
@@ -822,6 +825,29 @@ String? _readFlowPath(
       path: filePath,
       node: node.nodes[key],
       message: '`$label.$key` "$value": $problem.',
+    ),
+  );
+  return null;
+}
+
+/// A nextpnr entry's `netlist`: a path inside the run directory, never
+/// absolute and never leaving it ([FlowEntry.netlistPathProblem]). The
+/// reader checks it again against the run directory it reads.
+String? _readFlowNetlist(
+  YamlMap node,
+  String label,
+  String filePath,
+  List<ConfigLoaderError> errors,
+) {
+  final value = _readRiscvString(node, 'netlist', label, filePath, errors);
+  if (value == null) return null;
+  final problem = FlowEntry.netlistPathProblem(value);
+  if (problem == null) return value;
+  errors.add(
+    _error(
+      path: filePath,
+      node: node.nodes['netlist'],
+      message: '`$label.netlist` "$value": $problem.',
     ),
   );
   return null;

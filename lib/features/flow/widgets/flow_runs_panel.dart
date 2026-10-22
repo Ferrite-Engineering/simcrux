@@ -783,7 +783,9 @@ class _PathsTable extends ConsumerWidget {
     final l10n = L10N.of(context);
     final reading = entry.reading;
     final runRef = reading.run.ref;
-    final async = ref.watch(flowWorstPathsProvider(runRef));
+    final async = ref.watch(
+      flowWorstPathsProvider((run: runRef, design: entry.design)),
+    );
     final paths = async.value;
     if (paths == null) {
       return CruxPanelEmptyState(

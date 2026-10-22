@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:crux_flow/crux_flow.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
 
 /// One worst timing path with where its ends and segments land in the RTL.
@@ -80,14 +81,20 @@ class FlowWorstPaths {
 /// Reads the worst paths of the run [ref] names and maps each to the RTL.
 ///
 /// nextpnr: the paths are the report's `critical_paths`; the registers come
-/// from the run's synthesised netlist (`synth.json`) and the spans from the
-/// placed one (`post.json`, else `synth.json`) when the run holds them. An
-/// ingested report with neither lists its paths unmapped. Every file read
-/// resolves inside the run directory and is size-capped.
+/// from the run's synthesised netlist and the spans from the placed one
+/// (`post.json`, else the synthesised netlist) when the run holds them. The
+/// synthesised netlist is, in order: the file [netlist] names (the flow
+/// entry's `netlist:`, a path inside the run directory), `synth.json`, then
+/// the one `*.json` in the run directory that reads as a Yosys netlist
+/// (`report.json` and `post.json` aside; several is no choice). A run with
+/// none lists its paths unmapped. Every file read resolves inside the run
+/// directory and is size-capped; a [netlist] that is absolute or leaves the
+/// run directory is ignored.
 ///
 /// Reads whole files, so the app calls it off the UI isolate.
 Future<FlowWorstPaths> readFlowWorstPaths(
   FlowRunRef ref, {
+  String? netlist,
   FlowInputLimits limits = FlowInputLimits.defaults,
 }) async {
   if (ref.kind == FlowKind.librelane) {
@@ -103,7 +110,7 @@ Future<FlowWorstPaths> readFlowWorstPaths(
           : FlowWorstPathsGap.none,
     );
   }
-  final resolver = await _resolverFor(root, limits);
+  final resolver = await _resolverFor(root, limits, netlist);
   if (resolver == null) {
     return FlowWorstPaths(
       rows: <FlowPathRow>[for (final path in paths) FlowPathRow(path: path)],
@@ -138,9 +145,18 @@ TimingPathMapping _map(RtlRegisterResolver resolver, TimingPath path) {
   }
 }
 
+/// The names a run directory's JSON files have that are never the
+/// synthesised netlist: nextpnr's `--report`, and its `--write` (the placed
+/// netlist, read for the spans).
+const Set<String> _kNotSynthesisedNames = <String>{'report.json', 'post.json'};
+
+/// A netlist read for mapping: where it is and the registers in it.
+typedef _Netlist = ({String path, RtlRegisterSet registers});
+
 Future<RtlRegisterResolver?> _resolverFor(
   String root,
   FlowInputLimits limits,
+  String? netlist,
 ) async {
   final containment = FlowContainment(<String>[root]);
   String? contained(String name) {
@@ -153,18 +169,70 @@ Future<RtlRegisterResolver?> _resolverFor(
     }
   }
 
-  final synth = contained('synth.json');
-  if (synth == null) return null;
+  Future<_Netlist?> read(String? path) async {
+    if (path == null) return null;
+    try {
+      return (
+        path: path,
+        registers: await RtlRegisterSet.read(path, limits: limits),
+      );
+    } on FlowReadException {
+      return null;
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  // The order: the entry's own `netlist`, then `synth.json` (what SimCrux's
+  // own runs write), then the one Yosys netlist the directory holds.
+  final hinted =
+      netlist == null || FlowEntry.netlistPathProblem(netlist) != null
+      ? null
+      : contained(netlist);
+  final found =
+      await read(hinted) ??
+      await read(contained('synth.json')) ??
+      await _soleNetlist(root, contained, read);
+  if (found == null) return null;
   try {
-    final registers = await RtlRegisterSet.read(synth, limits: limits);
-    final placed = contained('post.json') ?? synth;
+    final placed = contained('post.json') ?? found.path;
     final index = await NetlistSrcIndex.read(placed, limits: limits);
-    return RtlRegisterResolver(registers, index: index);
+    return RtlRegisterResolver(found.registers, index: index);
   } on FlowReadException {
     return null;
   } on FileSystemException {
     return null;
   }
+}
+
+/// The only `*.json` directly in [root] that reads as a Yosys netlist, or
+/// null when there is none or there are several (which would be a guess).
+Future<_Netlist?> _soleNetlist(
+  String root,
+  String? Function(String name) contained,
+  Future<_Netlist?> Function(String? path) read,
+) async {
+  final names = <String>[];
+  try {
+    for (final entity in Directory(root).listSync(followLinks: false)) {
+      if (entity is! File) continue;
+      final name = p.basename(entity.path);
+      if (!name.toLowerCase().endsWith('.json')) continue;
+      if (_kNotSynthesisedNames.contains(name)) continue;
+      names.add(name);
+    }
+  } on FileSystemException {
+    return null;
+  }
+  names.sort();
+  _Netlist? sole;
+  for (final name in names) {
+    final netlist = await read(contained(name));
+    if (netlist == null) continue;
+    if (sole != null) return null;
+    sole = netlist;
+  }
+  return sole;
 }
 
 /// The tail of one log: at most a few hundred lines from its end.
