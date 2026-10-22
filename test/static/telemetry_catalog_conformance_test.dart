@@ -125,6 +125,7 @@ const Set<String> _proOnlyEvents = <String>{
   // The Pro analysis over formal results.
   'formal.dashboard_opened',
   'formal.regression.raised',
+  'eqy.partition.diagnosed',
   // The commercial group. Its one recording site is
   // `showProUpgradeDialog`, which lives in the Pro overlay because the dialog
   // does — open core has no `CruxUpgradeDialog` call at all.

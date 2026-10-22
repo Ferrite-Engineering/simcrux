@@ -26,6 +26,7 @@ const List<String> kFormalSbyCases = <String>[
   'fifo_slang',
   'handshake_temporal',
   'pretrace',
+  'vacuity',
 ];
 
 /// Every EQY run, one `.eqy` file each.

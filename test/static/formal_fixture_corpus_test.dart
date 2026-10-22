@@ -81,6 +81,14 @@ void main() {
       for (final run in kFormalEqyRuns) {
         _requireFile('eqy/$run.eqy');
         _requireDir('eqy/captured/$run');
+        // The match points' port directions and each partition's inputs,
+        // the evidence a failing partition is explained from.
+        _requireFile('eqy/captured/$run/gold.ids');
+        _requireFile('eqy/captured/$run/matched.ids');
+        final partitions = _requireDir(
+          'eqy/captured/$run/partitions',
+        ).listSync().whereType<File>().where((f) => f.path.endsWith('.json'));
+        expect(partitions, isNotEmpty, reason: run);
       }
     });
 

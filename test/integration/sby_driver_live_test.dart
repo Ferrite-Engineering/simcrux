@@ -99,6 +99,32 @@ List<String> _checkAnalysis(
     final line = RegExp(r':(\d+)').firstMatch(location)?.group(1);
     if (line != null) flaggedLines.add(int.parse(line));
   }
+  // An assertion no run can enable carries the assumption's line.
+  final vacuousLines = <int, String>{};
+  for (var n = 0; metrics.containsKey('formal.property.$n.kind'); n++) {
+    final by = metrics['formal.property.$n.vacuous'];
+    if (by == null) continue;
+    final location = metrics['formal.property.$n.location'] ?? '';
+    final line = RegExp(r':(\d+)').firstMatch(location)?.group(1);
+    if (line != null) vacuousLines[int.parse(line)] = by;
+  }
+  for (final prop in objectList(spec['properties'])) {
+    final vacuity = prop['vacuity'] as Map<String, Object?>?;
+    final line = prop['line']! as int;
+    if (vacuity == null) {
+      if (vacuousLines.containsKey(line)) {
+        problems.add('$task line $line: marked never enabled');
+      }
+      continue;
+    }
+    final by = vacuousLines[line];
+    if ((by != null) != (vacuity['never_enabled'] == true)) {
+      problems.add('$task line $line: never-enabled is ${by != null}');
+    } else if (vacuity['disabled_by_line'] case final int at
+        when by != 'vacuity.sv:$at') {
+      problems.add('$task line $line: disabled by $by, expected line $at');
+    }
+  }
   for (final prop in objectList(spec['properties'])) {
     final pretrace = prop['pretrace'] as Map<String, Object?>?;
     if (pretrace == null) continue;

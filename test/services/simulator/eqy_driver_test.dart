@@ -455,6 +455,15 @@ void main() {
         });
         expect(result.waveformPath, isNotNull);
         expect(result.waveformPath, contains('alu.z'));
+        // The work directory, so its partition files can be read again;
+        // the counterexample sits inside it.
+        final workDir = result.metrics[EqyDriver.kMetricWorkDir]!;
+        expect(p.isAbsolute(workDir), isTrue);
+        expect(p.isWithin(workDir, result.waveformPath!), isTrue);
+        expect(
+          File(p.join(workDir, 'partition.list')).existsSync(),
+          isTrue,
+        );
         expect(
           result.metrics['formal.property.0.trace'],
           endsWith('trace.vcd'),
@@ -524,6 +533,7 @@ void main() {
       expect(result.status, TestStatus.fail);
       expect(result.metrics['formal.verdict'], 'NO_OUTCOME');
       expect(result.metrics.containsKey('formal.properties'), isFalse);
+      expect(result.metrics.containsKey(EqyDriver.kMetricWorkDir), isFalse);
     });
   });
 }

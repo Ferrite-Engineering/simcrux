@@ -500,6 +500,15 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'kind': kFormalRegressionKindTokens,
         },
       ),
+      // Once per failing EQY partition the partition explorer explains, per
+      // opening: which of the closed diagnoses it reached. Never the
+      // partition, the design, the match point or the suggested edit.
+      TelemetryCatalogEvent(
+        'eqy.partition.diagnosed',
+        enumeratedValues: <String, List<String>>{
+          'diagnosis': kEqyPartitionDiagnosisTokens,
+        },
+      ),
     ];
 
 /// The ingestion Worker's ceiling on an integer property value: anything with
@@ -836,11 +845,23 @@ const List<String> kFormalRunEngineTokens = <String>[
   'other',
 ];
 
-/// `formal.dashboard_opened.view`: the formal properties dashboard and the
-/// proof history (which carries the regressions and the engine comparison).
+/// `formal.dashboard_opened.view`: the formal properties dashboard, the
+/// proof history (which carries the regressions and the engine comparison),
+/// the pre-trace and vacuity analysis, and the EQY partition explorer.
 const List<String> kFormalDashboardViewTokens = <String>[
   'properties',
   'history',
+  'pretrace',
+  'eqy_partitions',
+];
+
+/// `eqy.partition.diagnosed.diagnosis`: a failing partition whose match
+/// point the gate side restructured away, a real difference with matched
+/// inputs, or neither established.
+const List<String> kEqyPartitionDiagnosisTokens = <String>[
+  'match_point_restructured',
+  'genuine_mismatch',
+  'undetermined',
 ];
 
 /// `formal.regression.raised.kind`: a property that was proved and now is

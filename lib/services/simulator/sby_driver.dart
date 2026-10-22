@@ -321,7 +321,21 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     'id',
     'pretrace',
     'reads',
+    'vacuous',
   ];
+
+  /// `formal.property.<n>.vacuous` for an assertion whose enable is a
+  /// constant false; otherwise the field holds the `file:line` of the
+  /// assumption that holds the enable false.
+  static const String kVacuousConstant = 'const';
+
+  /// `file:line` of a Yosys `src` attribute (`vacuity.sv:10.3-10.52`), the
+  /// first of several (`a.sv:1.2-1.3|b.sv:4.5-4.6`).
+  static String _fileLine(String src) {
+    final first = src.split('|').first;
+    final match = RegExp(r'^(.*?):(\d+)').firstMatch(first);
+    return match == null ? first : '${match.group(1)}:${match.group(2)}';
+  }
 
   /// The most properties written as indexed metrics. The counts above
   /// cover every property; the rows stop here.
@@ -1146,6 +1160,13 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         // "Show in NetCrux". Names only, comma-joined, nearest first.
         if (exposure != null && exposure.reads.isNotEmpty) {
           metrics['$kPropertyPrefix$n.reads'] = exposure.reads.join(',');
+        }
+        // An assertion whose enable no run can make true: the assumption
+        // that holds it off (`file:line`), or `const` for a constant enable.
+        if (exposure != null && exposure.neverEnabled) {
+          metrics['$kPropertyPrefix$n.vacuous'] = exposure.disabledBy.isEmpty
+              ? kVacuousConstant
+              : _fileLine(exposure.disabledBy.first);
         }
         // Measured on both frontends: a property `sby` reports at step s
         // samples the design at step s - 1, so a chain of depth N reads

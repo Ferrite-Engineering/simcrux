@@ -381,5 +381,19 @@ void main() {
       expect(properties.last.id, isNull);
       expect(properties.last.pretraceDepth, isNull);
     });
+
+    test('a never-enabled assertion reads back the assumption behind it', () {
+      final properties = formalPropertiesOf(<String, String>{
+        'formal.property.0.kind': 'ASSERT',
+        'formal.property.0.location': 'vacuity.sv:11',
+        'formal.property.0.status': 'proved',
+        'formal.property.0.vacuous': 'vacuity.sv:10',
+        'formal.property.1.kind': 'ASSERT',
+        'formal.property.1.location': 'vacuity.sv:12',
+        'formal.property.1.status': 'proved',
+      });
+      expect(properties.first.vacuousBy, 'vacuity.sv:10');
+      expect(properties.last.vacuousBy, isNull);
+    });
   });
 }

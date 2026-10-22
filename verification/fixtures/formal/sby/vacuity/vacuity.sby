@@ -1,0 +1,19 @@
+[tasks]
+builtin_bmc
+slang_bmc
+
+[options]
+mode bmc
+depth 12
+
+[engines]
+smtbmc yices
+
+[script]
+builtin_bmc: read -formal vacuity.sv
+slang_bmc: plugin -i slang
+slang_bmc: read_slang -DSLANG vacuity.sv --top vacuity
+prep -top vacuity
+
+[files]
+vacuity.sv

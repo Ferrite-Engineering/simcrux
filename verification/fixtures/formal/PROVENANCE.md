@@ -160,6 +160,34 @@ its one formal cell.
   the task log, the two older builds keep slang's `file:line:col: error:`
   line only in `model/design.log`.
 
+## The vacuity case and the EQY partition files
+
+- `sby/vacuity/` holds an assertion that is never checked: `m_reset`
+  assumes `rst` on every step, and `a_vacuous` is disabled in reset
+  (`disable iff (rst)` on yosys-slang, `if (!rst)` around the immediate
+  assertion on the built-in frontend), so both tasks pass without it ever
+  being exercised. `a_live` is checked on every step and is the control.
+  The expectation was written from the RTL before the first run. On build
+  20261021 both frontends elaborate the disabled enable the same way: the
+  assertion's `EN` is a `$mux` selecting constant 0 when `rst` is 1, and the
+  assumption's `A` is `rst` with a constant-1 `EN`.
+- Each `eqy/captured/<run>/` keeps EQY's `gold.ids` (the port direction of
+  every gold signal: an internal match point has none) and
+  `partitions/<partition>.json` (the partition's inputs and outputs, and
+  the inputs each side leaves unused). On `alu_pass`, `alu.z`'s gold side
+  leaves `a`, `b` and `op` unused and its gate side leaves `r` unused: the
+  gold `z` starts at the match point `r`, the restructured gate `z` starts
+  at the primary inputs.
+- Both came from a partial recapture on 2026-10-22 (UTC) with
+  `tool/regenerate_formal_fixtures.sh --suite <oss-cad-suite 20261021> --only eqy --only sby/vacuity`,
+  on the same build as every other capture. `--only` leaves the other
+  captures, the schemas and the date below alone. Of that EQY recapture
+  only `gold.ids` and `partitions/*.json` were kept: both are Yosys's
+  deterministic output for the same inputs, while the logs and the
+  induction traces differ from run to run in timestamps and solver choices,
+  and the counterexample traces are a corpus WaveCrux pins by digest. The
+  rest of `eqy/captured/` is the 2026-10-21 capture.
+
 <!-- regenerated:begin -->
 
 ## Captures (written by tool/regenerate_formal_fixtures.sh)
@@ -202,6 +230,7 @@ Regenerated 2026-10-21 with:
 - `sby/handshake_slang/captured/` build 20261021
 - `sby/handshake_temporal/captured/` build 20261021
 - `sby/pretrace/captured/` build 20261021
+- `sby/vacuity/captured/` build 20261021
 - `sva_matrix/captured/` build 20261021
 - `eqy/captured/` build 20261021
 - `schemas/20261021/` build 20261021

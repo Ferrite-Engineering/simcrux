@@ -1201,6 +1201,13 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The formal rows age out with their run, and an identity no surviving result names is dropped — `[Coverage: UNIT]` (`sql_formal_runs_test.dart`)
 - [ ] A property reads back its identity and its pre-trace depth — `[Coverage: UNIT]` (`formal_stream_coordinate_test.dart`)
 
+### Never-enabled assertions and the EQY partition files (guide §26.14)
+
+- [ ] An assertion whose enable the unconditional assumptions hold false carries `formal.property.<n>.vacuous` with the assumption's `file:line`, on both frontends; a control assertion and every `pretrace` and `fifo_slang` property carry none; the verdict is untouched — `[Coverage: UNIT]` (`pretrace_detector_test.dart`, `sby_driver_analysis_test.dart`)
+- [ ] The same against a real `sby` — `[Coverage: LIVE]` (`sby_driver_live_test.dart`)
+- [ ] An EQY row with a partition list carries `formal.eqy.work_dir`, holding its counterexamples; a row with none carries no work directory — `[Coverage: UNIT]` (`eqy_driver_test.dart`)
+- [ ] The EQY captures keep `gold.ids` and `partitions/*.json`; `--only` recaptures one part from the provenance's build and touches no expectation — `[Coverage: UNIT]` (`formal_fixture_corpus_test.dart`)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)

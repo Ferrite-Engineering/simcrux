@@ -26,6 +26,12 @@
 #            written against, one directory per build.
 #   --out    scratch directory for the tool runs (default:
 #            ${TMPDIR:-/tmp}/simcrux-formal-regen). Wiped per build.
+#   --only   recapture one part only: `eqy`, or `sby/<case>`. Repeatable.
+#            Takes exactly one --suite, which must be the build
+#            PROVENANCE.md already names for the captures; the schemas and
+#            the provenance block's date and builds are left as they are,
+#            and a capture directory the block does not list yet gets its
+#            line.
 #
 # Each tool is called by absolute path inside its suite, so nothing needs to
 # be on PATH and builds never mix.
@@ -36,12 +42,14 @@ ROOT="$(pwd)"
 FIX="$ROOT/verification/fixtures/formal"
 OUT="${TMPDIR:-/tmp}/simcrux-formal-regen"
 SUITES=()
+ONLY=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --suite) SUITES+=("$(cd "$2" && pwd)"); shift 2 ;;
     --out) mkdir -p "$2"; OUT="$(cd "$2" && pwd)"; shift 2 ;;
-    -h|--help) sed -n '5,30p' "$0"; exit 0 ;;
+    --only) ONLY+=("$2"); shift 2 ;;
+    -h|--help) sed -n '5,35p' "$0"; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 64 ;;
   esac
 done
@@ -196,19 +204,23 @@ run_sby_case() {
   done
 }
 
+run_sby_one() {
+  local suite="$1" scratch="$2" casedir="${3%/}" case_name sby
+  case_name="$(basename "$casedir")"
+  sby="$case_name.sby"
+  mkdir -p "$scratch/sby/$case_name"
+  find "$casedir" -maxdepth 1 -type f \( -name '*.sv' -o -name '*.v' -o -name '*.sby' \) \
+    -exec cp {} "$scratch/sby/$case_name/" \;
+  rm -rf "$casedir/captured"
+  echo "sby: $case_name"
+  run_sby_case "$suite" "$scratch/sby/$case_name" "$casedir/captured" "$sby"
+  scrub "$casedir/captured" "$suite"
+}
+
 run_sby_corpus() {
   local suite="$1" scratch="$2"
   for casedir in "$FIX"/sby/*/; do
-    local case_name sby
-    case_name="$(basename "$casedir")"
-    sby="$case_name.sby"
-    mkdir -p "$scratch/sby/$case_name"
-    find "$casedir" -maxdepth 1 -type f \( -name '*.sv' -o -name '*.v' -o -name '*.sby' \) \
-      -exec cp {} "$scratch/sby/$case_name/" \;
-    rm -rf "$casedir/captured"
-    echo "sby: $case_name"
-    run_sby_case "$suite" "$scratch/sby/$case_name" "$casedir/captured" "$sby"
-    scrub "$casedir/captured" "$suite"
+    run_sby_one "$suite" "$scratch" "$casedir"
   done
 }
 
@@ -251,8 +263,17 @@ run_eqy_case() {
   echo "$rc" > "$dest/eqy.exit"
   cp "$work/$run/logfile.txt" "$dest/eqy.log"
   listing "$work/$run" > "$dest/workdir.txt"
-  for f in partition.list summary_targets.list matched.ids; do
+  # gold.ids names each gold signal's port direction (an internal match
+  # point has none); partitions/<name>.json is each partition's inputs and
+  # the inputs each side leaves unused, which is what tells a match point
+  # the gate side was restructured past from a real difference.
+  for f in partition.list summary_targets.list matched.ids gold.ids; do
     copy_if "$work/$run/$f" "$dest/$f"
+  done
+  for pj in "$work/$run"/partitions/*.json; do
+    [ -f "$pj" ] || continue
+    mkdir -p "$dest/partitions"
+    cp "$pj" "$dest/partitions/"
   done
   marker_of "$work/$run" "$dest/verdict_marker"
   for sdir in "$work/$run"/strategies/*/*/; do
@@ -385,6 +406,58 @@ PY
 }
 
 PRIMARY="${SUITES[0]}"
+
+# A partial recapture: the named parts only, from the build the provenance
+# already names, so every capture still comes from one build.
+if [ ${#ONLY[@]} -gt 0 ]; then
+  if [ ${#SUITES[@]} -ne 1 ]; then
+    echo "--only takes exactly one --suite" >&2
+    exit 64
+  fi
+  build="$(build_of "$PRIMARY")"
+  if ! grep -q "^- \`eqy/captured/\` build $build\$" "$FIX/PROVENANCE.md"; then
+    echo "PROVENANCE.md names another build for the captures; regenerate all of them" >&2
+    exit 65
+  fi
+  scratch="$OUT/$build"
+  rm -rf "$scratch"
+  mkdir -p "$scratch"
+  for part in "${ONLY[@]}"; do
+    case "$part" in
+      eqy) run_eqy_corpus "$PRIMARY" "$scratch" ;;
+      sby/*)
+        if [ ! -f "$FIX/$part/${part#sby/}.sby" ]; then
+          echo "no such sby case: $part" >&2
+          exit 64
+        fi
+        run_sby_one "$PRIMARY" "$scratch" "$FIX/$part"
+        ;;
+      *) echo "--only takes eqy or sby/<case>: $part" >&2; exit 64 ;;
+    esac
+  done
+  # The block keeps its date and builds; a capture directory it does not
+  # list yet (a new case) gets its line, after the last capture line.
+  python3 - "$FIX/PROVENANCE.md" "$build" "${ONLY[@]}" <<'PY'
+import sys
+path, build, parts = sys.argv[1], sys.argv[2], sys.argv[3:]
+text = open(path).read()
+lines = text.split("\n")
+for part in parts:
+    entry = f"- `{part}/captured/` build {build}"
+    if entry in lines:
+        continue
+    last = max(i for i, l in enumerate(lines) if l.startswith("- `") and "/captured/` build " in l)
+    lines.insert(last + 1, entry)
+open(path, "w").write("\n".join(lines))
+PY
+  if [ "$(expected_hashes)" != "$EXPECTED_BEFORE" ]; then
+    echo "BUG: a *.expected.* file changed during regeneration; restore it from git" >&2
+    exit 70
+  fi
+  echo "done: ${ONLY[*]} recaptured; no *.expected.* file was touched"
+  exit 0
+fi
+
 BUILDS=()
 for suite in "${SUITES[@]}"; do
   build="$(build_of "$suite")"

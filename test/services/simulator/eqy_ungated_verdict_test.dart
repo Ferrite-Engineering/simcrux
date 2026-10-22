@@ -147,7 +147,12 @@ suites:
           'status': value.status.name,
           'metrics': {
             for (final m in value.metrics.entries)
-              if (m.key != 'formal.wall_time_ms') m.key: m.value,
+              if (m.key != 'formal.wall_time_ms')
+                // The work directory is under each run's own root: compared
+                // by name, like the trace.
+                m.key: m.key == EqyDriver.kMetricWorkDir
+                    ? p.basename(m.value)
+                    : m.value,
           },
           'trace': value.waveformPath == null
               ? null

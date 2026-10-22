@@ -1,0 +1,134 @@
+SBY 22:52:51 [vacuity_builtin_bmc] Removing directory '<work>/20261021/sby/vacuity/vacuity_builtin_bmc'.
+SBY 22:52:51 [vacuity_builtin_bmc] Copy '<work>/20261021/sby/vacuity/vacuity.sv' to '<work>/20261021/sby/vacuity/vacuity_builtin_bmc/src/vacuity.sv'.
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: smtbmc yices
+SBY 22:52:51 [vacuity_slang_bmc] Removing directory '<work>/20261021/sby/vacuity/vacuity_slang_bmc'.
+SBY 22:52:51 [vacuity_slang_bmc] Copy '<work>/20261021/sby/vacuity/vacuity.sv' to '<work>/20261021/sby/vacuity/vacuity_slang_bmc/src/vacuity.sv'.
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: smtbmc yices
+SBY 22:52:51 [vacuity_builtin_bmc] base: starting process "cd vacuity_builtin_bmc/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 22:52:51 [vacuity_slang_bmc] base: starting process "cd vacuity_slang_bmc/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 22:52:51 [vacuity_builtin_bmc] base: finished (returncode=0)
+SBY 22:52:51 [vacuity_builtin_bmc] prep: starting process "cd vacuity_builtin_bmc/model; yosys -ql design_prep.log design_prep.ys"
+SBY 22:52:51 [vacuity_slang_bmc] base: finished (returncode=0)
+SBY 22:52:51 [vacuity_slang_bmc] prep: starting process "cd vacuity_slang_bmc/model; yosys -ql design_prep.log design_prep.ys"
+SBY 22:52:51 [vacuity_builtin_bmc] prep: finished (returncode=0)
+SBY 22:52:51 [vacuity_builtin_bmc] smt2: starting process "cd vacuity_builtin_bmc/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 22:52:51 [vacuity_slang_bmc] prep: finished (returncode=0)
+SBY 22:52:51 [vacuity_slang_bmc] smt2: starting process "cd vacuity_slang_bmc/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 22:52:51 [vacuity_builtin_bmc] smt2: finished (returncode=0)
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: starting process "cd vacuity_builtin_bmc; yosys-smtbmc -s yices --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 22:52:51 [vacuity_slang_bmc] smt2: finished (returncode=0)
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: starting process "cd vacuity_slang_bmc; yosys-smtbmc -s yices --presat --unroll --noprogress -t 12  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Solver: yices
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Solver: yices
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN"}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 1}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 3..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 3..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 2}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 3..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 3..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 4..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 4..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 3}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 4..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 4..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 5..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 5..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 4}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 5..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 5..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 6..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 6..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 5}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 6..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 6..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 7..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 7..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 6}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 7..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 7..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 8..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 8..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 7}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 8..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 8..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 9..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 9..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 8}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 9..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 9..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 10..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 10..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 9}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 10..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 10..
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.13, "task_name": "slang_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assumptions in step 11..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Checking assertions in step 11..
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.13, "task_name": "builtin_bmc", "mode": "bmc", "engine": "engine_0", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "UNKNOWN", "depth": 10}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assumptions in step 11..
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Checking assertions in step 11..
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: ##   0:00:00  Status: passed
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: ##   0:00:00  Status: passed
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: finished (returncode=0)
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.14, "task_name": "slang_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 22:52:51 [vacuity_slang_bmc] jsonl: {"time": 0.14, "task_name": "slang_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 22:52:51 [vacuity_slang_bmc] engine_0: Status returned by engine: pass
+SBY 22:52:51 [vacuity_slang_bmc] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:52:51 [vacuity_slang_bmc] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:52:51 [vacuity_slang_bmc] summary: engine_0 (smtbmc yices) returned pass
+SBY 22:52:51 [vacuity_slang_bmc] summary: engine_0 did not produce any traces
+SBY 22:52:51 [vacuity_slang_bmc] DONE (PASS, rc=0)
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: finished (returncode=0)
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.14, "task_name": "builtin_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 22:52:51 [vacuity_builtin_bmc] jsonl: {"time": 0.14, "task_name": "builtin_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "PASS", "depth": 11}
+SBY 22:52:51 [vacuity_builtin_bmc] engine_0: Status returned by engine: pass
+SBY 22:52:51 [vacuity_builtin_bmc] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:52:51 [vacuity_builtin_bmc] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:52:51 [vacuity_builtin_bmc] summary: engine_0 (smtbmc yices) returned pass
+SBY 22:52:51 [vacuity_builtin_bmc] summary: engine_0 did not produce any traces
+SBY 22:52:51 [vacuity_builtin_bmc] DONE (PASS, rc=0)

@@ -1,0 +1,9 @@
+alu . A:top=1 A:src="alu.v:2.1-24.10"
+alu a w=7:0 A:src="alu.v:6.21-6.22" P=I
+alu b w=7:0 A:src="alu.v:7.21-7.22" P=I
+alu clk w=0:0 A:src="alu.v:3.21-3.24" P=I
+alu op w=1:0 A:src="alu.v:5.21-5.23" P=I
+alu r w=7:0 A:src="alu.v:11.13-11.14"
+alu rst w=0:0 A:src="alu.v:4.21-4.24" P=I
+alu y w=7:0 A:src="alu.v:8.21-8.22" P=O
+alu z w=0:0 A:src="alu.v:9.21-9.22" P=O

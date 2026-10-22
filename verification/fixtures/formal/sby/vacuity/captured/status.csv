@@ -1,0 +1,5 @@
+time,task_name,mode,engine,name,location,kind,status,trace,depth
+0.14,builtin_bmc,bmc,task_status,vacuity.a_live,vacuity.sv:19.5-19.42,ASSERT,PASS,,11
+0.14,builtin_bmc,bmc,task_status,vacuity.a_vacuous,vacuity.sv:17.7-17.38,ASSERT,PASS,,11
+0.14,slang_bmc,bmc,task_status,vacuity.a_live,vacuity.sv:12.3-12.69,ASSERT,PASS,,11
+0.14,slang_bmc,bmc,task_status,vacuity.a_vacuous,vacuity.sv:11.3-11.78,ASSERT,PASS,,11

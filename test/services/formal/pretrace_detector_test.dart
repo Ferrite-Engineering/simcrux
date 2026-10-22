@@ -153,6 +153,17 @@ void main() {
       });
     }
 
+    test('no pretrace property is reported as never enabled', () {
+      for (final task in tasks.keys) {
+        final facts = _facts('pretrace', task);
+        expect(
+          facts.cells.where((c) => c.neverEnabled),
+          isEmpty,
+          reason: task,
+        );
+      }
+    });
+
     test("at() matches sby's spelling of a location, then file and line", () {
       final facts = _facts('pretrace', 'slang_cover');
       final exact = facts.cells.firstWhere(
@@ -161,6 +172,51 @@ void main() {
       expect(facts.at(exact.location), exact);
       expect(facts.at('src/pretrace.sv:15'), exact);
       expect(facts.at('pretrace.sv:99.1-99.2'), isNull);
+    });
+  });
+
+  // MUTATION: drop the assumption pins and a_vacuous reads as enabled; skip
+  // the trigger match and nothing changes here (one clock), which is why the
+  // trigger rule has its own reason in the detector.
+  group('vacuity (both frontends)', () {
+    final expected = readJsonObject(
+      p.join(kFormalFixtureRoot, 'sby/vacuity/vacuity.expected.json'),
+    );
+    final tasks = expected['tasks']! as Map<String, Object?>;
+    for (final task in tasks.keys) {
+      test('$task: never-enabled assertions and the assumption behind them, '
+          'as the hand expectation says', () {
+        final facts = _facts('vacuity', task);
+        final spec = tasks[task]! as Map<String, Object?>;
+        for (final prop in objectList(spec['properties'])) {
+          final want = prop['vacuity']! as Map<String, Object?>;
+          final cell = _onLine(facts, 'vacuity.sv', prop['line']! as int);
+          expect(
+            cell.neverEnabled,
+            want['never_enabled'],
+            reason: '$task line ${prop['line']}',
+          );
+          if (want['disabled_by_line'] case final int line) {
+            expect(cell.disabledBy, hasLength(1));
+            expect(cell.disabledBy.single, startsWith('vacuity.sv:$line.'));
+          } else {
+            expect(cell.disabledBy, isEmpty);
+          }
+        }
+        // Only assertions are judged; the assumption itself never is.
+        expect(
+          facts.cells.where((c) => c.kind == 'assume' && c.neverEnabled),
+          isEmpty,
+        );
+      });
+    }
+
+    test('fifo_slang: an assertion with disable iff (rst) and no assumption '
+        'on rst may be enabled', () {
+      for (final task in const ['ok', 'cov']) {
+        final facts = _facts('fifo_slang', task);
+        expect(facts.cells.where((c) => c.neverEnabled), isEmpty);
+      }
     });
   });
 }

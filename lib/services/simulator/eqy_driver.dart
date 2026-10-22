@@ -161,6 +161,12 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
   /// Metric key: how many `ghdl` reads were lowered to Verilog for the run.
   static const String kMetricVhdlLowered = 'formal.eqy.vhdl_lowered';
 
+  /// Metric key: the EQY work directory (`-d`), absolute, for a run that
+  /// wrote a partition list. Its partition files are read again, never
+  /// written, by the partition analysis; the scheduler keeps it for a run
+  /// that did not pass.
+  static const String kMetricWorkDir = 'formal.eqy.work_dir';
+
   /// The budget for one `ghdl --synth` lowering.
   static const Duration kVhdlLowerTimeout = Duration(minutes: 10);
 
@@ -566,6 +572,7 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
       SbyDriver.kMetricSolver: ?job.script?.solver,
       if (job.vhdlReads.isNotEmpty)
         kMetricVhdlLowered: '${job.vhdlReads.length}',
+      if (snapshot.partitionListRead) kMetricWorkDir: job.workDirectory,
     };
     if (snapshot.partitionListRead) {
       final traced = partitions.where((x) => x.trace != null).length;

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "written_by": "hand, from the RTL and the property text; never from sby output",
+  "sby_file": "vacuity.sby",
+  "why": "m_reset assumes rst on every step, so the design is held in reset for the whole trace. a_vacuous is checked only out of reset (disable iff (rst) on the yosys-slang task, an if (!rst) around the immediate assertion on the built-in one), so it is never checked at all and cannot fail: it passes vacuously. a_live is checked on every step; with rst held, cnt stays 0 and its condition holds, so it is exercised and passes. Neither assertion can fail within the bound, so both tasks pass.",
+  "tasks": {
+    "builtin_bmc": {
+      "verdict": "PASS",
+      "frontend": "builtin",
+      "properties": [
+        {
+          "line": 17,
+          "kind": "ASSERT",
+          "label": "a_vacuous",
+          "result": "not_failed",
+          "vacuity": { "never_enabled": true, "disabled_by_line": 15 }
+        },
+        {
+          "line": 19,
+          "kind": "ASSERT",
+          "label": "a_live",
+          "result": "not_failed",
+          "vacuity": { "never_enabled": false }
+        }
+      ]
+    },
+    "slang_bmc": {
+      "verdict": "PASS",
+      "frontend": "slang",
+      "properties": [
+        {
+          "line": 11,
+          "kind": "ASSERT",
+          "label": "a_vacuous",
+          "result": "not_failed",
+          "vacuity": { "never_enabled": true, "disabled_by_line": 10 }
+        },
+        {
+          "line": 12,
+          "kind": "ASSERT",
+          "label": "a_live",
+          "result": "not_failed",
+          "vacuity": { "never_enabled": false }
+        }
+      ]
+    }
+  }
+}

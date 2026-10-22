@@ -25,7 +25,13 @@ class FormalPropertyRef {
     this.reads = const <String>[],
     this.id,
     this.pretraceDepth,
+    this.vacuousBy,
   });
+
+  /// Set when it is an assertion whose enable can never be true
+  /// (`formal.property.<n>.vacuous`): the `file:line` of the assumption that
+  /// holds the enable false, or `const` for a constant enable.
+  final String? vacuousBy;
 
   /// Its identity across runs (`formal.property.<n>.id`): the label, else
   /// the `crux-fnv1a64/1` signature; null when neither was recorded.
@@ -102,6 +108,7 @@ List<FormalPropertyRef> formalPropertiesOf(Map<String, String> metrics) {
             : List<String>.unmodifiable(reads.split(',')),
         id: metrics['${prefix}id'],
         pretraceDepth: int.tryParse(metrics['${prefix}pretrace'] ?? ''),
+        vacuousBy: metrics['${prefix}vacuous'],
       ),
     );
   }

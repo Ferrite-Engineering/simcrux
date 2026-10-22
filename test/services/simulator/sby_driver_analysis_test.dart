@@ -386,6 +386,49 @@ void main() {
       expect(done.metrics['formal.pretrace.step'], '2');
     });
 
+    // Hand expectation (sby/vacuity/vacuity.expected.json): a_vacuous is
+    // held off by the reset assumption, a_live is checked every step.
+    for (final (task, vacuous, live, assume) in const [
+      ('slang_bmc', 11, 12, 10),
+      ('builtin_bmc', 17, 19, 15),
+    ]) {
+      test('vacuity $task: the never-enabled assertion names the assumption; '
+          'the verdict is untouched', () async {
+        final sby = useCase('vacuity');
+        final (done, _) = await run(
+          sby,
+          task,
+          log: taskLines('vacuity', task),
+          exit: 0,
+          stage: (dir) {
+            File(p.join(dir, 'model', 'design.il'))
+              ..createSync(recursive: true)
+              ..writeAsStringSync('# elaborated design\n');
+          },
+          yosys: _ScriptedYosys(
+            _fx('sby/vacuity/captured/$task/elaborated.json'),
+          ),
+        );
+        expect(done.metrics['formal.verdict'], 'PASS');
+        expect(done.status, TestStatus.pass);
+        final byLine = <int, String?>{};
+        for (
+          var n = 0;
+          done.metrics.containsKey('formal.property.$n.kind');
+          n++
+        ) {
+          final location = done.metrics['formal.property.$n.location']!;
+          final line = int.parse(
+            RegExp(r':(\d+)').firstMatch(location)!.group(1)!,
+          );
+          byLine[line] = done.metrics['formal.property.$n.vacuous'];
+        }
+        expect(byLine[vacuous], 'vacuity.sv:$assume');
+        expect(byLine.containsKey(live), isTrue);
+        expect(byLine[live], isNull);
+      });
+    }
+
     test('a Yosys that fails leaves a note and the verdict alone', () async {
       final sby = useCase('fifo_slang');
       final (done, log) = await run(

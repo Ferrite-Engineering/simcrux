@@ -1,0 +1,381 @@
+{
+  "creator": "Yosys 0.70+186 (git sha1 3718f7f13, Release, Clang /usr/local/osxcross/target/bin/aarch64-apple-darwin25.5-clang++ 21.1.8)",
+  "modules": {
+    "vacuity": {
+      "attributes": {
+        "keep": "00000000000000000000000000000001",
+        "hdlname": "vacuity",
+        "top": "00000000000000000000000000000001",
+        "src": "vacuity.sv:3.1-22.10"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "rst": {
+          "direction": "input",
+          "bits": [ 3 ]
+        }
+      },
+      "cells": {
+        "$procdff$15": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": "1",
+            "WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+            "src": "vacuity.sv:5.3-8.6"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 4, 5, 6, 7 ],
+            "Q": [ 8, 9, 10, 11 ]
+          }
+        },
+        "$procmux$10": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "vacuity.sv:16.9-16.13|vacuity.sv:16.5-18.8"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1" ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 12 ]
+          }
+        },
+        "$procmux$13": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+            "full_case": "00000000000000000000000000000001",
+            "src": "vacuity.sv:6.9-6.12|vacuity.sv:6.5-7.28"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13, 14, 15, 16 ],
+            "B": [ "0", "0", "0", "0" ],
+            "S": [ 3 ],
+            "Y": [ 4, 5, 6, 7 ]
+          }
+        },
+        "$vacuity.sv:17$ne$5": {
+          "hide_name": 1,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000100",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000100",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "vacuity.sv:17.26-17.37"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "1", "0", "0", "1" ],
+            "Y": [ 17 ]
+          }
+        },
+        "$vacuity.sv:19$logic_not$7": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "vacuity.sv:19.37-19.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3 ],
+            "Y": [ 18 ]
+          }
+        },
+        "$vacuity.sv:19$logic_or$8": {
+          "hide_name": 1,
+          "type": "$logic_or",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000001",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "vacuity.sv:19.21-19.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 19 ],
+            "B": [ 18 ],
+            "Y": [ 20 ]
+          }
+        },
+        "$vacuity.sv:19$ne$6": {
+          "hide_name": 1,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000100",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000100",
+            "Y_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "src": "vacuity.sv:19.21-19.33"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "1", "1", "1", "1" ],
+            "Y": [ 19 ]
+          }
+        },
+        "$vacuity.sv:7$add$2": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": "00000000000000000000000000000000",
+            "A_WIDTH": "00000000000000000000000000000100",
+            "B_SIGNED": "00000000000000000000000000000000",
+            "B_WIDTH": "00000000000000000000000000000001",
+            "Y_WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+            "src": "vacuity.sv:7.17-7.27"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "1" ],
+            "Y": [ 13, 14, 15, 16 ]
+          }
+        },
+        "a_live": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111101",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "vacuity.sv:19.5-19.42"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 20 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        },
+        "a_vacuous": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assert",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111110",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "vacuity.sv:17.7-17.38"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 17 ],
+            "ARGS": [ ],
+            "EN": [ 12 ],
+            "TRG": [ 2 ]
+          }
+        },
+        "m_reset": {
+          "hide_name": 0,
+          "type": "$check",
+          "parameters": {
+            "ARGS_WIDTH": "00000000000000000000000000000000",
+            "FLAVOR": "assume",
+            "FORMAT": " ",
+            "PRIORITY": "11111111111111111111111111111111",
+            "TRG_ENABLE": "00000000000000000000000000000001",
+            "TRG_POLARITY": "1",
+            "TRG_WIDTH": "00000000000000000000000000000001"
+          },
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "vacuity.sv:15.5-15.26"
+          },
+          "port_directions": {
+            "A": "input",
+            "ARGS": "input",
+            "EN": "input",
+            "TRG": "input"
+          },
+          "connections": {
+            "A": [ 3 ],
+            "ARGS": [ ],
+            "EN": [ "1" ],
+            "TRG": [ 2 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0\\cnt[3:0]": {
+          "hide_name": 1,
+          "bits": [ 4, 5, 6, 7 ],
+          "attributes": {
+            "src": "vacuity.sv:5.3-8.6"
+          }
+        },
+        "$vacuity.sv:17$ne$5_Y": {
+          "hide_name": 1,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "vacuity.sv:17.26-17.37"
+          }
+        },
+        "$vacuity.sv:19$logic_not$7_Y": {
+          "hide_name": 1,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "vacuity.sv:19.37-19.41"
+          }
+        },
+        "$vacuity.sv:19$logic_or$8_Y": {
+          "hide_name": 1,
+          "bits": [ 20 ],
+          "attributes": {
+            "src": "vacuity.sv:19.21-19.41"
+          }
+        },
+        "$vacuity.sv:19$ne$6_Y": {
+          "hide_name": 1,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "vacuity.sv:19.21-19.33"
+          }
+        },
+        "$vacuity.sv:7$add$2_Y": {
+          "hide_name": 1,
+          "bits": [ 13, 14, 15, 16 ],
+          "attributes": {
+            "src": "vacuity.sv:7.17-7.27"
+          }
+        },
+        "a_live_EN": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "vacuity.sv:19.5-19.42"
+          }
+        },
+        "a_vacuous_EN": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "vacuity.sv:17.7-17.38"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "vacuity.sv:3.29-3.32"
+          }
+        },
+        "cnt": {
+          "hide_name": 0,
+          "bits": [ 8, 9, 10, 11 ],
+          "attributes": {
+            "init": "0000",
+            "src": "vacuity.sv:4.15-4.18"
+          }
+        },
+        "m_reset_EN": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "vacuity.sv:15.5-15.26"
+          }
+        },
+        "rst": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "vacuity.sv:3.46-3.49"
+          }
+        }
+      }
+    }
+  }
+}

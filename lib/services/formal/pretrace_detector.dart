@@ -14,6 +14,8 @@ class FormalCellExposure {
     required this.location,
     required this.pastDepth,
     this.reads = const <String>[],
+    this.neverEnabled = false,
+    this.disabledBy = const <String>[],
   });
 
   /// `assert`, `assume`, `cover`, `live` or `fair`.
@@ -36,17 +38,37 @@ class FormalCellExposure {
   /// [PretraceDetector.kMaxReads].
   final List<String> reads;
 
+  /// Whether this check can never be enabled: its enable (an immediate
+  /// check's `if`, a concurrent one's `disable iff`) is constant false, or
+  /// false whenever the design's unconditional assumptions hold. An
+  /// assertion like that passes without ever being checked. Decided only
+  /// through the few cell types [PretraceDetector] evaluates; anything else
+  /// is "may be enabled", never a guess.
+  final bool neverEnabled;
+
+  /// The `src` of each unconditional assumption that holds the enable
+  /// false, when [neverEnabled] and the enable is not a constant.
+  final List<String> disabledBy;
+
   @override
   bool operator ==(Object other) =>
       other is FormalCellExposure &&
       other.kind == kind &&
       other.location == location &&
       other.pastDepth == pastDepth &&
-      other.reads.join('\n') == reads.join('\n');
+      other.reads.join('\n') == reads.join('\n') &&
+      other.neverEnabled == neverEnabled &&
+      other.disabledBy.join('\n') == disabledBy.join('\n');
 
   @override
-  int get hashCode =>
-      Object.hash(kind, location, pastDepth, Object.hashAll(reads));
+  int get hashCode => Object.hash(
+    kind,
+    location,
+    pastDepth,
+    Object.hashAll(reads),
+    neverEnabled,
+    Object.hashAll(disabledBy),
+  );
 
   @override
   String toString() => 'FormalCellExposure($kind @ $location, $pastDepth)';
@@ -120,6 +142,16 @@ class FormalDesignFacts {
 /// cells only; a cell's exposure is the deepest `$past` register reachable
 /// backwards from its `A` and `EN` inputs the same way. Every module is
 /// analysed on its own: a `$past` chain never crosses a module boundary.
+///
+/// ## Enables no assumption lets through
+///
+/// The same pass records, for each assertion, whether its enable can never
+/// be true ([FormalCellExposure.neverEnabled]): a constant-false enable, or
+/// one the module's unconditional assumptions hold false (`assume (rst)`
+/// with `disable iff (rst)`, measured identical on both open frontends).
+/// The enable is evaluated through `$not`, `$logic_not`, one-bit `$and`,
+/// `$or`, `$reduce_*` and `$mux` only, and an assumption counts only on the
+/// assertion's own trigger; anything else reads as "may be enabled".
 class PretraceDetector {
   /// Creates a detector.
   const PretraceDetector();
@@ -282,6 +314,8 @@ class PretraceDetector {
       return List<String>.unmodifiable(found);
     }
 
+    final pins = _assumptionPins(module, driver);
+
     final out = <FormalCellExposure>[];
     for (final cell in module.cells.values) {
       final kind = _formalKind(cell);
@@ -295,16 +329,162 @@ class PretraceDetector {
         final d = depthOf(past, <Cell>{});
         if (d > deepest) deepest = d;
       }
+      final enable = kind == 'assert'
+          ? _neverEnabled(cell, driver, pins)
+          : null;
       out.add(
         FormalCellExposure(
           kind: kind,
           location: cell.attributes['src'] ?? '',
           pastDepth: deepest,
           reads: readsOf(inputs),
+          neverEnabled: enable != null,
+          disabledBy: enable ?? const <String>[],
         ),
       );
     }
     return out;
+  }
+
+  /// The deepest a 1-bit enable is evaluated through combinational cells.
+  static const int _kMaxEvalDepth = 16;
+
+  /// The values the module's unconditional assumptions hold 1-bit nets at,
+  /// each with the assumption's `src` and its trigger: an `assume` whose
+  /// enable is the constant 1 and whose condition is a net (held 1), the
+  /// negation of a net (held 0), or a conjunction of those.
+  static Map<int, ({bool value, String src, String trigger})> _assumptionPins(
+    Module module,
+    Map<int, Cell> driver,
+  ) {
+    final pins = <int, ({bool value, String src, String trigger})>{};
+    for (final cell in module.cells.values) {
+      if (_formalKind(cell) != 'assume') continue;
+      final en = cell.connections['EN'] ?? const <BitRef>[];
+      final unconditional =
+          en.isEmpty ||
+          (en.length == 1 &&
+              en.single is ConstantBit &&
+              (en.single as ConstantBit).value == ConstantBitValue.one);
+      final a = cell.connections['A'] ?? const <BitRef>[];
+      if (!unconditional || a.length != 1) continue;
+      final src = cell.attributes['src'] ?? '';
+      final trigger = _triggerOf(cell);
+      void pin(BitRef bit, int depth, {required bool value}) {
+        if (bit is! NetBit || depth > 4) return;
+        final from = driver[bit.netId];
+        final type = from?.type;
+        final ins = from == null ? null : _singleBitInputs(from);
+        if ((type == r'$not' || type == r'$logic_not') &&
+            ins != null &&
+            ins.length == 1) {
+          pin(ins.single, depth + 1, value: !value);
+          return;
+        }
+        if (value &&
+            (type == r'$and' || type == r'$logic_and') &&
+            ins != null &&
+            ins.length == 2) {
+          for (final b in ins) {
+            pin(b, depth + 1, value: true);
+          }
+          return;
+        }
+        pins.putIfAbsent(
+          bit.netId,
+          () => (value: value, src: src, trigger: trigger),
+        );
+      }
+
+      pin(a.single, 0, value: true);
+    }
+    return pins;
+  }
+
+  /// The `src` of each assumption that holds [cell]'s enable false (empty
+  /// for a constant-false enable), or null when it may be enabled.
+  static List<String>? _neverEnabled(
+    Cell cell,
+    Map<int, Cell> driver,
+    Map<int, ({bool value, String src, String trigger})> pins,
+  ) {
+    final en = cell.connections['EN'] ?? const <BitRef>[];
+    if (en.length != 1) return null;
+    final trigger = _triggerOf(cell);
+    final used = <String>{};
+    bool? eval(BitRef bit, int depth) {
+      if (bit is ConstantBit) {
+        return switch (bit.value) {
+          ConstantBitValue.one => true,
+          ConstantBitValue.zero => false,
+          _ => null,
+        };
+      }
+      if (bit is! NetBit || depth > _kMaxEvalDepth) return null;
+      final pin = pins[bit.netId];
+      // An assumption sampled on another trigger says nothing about the
+      // values this check samples.
+      if (pin != null && pin.trigger == trigger) {
+        used.add(pin.src);
+        return pin.value;
+      }
+      final from = driver[bit.netId];
+      if (from == null) return null;
+      final ins = _singleBitInputs(from);
+      switch (from.type) {
+        case r'$not' || r'$logic_not' when ins != null && ins.length == 1:
+          final v = eval(ins.single, depth + 1);
+          return v == null ? null : !v;
+        case r'$and' || r'$logic_and' when ins != null && ins.length == 2:
+          final a = eval(ins[0], depth + 1);
+          final b = eval(ins[1], depth + 1);
+          if (a == false || b == false) return false;
+          return a == true && b == true ? true : null;
+        case r'$or' || r'$logic_or' when ins != null && ins.length == 2:
+          final a = eval(ins[0], depth + 1);
+          final b = eval(ins[1], depth + 1);
+          if (a == true || b == true) return true;
+          return a == false && b == false ? false : null;
+        case r'$reduce_and' || r'$reduce_or' || r'$reduce_bool'
+            when ins != null && ins.length == 1:
+          return eval(ins.single, depth + 1);
+        case r'$mux':
+          final a = from.connections['A'] ?? const <BitRef>[];
+          final b = from.connections['B'] ?? const <BitRef>[];
+          final s = from.connections['S'] ?? const <BitRef>[];
+          if (a.length != 1 || b.length != 1 || s.length != 1) return null;
+          final sel = eval(s.single, depth + 1);
+          if (sel == true) return eval(b.single, depth + 1);
+          if (sel == false) return eval(a.single, depth + 1);
+          final va = eval(a.single, depth + 1);
+          return va != null && va == eval(b.single, depth + 1) ? va : null;
+      }
+      return null;
+    }
+
+    if (eval(en.single, 0) != false) return null;
+    return List<String>.unmodifiable(used.toList()..sort());
+  }
+
+  /// The trigger bits of a `$check` cell, or empty for a legacy cell
+  /// (sampled every step).
+  static String _triggerOf(Cell cell) =>
+      (cell.connections['TRG'] ?? const <BitRef>[])
+          .map((b) => '${b.toJson()}')
+          .join(',');
+
+  /// The input bits of a cell whose every input port is one bit wide, in
+  /// port order, or null when one is wider.
+  static List<BitRef>? _singleBitInputs(Cell cell) {
+    final ins = <BitRef>[];
+    for (final port in const <String>['A', 'B']) {
+      final bits = cell.connections[port];
+      if (bits == null) continue;
+      if (cell.portDirections[port] == PortDirection.output) continue;
+      if (bits.length != 1) return null;
+      ins.add(bits.single);
+    }
+    return ins;
   }
 
   /// The formal kind of [cell], or null when it is not a formal cell.

@@ -1,0 +1,4 @@
+{"time": 0.14, "task_name": "builtin_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_live", "location": "vacuity.sv:19.5-19.42", "kind": "ASSERT", "status": "PASS", "depth": 11}
+{"time": 0.14, "task_name": "builtin_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_vacuous", "location": "vacuity.sv:17.7-17.38", "kind": "ASSERT", "status": "PASS", "depth": 11}
+{"time": 0.14, "task_name": "slang_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_live", "location": "vacuity.sv:12.3-12.69", "kind": "ASSERT", "status": "PASS", "depth": 11}
+{"time": 0.14, "task_name": "slang_bmc", "mode": "bmc", "engine": "task_status", "name": "vacuity.a_vacuous", "location": "vacuity.sv:11.3-11.78", "kind": "ASSERT", "status": "PASS", "depth": 11}

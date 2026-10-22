@@ -5508,6 +5508,63 @@ caller hands it.
 | Record, read back with properties and start time, replace, window, narrowing, first-seen run, retention, the interface default | `[Coverage: UNIT]` | `test/services/trend_store/sql_formal_runs_test.dart` |
 | The identity and pre-trace depth on a property | `[Coverage: UNIT]` | `test/services/remote/cxp/formal_stream_coordinate_test.dart` |
 
+### 26.14 Never-enabled assertions and the EQY partition files
+
+**What it covers.** Two facts the runs record for the analysis screens to
+read later; neither changes a verdict, and the free results table does not
+show either.
+
+- **An assertion no run can enable.** The pass that finds `$past` chains
+  (§26.10) also evaluates each assertion's enable against the design's
+  unconditional assumptions. When `assume (rst)` holds on every step and the
+  assertion is `disable iff (rst)` (or sits inside `if (!rst)`), its enable
+  is never true: it passes without ever being checked. The property then
+  carries `formal.property.<n>.vacuous` = the assumption's `file:line`
+  (`const` for an enable that is constant false). The evaluation follows
+  `$not`, `$logic_not`, one-bit `$and`, `$or`, `$reduce_*` and `$mux` only,
+  and an assumption counts only on the assertion's own clock; anything else
+  is "may be enabled". The verdict stays what `sby` said.
+- **Where an EQY run's work directory is.** An EQY row that wrote a
+  partition list carries `formal.eqy.work_dir`, the `-d` directory. The
+  scheduler keeps it for a run that did not pass, so its `matched.ids`,
+  `gold.ids` and `partitions/<partition>.json` can be read again.
+
+**Setup.** The corpus case `verification/fixtures/formal/sby/vacuity/`
+(`vacuity.sv`, `vacuity.sby`, the hand expectation, and its captures), and the
+EQY captures, which now keep `gold.ids` and `partitions/*.json`. Both came
+from a partial recapture on the corpus's own build:
+
+```bash
+tool/regenerate_formal_fixtures.sh --suite <oss-cad-suite 20261021> --only eqy --only sby/vacuity
+```
+
+`--only` recaptures the named parts from the build `PROVENANCE.md` already
+names and leaves every other capture, the schemas and the provenance date
+alone. `PROVENANCE.md` says which recaptured EQY files were kept and why.
+
+**Expected behaviour.**
+
+1. Import `vacuity.sby` and run both tasks. Both are Proved over 12 steps;
+   in the run's JSON export, `a_vacuous` carries
+   `formal.property.<n>.vacuous` = `vacuity.sv:10` (yosys-slang) or
+   `vacuity.sv:15` (built-in), and `a_live` carries none.
+2. Run any `.sby` with no assumption on the reset (the `fifo_slang` case):
+   no property carries the field.
+3. Run `alu_pass.eqy`: the row carries `formal.eqy.work_dir`, and the
+   counterexample of `alu.z` is inside it.
+
+**Tier-gate scenarios.** None: both are recorded at every tier.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| Never-enabled per the hand expectation on both frontends; the assumption's `src`; none on `pretrace` and `fifo_slang` | `[Coverage: UNIT]` | `test/services/formal/pretrace_detector_test.dart` |
+| The `vacuous` metric through the driver on the replayed corpus, verdict untouched | `[Coverage: UNIT]` | `test/services/simulator/sby_driver_analysis_test.dart` |
+| The `vacuous` metric against the hand expectation on a real `sby` | `[Coverage: LIVE]` | `test/integration/sby_driver_live_test.dart` |
+| `formal.eqy.work_dir` present and holding the trace; absent with no partition list | `[Coverage: UNIT]` | `test/services/simulator/eqy_driver_test.dart` |
+| The case, its expectation and its provenance line | `[Coverage: UNIT]` | `test/static/formal_fixture_corpus_test.dart` |
+
 ---
 
 ## 27. Flow: FPGA place-and-route fixtures and the weekly live check
