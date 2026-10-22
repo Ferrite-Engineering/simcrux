@@ -721,6 +721,31 @@
       }
     }
   },
+  "inspectorActionOpenInKlayout": "KLayout で開く",
+  "@inspectorActionOpenInKlayout": {
+    "description": "Inspector button for an implementation-flow (LibreLane) result: open the run's final layout in KLayout, an external viewer. KLayout is a product name."
+  },
+  "inspectorActionOpenInOpenroad": "OpenROAD で開く",
+  "@inspectorActionOpenInOpenroad": {
+    "description": "Inspector button for an implementation-flow (LibreLane) result: open the run's final database in OpenROAD's viewer. OpenROAD is a product name."
+  },
+  "inspectorActionOpenInNextpnr": "nextpnr で開く",
+  "@inspectorActionOpenInNextpnr": {
+    "description": "Inspector button for an FPGA implementation-flow (nextpnr) result: open the placed and routed design in nextpnr's own viewer. nextpnr is a product name, always lower case."
+  },
+  "inspectorFlowViewerMissing": "{viewer} が見つかりません。「設定 > エンジン > 実装フロー」でパスを設定するか、インストールしてください。",
+  "@inspectorFlowViewerMissing": {
+    "description": "Shown when the external viewer for an implementation-flow run could not be started. {viewer} is the viewer's product name (KLayout, OpenROAD, nextpnr), never translated.",
+    "placeholders": {
+      "viewer": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorFlowViewerNothingToOpen": "この実行には、そのビューアで開けるものがありません。",
+  "@inspectorFlowViewerNothingToOpen": {
+    "description": "Shown when an implementation-flow run holds nothing the chosen external viewer can open (no final layout, no final database, or no placed design)."
+  },
   "inspectorLogPreviewLineCount": "末尾 {n} 行",
   "@inspectorLogPreviewLineCount": {
     "description": "Caption above the log preview indicating how many tail lines are shown.",
@@ -885,6 +910,84 @@
   "settingsImplementationFlowSection": "実装フロー",
   "@settingsImplementationFlowSection": {
     "description": "Heading of the Implementation flow group inside Settings > Engines: binary paths for the place-and-route and implementation-flow engines (LibreLane, nextpnr)."
+  },
+  "settingsFlowLauncherLabel": "LibreLane の起動方法",
+  "@settingsFlowLauncherLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: how SimCrux starts LibreLane (an executable, Nix, or Docker). LibreLane is a product name and is not translated."
+  },
+  "settingsFlowLauncherPath": "実行ファイル",
+  "@settingsFlowLauncherPath": {
+    "description": "Segment of the LibreLane launcher control: run a librelane executable found by path."
+  },
+  "settingsFlowLauncherNix": "Nix",
+  "@settingsFlowLauncherNix": {
+    "description": "Segment of the LibreLane launcher control: run LibreLane inside Nix. Nix is a product name and is not translated."
+  },
+  "settingsFlowLauncherDocker": "Docker",
+  "@settingsFlowLauncherDocker": {
+    "description": "Segment of the LibreLane launcher control: run LibreLane in a Docker container. Docker is a product name and is not translated."
+  },
+  "settingsFlowDockerImageLabel": "LibreLane の Docker イメージ",
+  "@settingsFlowDockerImageLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the container image the Docker launcher runs."
+  },
+  "settingsFlowPdkRootLabel": "PDK ルート",
+  "@settingsFlowPdkRootLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the directory holding the installed process design kits (PDK_ROOT)."
+  },
+  "settingsFlowKlayoutLabel": "KLayout のパス",
+  "@settingsFlowKlayoutLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the KLayout executable used to open a layout. KLayout is a product name."
+  },
+  "settingsFlowOpenroadLabel": "OpenROAD のパス",
+  "@settingsFlowOpenroadLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the OpenROAD executable used to open a run in its viewer. OpenROAD is a product name."
+  },
+  "settingsFlowFusesocLabel": "FuseSoC のパス",
+  "@settingsFlowFusesocLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the FuseSoC executable. FuseSoC is a product name."
+  },
+  "settingsFlowPathHint": "空欄なら PATH を使用",
+  "@settingsFlowPathHint": {
+    "description": "Hint text inside an empty path field in Settings > Engines > Implementation flow."
+  },
+  "settingsFlowOptionalHint": "未設定",
+  "@settingsFlowOptionalHint": {
+    "description": "Hint text inside an empty optional field in Settings > Engines > Implementation flow (the PDK root and the Docker image)."
+  },
+  "settingsFlowToolsCheck": "フローのツールを確認",
+  "@settingsFlowToolsCheck": {
+    "description": "Button in Settings > Engines > Implementation flow that probes for LibreLane, Nix, Docker, OpenROAD, Yosys, nextpnr, KLayout, FuseSoC and the PDK root."
+  },
+  "settingsFlowToolsAllFound": "フローのツールはすべて見つかりました。",
+  "@settingsFlowToolsAllFound": {
+    "description": "Announced when the flow tools check found every tool."
+  },
+  "settingsFlowToolsSomeMissing": "{count, plural, =1{フローのツールが 1 個見つかりませんでした。} other{フローのツールが {count} 個見つかりませんでした。}}",
+  "@settingsFlowToolsSomeMissing": {
+    "description": "Announced when the flow tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFlowToolsPdks": "見つかった PDK: {pdks}",
+  "@settingsFlowToolsPdks": {
+    "description": "Flow tools report line listing the process design kits found under the PDK root. {pdks} is a comma-separated list of PDK names, never translated.",
+    "placeholders": {
+      "pdks": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNoPdk": "PDK が見つかりません。上で PDK ルートを設定してください。",
+  "@settingsFlowToolsNoPdk": {
+    "description": "Flow tools report line when no PDK was found under the PDK root, or no PDK root is set."
+  },
+  "settingsFlowToolsGuidance": "不足しているツールをインストールするか、上でパスを設定してください。LibreLane は Nix でのインストールを推奨します。OSS CAD Suite には Yosys と nextpnr が含まれます。Finder から開いたアプリはシェルの PATH を参照しません。",
+  "@settingsFlowToolsGuidance": {
+    "description": "Guidance under the flow tools report when something is missing. LibreLane, Nix, the OSS CAD Suite, Yosys and nextpnr are product names."
   },
   "settingsEditorsSection": "エディター",
   "@settingsEditorsSection": {

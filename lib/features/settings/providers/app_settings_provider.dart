@@ -4,6 +4,7 @@
 import 'package:crux_settings/crux_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
+import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/panel_layout_state.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
@@ -236,6 +237,17 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final current = state.value;
     if (current == null) return;
     final updated = current.copyWith(simulatorBinaryOverrides: overrides);
+    state = AsyncData(updated);
+    await ref.read(settingsServiceProvider).save(updated);
+  }
+
+  /// Replaces Settings > Engines > Implementation flow's values (launcher,
+  /// Docker image, PDK root, KLayout, OpenROAD and FuseSoC paths).
+  Future<void> updateFlowTools(FlowToolSettings flowTools) async {
+    final current = state.value;
+    if (current == null) return;
+    if (current.flowTools == flowTools) return;
+    final updated = current.copyWith(flowTools: flowTools);
     state = AsyncData(updated);
     await ref.read(settingsServiceProvider).save(updated);
   }

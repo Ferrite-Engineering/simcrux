@@ -75,16 +75,16 @@ void main() {
   L10N l10nOf(WidgetTester tester) =>
       L10N.of(tester.element(find.byType(Scaffold)));
 
-  testWidgets('the shipped build shows Simulators and Formal tools (sby), and '
-      'no empty Implementation flow card', (tester) async {
+  testWidgets('the shipped build shows Simulators, Formal tools (sby) and '
+      'Implementation flow (librelane, nextpnr)', (tester) async {
     final container = await makeContainer();
     await pump(tester, container);
     final l10n = l10nOf(tester);
 
-    expect(find.byType(CruxSettingsSectionCard), findsNWidgets(2));
+    expect(find.byType(CruxSettingsSectionCard), findsNWidgets(3));
     expect(find.text(l10n.settingsSimulatorsSection), findsOneWidget);
     expect(find.text(l10n.settingsFormalToolsSection), findsOneWidget);
-    expect(find.text(l10n.settingsImplementationFlowSection), findsNothing);
+    expect(find.text(l10n.settingsImplementationFlowSection), findsOneWidget);
     expect(find.byType(SettingsSimulatorsSection), findsOneWidget);
     expect(
       find.descendant(
@@ -93,6 +93,16 @@ void main() {
       ),
       findsOneWidget,
     );
+    for (final id in kImplementationFlowEngineIds) {
+      expect(
+        find.descendant(
+          of: find.byType(SettingsImplementationFlowSection),
+          matching: find.text(id),
+        ),
+        findsOneWidget,
+        reason: id,
+      );
+    }
   });
 
   testWidgets('a formal or flow engine gets its row in its own group, never '
@@ -151,14 +161,20 @@ void main() {
   });
 
   testWidgets('the shipped registry holds sby and eqy as its formal engines '
-      'and no flow engine yet', (tester) async {
+      'and both flow engines', (tester) async {
     final container = await makeContainer();
     final shipped = container
         .read(simulatorDriverRegistryProvider)
         .simulatorIds
         .toSet();
-    expect(shipped.intersection(kEngineIdsOutsideSimulators), {'sby', 'eqy'});
-    expect(shipped.intersection(kImplementationFlowEngineIds.toSet()), isEmpty);
+    expect(
+      shipped.intersection(kEngineIdsOutsideSimulators),
+      {'sby', 'eqy', ...kImplementationFlowEngineIds},
+    );
+    expect(
+      shipped.intersection(kImplementationFlowEngineIds.toSet()),
+      kImplementationFlowEngineIds.toSet(),
+    );
   });
 
   testWidgets('every locale names the category and its groups, without '

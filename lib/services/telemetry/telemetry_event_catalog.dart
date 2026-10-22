@@ -219,6 +219,47 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'kind': kFormalPretraceKindTokens,
         },
       ),
+
+      // ── implementation flow (open core) ────────────────────────────────────
+      // One per flow run, launched (`source: run`, recorded when the
+      // regression ends) or ingested (`source: ingest`). Six properties, the
+      // Worker's cap. Never a metric value (no WNS, area or Fmax, not even
+      // bucketed), a design or cell name, a PDK variant beyond the closed
+      // target set, a path, a tag or a step name.
+      TelemetryCatalogEvent(
+        'flow.run.completed',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFlowKindTokens,
+          'source': kFlowSourceTokens,
+          'outcome': kFlowOutcomeTokens,
+          'target': kFlowTargetTokens,
+          'reader': kFlowReaderTokens,
+        },
+        intProperties: <String>['steps'],
+      ),
+      // Once per run per (kind, reason) a reader could not verify.
+      TelemetryCatalogEvent(
+        'flow.reader.unsupported',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFlowKindTokens,
+          'reason': kFlowReaderUnsupportedTokens,
+        },
+      ),
+      // Each hand-off to an external viewer; `ok` false when it could not
+      // be started.
+      TelemetryCatalogEvent(
+        'flow.handoff.launched',
+        enumeratedValues: <String, List<String>>{
+          'viewer': kFlowHandoffViewerTokens,
+        },
+        boolProperties: <String>['ok'],
+      ),
+      // Once per run per tool a flow could not start, and each hand-off
+      // whose viewer is missing.
+      TelemetryCatalogEvent(
+        'flow.tool.missing',
+        enumeratedValues: <String, List<String>>{'tool': kFlowToolTokens},
+      ),
       TelemetryCatalogEvent(
         'cxp.crossprobe',
         enumeratedValues: <String, List<String>>{
@@ -767,6 +808,67 @@ const List<String> kDebugInWaveCruxOriginTokens = <String>[
   'test',
   'formal',
   'eqy',
+];
+
+/// `flow.*.kind`: the two flows SimCrux runs and reads.
+const List<String> kFlowKindTokens = <String>['librelane', 'nextpnr'];
+
+/// `flow.run.completed.source`: SimCrux launched the run, or indexed one it
+/// did not launch.
+const List<String> kFlowSourceTokens = <String>['run', 'ingest'];
+
+/// `flow.run.completed.outcome`: the `FlowVerdict` wire names.
+const List<String> kFlowOutcomeTokens = <String>[
+  'met',
+  'violated',
+  'stopped',
+  'not_run',
+  'unrecognised',
+];
+
+/// `flow.run.completed.target`: the PDK family or FPGA family, closed.
+/// sky130A and sky130B both report `sky130`.
+const List<String> kFlowTargetTokens = <String>[
+  'sky130',
+  'gf180mcu',
+  'ihp_sg13g2',
+  'ice40',
+  'ecp5',
+  'gowin',
+  'gatemate',
+  'other',
+];
+
+/// `flow.run.completed.reader`: whether the reader is verified for the
+/// run's tool version.
+const List<String> kFlowReaderTokens = <String>['verified', 'unverified'];
+
+/// `flow.reader.unsupported.reason`.
+const List<String> kFlowReaderUnsupportedTokens = <String>[
+  'version_unknown',
+  'layout_unknown',
+  'schema_unknown',
+];
+
+/// `flow.handoff.launched.viewer`.
+const List<String> kFlowHandoffViewerTokens = <String>[
+  'klayout',
+  'openroad_gui',
+  'openroad_web',
+  'nextpnr_gui',
+];
+
+/// `flow.tool.missing.tool`.
+const List<String> kFlowToolTokens = <String>[
+  'librelane',
+  'openroad',
+  'yosys',
+  'nextpnr',
+  'klayout',
+  'fusesoc',
+  'nix',
+  'docker',
+  'pdk',
 ];
 
 /// Every catalog event name, for the source-scanning conformance test.

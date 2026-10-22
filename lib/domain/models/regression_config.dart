@@ -3,6 +3,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/output_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
@@ -33,6 +34,7 @@ class RegressionConfig {
     this.defaultFormal,
     this.output = const OutputConfig(),
     this.projectId,
+    this.flow,
     List<ConfigLoaderError>? loadWarnings,
   }) : suites = List<Suite>.unmodifiable(suites),
        simulatorBinaries = Map<String, SimulatorBinaryConfig>.unmodifiable(
@@ -105,6 +107,13 @@ class RegressionConfig {
   /// effective value to `streaming: true` when `--ci` is set.
   final OutputConfig output;
 
+  /// The project's `flow:` block, or null when it declares none.
+  ///
+  /// Its entries are also in [suites], as the synthesised `flow` suite the
+  /// loader builds after includes are merged; this is the block as written,
+  /// for the run view, `simcrux flow` and the ingest paths.
+  final FlowConfig? flow;
+
   /// Non-fatal advisory entries produced by the loader during the
   /// most recent load — typically tier-gate notices ("parameterization
   /// requires Pro — sweep block ignored"). The dashboard shows them in a
@@ -129,6 +138,7 @@ class RegressionConfig {
     RiscvConfig? defaultRiscv,
     FormalConfig? defaultFormal,
     OutputConfig? output,
+    FlowConfig? flow,
     List<ConfigLoaderError>? loadWarnings,
   }) {
     return RegressionConfig(
@@ -143,6 +153,7 @@ class RegressionConfig {
       defaultRiscv: defaultRiscv ?? this.defaultRiscv,
       defaultFormal: defaultFormal ?? this.defaultFormal,
       output: output ?? this.output,
+      flow: flow ?? this.flow,
       loadWarnings: loadWarnings ?? this.loadWarnings,
     );
   }
@@ -160,6 +171,7 @@ class RegressionConfig {
     if (other.defaultRiscv != defaultRiscv) return false;
     if (other.defaultFormal != defaultFormal) return false;
     if (other.output != output) return false;
+    if (other.flow != flow) return false;
     if (other.suites.length != suites.length) return false;
     for (var i = 0; i < suites.length; i++) {
       if (other.suites[i] != suites[i]) return false;
@@ -192,6 +204,7 @@ class RegressionConfig {
     defaultRiscv,
     defaultFormal,
     output,
+    flow,
     Object.hashAll(loadWarnings),
   );
 }

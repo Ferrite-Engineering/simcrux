@@ -1194,6 +1194,24 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The real tools, re-run through the regenerators, still match every expectation (verdicts, exit statuses, endpoints, schema) — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_nextpnr_live_test.dart`, `flow-live.yml`)
 - [ ] Every Actions job has an integer `timeout-minutes`, no `tee` without `pipefail`, and `flow-live.yml` keeps its 30-minute caps — `[Coverage: UNIT]` (`workflow_timeout_guard_test.dart`)
 
+### Flow runs: the `flow:` block, the drivers, ingest, the gate and the CLI (guide §27.7)
+
+- [ ] A project with only a `flow:` block loads; each entry is one `flow/<name>` test (LibreLane holds the `flow` lock, nextpnr none; four-hour timeout); unknown or wrong-kind keys, bad names and a LibreLane configuration outside the project are refused; `gls:` and `equiv:` are accepted — `[Coverage: UNIT]` (`config_loader_flow_test.dart`)
+- [ ] `launcher`, `librelane_binary`, `docker_image` are dropped with an advisory and `fusesoc`, `extra_args`, `handoff` refuse the load unless project tooling is allowed; a project cannot set a `settings.` option — `[Coverage: UNIT]` (`config_loader_project_tooling_test.dart`, `config_loader_flow_test.dart`)
+- [ ] The verdict is the report's or the run's records, never the exit code: nextpnr exit 1 with a violated report is violated, exit 0 with no report is not run; LibreLane non-zero with violating final metrics is violated, no final metrics is stopped at the newest incomplete step; only met passes and a flow run is never retried — `[Coverage: UNIT]` (`nextpnr_flow_driver_test.dart`, `librelane_flow_driver_test.dart`, `flow_run_reading_test.dart`, `flow_verdict_status_test.dart`)
+- [ ] LibreLane is never passed `--overwrite` or `--last-run`, gets a fresh `<prefix>-<UTC stamp>` tag, and its run root and nextpnr's `runs/<entry>/<tag>/` resolve inside the project with symlinks resolved; nothing under a run root is deleted — `[Coverage: UNIT]` (`librelane_flow_driver_test.dart`, `nextpnr_flow_driver_test.dart`, `flow_no_delete_test.dart`)
+- [ ] Cancel kills the tool's process tree, and the Docker launcher also stops its named container; `XDG_DATA_HOME` is set per job when absent — `[Coverage: UNIT]` (`librelane_flow_driver_test.dart`, `nextpnr_flow_driver_test.dart`)
+- [ ] Ingest reads a report, a run directory and a directory of runs, writes nothing inside them, refuses paths and links outside the allowed directories and names zip artifacts without opening them; persisted runs carry the `ingest` trigger and their `flow_steps` and `flow_metrics` age out with them — `[Coverage: UNIT]` (`flow_run_ingestor_test.dart`)
+- [ ] `simcrux flow` answers each exit code (0, 1, 2, 3, 64, 65, 130, 143), `-h` anywhere first, `--version` from the pubspec, results on stdout and diagnostics on stderr, the nextpnr WNS derivation in `--json` — `[Coverage: UNIT]` (`flow_cli_test.dart`)
+- [ ] `flow run`, `gate` and `ingest` against the real Yosys and nextpnr give the fixtures' hand-written verdicts — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_driver_live_test.dart`, `flow-live.yml`)
+- [ ] The built binary answers `flow --help` and `flow --version`: Linux every push, macOS on Sundays — `[Coverage: CI]` (`ci.yml` build-cli)
+- [ ] Drivers registered in both registries; importer, ingestor, probe, hand-off and CLI reached; no raw spawn in `lib/services/flow/` except the detached hand-off — `[Coverage: UNIT]` (`flow_reachability_test.dart`, `no_unbounded_subprocess_test.dart`)
+- [ ] Verdict, metrics and run directory come through at Open Core with the beta period over; no Flow file reads a licence — `[Coverage: UNIT]` (`ungated_flow_test.dart`)
+- [ ] Settings > Engines > Implementation flow: launcher, Docker image, PDK root, KLayout, OpenROAD and FuseSoC persist under `simcrux.*` and reach the drivers; Check flow tools reports and guides — `[Coverage: UNIT]` (`flow_tool_settings_codec_test.dart`) and `[Coverage: WIDGET]` (`settings_implementation_flow_section_test.dart`, `settings_engines_section_test.dart`)
+- [ ] `flow.run.completed`, `flow.reader.unsupported`, `flow.handoff.launched` and `flow.tool.missing` use closed vocabularies only and match the catalog — `[Coverage: UNIT]` (`flow_telemetry_test.dart`, `telemetry_catalog_conformance_test.dart`)
+- [ ] The inspector offers KLayout and OpenROAD for a LibreLane result and nextpnr for a nextpnr result, starts the viewer detached, and toasts a missing viewer — `[Coverage: WIDGET]` (`flow_handoff_buttons_test.dart`)
+- [ ] A launched LibreLane run (path, Nix and Docker launchers from the app) and a hand-off to KLayout, OpenROAD and nextpnr's GUI — `[Coverage: MANUAL]`
+
 ---
 
 ## Subsequent features

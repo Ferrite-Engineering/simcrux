@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/riscv_config.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
@@ -521,6 +522,110 @@ suites:
         RiscvToolchainProbe.referenceModelBinary(riscv),
         RiscvToolchainProbe.referenceModelBinary(clean),
       );
+    });
+  });
+
+  // The `flow:` block's keys that choose an executable or argv, one test per
+  // key: an executable is dropped with an advisory, argv refuses the load,
+  // and each is honoured once the user allowed project-defined tooling.
+  group('flow entries', () {
+    String librelane(String extra) =>
+        '''
+version: "1"
+flow:
+  entries:
+    - name: l
+      kind: librelane
+      config: c.yaml
+$extra
+''';
+    String nextpnr(String extra) =>
+        '''
+version: "1"
+flow:
+  entries:
+    - name: n
+      kind: nextpnr
+$extra
+''';
+    const synth = '''
+      family: ice40
+      device: up5k
+      package: sg48
+      top: top
+      sources: [top.v]''';
+
+    for (final (key, value, read)
+        in <(String, String, Object? Function(FlowEntry))>[
+          ('launcher', 'docker', (e) => e.launcher),
+          ('librelane_binary', '/tmp/pwn', (e) => e.librelaneBinary),
+          ('docker_image', 'evil/image', (e) => e.dockerImage),
+        ]) {
+      test('flow.$key is dropped with an advisory at its line', () {
+        final config = denied.parse(
+          librelane('      $key: $value'),
+          '/p.yaml',
+        );
+        expect(read(config.flow!.entries.single), isNull);
+        final warning = config.loadWarnings.single;
+        expect(warning.message, contains('`flow.entries[0].$key`'));
+        expect(warning.message, contains('--allow-project-tooling'));
+        // version, flow, entries, name, kind, config, then the key.
+        expect(warning.line, 7);
+      });
+
+      test('flow.$key is honored once tooling is allowed', () {
+        final config = allowed.parse(
+          librelane('      $key: $value'),
+          '/p.yaml',
+        );
+        expect(read(config.flow!.entries.single), isNotNull);
+        expect(config.loadWarnings, isEmpty);
+      });
+    }
+
+    for (final (key, yaml) in <(String, String)>[
+      ('fusesoc', '      fusesoc: {core: "a:b:c", target: icebreaker}'),
+      ('extra_args', '$synth\n      extra_args: [--seed, "1"]'),
+      ('handoff', '$synth\n      handoff: {nextpnr_gui: [/tmp/pwn]}'),
+    ]) {
+      test('flow.$key refuses the load', () {
+        final ex = _captureException(
+          () => denied.parse(nextpnr(yaml), '/p.yaml'),
+        );
+        expect(
+          ex.errors.map((e) => e.message),
+          anyElement(
+            allOf(
+              contains('`flow.entries[0].$key`'),
+              contains('--allow-project-tooling'),
+            ),
+          ),
+        );
+      });
+
+      test('flow.$key raises no gate error once tooling is allowed', () {
+        final config = allowed.parse(nextpnr(yaml), '/p.yaml');
+        final entry = config.flow!.entries.single;
+        switch (key) {
+          case 'fusesoc':
+            expect(entry.fusesoc?.core, 'a:b:c');
+          case 'extra_args':
+            expect(entry.extraArgs, ['--seed', '1']);
+          case 'handoff':
+            expect(entry.handoff['nextpnr_gui'], ['/tmp/pwn']);
+        }
+      });
+    }
+
+    test('flow.fusesoc.binary is honored only with the block', () {
+      final config = allowed.parse(
+        nextpnr(
+          '      fusesoc: {core: "a:b:c", target: icebreaker, binary: /tmp/f}',
+        ),
+        '/p.yaml',
+      );
+      expect(config.flow!.entries.single.fusesoc?.binary, '/tmp/f');
     });
   });
 }

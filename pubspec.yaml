@@ -45,6 +45,10 @@ dependencies:
     path: ./crux-shared/packages/crux_eula
   crux_file_watcher:
     path: ./crux-shared/packages/crux_file_watcher
+  # Implementation-flow models, the nextpnr readers, metrics and SARIF. Pure
+  # Dart, so the headless binary's `simcrux flow` reaches it.
+  crux_flow:
+    path: ./crux-shared/packages/crux_flow
   crux_ide_layout:
     path: ./crux-shared/packages/crux_ide_layout
   # Cross-suite beta issue reporter: diagnostic-log ring

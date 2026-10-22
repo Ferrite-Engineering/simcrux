@@ -8,6 +8,8 @@ import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/services/driver_plugin/simulator_driver_plugin_registry_provider.dart';
+import 'package:simcrux/services/flow/librelane_flow_driver.dart';
+import 'package:simcrux/services/flow/nextpnr_flow_driver.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper_provider.dart';
@@ -89,6 +91,11 @@ final Provider<SimulatorDriverRegistry> simulatorDriverRegistryProvider =
           // on the row. Never gated: the verdict and every partition are
           // correctness.
           EqyDriver.kId: EqyDriver(reaper: reaper),
+          // The implementation flows. Never gated: a flow verdict is
+          // correctness. Listed under Settings > Engines > Implementation
+          // flow, never under Simulators.
+          LibreLaneFlowDriver.kId: LibreLaneFlowDriver(reaper: reaper),
+          NextpnrFlowDriver.kId: NextpnrFlowDriver(reaper: reaper),
         };
         // The hidden no-op demo runner, off unless the
         // `SIMCRUX_DEMO_RUNNER` gate is set. It spawns no process, so a

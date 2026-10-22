@@ -26,6 +26,7 @@ import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/cli_args_provider.dart';
+import 'package:simcrux/core/cli/flow_cli.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
 import 'package:simcrux/core/eula/simcrux_eula_storage.dart';
 import 'package:simcrux/core/issue_reporter/simcrux_issue_reporter_strings.dart';
@@ -291,6 +292,18 @@ Future<bool> bootstrap({
       stdoutSink: stdout.writeln,
       stderrSink: stderr.writeln,
     );
+    return true;
+  }
+
+  // `simcrux flow run|ingest|gate|export`: the headless binary's own
+  // handler, so the app and the binary answer the same command line
+  // identically. Headless never transmits telemetry.
+  if (parsedArgs.subcommand == CliArgParser.kFlowSubcommand) {
+    exitCode = await FlowCli(
+      stdoutSink: stdout.writeln,
+      stderrSink: stderr.writeln,
+      driverRegistry: SimcruxCli.defaultDriverRegistry(),
+    ).run(parsedArgs.subcommandArgs);
     return true;
   }
 

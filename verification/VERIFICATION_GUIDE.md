@@ -5468,6 +5468,127 @@ Open Core only. The fixtures and their tests exercise no gated feature.
 | The real tools re-run through the regenerators match the same expectations (gated on tool presence) | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_nextpnr_live_test.dart`, `.github/workflows/flow-live.yml` |
 | Every workflow job has an integer `timeout-minutes`, no step pipes into `tee` without `pipefail`, and `flow-live.yml` keeps its caps | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
 
+### 27.7 Flow runs: the `flow:` block, the drivers, ingest, the gate and the CLI
+
+**What it covers.** A project's `flow:` block (`entries:` and `ingest:`), the
+LibreLane and nextpnr drivers that run its entries as ordinary SimCrux tests,
+reading runs SimCrux did not launch, the verdict every Flow surface reads,
+`simcrux flow run|ingest|gate|export`, Settings > Engines > Implementation
+flow (launcher, Docker image, PDK root, KLayout, OpenROAD and FuseSoC paths,
+Check flow tools), the hand-off to KLayout, OpenROAD and nextpnr's GUI, and
+the four Flow telemetry events. Results are findings, not signoff.
+
+- **One entry is one test.** Each entry becomes a `TestSpec` in a synthesised
+  suite named `flow` (`flow/<name>`), with `simulatorId` `librelane` or
+  `nextpnr`, a four-hour timeout and no retry. LibreLane entries hold the
+  `flow` resource lock, so one LibreLane run happens at a time within a
+  regression; nextpnr entries take no lock. A project with flow entries and
+  no `suites:` loads. A suite named `flow` beside flow entries is refused.
+- **The verdict is the run's, never the exit code.** `met`, `violated`,
+  `stopped`, `not_run` or `unrecognised`, in the `flow.verdict` metric. Only
+  `met` passes; the scheduler's final status follows the verdict whatever a
+  detector or the exit code says. nextpnr's verdict is its `report.json`
+  (exit 1 with a violated report is `violated`; exit 0 with no report is
+  `not_run`); a FuseSoC entry falls back to nextpnr's log when Edalize passed
+  no `--report`.
+- **LibreLane is read against the documented run-directory contract,
+  best-effort and never verified,** until the versioned LibreLane readers
+  land: no `final/metrics.json` is `stopped` at the newest step without
+  `state_out.json`; final metrics with a slack below zero or a violation,
+  DRC, LVS, antenna or XOR count above zero are `violated`; final metrics
+  with none of those metrics are `unrecognised`. Every LibreLane result says
+  `flow.reader_verified=false`.
+- **Run directories are never deleted, reused or resumed.** LibreLane gets
+  `--run-tag <prefix>-<UTC stamp>` (a fresh tag; a tag whose directory exists
+  gets `-2`, `-3`) and is never passed `--overwrite` or `--last-run`.
+  nextpnr runs go to `<project>/runs/<entry>/<tag>/` (synthesis netlist,
+  `report.json`, `post.json`, `pnr.log`). Both resolve inside the project
+  directory with symlinks resolved; a run root outside it is refused and
+  nothing is spawned.
+- **Project tooling.** `launcher`, `librelane_binary`, `docker_image` and
+  `fusesoc.binary` are dropped with an advisory unless project tooling is
+  allowed; `fusesoc`, `extra_args` and `handoff` refuse the load. A
+  project's `simulators.<id>.options` may never set a `settings.` option,
+  which is how Settings values travel to the drivers.
+
+**Setup.** None for the automated checks. For a live run, an OSS CAD Suite
+(Yosys and nextpnr) on `PATH`, or its `bin/` set as the nextpnr path in
+Settings > Engines.
+
+**Expected behaviour.**
+
+1. A `simcrux.yaml` with only a `flow:` block opens and lists one row per
+   entry under the `flow` suite.
+2. Run Regression runs them. A met nextpnr entry passes; one whose clock
+   misses its target fails with `Flow verdict: violated` and the words
+   "findings, not signoff", and is not painted as a tool error.
+3. `simcrux flow run <project>` exits 0 when every entry is met, 1 when any
+   is violated, 2 when any could not be evaluated (that outranks 1), 64 for a
+   usage error and 65 for a project that does not load. `simcrux flow gate
+   <run>` exits by the verdict, or by `--fail-on-wns`, `--fail-on-hold-wns`,
+   `--fail-on-fmax-below`, `--fail-on '<metric><op><value>'` and
+   `--baseline` when given; a threshold whose metric the run lacks exits 2.
+   `--json` names how a nextpnr WNS is derived (`1000/constraint -
+   1000/achieved` ns per clock, the minimum). SIGINT or SIGTERM during
+   `flow run` cancels the run, kills its process trees and exits 130 or 143.
+4. `simcrux flow ingest <dir>` lists every run under a directory of runs and
+   writes nothing inside any of them. A zipped CI artifact is named and not
+   opened (extract it first).
+5. `simcrux flow export <run> --format json|junit|sarif|html --out <file>`
+   writes the file and exits 0.
+6. `simcrux flow -h` (anywhere on the line) prints usage and exits 0 before
+   any work; `simcrux flow --version` prints `simcrux <version>`.
+7. Settings > Engines > Implementation flow lists the LibreLane and nextpnr
+   paths, the LibreLane launcher (Executable, Nix, Docker), the Docker
+   image, the PDK root and the KLayout, OpenROAD and FuseSoC paths; Check
+   flow tools lists each tool found or not found, the PDKs under the PDK
+   root, and guidance when something is missing.
+8. Selecting a LibreLane result offers Open in KLayout and Open in OpenROAD
+   in the inspector, a nextpnr result Open in nextpnr. The viewer starts
+   detached; a missing viewer says so in a toast naming Settings > Engines >
+   Implementation flow, and a run with nothing that viewer opens says that.
+
+**Edge cases.**
+
+- No LibreLane is installed on the build machine. Every LibreLane path is
+  covered by scripted processes and hand-built run directories; the driver's
+  live verdict and ingest checks wait for the versioned readers and captured
+  LibreLane fixtures.
+- The Nix and Docker launchers are argv and cancel tests only (a cancel
+  also runs `docker stop` on the named container); neither has been run
+  from a GUI process here.
+- `XDG_DATA_HOME` is set to the test's own work directory when the
+  environment has none (nextpnr needs it).
+- A launched run's steps and full metric set are written to the trend
+  store's `flow_steps` and `flow_metrics` (read back off the UI isolate);
+  retention prunes them with their result row.
+
+**Tier-gate scenarios.** None: the flow block, the drivers, the verdict,
+ingest, the gate and the CLI are open core and never gated. Verified at Open
+Core with the beta period over.
+
+**Automation Assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| The `flow:` block: entries, kinds, strict keys, the `gls:` and `equiv:` sub-blocks, includes, the synthesised suite, a flow-only project, reserved `settings.` options | `[Coverage: UNIT]` | `test/services/config/config_loader_flow_test.dart` |
+| One test per project-tooling key: dropped or refused with the gate closed, honoured with it open | `[Coverage: UNIT]` | `test/services/config/config_loader_project_tooling_test.dart` |
+| nextpnr report and log readers on the committed fixtures; the LibreLane contract on hand-built runs (met, each violation, stopped, unrecognised, version detection, links refused) | `[Coverage: UNIT]` | `test/services/flow/flow_run_reading_test.dart` |
+| nextpnr driver: verdict from the report not the exit code, command lines per family, fresh run directory inside the project, synthesis and tool failures, cancel, FuseSoC | `[Coverage: UNIT]` | `test/services/flow/nextpnr_flow_driver_test.dart` |
+| LibreLane driver: verdict from the records, path, Nix and Docker command lines, never `--overwrite` or `--last-run`, fresh tags, containment, `XDG_DATA_HOME`, progress, cancel of the tree and of the container | `[Coverage: UNIT]` | `test/services/flow/librelane_flow_driver_test.dart` |
+| Ingest: report, run directory, directory of runs, read-only, containment, archives refused; persistence with the `ingest` trigger and retention | `[Coverage: UNIT]` | `test/services/flow/flow_run_ingestor_test.dart` |
+| The scheduler's status follows the flow verdict; a flow run is never retried | `[Coverage: UNIT]` | `test/services/job_scheduler/flow_verdict_status_test.dart` |
+| `simcrux flow`: one test per exit code (0, 1, 2, 3, 64, 65, 130, 143), help first, version from the pubspec, JSON, SARIF, JUnit and the export formats | `[Coverage: UNIT]` | `test/core/cli/flow_cli_test.dart` |
+| `simcrux flow run`, `gate` and `ingest` against the real Yosys and nextpnr | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_driver_live_test.dart`, `.github/workflows/flow-live.yml` |
+| No Flow code deletes anything or passes `--overwrite` or `--last-run`; no raw spawn under `lib/services/flow/` except the detached hand-off | `[Coverage: UNIT]` | `test/static/flow_no_delete_test.dart`, `test/static/no_unbounded_subprocess_test.dart` |
+| Drivers, importer, ingestor, probe, hand-off and CLI are reached from the app and the binary | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
+| Verdict, metrics and run directory at Open Core with the beta period over | `[Coverage: UNIT]` | `test/flow/ungated_flow_test.dart` |
+| Implementation flow Settings persist under `simcrux.*` and reach the drivers; the section saves and Check flow tools reports | `[Coverage: UNIT]` | `test/services/settings/flow_tool_settings_codec_test.dart`, `test/features/settings/widgets/settings_implementation_flow_section_test.dart` |
+| The inspector's hand-off buttons per kind, the detached start, the missing-viewer toast and its two events, in every locale | `[Coverage: WIDGET]` | `test/features/inspector/widgets/flow_handoff_buttons_test.dart` |
+| Flow telemetry: closed vocabularies tied to their enums, six properties at most, no values or names | `[Coverage: UNIT]` | `test/services/telemetry/flow_telemetry_test.dart`, `test/static/telemetry_catalog_conformance_test.dart` |
+| `simcrux flow --help` and `--version` from the built binary, Linux on every push and macOS on Sundays | `[Coverage: AUTOMATED — GitHub Actions]` | `.github/workflows/ci.yml` (`build-cli`) |
+| A launched LibreLane run, its Nix and Docker launchers from the app, and a hand-off to each viewer | `[Coverage: MANUAL]` | needs LibreLane and the viewers installed |
+
 ---
 
 ## 9+. Subsequent features

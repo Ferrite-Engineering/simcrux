@@ -166,6 +166,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  crux_flow:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_flow"
+      relative: true
+    source: path
+    version: "0.1.0"
   crux_guards:
     dependency: "direct dev"
     description:

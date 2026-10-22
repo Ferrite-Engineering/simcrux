@@ -14,6 +14,7 @@ import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
 import 'package:simcrux/features/inspector/dialogs/log_viewer_dialog.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
+import 'package:simcrux/features/inspector/widgets/flow_handoff_buttons.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -65,6 +66,8 @@ class InspectorActions extends ConsumerWidget {
             label: Text(l10n.inspectorActionDebugInWavecrux),
           ),
         ),
+        // A flow result's hand-off to KLayout, OpenROAD or nextpnr's GUI.
+        ...flowHandoffButtons(context, ref, selection),
       ],
     );
   }

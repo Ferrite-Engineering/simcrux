@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:crux_settings/crux_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
+import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/panel_layout_state.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
@@ -43,6 +45,24 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
   static const String _kAutoRunOnOpen = 'simcrux.autoRunOnOpen';
   static const String _kMaxTotalSimulators = 'simcrux.maxTotalSimulators';
   static const String _kRetentionPolicy = 'simcrux.retentionPolicy';
+
+  /// Settings > Engines > Implementation flow, one key per value.
+  static const String kFlowLauncher = 'simcrux.flowLibrelaneLauncher';
+
+  /// LibreLane's Docker image.
+  static const String kFlowDockerImage = 'simcrux.flowLibrelaneDockerImage';
+
+  /// `PDK_ROOT` for LibreLane runs.
+  static const String kFlowPdkRoot = 'simcrux.flowPdkRoot';
+
+  /// The KLayout executable.
+  static const String kFlowKlayoutPath = 'simcrux.flowKlayoutPath';
+
+  /// The OpenROAD executable.
+  static const String kFlowOpenroadPath = 'simcrux.flowOpenroadPath';
+
+  /// The FuseSoC executable.
+  static const String kFlowFusesocPath = 'simcrux.flowFusesocPath';
 
   // Panel-layout namespace. Per-field keys (rather than a single JSON
   // blob) so future fields are forward-compatible — an old build that
@@ -101,6 +121,16 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
       maxTotalSimulators: (prefs.getInt(_kMaxTotalSimulators) ?? 4).clamp(
         1,
         64,
+      ),
+      flowTools: FlowToolSettings(
+        launcher:
+            FlowLauncher.fromWireName(prefs.getString(kFlowLauncher)) ??
+            FlowLauncher.path,
+        dockerImage: prefs.getString(kFlowDockerImage) ?? '',
+        pdkRoot: prefs.getString(kFlowPdkRoot) ?? '',
+        klayoutPath: prefs.getString(kFlowKlayoutPath) ?? '',
+        openroadPath: prefs.getString(kFlowOpenroadPath) ?? '',
+        fusesocPath: prefs.getString(kFlowFusesocPath) ?? '',
       ),
     );
   }
@@ -187,6 +217,13 @@ class SimcruxSettingsCodec implements SettingsCodec<AppSettings> {
     } else {
       await prefs.setString(_kRetentionPolicy, jsonEncode(retention.toJson()));
     }
+    final flow = settings.flowTools;
+    await prefs.setString(kFlowLauncher, flow.launcher.wireName);
+    await prefs.setString(kFlowDockerImage, flow.dockerImage);
+    await prefs.setString(kFlowPdkRoot, flow.pdkRoot);
+    await prefs.setString(kFlowKlayoutPath, flow.klayoutPath);
+    await prefs.setString(kFlowOpenroadPath, flow.openroadPath);
+    await prefs.setString(kFlowFusesocPath, flow.fusesocPath);
     await _writePanelLayout(prefs, settings.panelLayout);
   }
 

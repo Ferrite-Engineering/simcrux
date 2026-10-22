@@ -10,6 +10,7 @@ import 'package:meta/meta.dart';
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
+import 'package:simcrux/domain/models/flow_run_record.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/domain/models/trend_aggregate.dart';
 import 'package:simcrux/domain/models/trend_schema_info.dart';
@@ -366,6 +367,73 @@ INSERT INTO test_results (
       }
     });
     _notifyChanged();
+  }
+
+  @override
+  Future<void> recordFlowRun(FlowRunRecord record) async {
+    if (record.steps.isEmpty && record.metrics.isEmpty) return;
+    await _db.transaction((txn) async {
+      // One flow run per (run, test): a re-record replaces, never doubles.
+      await txn.rawDelete(
+        'DELETE FROM flow_steps WHERE run_id = ? AND test_id = ?',
+        <Object?>[record.runId, record.testId],
+      );
+      await txn.rawDelete(
+        'DELETE FROM flow_metrics WHERE run_id = ? AND test_id = ?',
+        <Object?>[record.runId, record.testId],
+      );
+      final batch = txn.batch();
+      for (final step in record.steps) {
+        batch.rawInsert(
+          '''
+INSERT INTO flow_steps (run_id, test_id, ordinal, step_id, tool, status, runtime_ms)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+''',
+          <Object?>[
+            record.runId,
+            record.testId,
+            step.ordinal,
+            step.id,
+            step.tool,
+            step.status,
+            step.runtimeMs,
+          ],
+        );
+      }
+      for (final metric in record.metrics) {
+        batch.rawInsert(
+          '''
+INSERT INTO flow_metrics (run_id, test_id, key, base, modifiers, value_real, value_text, aggregated)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''',
+          <Object?>[
+            record.runId,
+            record.testId,
+            metric.key,
+            metric.base,
+            jsonEncode(metric.modifiers),
+            metric.valueReal,
+            metric.valueText,
+            if (metric.aggregated) 1 else 0,
+          ],
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+    _notifyChanged();
+  }
+
+  /// Removes `flow_steps` and `flow_metrics` rows whose result row the
+  /// retention pass deleted: the flow history ages out with its run.
+  Future<void> _pruneOrphanedFlowRows() async {
+    for (final table in const <String>['flow_steps', 'flow_metrics']) {
+      await _db.rawDelete('''
+DELETE FROM $table WHERE NOT EXISTS (
+  SELECT 1 FROM test_results t
+  WHERE t.run_id = $table.run_id AND t.test_name = $table.test_id
+)
+''');
+    }
   }
 
   /// Records a full run-level summary row in one shot. Useful for
@@ -887,6 +955,7 @@ FROM test_results
     // number of *data points* removed, and callers surface it as such.
     if (deleted > 0) {
       await _pruneOrphanedRuns();
+      await _pruneOrphanedFlowRows();
     }
 
     if (deleted > 0) {

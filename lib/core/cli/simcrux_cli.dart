@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
+import 'package:simcrux/core/cli/flow_cli.dart';
 import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
 import 'package:simcrux/domain/enums/formal_import_kind.dart';
@@ -23,6 +24,8 @@ import 'package:simcrux/services/cli/cli_args.dart' as launch_cli;
 import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/export/dashboard_bundle_writer.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
+import 'package:simcrux/services/flow/librelane_flow_driver.dart';
+import 'package:simcrux/services/flow/nextpnr_flow_driver.dart';
 import 'package:simcrux/services/import/formal_import_cli.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_import_cli.dart';
@@ -158,6 +161,8 @@ class SimcruxCli {
       RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
       SbyDriver.kId: SbyDriver(reaper: reaper),
       EqyDriver.kId: EqyDriver(reaper: reaper),
+      LibreLaneFlowDriver.kId: LibreLaneFlowDriver(reaper: reaper),
+      NextpnrFlowDriver.kId: NextpnrFlowDriver(reaper: reaper),
     });
   }
 
@@ -237,6 +242,14 @@ class SimcruxCli {
       );
     }
 
+    if (parsedArgs.subcommand == CliArgParser.kFlowSubcommand) {
+      return await FlowCli(
+        stdoutSink: stdoutSink,
+        stderrSink: stderrSink,
+        driverRegistry: driverRegistry,
+      ).run(parsedArgs.subcommandArgs);
+    }
+
     if (parsedArgs.subcommand == CliArgParser.kLicenseSubcommand) {
       return await _runLicense(
         parsedArgs.subcommandArgs,
@@ -256,8 +269,8 @@ class SimcruxCli {
     stderrSink(
       'simcrux: nothing to do headless — pass --ci <config>, '
       '--import-fusesoc, import-riscv-arch-test, import-riscv-formal, '
-      'import-sby, import-eqy, export-dashboard, or license. The graphical '
-      'workflows '
+      'import-sby, import-eqy, export-dashboard, license, or flow. The '
+      'graphical workflows '
       'need the SimCrux desktop app.',
     );
     stderrSink('');

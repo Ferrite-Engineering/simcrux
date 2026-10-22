@@ -86,7 +86,7 @@ jobs:
           FLOW_LIVE_REQUIRED: '1'
         run: |
           set -euo pipefail
-          flutter test test/static/flow_nextpnr_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/nextpnr-live.log"
+          flutter test test/static/flow_nextpnr_live_test.dart test/static/flow_driver_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/nextpnr-live.log"
 
   fusesoc:
     name: FuseSoC fixture

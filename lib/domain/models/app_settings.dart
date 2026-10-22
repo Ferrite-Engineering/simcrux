@@ -3,6 +3,7 @@
 
 import 'package:crux_settings/crux_settings.dart';
 import 'package:meta/meta.dart';
+import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/panel_layout_state.dart';
 import 'package:simcrux/domain/models/pass_fail_config_codec.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
@@ -37,6 +38,7 @@ class AppSettings {
     this.autoRunOnOpen = false,
     this.maxTotalSimulators = 4,
     this.retentionPolicy,
+    this.flowTools = const FlowToolSettings(),
   });
 
   /// The cross-suite shared subset of settings (theme, locale,
@@ -174,6 +176,12 @@ class AppSettings {
   /// the user chose one test for `null`.
   final RetentionPolicy? retentionPolicy;
 
+  /// Settings > Engines > Implementation flow beyond the binary paths:
+  /// LibreLane's launcher and Docker image, the PDK root, and the KLayout,
+  /// OpenROAD and FuseSoC paths. The user's own choices, so never gated;
+  /// the regression runner hands them to the flow drivers.
+  final FlowToolSettings flowTools;
+
   // ─── Forwarder getters into [core] ────────────────────────────────────
   // Preserve a flat read API so consumers don't have to traverse
   // .core.x for the common case.
@@ -208,6 +216,7 @@ class AppSettings {
     bool? autoRunOnOpen,
     int? maxTotalSimulators,
     RetentionPolicy? retentionPolicy,
+    FlowToolSettings? flowTools,
   }) {
     return AppSettings(
       core: core ?? this.core,
@@ -228,6 +237,7 @@ class AppSettings {
       autoRunOnOpen: autoRunOnOpen ?? this.autoRunOnOpen,
       maxTotalSimulators: maxTotalSimulators ?? this.maxTotalSimulators,
       retentionPolicy: retentionPolicy ?? this.retentionPolicy,
+      flowTools: flowTools ?? this.flowTools,
     );
   }
 
@@ -269,6 +279,7 @@ class AppSettings {
     if (autoRunOnOpen != other.autoRunOnOpen) return false;
     if (maxTotalSimulators != other.maxTotalSimulators) return false;
     if (retentionPolicy != other.retentionPolicy) return false;
+    if (flowTools != other.flowTools) return false;
     return true;
   }
 
@@ -295,6 +306,7 @@ class AppSettings {
     autoRunOnOpen,
     maxTotalSimulators,
     retentionPolicy,
+    flowTools,
   );
 
   static bool _listEquals(List<String> a, List<String> b) {

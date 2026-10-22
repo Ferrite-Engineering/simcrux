@@ -8,6 +8,7 @@ import 'dart:io';
 // `crux_license.dart` barrel drags `dart:ui`, which kills
 // `dart build cli` inside the FFI transformer. Same symbols
 // (LicenseTier / FeatureGate / kBetaPeriod) — see that barrel's doc.
+import 'package:crux_flow/crux_flow.dart' show FlowKind;
 import 'package:crux_license/crux_license_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/golden_compare_profile.dart';
@@ -17,6 +18,8 @@ import 'package:simcrux/domain/enums/riscv_run_mode.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
 import 'package:simcrux/domain/enums/waveform_format.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
+import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/output_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
@@ -34,6 +37,7 @@ import 'package:simcrux/services/config/filelist_expander.dart';
 import 'package:simcrux/services/config/mixed_language_validator.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
 import 'package:simcrux/services/config/test_spec_expander.dart';
+import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/formal/formal_containment.dart';
 import 'package:yaml/yaml.dart';
 
@@ -54,6 +58,7 @@ export 'package:simcrux/domain/models/project_identity.dart';
 //                                     `simulators:` / `resources:`
 //   - config_loader_riscv.dart     — `riscv:`
 //   - config_loader_formal.dart    — `formal:` (the `sby` driver)
+//   - config_loader_flow.dart      — `flow:` (implementation flows)
 part 'config_loader_readers.dart';
 part 'config_loader_sources.dart';
 part 'config_loader_sweeps.dart';
@@ -61,6 +66,7 @@ part 'config_loader_pass_fail.dart';
 part 'config_loader_sections.dart';
 part 'config_loader_riscv.dart';
 part 'config_loader_formal.dart';
+part 'config_loader_flow.dart';
 
 /// Default upper bound on the cartesian-product fan-out one
 /// parameterized [TestSpec] template may produce.
@@ -197,6 +203,11 @@ class ConfigLoader {
   /// - `formal.command`, `formal.extra_args` — the load is refused;
   /// - `formal.sby_binary`, `formal.eqy_binary`, `formal.ghdl_binary`,
   ///   `formal.tools.<tool>` — dropped, with an advisory;
+  /// - `flow.entries[].fusesoc`, `flow.entries[].extra_args`,
+  ///   `flow.entries[].handoff` — the load is refused;
+  /// - `flow.entries[].launcher`, `flow.entries[].librelane_binary`,
+  ///   `flow.entries[].docker_image`, `flow.entries[].fusesoc.binary` —
+  ///   dropped, with an advisory;
   /// - `output.results_path`, `output.summary_path` outside the project
   ///   directory — the load is refused.
   ///
@@ -319,17 +330,22 @@ class ConfigLoader {
   Future<RegressionConfig> load(String path) async {
     final absPath = p.normalize(p.absolute(path));
     final loaded = await _loadInternal(absPath, visited: <String>{});
-    if (loaded.suites.isEmpty) {
+    final flowEntries = loaded.flow?.entries ?? const <FlowEntry>[];
+    // A project whose only work is its `flow:` entries loads: the entries
+    // become the synthesised `flow` suite below.
+    if (loaded.suites.isEmpty && flowEntries.isEmpty) {
       throw ConfigLoaderException([
         ConfigLoaderError.generic(
           path: absPath,
           message:
-              'No suites found — declare at least one suite in the project '
-              'file or in an included file.',
+              'No suites found — declare at least one suite or a `flow:` '
+              'entry in the project file or in an included file.',
         ),
       ]);
     }
-    final expanded = await _expandFilelistsInConfig(loaded);
+    final flowErrors = _flowLoadErrors(loaded, absPath);
+    if (flowErrors.isNotEmpty) throw ConfigLoaderException(flowErrors);
+    final expanded = _withFlowSuite(await _expandFilelistsInConfig(loaded));
 
     // Mixed-language compatibility check: walk every test
     // and verify the configured simulator can handle every source's
@@ -350,6 +366,85 @@ class ConfigLoader {
     }
 
     return expanded;
+  }
+
+  /// The errors the merged `flow:` block can only show once every included
+  /// file is read: an entry name declared in two files, a suite that takes
+  /// the reserved [FlowRunImporter.kFlowSuiteName], and a LibreLane
+  /// configuration outside the project directory.
+  List<ConfigLoaderError> _flowLoadErrors(
+    RegressionConfig config,
+    String path,
+  ) {
+    final entries = config.flow?.entries ?? const <FlowEntry>[];
+    if (entries.isEmpty) return const <ConfigLoaderError>[];
+    final errors = <ConfigLoaderError>[];
+    if (config.suites.any(
+      (s) => s.name == FlowRunImporter.kFlowSuiteName,
+    )) {
+      errors.add(
+        ConfigLoaderError.generic(
+          path: path,
+          message:
+              'A suite is named `${FlowRunImporter.kFlowSuiteName}`, which is '
+              "the name of the project's flow entries. Rename the suite.",
+        ),
+      );
+    }
+    final seen = <String>{};
+    const importer = FlowRunImporter();
+    final root = p.dirname(config.projectFilePath);
+    for (final entry in entries) {
+      if (!seen.add(entry.name)) {
+        errors.add(
+          ConfigLoaderError.generic(
+            path: path,
+            message:
+                'Flow entry `${entry.name}` is declared in more than one '
+                'file. Entry names are test ids and must be unique.',
+          ),
+        );
+      }
+      final problem = importer.problemFor(importer.resolve(entry, root));
+      if (problem != null) {
+        errors.add(ConfigLoaderError.generic(path: path, message: problem));
+      }
+    }
+    return errors;
+  }
+
+  /// [flow]'s entry paths and ingest paths made absolute against [baseDir],
+  /// the directory of the file that declared them.
+  static FlowConfig? _resolveFlowPaths(FlowConfig? flow, String baseDir) {
+    if (flow == null) return null;
+    const importer = FlowRunImporter();
+    return FlowConfig(
+      entries: <FlowEntry>[
+        for (final entry in flow.entries) importer.resolve(entry, baseDir),
+      ],
+      ingest: <String>[
+        for (final path in flow.ingest) p.normalize(p.join(baseDir, path)),
+      ],
+    );
+  }
+
+  /// [config] with its `flow:` entries resolved against the project
+  /// directory and appended as the synthesised `flow` suite.
+  RegressionConfig _withFlowSuite(RegressionConfig config) {
+    final flow = config.flow;
+    if (flow == null || flow.entries.isEmpty) return config;
+    const importer = FlowRunImporter();
+    final root = p.dirname(config.projectFilePath);
+    final resolved = FlowConfig(
+      entries: <FlowEntry>[
+        for (final entry in flow.entries) importer.resolve(entry, root),
+      ],
+      ingest: flow.ingest,
+    );
+    return config.copyWith(
+      suites: <Suite>[...config.suites, importer.suiteFor(resolved.entries)],
+      flow: resolved,
+    );
   }
 
   /// Recursive include-resolution body. [visited] holds the set of
@@ -563,9 +658,19 @@ class ConfigLoader {
       ...rootConfig.loadWarnings,
     ];
 
+    // `flow:` blocks concatenate, the root file's entries first; a name
+    // declared twice is refused by [load] once every file is read.
+    var mergedFlow = rootConfig.flow;
+    for (final inc in includeConfigs) {
+      final incFlow = inc.flow;
+      if (incFlow == null) continue;
+      mergedFlow = (mergedFlow ?? FlowConfig()).followedBy(incFlow);
+    }
+
     return rootConfig.copyWith(
       suites: byName.values.toList(growable: false),
       simulatorBinaries: sims,
+      flow: mergedFlow,
       loadWarnings: mergedWarnings,
     );
   }
@@ -864,6 +969,19 @@ class ConfigLoader {
       allowTooling: _allowProjectDefinedTooling,
     );
 
+    // ── flow (optional) ─────────────────────────────────────────────
+    // Paths resolve against the file that wrote them, so an included
+    // file's entries mean what they meant in that file.
+    final flow = _resolveFlowPaths(
+      _readFlowConfig(
+        root,
+        path,
+        errors,
+        allowTooling: _allowProjectDefinedTooling,
+      ),
+      p.dirname(p.absolute(path)),
+    );
+
     // ── suites ──────────────────────────────────────────────────────
     final suitesNode = root.nodes['suites'];
     final suites = <Suite>[];
@@ -940,6 +1058,7 @@ class ConfigLoader {
       defaultRiscv: defaultRiscv,
       defaultFormal: defaultFormal,
       output: output,
+      flow: flow,
       loadWarnings: warnings,
     );
   }

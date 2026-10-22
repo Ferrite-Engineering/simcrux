@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crux_flow/crux_flow.dart' show FlowVerdict;
 import 'package:crux_io/crux_io.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -23,6 +24,7 @@ import 'package:simcrux/domain/models/resource_lock.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
+import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
 import 'package:simcrux/services/job_scheduler/failure_message.dart';
 import 'package:simcrux/services/job_scheduler/resource_lock_table.dart';
@@ -502,6 +504,9 @@ class LocalJobScheduler implements JobScheduler {
         break;
       }
       if (attemptsSoFar >= maxRetryCeiling) break;
+      // A flow run is deterministic and expensive (hours, for LibreLane):
+      // never retried, whatever the policy.
+      if (attemptSpec.flow != null) break;
       final maxAttempts = maxRetryCeiling;
       final shouldRetry = retryPolicy.shouldRetry(
         spec: attemptSpec,
@@ -1034,6 +1039,17 @@ class LocalJobScheduler implements JobScheduler {
     required PassFailConfig config,
     Map<String, String>? driverMetrics,
   }) {
+    // A flow verdict decides alone. The driver read it from the run's report
+    // or records, never from the exit code: nextpnr exits 1 on a timing
+    // FAIL and LibreLane exits non-zero when a checker flags a violation,
+    // and either exits 0 with no report at all. Every verdict but `met` is a
+    // fail, and no detector turns one into a pass or `met` into a fail.
+    final flowVerdict = driverMetrics?[FlowMetricKeys.verdict];
+    if (flowVerdict != null) {
+      return flowVerdict == FlowVerdict.met.wireName
+          ? TestStatus.pass
+          : TestStatus.fail;
+    }
     final formalVerdict = driverMetrics?[kFormalVerdictMetric];
     if (formalVerdict != null &&
         classified == TestStatus.pass &&

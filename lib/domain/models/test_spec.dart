@@ -3,6 +3,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/hdl_language.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/pass_fail_config.dart';
 import 'package:simcrux/domain/models/resource_lock.dart';
@@ -45,6 +46,7 @@ class TestSpec {
     this.parentSpecId,
     this.riscv,
     this.formal,
+    this.flow,
   }) : sources = List<String>.unmodifiable(sources ?? const []),
        includeDirs = List<String>.unmodifiable(includeDirs ?? const []),
        defines = Map<String, String>.unmodifiable(defines ?? const {}),
@@ -208,6 +210,15 @@ class TestSpec {
   /// the config loader. **Never tier-gated** — see [FormalConfig].
   final FormalConfig? formal;
 
+  /// The `flow:` entry this spec runs, or null for every test that is not
+  /// an implementation-flow run.
+  ///
+  /// Set only on the specs of the synthesised `flow` suite, one per entry;
+  /// the loader never inherits it through `defaults:` or a suite. Carried
+  /// through [copyWith], [operator ==] and [hashCode] like [riscv].
+  /// **Never tier-gated**: a flow verdict is correctness.
+  final FlowEntry? flow;
+
   /// Explicit per-source language overrides. Keys are source paths
   /// (as they appear in [sources]); values are the user-declared
   /// [HdlLanguage].
@@ -285,6 +296,7 @@ class TestSpec {
     String? parentSpecId,
     RiscvConfig? riscv,
     FormalConfig? formal,
+    FlowEntry? flow,
     bool clearSeeds = false,
     bool clearParameterSweeps = false,
   }) {
@@ -314,6 +326,7 @@ class TestSpec {
       // `riscv:` block instead of silently dropping it.
       riscv: riscv ?? this.riscv,
       formal: formal ?? this.formal,
+      flow: flow ?? this.flow,
     );
   }
 
@@ -340,11 +353,15 @@ class TestSpec {
         _nullableMapOfListEq(other.parameterSweeps, parameterSweeps) &&
         other.parentSpecId == parentSpecId &&
         other.riscv == riscv &&
-        other.formal == formal;
+        other.formal == formal &&
+        other.flow == flow;
   }
 
+  // `Object.hashAll` over a list: with [flow] the field count is past
+  // `Object.hash`'s twenty-argument ceiling. The list order is the field
+  // order above, so equal specs still hash equally.
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll(<Object?>[
     id,
     name,
     suiteName,
@@ -366,18 +383,19 @@ class TestSpec {
       sourceLanguages.entries.map((e) => Object.hash(e.key, e.value)),
     ),
     seed,
-    seeds == null ? null : Object.hashAll(seeds!),
-    parameterSweeps == null
-        ? null
-        : Object.hashAllUnordered(
-            parameterSweeps!.entries.map(
-              (e) => Object.hash(e.key, Object.hashAll(e.value)),
-            ),
-          ),
+    // A missing sweep hashes like an empty one; equality still tells them
+    // apart, and a hash only has to agree where equality does.
+    Object.hashAll(seeds ?? const <int>[]),
+    Object.hashAllUnordered(
+      (parameterSweeps ?? const <String, List<String>>{}).entries.map(
+        (e) => Object.hash(e.key, Object.hashAll(e.value)),
+      ),
+    ),
     parentSpecId,
     riscv,
     formal,
-  );
+    flow,
+  ]);
 }
 
 bool _listEq<T>(List<T> a, List<T> b) {

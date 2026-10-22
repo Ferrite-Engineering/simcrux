@@ -185,11 +185,12 @@ class CliArgParser {
             'lists; and riscv reference.path, toolchain.path and .prefix, '
             "riscof.binary and formal.sby_binary; and the formal block's "
             'command, extra_args, sby_binary, eqy_binary, ghdl_binary and '
-            'tools. Each '
+            "tools; and each flow entry's launcher, librelane_binary, "
+            'docker_image, fusesoc, extra_args and handoff. Each '
             'chooses what '
             'this run executes or its environment, so without this flag a '
-            'command or extra_args fails the load and the rest are ignored '
-            'with a warning. Pass it only for project files you trust. The app '
+            'command, extra_args, fusesoc or handoff fails the load and the '
+            'rest are ignored with a warning. Pass it only for project files you trust. The app '
             'has the same decision in Settings > Engines.',
         negatable: false,
       )
@@ -219,6 +220,10 @@ class CliArgParser {
   /// `license request --out <file>`).
   static const String kLicenseSubcommand = 'license';
 
+  /// Stable id of the `flow` sub-command family (`flow run|ingest|gate|
+  /// export`, `FlowCli`).
+  static const String kFlowSubcommand = 'flow';
+
   /// Every sub-command word this parser recognizes.
   ///
   /// A sub-command owns its own `ArgParser` (`DashboardBundleWriter` for
@@ -232,6 +237,7 @@ class CliArgParser {
     ...RiscvImportKind.subcommands,
     ...FormalImportKind.subcommands,
     kLicenseSubcommand,
+    kFlowSubcommand,
   ];
 
   /// Whether [args] opens with a sub-command word.

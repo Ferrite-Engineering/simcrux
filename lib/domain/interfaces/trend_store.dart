@@ -4,6 +4,7 @@
 import 'package:meta/meta.dart';
 import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/enums/test_status.dart';
+import 'package:simcrux/domain/models/flow_run_record.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
 import 'package:simcrux/domain/models/trend_aggregate.dart';
 import 'package:simcrux/domain/models/trend_schema_info.dart';
@@ -76,6 +77,15 @@ abstract class TrendStore {
   /// The default is a no-op so ephemeral / mock stores are unaffected;
   /// the SQL store overrides it with a single `UPDATE`.
   Future<void> markRunFinished(String runId, DateTime finishedAt) async {}
+
+  /// Records one flow run's steps and full metric set (`flow_steps`,
+  /// `flow_metrics`) against the result row with the same run and test id.
+  /// A second record for the same pair replaces the first.
+  ///
+  /// The rows age out with their result row in [applyRetention]. The
+  /// default is a no-op, so ephemeral and mock stores are unaffected; a
+  /// decorating store delegates it.
+  Future<void> recordFlowRun(FlowRunRecord record) async {}
 
   /// Return the most recent `limit` trend points for [testId], most
   /// recent first.

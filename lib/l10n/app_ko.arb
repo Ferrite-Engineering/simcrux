@@ -721,6 +721,31 @@
       }
     }
   },
+  "inspectorActionOpenInKlayout": "KLayout에서 열기",
+  "@inspectorActionOpenInKlayout": {
+    "description": "Inspector button for an implementation-flow (LibreLane) result: open the run's final layout in KLayout, an external viewer. KLayout is a product name."
+  },
+  "inspectorActionOpenInOpenroad": "OpenROAD에서 열기",
+  "@inspectorActionOpenInOpenroad": {
+    "description": "Inspector button for an implementation-flow (LibreLane) result: open the run's final database in OpenROAD's viewer. OpenROAD is a product name."
+  },
+  "inspectorActionOpenInNextpnr": "nextpnr에서 열기",
+  "@inspectorActionOpenInNextpnr": {
+    "description": "Inspector button for an FPGA implementation-flow (nextpnr) result: open the placed and routed design in nextpnr's own viewer. nextpnr is a product name, always lower case."
+  },
+  "inspectorFlowViewerMissing": "{viewer}을(를) 찾지 못했습니다. 설정 > 엔진 > 구현 플로우에서 경로를 설정하거나 설치하세요.",
+  "@inspectorFlowViewerMissing": {
+    "description": "Shown when the external viewer for an implementation-flow run could not be started. {viewer} is the viewer's product name (KLayout, OpenROAD, nextpnr), never translated.",
+    "placeholders": {
+      "viewer": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorFlowViewerNothingToOpen": "이 실행에는 해당 뷰어로 열 수 있는 항목이 없습니다.",
+  "@inspectorFlowViewerNothingToOpen": {
+    "description": "Shown when an implementation-flow run holds nothing the chosen external viewer can open (no final layout, no final database, or no placed design)."
+  },
   "inspectorLogPreviewLineCount": "마지막 {n}줄",
   "@inspectorLogPreviewLineCount": {
     "description": "Caption above the log preview indicating how many tail lines are shown.",
@@ -885,6 +910,84 @@
   "settingsImplementationFlowSection": "구현 플로우",
   "@settingsImplementationFlowSection": {
     "description": "Heading of the Implementation flow group inside Settings > Engines: binary paths for the place-and-route and implementation-flow engines (LibreLane, nextpnr)."
+  },
+  "settingsFlowLauncherLabel": "LibreLane 실행 방식",
+  "@settingsFlowLauncherLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: how SimCrux starts LibreLane (an executable, Nix, or Docker). LibreLane is a product name and is not translated."
+  },
+  "settingsFlowLauncherPath": "실행 파일",
+  "@settingsFlowLauncherPath": {
+    "description": "Segment of the LibreLane launcher control: run a librelane executable found by path."
+  },
+  "settingsFlowLauncherNix": "Nix",
+  "@settingsFlowLauncherNix": {
+    "description": "Segment of the LibreLane launcher control: run LibreLane inside Nix. Nix is a product name and is not translated."
+  },
+  "settingsFlowLauncherDocker": "Docker",
+  "@settingsFlowLauncherDocker": {
+    "description": "Segment of the LibreLane launcher control: run LibreLane in a Docker container. Docker is a product name and is not translated."
+  },
+  "settingsFlowDockerImageLabel": "LibreLane Docker 이미지",
+  "@settingsFlowDockerImageLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the container image the Docker launcher runs."
+  },
+  "settingsFlowPdkRootLabel": "PDK 루트",
+  "@settingsFlowPdkRootLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the directory holding the installed process design kits (PDK_ROOT)."
+  },
+  "settingsFlowKlayoutLabel": "KLayout 경로",
+  "@settingsFlowKlayoutLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the KLayout executable used to open a layout. KLayout is a product name."
+  },
+  "settingsFlowOpenroadLabel": "OpenROAD 경로",
+  "@settingsFlowOpenroadLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the OpenROAD executable used to open a run in its viewer. OpenROAD is a product name."
+  },
+  "settingsFlowFusesocLabel": "FuseSoC 경로",
+  "@settingsFlowFusesocLabel": {
+    "description": "Row label in Settings > Engines > Implementation flow: the FuseSoC executable. FuseSoC is a product name."
+  },
+  "settingsFlowPathHint": "비워 두면 PATH 사용",
+  "@settingsFlowPathHint": {
+    "description": "Hint text inside an empty path field in Settings > Engines > Implementation flow."
+  },
+  "settingsFlowOptionalHint": "설정 안 됨",
+  "@settingsFlowOptionalHint": {
+    "description": "Hint text inside an empty optional field in Settings > Engines > Implementation flow (the PDK root and the Docker image)."
+  },
+  "settingsFlowToolsCheck": "플로우 도구 확인",
+  "@settingsFlowToolsCheck": {
+    "description": "Button in Settings > Engines > Implementation flow that probes for LibreLane, Nix, Docker, OpenROAD, Yosys, nextpnr, KLayout, FuseSoC and the PDK root."
+  },
+  "settingsFlowToolsAllFound": "플로우 도구를 모두 찾았습니다.",
+  "@settingsFlowToolsAllFound": {
+    "description": "Announced when the flow tools check found every tool."
+  },
+  "settingsFlowToolsSomeMissing": "{count, plural, =1{플로우 도구 1개를 찾지 못했습니다.} other{플로우 도구 {count}개를 찾지 못했습니다.}}",
+  "@settingsFlowToolsSomeMissing": {
+    "description": "Announced when the flow tools check did not find {count} tools.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsFlowToolsPdks": "찾은 PDK: {pdks}",
+  "@settingsFlowToolsPdks": {
+    "description": "Flow tools report line listing the process design kits found under the PDK root. {pdks} is a comma-separated list of PDK names, never translated.",
+    "placeholders": {
+      "pdks": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNoPdk": "PDK를 찾지 못했습니다. 위에서 PDK 루트를 설정하세요.",
+  "@settingsFlowToolsNoPdk": {
+    "description": "Flow tools report line when no PDK was found under the PDK root, or no PDK root is set."
+  },
+  "settingsFlowToolsGuidance": "누락된 도구를 설치하거나 위에서 경로를 설정하세요. LibreLane은 Nix로 설치하는 것을 권장합니다. OSS CAD Suite에는 Yosys와 nextpnr이 함께 들어 있습니다. Finder에서 연 앱은 셸의 PATH를 보지 못합니다.",
+  "@settingsFlowToolsGuidance": {
+    "description": "Guidance under the flow tools report when something is missing. LibreLane, Nix, the OSS CAD Suite, Yosys and nextpnr are product names."
   },
   "settingsEditorsSection": "에디터",
   "@settingsEditorsSection": {

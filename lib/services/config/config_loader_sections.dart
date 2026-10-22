@@ -244,6 +244,29 @@ Map<String, SimulatorBinaryConfig> _readSimulatorBinaries(
     // `verilator.options.args` is split like a shell line into Verilator
     // flags, some of which name the compiler, the linker and make itself.
     // Those are dropped, with an advisory, until a human trusts the file.
+    // `settings.*` options carry the user's own Settings values to the flow
+    // drivers. A project file may never set one, consent or not: it would
+    // pose as the user's choice.
+    final reserved = options.keys
+        .where((k) => k.startsWith(kFlowSettingsOptionPrefix))
+        .toList();
+    if (reserved.isNotEmpty) {
+      errors.add(
+        _error(
+          path: path,
+          node: valueNode.nodes['options'] ?? valueNode,
+          severity: ConfigLoaderErrorSeverity.warning,
+          message:
+              'Ignored ${reserved.map((k) => '`options.$k`').join(', ')} on '
+              'simulator `$simulatorId`: `$kFlowSettingsOptionPrefix` options '
+              'carry Settings values, which a project file cannot set.',
+        ),
+      );
+      options = Map<String, String>.unmodifiable(<String, String>{
+        for (final e in options.entries)
+          if (!e.key.startsWith(kFlowSettingsOptionPrefix)) e.key: e.value,
+      });
+    }
     if (!allowTooling) {
       options = _dropToolingOptions(
         simulatorId,

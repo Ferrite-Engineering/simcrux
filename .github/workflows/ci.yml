@@ -288,14 +288,20 @@ jobs:
   # through the CI runner, and the documented binary stopped compiling with
   # every other job green.
   #
-  # Linux only, every trigger: the build is the same Dart on every platform,
-  # and it is the one job here that notices this at all.
+  # Linux on every trigger: the build is the same Dart on every platform, and
+  # it is the one job here that notices this at all. macOS joins on the
+  # Sunday schedule only (10x billing), so the macOS build of the binary and
+  # its `flow` subcommand are proven weekly.
   # ─────────────────────────────────────────────────────────────────────────
   build-cli:
-    name: Build / standalone CLI
-    runs-on: ubuntu-latest
+    name: Build / standalone CLI / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     # Cost guardrail: no job may run unbounded. The build is ~2 min locally.
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ github.event_name == 'schedule' && fromJSON('["ubuntu-latest","macos-latest"]') || fromJSON('["ubuntu-latest"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -319,8 +325,8 @@ jobs:
           path: |
             ${{ steps.flutter.outputs.pub-cache-path }}
             .dart_tool/
-          key: pub-ubuntu-latest-${{ hashFiles('pubspec.lock') }}
-          restore-keys: pub-ubuntu-latest-
+          key: pub-${{ matrix.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ matrix.os }}-
 
       - name: Install dependencies
         run: flutter pub get
@@ -349,6 +355,11 @@ jobs:
           grep -q -- '--task' import-sby.txt
           ./simcrux import-eqy -h | tee import-eqy.txt
           grep -q -- '--eqy-binary' import-eqy.txt
+          # The implementation-flow family: help first, and the name as typed.
+          ./simcrux flow --help | tee flow.txt
+          grep -q -- '--fail-on-wns' flow.txt
+          ./simcrux flow --version | tee flow-version.txt
+          grep -q '^simcrux ' flow-version.txt
 
   # ─────────────────────────────────────────────────────────────────────────
   # Desktop release builds — informational; surfaces build breakage early.

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:crux_cxp/crux_cxp.dart';
 import 'package:crux_license/crux_license.dart';
@@ -13,6 +14,9 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/interfaces/result_store.dart';
 import 'package:simcrux/domain/interfaces/trend_store.dart';
+import 'package:simcrux/domain/models/app_settings.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
+import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/regression_request.dart';
 import 'package:simcrux/domain/models/retention_policy.dart';
@@ -27,6 +31,8 @@ import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/providers/retention_policy_provider.dart';
 import 'package:simcrux/features/statistics/providers/job_scheduler_stats_provider.dart';
 import 'package:simcrux/services/ci/ci_runner.dart' show CiRunResult;
+import 'package:simcrux/services/flow/flow_metric_keys.dart';
+import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/lifecycle/active_run_registry.dart';
 import 'package:simcrux/services/lifecycle/app_exit_provider.dart';
@@ -35,6 +41,7 @@ import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.
 import 'package:simcrux/services/re_run_query/re_run_query_service_provider.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
+import 'package:simcrux/services/telemetry/flow_telemetry.dart';
 import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 import 'package:simcrux/services/telemetry/simulator_telemetry_token.dart';
 import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
@@ -77,6 +84,9 @@ class _TrendPointBuffer {
 
   final TrendStore _store;
   final List<TrendPoint> _pending = <TrendPoint>[];
+
+  /// The store the points go to.
+  TrendStore get store => _store;
   Timer? _timer;
 
   /// Queues [point]; flushes when the batch threshold is reached,
@@ -375,15 +385,31 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
   /// An entry that only sets `options` (for example cocotb's `sim`) or
   /// `env` used to suppress the Settings path entirely, because any entry
   /// for the simulator counted as the project choosing its binary.
+  ///
+  /// A project with `flow:` entries also gets the Implementation flow
+  /// Settings ([AppSettings.flowTools]) on its `librelane` and `nextpnr`
+  /// entries, as `settings.*` options the loader never lets a project set.
   RegressionConfig _withBinaryOverrides(RegressionConfig config) {
+    final settings = ref.read(appSettingsProvider).value;
     final overrides =
-        ref.read(appSettingsProvider).value?.simulatorBinaryOverrides ??
-        const <String, String>{};
-    if (overrides.isEmpty) return config;
+        settings?.simulatorBinaryOverrides ?? const <String, String>{};
+    final flowEntries = config.flow?.entries ?? const <FlowEntry>[];
+    if (overrides.isEmpty && flowEntries.isEmpty) return config;
     final merged = Map<String, SimulatorBinaryConfig>.of(
       config.simulatorBinaries,
     );
     var changed = false;
+    if (flowEntries.isNotEmpty) {
+      final options = (settings?.flowTools ?? const FlowToolSettings())
+          .toOptions();
+      for (final id in <String>{for (final e in flowEntries) e.kind.wireName}) {
+        final declared = merged[id] ?? SimulatorBinaryConfig(simulatorId: id);
+        merged[id] = declared.copyWith(
+          options: <String, String>{...declared.options, ...options},
+        );
+        changed = true;
+      }
+    }
     overrides.forEach((id, path) {
       // An empty override is "no override".
       if (path.isEmpty) return;
@@ -758,6 +784,37 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
           trigger: _activeTrigger,
         ),
       );
+      // A flow result's steps and full metric set, read back from its run
+      // directory off the UI isolate.
+      if (trendBuffer != null &&
+          result.metrics.containsKey(FlowMetricKeys.runDir)) {
+        unawaited(_recordFlowRun(trendBuffer.store, result));
+      }
+    }
+  }
+
+  /// Reads the run [result] names on a background isolate and records its
+  /// steps and metrics in [store]. Best-effort, like the trend points: a run
+  /// that cannot be read leaves the result row without flow rows.
+  static Future<void> _recordFlowRun(
+    TrendStore store,
+    TestResult result,
+  ) async {
+    try {
+      final metrics = result.metrics;
+      final reading = await Isolate.run(
+        () => FlowRunIngestor.readForResult(metrics),
+      );
+      if (reading == null) return;
+      await store.recordFlowRun(
+        FlowRunIngestor.recordFor(
+          reading,
+          runId: result.runId,
+          testId: result.testId,
+        ),
+      );
+    } on Object {
+      // Best-effort persistence; the regression's own rows are unaffected.
     }
   }
 
@@ -1072,6 +1129,26 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
           ),
         );
       }
+      // One per flow run, and one per (kind, reason) a reader could not
+      // verify. Never a metric value, a name, a path or a step.
+      for (final properties in flowRunsCompletedProperties(results)) {
+        telemetry.record(
+          TelemetryEvent('flow.run.completed', properties: properties),
+        );
+      }
+      for (final properties in flowReaderUnsupportedProperties(results)) {
+        telemetry.record(
+          TelemetryEvent('flow.reader.unsupported', properties: properties),
+        );
+      }
+    }
+    for (final tool in flowToolMissingTokens(results)) {
+      telemetry.record(
+        TelemetryEvent(
+          'flow.tool.missing',
+          properties: <String, Object?>{'tool': tool},
+        ),
+      );
     }
     for (final kind in _activeDetectorKinds) {
       telemetry.record(
