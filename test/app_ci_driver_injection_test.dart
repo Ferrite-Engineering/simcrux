@@ -24,8 +24,10 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/simulator_policy.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/services/ci/ci_gate_ceiling_provider.dart';
+import 'package:simcrux/services/ci/ci_org_flow_gate_provider.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/config/simulator_policy_provider.dart';
+import 'package:simcrux/services/flow/flow_org_gate.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
@@ -33,10 +35,15 @@ import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 /// Minimal in-process [SimulatorDriver] registered as `icarus` that
 /// replays a fixed pass/fail outcome without spawning any process.
 class _FixedOutcomeDriver implements SimulatorDriver {
-  _FixedOutcomeDriver({required this.pass, this.onExecute});
+  _FixedOutcomeDriver({
+    required this.pass,
+    this.onExecute,
+    this.metrics = const <String, String>{},
+  });
 
   final bool pass;
   final void Function()? onExecute;
+  final Map<String, String> metrics;
 
   @override
   String get id => 'icarus';
@@ -75,6 +82,7 @@ class _FixedOutcomeDriver implements SimulatorDriver {
       exitCode: pass ? 0 : 1,
       startedAt: now,
       finishedAt: now.add(const Duration(milliseconds: 1)),
+      metrics: metrics,
     );
   }
 
@@ -379,6 +387,46 @@ void main() {
         expect(executed, isFalse, reason: 'the refused test never ran');
       },
     );
+
+    test('the organization flow gate is read from the container', () async {
+      final configPath = await _writeConfig();
+      final saved = io.exitCode;
+      addTearDown(() => io.exitCode = saved);
+
+      io.exitCode = 0;
+      await bootstrap(
+        args: ['--ci', configPath],
+        extraOverrides: [
+          ciOrgFlowGateProvider.overrideWithValue(
+            FlowOrgGate(
+              thresholds: [
+                FlowOrgGate.parseThreshold('fmax__achieved__mhz<1')!,
+              ],
+            ),
+          ),
+          simulatorDriverRegistryProvider.overrideWithValue(
+            SimulatorDriverRegistry({
+              'icarus': _FixedOutcomeDriver(
+                pass: true,
+                metrics: const <String, String>{
+                  'flow.verdict': 'met',
+                  'flow.kind': 'nextpnr',
+                  'flow.run_dir': '/no/such/run',
+                },
+              ),
+            }),
+          ),
+        ],
+      );
+
+      expect(
+        io.exitCode,
+        2,
+        reason:
+            'a passing flow result whose run cannot be read again cannot be '
+            "evaluated against the organization's thresholds",
+      );
+    });
   });
 
   group('headless invocations end the process', () {

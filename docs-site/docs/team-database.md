@@ -148,6 +148,36 @@ other usually is. [The full table is on Administration.](administration.md#ci)
 
 It runs on a build agent with no display: nothing in it depends on Flutter.
 
+### Formal and implementation-flow results {#formal-flow}
+
+From 1.2, a pushed run carries its formal and implementation-flow results
+too, with no new option: the same archive, projected into six more tables.
+
+| Table | One row per |
+|---|---|
+| `formal_runs` | formal result: tool, verdict as the tool stated it, mode, configured and reached depth, engine, solver, property counts |
+| `formal_properties` | property identity within a test, first seen in which run |
+| `formal_property_results` | property of that result, with its status and steps |
+| `flow_runs` | implementation-flow result: kind, verdict, which reader read it and **whether that reader is verified for the run's tool version** |
+| `flow_steps`, `flow_metrics` | step of that run, and metric it recorded, when the run directory is on the machine that pushes |
+
+Every row references the result it belongs to (foreign keys enforced). A
+flow run whose reader is not verified keeps that on every row, and the
+organization rollup below never counts its metrics as verified.
+
+The tables arrive as schema versions 2 and 3, by **Initialize database** on a
+database an older build created; a 1.1 client keeps working against it, since
+it never names the new tables.
+
+### Organization rollup {#org-rollup}
+
+From 1.2, the Team Database settings card shows the formal verdicts and the
+latest implementation-flow metrics of every project in the shared database,
+read when you open it. Nothing is hosted: the desktop app reads the
+PostgreSQL you already run. An implementation-flow metric read by a reader
+that is not verified for its run is marked "not verified" and kept out of the
+verified totals.
+
 ### Who a run is attributed to {#submitter}
 
 `simcrux-pro push-results` attributes a run to `--submitter`, or
@@ -185,7 +215,7 @@ else depends on it. See [Administration](administration.md#retention).
 | Result retention from the policy file | Shipping | Thresholds you sign, with the ordinary precedence. [Administration](administration.md#retention). |
 | Org-wide policy & audit log | Shipping | License, telemetry decision, update constraints and the audit path in a signed file you keep in Git. [Policy file reference](https://edacrux.app/policy-reference). |
 | Distributed execution | Shipping for `--ci` | One templated backend, so SLURM, LSF, Grid Engine and AWS Batch are configurations rather than integrations. `--ci` runs only; runs started in the app stay local. [Administration](administration.md#distributed). |
-| Org-wide dashboards & trend rollup | Not built | Regression health rolled up across projects and teams. |
+| Org-wide dashboards & trend rollup | Not built; from 1.2 the formal and flow rollup ships | Regression health rolled up across projects and teams. From 1.2, formal verdicts and implementation-flow metrics across projects, in the Team Database settings card. [Above.](#org-rollup) |
 | Self-hosted results dashboard | Not built — [contact us](mailto:support@ferriteengineering.com?subject=EDACrux%20Enterprise%20%E2%80%94%20Self-hosted%20results%20dashboard) | An always-on web view over your team database, deployed by you against the PostgreSQL you already run. We would build it against a real environment rather than blind. |
 | Vendor simulators | Not built | No vendor-simulator driver plugin is available. |
 

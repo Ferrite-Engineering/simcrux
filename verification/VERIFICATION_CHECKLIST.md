@@ -1099,6 +1099,8 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] A simulator outside the allow-list fails the load naming the test, its simulator and the allowed ids; `--ci` exits `2` without running — `[Coverage: UNIT]` (`config_loader_simulator_policy_test.dart`) + `[Coverage: INTEGRATION]` (`app_ci_driver_injection_test.dart`)
 - [ ] The fallback simulator applies only when the project names none at any level — `[Coverage: UNIT]` (`config_loader_simulator_policy_test.dart`)
 - [ ] A failure ceiling replaces the `--fail-threshold` default, never a typed value — `[Coverage: UNIT]` (`ci_gate_ceiling_provider_test.dart`, `cli_arg_parser_test.dart`) + `[Coverage: INTEGRATION]` (`app_ci_driver_injection_test.dart`)
+- [ ] From 1.2, a bound formal policy wraps the `sby` driver: assertions off, an engine line not allowed, or a `bmc`/`cover` bound below the floor fails the row with the reason and `formal.policy_violation`, the verdict untouched; no detector turns it back into a pass; open core binds none (guide §24.7) — `[Coverage: UNIT]` (`formal_org_policy_test.dart`)
+- [ ] From 1.2, an organization flow gate is evaluated beside the user's: `flow gate` and `--ci` exit `3` when only it fails and `2` when it cannot be evaluated; the standalone binary never exits `3` (guide §24.7) — `[Coverage: UNIT]` (`flow_org_gate_test.dart`)
 
 ---
 

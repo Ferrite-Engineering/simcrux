@@ -4481,6 +4481,59 @@ the organization values is the supplying edition's decision.
 | `--fail-threshold` records whether it was typed | `[Coverage: UNIT]` | `test/core/cli/cli_arg_parser_test.dart` |
 | `--ci` reads both seams from `extraOverrides` | `[Coverage: INTEGRATION]` | `test/app_ci_driver_injection_test.dart` |
 
+### 24.7 The formal policy and organization flow-gate seams (from 1.2)
+
+**What it does.** Two more seams of the same kind, both null in open core.
+
+- `formalPolicyEnforcementProvider` (`FormalPolicyEnforcement?`): an
+  organization's formal policy, `FormalOrgPolicy`, with three rules:
+  assertions turned off (`formal.assertions_disabled`) refused, an allow-list
+  of engine lines (`smtbmc yices`; an entry naming the engine alone allows
+  every solver under it), and a floor on the configured bound of a `bmc` or
+  `cover` task. When it is set, the registry wraps the `sby` driver in
+  `FormalPolicyEnforcingDriver`, which turns a result that breaks a rule into
+  a failure whose message begins "Refused by the organization policy" and
+  carries `formal.policy_violation` (the rule tokens). `formal.verdict` is
+  never changed: the tool's verdict and the organization's refusal are two
+  facts on the row. No pass/fail detector turns a refused result back into a
+  pass.
+- `ciOrgFlowGateProvider` (`FlowOrgGate?`): the organization's flow
+  thresholds, written as `--fail-on` takes them. The desktop `--ci` run
+  evaluates them against every flow result's run, read again for its full
+  metric set, after its own gates: a violated organization threshold makes a
+  run that would exit `0` or `1` exit `3`; one whose metric or run cannot be
+  read makes it exit `2`. `FlowCli` takes the same gate as `orgGate` for
+  `flow gate`; the standalone binary passes none.
+
+**Setup.** A test container overriding each seam, or an edition that
+supplies them; the committed nextpnr fixtures.
+
+**Expected behaviour.**
+
+1. Floor `30`, a `bmc` task with `depth 20` that proves: the row fails,
+   names the floor, and still shows the verdict PASS.
+2. `flow gate` on `path_ice40_met` with the organization threshold
+   `fmax__achieved__mhz<5000`: exit `3`, `--json` carries `org_gate` beside
+   the user's `gate`; with `fmax__achieved__mhz<1`: exit `0`.
+3. The standalone `simcrux flow gate` on the same run: exit `0`; it never
+   exits `3`.
+
+**Edge cases.** A `prove` or `live` task is not held to the floor. A result
+that never reached its tool (`formal.not_run_reason`) is never refused. A
+user's own exit `2` stands over the organization's `3`; the organization's
+`3` stands over the user's `1`.
+
+**Tier-gate scenarios.** Open core: both seams are null at every tier. Which
+tier honours the organization's values is the supplying edition's decision,
+made before the values are parsed.
+
+**Automation Assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| The three rules, the engine-line match, refusal keeps the verdict, the driver hook, the detector, the registry wrap | `[Coverage: UNIT]` | `test/services/formal/formal_org_policy_test.dart` |
+| The exit-code combination, the threshold grammar, `flow gate` with and without the gate, `--ci` exit 3 and 2 | `[Coverage: UNIT]` | `test/services/flow/flow_org_gate_test.dart` |
+
 ---
 
 ## 25. The policy-lock sentence seam (`policyLockMessageProvider`)

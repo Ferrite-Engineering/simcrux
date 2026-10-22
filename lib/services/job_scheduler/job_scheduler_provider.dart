@@ -10,6 +10,8 @@ import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/services/driver_plugin/simulator_driver_plugin_registry_provider.dart';
 import 'package:simcrux/services/flow/librelane_flow_driver.dart';
 import 'package:simcrux/services/flow/nextpnr_flow_driver.dart';
+import 'package:simcrux/services/formal/formal_org_policy.dart';
+import 'package:simcrux/services/formal/formal_policy_provider.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper_provider.dart';
@@ -85,8 +87,17 @@ final Provider<SimulatorDriverRegistry> simulatorDriverRegistryProvider =
           // Pro formal dashboard is the analysis layer over these rows.
           RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
           // General SymbiYosys, the driver the RISC-V track is built on.
-          // Never gated, for the same reason.
-          SbyDriver.kId: SbyDriver(reaper: reaper),
+          // Never gated, for the same reason. An organization's formal
+          // policy, when an edition binds one, refuses a result it does not
+          // accept; it never changes the verdict.
+          SbyDriver.kId: switch (ref.watch(formalPolicyEnforcementProvider)) {
+            final enforcement? when !enforcement.policy.isEmpty =>
+              FormalPolicyEnforcingDriver(
+                SbyDriver(reaper: reaper),
+                enforcement,
+              ),
+            _ => SbyDriver(reaper: reaper),
+          },
           // EQY equivalence checks, one test per `.eqy` with its partitions
           // on the row. Never gated: the verdict and every partition are
           // correctness.

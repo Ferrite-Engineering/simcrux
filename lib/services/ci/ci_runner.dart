@@ -22,6 +22,9 @@ import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
 import 'package:simcrux/services/export/result_exporter.dart';
+import 'package:simcrux/services/flow/flow_gate.dart' show FlowGateDecision;
+import 'package:simcrux/services/flow/flow_org_gate.dart';
+import 'package:simcrux/services/flow/flow_run_reading.dart';
 import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.dart';
 import 'package:simcrux/services/result_store/streaming_results_writer.dart';
 import 'package:simcrux/services/telemetry/formal_telemetry.dart';
@@ -127,6 +130,8 @@ class CiRunner {
     FailOnRegressionPolicy? failOnRegressionPolicy,
     this.licenseTier = LicenseTier.openCore,
     this.telemetry = const NoopTelemetryService(),
+    this.orgFlowGate,
+    this.readFlowRun,
   }) : fileWriter = fileWriter ?? _defaultWriter,
        stdoutWriter = stdoutWriter ?? _defaultStdout,
        stderrWriter = stderrWriter ?? _defaultStderr,
@@ -189,6 +194,21 @@ class CiRunner {
   /// `seeds:` expansion see one answer. Defaults to Open Core, like the
   /// loader's.
   final LicenseTier licenseTier;
+
+  /// The organization's implementation-flow thresholds, evaluated against
+  /// every flow result of the run beside the run's own gate, or null.
+  ///
+  /// Null in open core, which reads no organization policy. An edition that
+  /// honours the policy resolves it through `ciOrgFlowGateProvider`. A
+  /// violated organization threshold makes a run that would otherwise exit 0
+  /// or 1 exit `3` (`FlowExitCode.orgThresholdViolated`), so a pipeline can
+  /// tell the organization's gate from its own; one that cannot be evaluated
+  /// is `2`.
+  final FlowOrgGate? orgFlowGate;
+
+  /// Reads a flow result's run again for its full metric set; the
+  /// ingestor's reader when null. Tests pass one.
+  final Future<FlowReading?> Function(Map<String, String> metrics)? readFlowRun;
 
   static StreamingResultsWriter _defaultStreamingWriterFactory({
     required String resultsPath,
@@ -368,6 +388,27 @@ class CiRunner {
           if (decision.exitCode > exitCode) exitCode = decision.exitCode;
         }
       }
+    }
+
+    // The organization's flow thresholds, after the run's own gates and
+    // apart from them.
+    final orgGate = orgFlowGate;
+    if (orgGate != null && !orgGate.isEmpty) {
+      final org = await orgGate.evaluateResults(results, readRun: readFlowRun);
+      if (org != null && org != FlowGateDecision.met) {
+        stderrWriter(
+          org == FlowGateDecision.violated
+              ? 'error: the organization flow thresholds failed '
+                    '(flowGateThresholds); exit 3 is the organization gate, '
+                    'apart from the gate of this run'
+              : 'error: the organization flow thresholds could not be '
+                    'evaluated (flowGateThresholds): a run or a metric they '
+                    'name is missing',
+        );
+      }
+      // Over the run's own 0 or 1 only: a 2, or the regression gate's own
+      // code, already says more than the organization's gate can.
+      if (exitCode < 2) exitCode = FlowOrgGate.combineExitCode(exitCode, org);
     }
 
     // An export target that could not be written is "SimCrux could not do

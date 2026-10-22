@@ -72,6 +72,7 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/plugins/extra_localizations_delegates_provider.dart';
 import 'package:simcrux/plugins/policy_lock_message_provider.dart';
 import 'package:simcrux/services/ci/ci_gate_ceiling_provider.dart';
+import 'package:simcrux/services/ci/ci_org_flow_gate_provider.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/cli/cli_args.dart' as launch_cli;
@@ -629,6 +630,9 @@ Future<void> _runCiInvocation(
     // block on a dialog, nor be treated as consenting by silence. See
     // `services/telemetry/headless_telemetry.dart`.
     telemetry: await resolveHeadlessTelemetry(ciContainer),
+    // The organization's flow thresholds, apart from the run's own. None in
+    // open core; see `ciOrgFlowGateProvider`.
+    orgFlowGate: ciContainer.read(ciOrgFlowGateProvider),
   );
   try {
     final outcome = await runner.run(args: ciArgs);

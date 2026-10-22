@@ -22,6 +22,7 @@ import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/flow/flow_export.dart';
 import 'package:simcrux/services/flow/flow_gate.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
+import 'package:simcrux/services/flow/flow_org_gate.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
@@ -50,6 +51,7 @@ class FlowCli {
     ConfigLoader Function({required bool allowTooling})? loaderFactory,
     this.ingestor = const FlowRunIngestor(),
     this.schedulerFactory,
+    this.orgGate,
     FlowSignalReaper Function()? signalReaper,
     String Function()? currentDirectory,
   }) : _loaderFactory = loaderFactory ?? _defaultLoader,
@@ -74,6 +76,12 @@ class FlowCli {
   /// The scheduler `flow run` submits to; a [LocalJobScheduler] over
   /// [driverRegistry] when null.
   final JobScheduler Function(RegressionConfig config)? schedulerFactory;
+
+  /// The organization's thresholds `flow gate` evaluates beside the user's,
+  /// or null. This binary resolves none: it reads no organization policy, so
+  /// it never exits [FlowExitCode.orgThresholdViolated]. An edition that
+  /// honours the policy passes one in.
+  final FlowOrgGate? orgGate;
 
   final ConfigLoader Function({required bool allowTooling}) _loaderFactory;
   final FlowSignalReaper Function() _signalReaper;
@@ -480,11 +488,18 @@ class FlowCli {
       return read.code ?? FlowExitCode.dataErr;
     }
     final outcome = evaluateFlowGate(reading, thresholds, baseline: baseline);
-    final code = switch (outcome.decision) {
+    final userCode = switch (outcome.decision) {
       FlowGateDecision.met => FlowExitCode.met,
       FlowGateDecision.violated => FlowExitCode.violated,
       FlowGateDecision.couldNotEvaluate => FlowExitCode.couldNotEvaluate,
     };
+    // The organization's thresholds, evaluated beside the user's and never
+    // in place of them.
+    final org = orgGate;
+    final orgOutcome = org == null || org.isEmpty
+        ? null
+        : org.evaluate(reading, subject: reading.run.ref.tag);
+    final code = FlowOrgGate.combineExitCode(userCode, orgOutcome?.decision);
     final sarif = results.option('sarif');
     if (sarif != null) {
       await File(sarif).writeAsString(flowSarif(reading));
@@ -497,14 +512,15 @@ class FlowCli {
     }
     if (results.flag('json')) {
       stdoutSink(
-        const JsonEncoder.withIndent('  ').convert(
-          flowGateJson(
+        const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+          ...flowGateJson(
             reading,
             outcome,
             exitCode: code,
             exitLabel: FlowExitCode.labelFor(code),
           ),
-        ),
+          if (orgOutcome != null) 'org_gate': FlowOrgGate.json(orgOutcome),
+        }),
       );
     } else {
       stdoutSink(
@@ -529,6 +545,14 @@ class FlowCli {
           '  ${c.metricName}: worse than the baseline '
           '(${c.formattedGold} to ${c.formattedCurrent})',
         );
+      }
+      if (orgOutcome != null) {
+        for (final r in orgOutcome.thresholds) {
+          stdoutSink(
+            '  organization ${r.threshold.expression}: '
+            '${r.missing ? 'missing' : (r.failed ? 'failed (${r.value})' : 'met (${r.value})')}',
+          );
+        }
       }
       stdoutSink('$programName flow gate: ${FlowExitCode.labelFor(code)}');
     }

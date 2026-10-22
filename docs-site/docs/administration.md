@@ -25,6 +25,10 @@ All under `products.simcrux`.
 | `defaultSimulator` | The simulator a test runs on when the project file names none. [Below.](#simulators) | In force |
 | `simulatorBinaryPolicy` | Which simulators a fleet may use, as a list of simulator ids. [Below.](#simulators) | In force when locked |
 | `ciGateThreshold` | The number of failed tests a `--ci` run may have and still pass. [Below.](#ci-ceiling) | In force for `--ci` |
+| `formalForbidAssertionOptOut` | Refuses a proof whose task reads the design with assertions turned off. [Below.](#formal-policy) | In force from 1.2 |
+| `formalRequiredSolvers` | The engines and solvers a proof may use. [Below.](#formal-policy) | In force from 1.2 |
+| `formalMinDepth` | The least bound a bounded proof or cover may be configured with. [Below.](#formal-policy) | In force from 1.2 |
+| `flowGateThresholds` | Your organization's thresholds for implementation runs, checked apart from a pipeline's own. [Below.](#flow-thresholds) | In force from 1.2, for `--ci` and `simcrux-pro flow gate` |
 
 `products.simcrux.ciGateThreshold` is separate from LintCrux's key of the same
 name: they threshold different quantities, test failures against violations.
@@ -157,9 +161,18 @@ instead of running it locally.
 !!! note "Scope, stated first"
     - **`--ci` only.** Runs started in the app always execute on the engineer's
       machine, and so does the standalone open-core `simcrux` binary.
-    - **The verdict is the scheduler's.** A job that ends in a
-      `succeededStates` state is a pass and one in a `failedStates` state is a
-      fail; `pass_fail:` detectors are not applied to distributed jobs.
+    - **The verdict is the scheduler's** for a simulation test: a job that
+      ends in a `succeededStates` state is a pass and one in a `failedStates`
+      state is a fail; `pass_fail:` detectors are not applied to distributed
+      jobs.
+    - **From 1.2, a formal or implementation-flow test is read back, never
+      taken from the job's state.** An `sby` or `eqy` test's verdict is the
+      `DONE (...)` line in the job's log; a `librelane` or `nextpnr` test's is
+      read from the run the job left in its work directory (`{workDir}`),
+      which the submit command must make the job's working directory (as the
+      examples below do). A test with neither fails, saying so. One task per
+      job. A flow test's work directory is pinned with `.simcrux-keep`: run
+      directories are never pruned.
     - **A backend that fails to parse, or a license that does not include it,
       falls back to local execution.** The reason is logged, not shown on the
       command line — check the CI log if a nightly run is unexpectedly slow.
@@ -296,6 +309,8 @@ and failure behaviour are in [the audit log reference](https://edacrux.app/audit
 | `results.pushed` | `simcrux-pro push-results --audit-log <path>` wrote a run to the shared team database — the moment verification data leaves the machine that produced it. | `run_id`, `project_id`, `results`, `failed`, `database`, `submitter` |
 | `distributed.job.submitted` | A `--ci` run submitted a test to the distributed backend. | `runId`, `testId`, `backend` |
 | `retention.purged` | A retention sweep deleted trend rows or waveform dumps. [Above.](#retention) | `deleted`, `policySource` |
+| `formal.policy.applied` | From 1.2: your formal policy refused a proof result. [Below.](#formal-policy) | `testId`, `tool`, `rules` |
+| `flow.thresholds.evaluated` | From 1.2: your flow thresholds were checked against a run, whatever the outcome. [Below.](#flow-thresholds) | `subject`, `decision`, `thresholds`, `failed` |
 
 Things about these that are deliberate and worth knowing before you write
 queries against them:
@@ -335,6 +350,65 @@ The flag counts differently: `--fail-threshold n` fails at `n` failures, so a
 ceiling of `2` behaves like `--fail-threshold 3`.
 
 The standalone `simcrux` binary does not read this key.
+
+## Formal policy {#formal-policy}
+
+From 1.2, three keys set your organization's floor for proofs run with the
+SymbiYosys (`sby`) driver, in the app and in a `--ci` run.
+
+```json
+"products": {
+  "simcrux": {
+    "formalForbidAssertionOptOut": true,
+    "formalRequiredSolvers": ["smtbmc yices", "abc pdr"],
+    "formalMinDepth": 20
+  }
+}
+```
+
+- `formalForbidAssertionOptOut`: a task that reads the design with assertions
+  turned off (`read -noassert`, or yosys-slang's `--ignore-assertions`) fails.
+- `formalRequiredSolvers`: the engine lines a proof may use, as they appear
+  in the job file's `[engines]` section. An entry naming only the engine
+  (`smtbmc`) allows every solver under it. A run that names no engine fails,
+  because the list cannot be checked.
+- `formalMinDepth`: the least `depth` a `bmc` or `cover` task may be
+  configured with. `prove` and `live` tasks are not held to it.
+
+A result that breaks a rule fails, and its message begins "Refused by the
+organization policy" and names the rule. **The verdict is not changed:** a
+bounded proof that held still reads as proved over its steps, and the refusal
+is a second fact on the row, so an engineer can see both what the solver found
+and why the organization does not accept it. Each refusal is recorded as a
+`formal.policy.applied` audit event.
+
+The standalone `simcrux` binary does not read these keys.
+
+## Flow thresholds {#flow-thresholds}
+
+From 1.2, `flowGateThresholds` sets thresholds every implementation run is
+checked against, written as `simcrux flow gate --fail-on` takes them.
+
+```json
+"products": {
+  "simcrux": {
+    "flowGateThresholds": ["timing__setup__wns<0", "route__drc_errors>0"]
+  }
+}
+```
+
+A run fails a threshold when `metric <op> value` holds. They are checked
+**beside** a pipeline's own thresholds, never in place of them, by
+`simcrux-pro flow gate` and by a `--ci` run of the desktop app (against every
+flow result, with the run read again for its full metric set):
+
+| Exit | Meaning |
+|---|---|
+| `3` | An organization threshold failed. The pipeline's own result may have been `0` or `1`; `3` says it is the organization's gate. |
+| `2` | An organization threshold could not be evaluated: the run, or a metric a threshold names, is missing. A pipeline's own `2` also stands over `3`. |
+
+Each evaluation is recorded as a `flow.thresholds.evaluated` audit event. The
+standalone `simcrux` binary does not read this key and never exits `3`.
 
 ## CI gating {#ci}
 

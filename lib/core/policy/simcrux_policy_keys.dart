@@ -50,6 +50,27 @@ abstract final class SimCruxPolicyKeys {
   /// is registered on the same basis.
   static const String teamDatabaseSubmitter = 'teamDatabaseSubmitter';
 
+  /// `products.simcrux.formalForbidAssertionOptOut` — `true` refuses a proof
+  /// whose script reads the design with assertions turned off (`-noassert`,
+  /// `--ignore-assertions`): the result fails with the reason.
+  static const String formalForbidAssertionOptOut =
+      'formalForbidAssertionOptOut';
+
+  /// `products.simcrux.formalRequiredSolvers` — the engine lines a proof may
+  /// use (`["smtbmc yices", "abc pdr"]`). An entry naming only the engine
+  /// (`smtbmc`) allows every solver under it.
+  static const String formalRequiredSolvers = 'formalRequiredSolvers';
+
+  /// `products.simcrux.formalMinDepth` — the least bound a bounded proof or
+  /// a cover task may be configured with.
+  static const String formalMinDepth = 'formalMinDepth';
+
+  /// `products.simcrux.flowGateThresholds` — the organization's
+  /// implementation-flow thresholds, each written as `--fail-on` takes it
+  /// (`timing__setup__wns<0`). A run that fails one fails the organization's
+  /// gate, reported apart from the user's own thresholds.
+  static const String flowGateThresholds = 'flowGateThresholds';
+
   /// Every key this product registers, for the conformance test.
   static const Set<String> all = <String>{
     defaultSimulator,
@@ -58,6 +79,10 @@ abstract final class SimCruxPolicyKeys {
     retentionPolicy,
     distributedExecutionBackend,
     teamDatabaseSubmitter,
+    formalForbidAssertionOptOut,
+    formalRequiredSolvers,
+    formalMinDepth,
+    flowGateThresholds,
   };
 }
 
@@ -91,6 +116,14 @@ abstract final class SimCruxAuditKinds {
   /// reads, which is a different fact and the one an auditor asks about.
   static const String resultsPushed = 'results.pushed';
 
+  /// `formal.policy.applied` — the organization's formal policy refused a
+  /// proof result: a run the policy overrode, and which rule did it.
+  static const String formalPolicyApplied = 'formal.policy.applied';
+
+  /// `flow.thresholds.evaluated` — the organization's flow thresholds were
+  /// evaluated against a run, whatever the outcome.
+  static const String flowOrgGateEvaluated = 'flow.thresholds.evaluated';
+
   /// Every kind this product registers, for the conformance test.
   static const Set<String> all = <String>{
     regressionStarted,
@@ -99,6 +132,8 @@ abstract final class SimCruxAuditKinds {
     distributedJobSubmitted,
     retentionPurged,
     resultsPushed,
+    formalPolicyApplied,
+    flowOrgGateEvaluated,
   };
 }
 

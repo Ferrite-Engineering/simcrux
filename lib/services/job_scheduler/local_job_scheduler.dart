@@ -25,6 +25,8 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
+import 'package:simcrux/services/formal/formal_org_policy.dart'
+    show kFormalPolicyViolationMetric;
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
 import 'package:simcrux/services/job_scheduler/failure_message.dart';
 import 'package:simcrux/services/job_scheduler/resource_lock_table.dart';
@@ -1049,6 +1051,11 @@ class LocalJobScheduler implements JobScheduler {
       return flowVerdict == FlowVerdict.met.wireName
           ? TestStatus.pass
           : TestStatus.fail;
+    }
+    // A result an organization's formal policy refused stays refused: the
+    // detector reads the tool's `DONE (PASS` and would call it a pass.
+    if ((driverMetrics?[kFormalPolicyViolationMetric] ?? '').isNotEmpty) {
+      return TestStatus.fail;
     }
     final formalVerdict = driverMetrics?[kFormalVerdictMetric];
     if (formalVerdict != null &&
