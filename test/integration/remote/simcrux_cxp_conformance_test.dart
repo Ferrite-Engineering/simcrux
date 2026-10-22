@@ -26,9 +26,11 @@ import 'package:simcrux/features/inspector/services/editor_launcher_provider.dar
 import 'package:simcrux/features/remote/providers/inbound_request_handler.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/services/cross_probe_selection.dart';
+import 'package:simcrux/features/remote/services/flow_path_selection.dart';
 import 'package:simcrux/features/workspace/providers/recent_lists.dart';
 import 'package:simcrux/services/remote/cxp/simcrux_cxp_identity.dart';
 
+import '../../features/flow/flow_panel_harness.dart';
 import '../../support/cxp_runtime_harness.dart';
 import '../../support/poll_until.dart';
 
@@ -61,6 +63,8 @@ class _RecordingLauncher implements EditorLauncher {
 /// A peer product's handler: records every highlight and honours it.
 class _PeerHandler extends CruxCxpRequestHandler {
   final List<ElementId> highlighted = <ElementId>[];
+  final List<RequestHighlight> requests = <RequestHighlight>[];
+  final List<NotifySelection> selections = <NotifySelection>[];
 
   @override
   Future<CruxCxpHandlerResult> highlight(
@@ -68,8 +72,13 @@ class _PeerHandler extends CruxCxpRequestHandler {
     PeerIdentity from,
   ) async {
     highlighted.add(request.element);
+    requests.add(request);
     return CruxCxpHandlerResult.ok;
   }
+
+  @override
+  void selection(NotifySelection message, PeerIdentity from) =>
+      selections.add(message);
 }
 
 void main() {
@@ -158,6 +167,90 @@ void main() {
       expect(wave.highlighted.single.path, waveform);
       expect(net.highlighted.single.kind, ElementKind.scope);
       expect(net.highlighted.single.path, 'cpu_unit/test_alu');
+    });
+
+    test('a counterexample reaches WaveCrux as its trace at the stated step, '
+        'and a worst path reaches NetCrux as its endpoint register', () async {
+      final sim = simcruxCxpRuntimeContainer(manifestDirectory: manifests);
+      final simRuntime = await runningCxpRuntime(sim);
+      final wave = _PeerHandler();
+      final net = _PeerHandler();
+      final waveContainer = peerProduct('wavecrux', wave);
+      final netContainer = peerProduct('netcrux', net);
+      await waveContainer.read(cruxCxpRuntimeProvider.future);
+      await netContainer.read(cruxCxpRuntimeProvider.future);
+      expect(
+        await pollUntil(
+          () =>
+              simRuntime.peers.any((p) => p.productName == 'wavecrux') &&
+              simRuntime.peers.any((p) => p.productName == 'netcrux'),
+        ),
+        isTrue,
+      );
+      final dispatcher = sim.read(crossProbeDispatcherProvider);
+      PeerIdentity peerOf(String product) =>
+          simRuntime.peers.firstWhere((p) => p.productName == product);
+
+      final trace = p.join(
+        manifests.path,
+        'prove_bug',
+        'engine_0',
+        'trace.vcd',
+      );
+      final counterexample = crossProbeSelectionForRow(
+        DashboardRow(
+          result: TestResult(
+            testId: 'proofs/handshake_bug',
+            runId: 'run-1',
+            status: TestStatus.fail,
+            startedAt: DateTime.utc(2026, 10, 21),
+            finishedAt: DateTime.utc(2026, 10, 21),
+            waveformPath: trace,
+            metrics: const <String, String>{
+              'formal.tool': 'sby',
+              'formal.verdict': 'FAIL',
+              'formal.mode': 'prove',
+              'formal.property.0.kind': 'ASSERT',
+              'formal.property.0.location': 'handshake_imm.sv:45.15-45.38',
+              'formal.property.0.status': 'counterexample',
+              'formal.property.0.step': '6',
+              'formal.property.0.trace': 'engine_0/trace.vcd',
+            },
+          ),
+          suiteName: 'proofs',
+          simulatorId: 'sby',
+          testName: 'handshake_bug',
+        ),
+        designId: 'd1',
+      );
+      expect(
+        (await dispatcher.send(peerOf('wavecrux'), counterexample)).kind,
+        CrossProbeOutcomeKind.sent,
+      );
+      final landed = wave.requests.single;
+      expect(landed.element, ElementId(kind: ElementKind.source, path: trace));
+      expect(landed.coordinate?.streamId, 'formal.trace_step');
+      expect(landed.coordinate?.sequenceIndex, 6);
+      expect(landed.metadata['formal.property_kind'], 'assert');
+      expect(landed.metadata[cxpDesignIdMetadataKey], 'd1');
+
+      final path = FlowPathTarget(
+        run: nextpnrReading('t2', wns: -1.5, fmax: 40).run.ref,
+        row: flowPanelPaths().rows.first,
+        top: 'adder',
+      );
+      expect(
+        (await dispatcher.send(
+          peerOf('netcrux'),
+          flowPathCrossProbeSelection(path),
+        )).kind,
+        CrossProbeOutcomeKind.sent,
+      );
+      expect(
+        net.highlighted.single,
+        const ElementId(kind: ElementKind.signal, path: 'adder.sum_q'),
+      );
+      expect(net.requests.single.metadata[cxpMappingMetadataKey], 'register');
     });
 
     test(
@@ -413,6 +506,61 @@ void main() {
       expect(ack.reason, contains('breakpoint editor'));
     });
 
+    // A known directed kind SimCrux does not act on is acknowledged
+    // `honored: false`, reason `unsupported`, by the runtime's own answer,
+    // never repeating the kind; an unknown message kind is answered
+    // `error_response(unknown_kind)` by crux_cxp, and the connection lives.
+    test('an artifact kind SimCrux does not open → acked unsupported, with '
+        'in_reply_to', () async {
+      await bootPair();
+      addTearDown(teardownPair);
+
+      final ackFuture = peer.inbound.firstWhere(
+        (m) => m.message is RequestOpenArtifactAck,
+      );
+      peer.send(
+        const RequestOpenArtifact(
+          designId: 'd1',
+          artifactKind: 'timing_report',
+          path: '/abs/runs/RUN_1/report.json',
+        ),
+      );
+      final ack =
+          (await ackFuture.timeout(const Duration(seconds: 2))).message
+              as RequestOpenArtifactAck;
+      expect(ack.honored, isFalse);
+      expect(ack.reason, 'unsupported');
+      expect(ack.inReplyTo, isNotEmpty);
+    });
+
+    test('an unknown message kind → error_response(unknown_kind), and the '
+        'next request is still served', () async {
+      await bootPair();
+      addTearDown(teardownPair);
+
+      final errorFuture = peer.inbound.firstWhere(
+        (m) => m.message is ErrorResponse,
+      );
+      peer.send(_UnknownKindMessage());
+      final error =
+          (await errorFuture.timeout(const Duration(seconds: 2))).message
+              as ErrorResponse;
+      expect(error.code, CxpErrorCode.unknownKind);
+
+      final ackFuture = peer.inbound.firstWhere(
+        (m) => m.message is RequestHighlightAck,
+      );
+      peer.send(
+        const RequestHighlight(
+          element: ElementId(kind: ElementKind.marker, path: 'a'),
+        ),
+      );
+      final ack =
+          (await ackFuture.timeout(const Duration(seconds: 2))).message
+              as RequestHighlightAck;
+      expect(ack.honored, isFalse);
+    });
+
     test('RequestOpenSource → invokes the configured editor', () async {
       await bootPair();
       addTearDown(teardownPair);
@@ -544,3 +692,13 @@ void main() {
 /// rooted but not absolute, and the CXP floor refuses it before the handler
 /// sees it.
 String _abs(String posix) => p.normalize(p.absolute(posix));
+
+/// A message kind no CXP revision defines, as a peer on a later one might
+/// send.
+class _UnknownKindMessage extends CxpMessage {
+  @override
+  String get kind => 'unknown_future_extension_kind';
+
+  @override
+  Map<String, Object?> toJson() => const <String, Object?>{};
+}

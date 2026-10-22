@@ -26,6 +26,7 @@ class EqyPartitionResult {
     this.outputs,
     this.strategy,
     this.trace,
+    this.step,
     this.disagreement = false,
     this.note,
   });
@@ -53,6 +54,12 @@ class EqyPartitionResult {
   /// The counterexample trace, absolute and inside the work directory, for
   /// a partition that ended [FormalPropertyStatus.counterexample].
   final String? trace;
+
+  /// The solver step at which [trace]'s assertion failed, as the
+  /// partition's SymbiYosys summary stated it (`failed assertion … step 1`).
+  /// Null when the summary states none (a `sat` strategy, or a summary line
+  /// without a step): never inferred from the trace.
+  final int? step;
 
   /// Whether the status file and the log disagreed about this partition.
   final bool disagreement;
@@ -302,7 +309,7 @@ class EqyWorkdirReader {
             : FormalVerdict.noOutcome,
     };
 
-    String? trace;
+    ({String path, int? step})? trace;
     if (status == FormalPropertyStatus.counterexample) {
       trace = _trace(workDir, name, <String>[
         ?strategy,
@@ -317,9 +324,41 @@ class EqyWorkdirReader {
       strategy: strategy,
       status: status,
       token: token,
-      trace: trace,
+      trace: trace?.path,
+      step: trace?.step,
       disagreement: disagreement,
     );
+  }
+
+  static final RegExp _summaryTrace = RegExp(
+    r'summary:\s+counterexample trace \[[^\]]*\]:\s+(\S+)\s*$',
+  );
+
+  static final RegExp _summaryFailedStep = RegExp(
+    r'summary:\s+failed assertion\s.*\sstep\s+(\d+)\s*$',
+  );
+
+  /// The step each counterexample trace of a SymbiYosys log failed at, from
+  /// its summary: a `counterexample trace [...]: <trace>` line followed by
+  /// `failed assertion … step <n>`. A trace whose summary names no step is
+  /// absent.
+  static Map<String, int> summarySteps(String log) {
+    final steps = <String, int>{};
+    String? current;
+    for (final line in const LineSplitter().convert(log)) {
+      final trace = _summaryTrace.firstMatch(line);
+      if (trace != null) {
+        current = trace.group(1);
+        continue;
+      }
+      final failed = _summaryFailedStep.firstMatch(line);
+      if (failed != null && current != null) {
+        final step = int.tryParse(failed.group(1)!);
+        if (step != null) steps.putIfAbsent(current, () => step);
+        current = null;
+      }
+    }
+    return steps;
   }
 
   /// The first word of `strategies/<partition>/<strategy>/status`, or null.
@@ -348,8 +387,13 @@ class EqyWorkdirReader {
   }
 
   /// The counterexample of a failing [partition]: the first of [strategies]
-  /// that decided it and left a trace inside [workDir].
-  String? _trace(String workDir, String partition, List<String> strategies) {
+  /// that decided it and left a trace inside [workDir], with the step its
+  /// SymbiYosys summary says it failed at, when it says one.
+  ({String path, int? step})? _trace(
+    String workDir,
+    String partition,
+    List<String> strategies,
+  ) {
     for (final strategy in strategies) {
       if (FormalContainment.segmentProblem(strategy) != null) continue;
       if (!_decidedHere(workDir, partition, strategy)) continue;
@@ -363,23 +407,27 @@ class EqyWorkdirReader {
       );
       final log = logPath == null ? null : _readBounded(logPath, kMaxLogBytes);
       if (log != null) {
+        final steps = summarySteps(log.text);
         for (final announced in SbyLogReader.parse(log.text).traces) {
           final vcd = announced.toLowerCase().endsWith('.yw')
               ? '${announced.substring(0, announced.length - 3)}.vcd'
               : announced;
           for (final base in <String>[dir, p.join(dir, partition)]) {
             final resolved = _existing(workDir, p.join(base, vcd));
-            if (resolved != null) return resolved;
+            if (resolved != null) {
+              return (path: resolved, step: steps[announced] ?? steps[vcd]);
+            }
           }
         }
       }
-      // A `sat` strategy dumps its base-case model beside its status.
+      // A `sat` strategy dumps its base-case model beside its status, and
+      // states no step.
       for (final candidate in <String>[
         p.join(dir, 'trace.vcd'),
         p.join(dir, partition, 'engine_0', 'trace.vcd'),
       ]) {
         final resolved = _existing(workDir, candidate);
-        if (resolved != null) return resolved;
+        if (resolved != null) return (path: resolved, step: null);
       }
     }
     return null;

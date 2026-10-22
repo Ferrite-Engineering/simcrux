@@ -121,7 +121,93 @@ OutlinedButton _buttonWithLabel(WidgetTester tester, String label) {
   );
 }
 
+SelectedTest _formal(Map<String, String> metrics, {String? waveformPath}) {
+  final result = TestResult(
+    testId: 'proofs/alu',
+    runId: 'r1',
+    status: TestStatus.fail,
+    startedAt: DateTime.utc(2026, 10),
+    finishedAt: DateTime.utc(2026, 10),
+    waveformPath: waveformPath,
+    metrics: metrics,
+  );
+  return SelectedTest(
+    row: DashboardRow(
+      result: result,
+      suiteName: 'proofs',
+      simulatorId: metrics['formal.tool'] ?? 'sby',
+      testName: 'alu',
+    ),
+  );
+}
+
 void main() {
+  group('formal hand-offs', () {
+    testWidgets('an EQY row offers one WaveCrux hand-off per failing '
+        'partition, and no Show in NetCrux', (tester) async {
+      await _pump(
+        tester,
+        _formal(<String, String>{
+          'formal.tool': 'eqy',
+          'formal.verdict': 'FAIL',
+          'formal.property.0.kind': 'partition',
+          'formal.property.0.label': 'alu.r',
+          'formal.property.0.status': 'counterexample',
+          'formal.property.0.trace': 'strategies/alu.r/sby/alu.r/trace.vcd',
+          'formal.property.1.kind': 'partition',
+          'formal.property.1.label': 'alu.y',
+          'formal.property.1.status': 'proved',
+          'formal.property.2.kind': 'partition',
+          'formal.property.2.label': 'alu.z',
+          'formal.property.2.status': 'counterexample',
+          'formal.property.2.trace': 'strategies/alu.z/sby/alu.z/trace.vcd',
+        }, waveformPath: '/w/strategies/alu.r/sby/alu.r/trace.vcd'),
+      );
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      expect(
+        find.text(l10n.inspectorActionDebugPartitionInWavecrux('alu.r')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l10n.inspectorActionDebugPartitionInWavecrux('alu.z')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l10n.inspectorActionDebugPartitionInWavecrux('alu.y')),
+        findsNothing,
+      );
+      expect(find.text(l10n.inspectorActionShowInNetcrux), findsNothing);
+    });
+
+    testWidgets('an sby row with a failing property offers Show in NetCrux, '
+        'free and without a badge', (tester) async {
+      await _pump(
+        tester,
+        _formal(<String, String>{
+          'formal.tool': 'sby',
+          'formal.verdict': 'FAIL',
+          'formal.property.0.kind': 'ASSERT',
+          'formal.property.0.location': 'fifo.sv:38.3-38.9',
+          'formal.property.0.status': 'counterexample',
+          'formal.property.0.reads': 'fifo.count,fifo.rst',
+        }),
+      );
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      expect(find.text(l10n.inspectorActionShowInNetcrux), findsOneWidget);
+      expect(find.text('Pro'), findsNothing);
+    });
+
+    testWidgets('a simulation row offers neither', (tester) async {
+      await _pump(tester, _selection(spec: _spec()));
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      expect(find.text(l10n.inspectorActionShowInNetcrux), findsNothing);
+      expect(
+        find.textContaining(l10n.inspectorActionDebugInWavecrux),
+        findsOneWidget,
+      );
+    });
+  });
+
   group('InspectorActions', () {
     testWidgets('renders every localized action button', (tester) async {
       await _pump(tester, _selection(spec: _spec()));

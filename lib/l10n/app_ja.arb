@@ -3761,5 +3761,16 @@
   "diagnosticsTabRowFlowTools": "ツールのバージョン",
   "@diagnosticsTabRowFlowTools": {
     "description": "Tab Diagnostics row: the tool versions the run states."
-  }
+  },
+  "inspectorActionShowInNetcrux": "NetCrux で表示",
+  "inspectorActionShowInNetcruxTooltip": "失敗したプロパティが読み取る信号を NetCrux で選択し、その駆動元を表示します。このマシンで NetCrux が実行中である必要があります。",
+  "inspectorActionDebugPartitionInWavecrux": "{partition} を WaveCrux でデバッグ",
+  "flowPathOpenStatement": "エディターでステートメントを開く",
+  "flowPathNoStatement": "このパスには既知のソースステートメントがありません。",
+  "flowPathStatementNotInProject": "ステートメントのファイルがこのプロジェクト内にないため、開きませんでした。",
+  "flowPathsThroughRegister": "{register} で始まるまたは終わるパス",
+  "flowPathsNoneThroughRegister": "この実行には {register} で始まるまたは終わるワーストパスがありません。",
+  "flowPathsShowAll": "すべてのパスを表示",
+  "dashboardFilterByCrossProbe": "クロスプローブ",
+  "dashboardFilterFormalReads": "{signal} を読み取るプロパティ"
 }

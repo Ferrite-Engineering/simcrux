@@ -1058,11 +1058,11 @@
   },
   "settingsAllowProjectDefinedToolingLabel": "Let project files choose simulator binaries and environment",
   "@settingsAllowProjectDefinedToolingLabel": {
-    "description": "Settings \u2192 Engines \u2192 Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
+    "description": "Settings → Engines → Simulators toggle. When on, an opened simcrux.yaml may name the executable SimCrux spawns and the environment it spawns under. Off by default because that is code execution chosen by whoever wrote the file."
   },
   "settingsAllowProjectDefinedToolingDescription": "Off by default. A project file can name the program SimCrux runs and the environment it runs under, which is code execution chosen by whoever wrote that file. While this is off those keys are ignored and the binary path above is used instead. Turn it on only for project files you trust.",
   "@settingsAllowProjectDefinedToolingDescription": {
-    "description": "Explanatory text under the Settings \u2192 Engines \u2192 Simulators project-defined tooling toggle."
+    "description": "Explanatory text under the Settings → Engines → Simulators project-defined tooling toggle."
   },
   "diagnosticsTabConfigInfo": "Config info",
   "@diagnosticsTabConfigInfo": {
@@ -4005,5 +4005,73 @@
   "diagnosticsTabRowFlowTools": "Tool versions",
   "@diagnosticsTabRowFlowTools": {
     "description": "Tab Diagnostics row: the tool versions the run states."
+  },
+  "inspectorActionShowInNetcrux": "Show in NetCrux",
+  "@inspectorActionShowInNetcrux": {
+    "description": "Inspector button on a formal row with a failing property: sends the signal the property reads to NetCrux, which selects it and shows its fan-in."
+  },
+  "inspectorActionShowInNetcruxTooltip": "Select the signal the failing property reads in NetCrux and show what drives it. Requires NetCrux to be running on this machine.",
+  "@inspectorActionShowInNetcruxTooltip": {
+    "description": "Tooltip of the Show in NetCrux button."
+  },
+  "inspectorActionDebugPartitionInWavecrux": "Debug {partition} in WaveCrux",
+  "@inspectorActionDebugPartitionInWavecrux": {
+    "description": "Inspector button, one per failing EQY partition: opens that partition's counterexample in WaveCrux. {partition} is the partition's name as EQY wrote it, never translated.",
+    "placeholders": {
+      "partition": {
+        "type": "String",
+        "example": "alu.z"
+      }
+    }
+  },
+  "flowPathOpenStatement": "Open statement in editor",
+  "@flowPathOpenStatement": {
+    "description": "Context menu item on a worst timing path row: opens the RTL statement the path maps to in the user's editor."
+  },
+  "flowPathNoStatement": "No source statement is known for this path.",
+  "@flowPathNoStatement": {
+    "description": "Shown when a timing path maps to no RTL statement, so there is nothing to open."
+  },
+  "flowPathStatementNotInProject": "The statement's file is not in this project, so it was not opened.",
+  "@flowPathStatementNotInProject": {
+    "description": "Toast when the RTL file a timing path maps to is not inside the project directory."
+  },
+  "flowPathsThroughRegister": "Paths that start or end at {register}",
+  "@flowPathsThroughRegister": {
+    "description": "Note above the worst paths table after a peer asked for the timing paths through one register. {register} is the register's name, never translated.",
+    "placeholders": {
+      "register": {
+        "type": "String",
+        "example": "top.u_div.cnt_q"
+      }
+    }
+  },
+  "flowPathsNoneThroughRegister": "No worst path of this run starts or ends at {register}.",
+  "@flowPathsNoneThroughRegister": {
+    "description": "Note when a peer asked for the timing paths through a register and none of the run's worst paths does. {register} is the register's name, never translated.",
+    "placeholders": {
+      "register": {
+        "type": "String",
+        "example": "top.u_div.cnt_q"
+      }
+    }
+  },
+  "flowPathsShowAll": "Show all paths",
+  "@flowPathsShowAll": {
+    "description": "Button beside the register filter note: shows every worst path again."
+  },
+  "dashboardFilterByCrossProbe": "Cross-probe",
+  "@dashboardFilterByCrossProbe": {
+    "description": "Filter bar heading for a filter a peer's cross-probe set."
+  },
+  "dashboardFilterFormalReads": "Properties that read {signal}",
+  "@dashboardFilterFormalReads": {
+    "description": "Filter chip after a peer cross-probed a signal: only the formal rows with a property that reads it. Deselecting it clears the filter. {signal} is the signal's name, never translated.",
+    "placeholders": {
+      "signal": {
+        "type": "String",
+        "example": "fifo.full"
+      }
+    }
   }
 }

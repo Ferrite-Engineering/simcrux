@@ -5382,6 +5382,96 @@ values. The partition explorer is a separate Pro screen.
 | Both registries, the sub-command, the importer's callers | `[Coverage: UNIT]` | `test/static/eqy_driver_reachability_test.dart` |
 | Every corpus run, the VHDL gold through a real `ghdl --synth`, and the import-load-run round trip against a real eqy | `[Coverage: INTEGRATION — needs OSS CAD Suite]` | `test/integration/eqy_driver_live_test.dart` |
 
+### 26.12 Formal cross-probes: the counterexample step, Show in NetCrux, and the property filter
+
+**What it covers.** What a formal row sends a peer, and what a peer's signal
+does to the formal rows. Everything here is free on every tier, and no send or
+receive surface carries a badge.
+
+- **A counterexample lands on its step.** "Debug in WaveCrux", the row menu's
+  "Cross-probe to" and Cross-probe Selection (Cmd/Ctrl+Shift+Enter) send a
+  formal row's trace as a `source` element. With it goes the
+  `formal.trace_step` coordinate (CXP 9.9.3): the step the solver reported
+  for the property whose trace it is, counting the trace's initial state as
+  step 0, with the verdict, the configured depth and the property's role as
+  attributes, and `formal.mode` `demo` for a replayed row. The coordinate is
+  absent, never guessed, when no property states a step, when the trace is
+  not a fired property's, and for a `multiclock on` task (its witness steps
+  are not one sample of one clock and were not measured). The request also
+  carries `formal.property_kind` and, when the frontend kept one,
+  `formal.property_label`. The selection never offers a `signal`, which
+  WaveCrux would prefer to the trace.
+- **One hand-off per failing EQY partition.** The inspector offers "Debug
+  `<partition>` in WaveCrux" for each partition that ended with a
+  counterexample (at most 8), each with its own trace; the coordinate's
+  `sub_id` is the partition and its step is the one the partition's own
+  SymbiYosys summary states (`failed assertion … step 1`); a partition whose
+  summary states none is sent with no coordinate. Every EQY hand-off carries
+  `formal.eqy.gold_scope` `gold` and `formal.eqy.gate_scope` `gate`, the
+  scopes EQY gives the two designs in its miter.
+- **Show in NetCrux.** A row with a failing property offers it in the
+  inspector. It sends the first signal the property reads as a `signal` with
+  `formal.property_kind` (and the label), which is what makes NetCrux select
+  it and draw its fan-in, and the property itself (`<file>:<line>`) after it,
+  which NetCrux offers its union cone for and which is sent alone when no
+  signal is known. With no NetCrux running it says so; with two it asks which.
+- **What a property reads.** After a run, each property records the named
+  signals on the combinational paths into it (through `$past`, stopping at the
+  design's registers), nearest first, at most 16, rooted at the top module
+  when it is the top's (`formal.property.<n>.reads`).
+- **A peer's signal filters the rows.** A `request_highlight` for a signal
+  that names its design with `crux.design_id`, in a project with `sby` tests,
+  shows only the formal rows with a property that reads it. The filter bar
+  shows it under "Cross-probe" as "Properties that read `<signal>`";
+  deselecting it, or Clear filters, brings every row back. Without a design
+  the old test-name filter applies.
+
+**Setup.** None for the automated checks. For the drive: a release build of
+this app and of WaveCrux and NetCrux 1.2, an OSS CAD Suite, and the corpus's
+`handshake_imm` project.
+
+**Expected behaviour.**
+
+1. Run `prove_bug`; select the row; Debug in WaveCrux. WaveCrux opens the
+   trace with its cursor at step 6, where `f_wait` is 3 one step before.
+2. Run `alu_fail.eqy`; the inspector offers "Debug alu.z in WaveCrux" and
+   "Debug alu.r in WaveCrux". The first lands on step 1 with gold and gate
+   grouped; the second opens its trace at the start, because its summary
+   states no step.
+3. On `prove_bug`, Show in NetCrux: NetCrux selects `f_wait` and draws its
+   fan-in.
+4. In NetCrux, cross-probe `full` of the FIFO design to SimCrux: the results
+   table shows only the `fifo_slang` rows with a property that reads it.
+
+**Two instances.** Every send above is between separately signed apps; a
+SimCrux-to-SimCrux check needs a second copy with its own bundle identifier,
+re-signed with the entitlements, because two copies of one bundle share a
+preferences domain and so one CXP port. Run by a person at the machine.
+
+- [ ] Copy the release app, change its bundle identifier, re-sign it with the
+  same entitlements, and start both.
+- [ ] Each shows the other in "Cross-probe to", named with its open project.
+- [ ] Cross-probe a test row from one to the other: the second selects it.
+
+**Tier-gate scenarios.** None: every send, the coordinate, the filter and
+the hand-offs are open core under both `kBetaPeriod` values. NetCrux decides
+what its Pro cone needs.
+
+**Automation assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| The coordinate on the corpus: the hand-expected step, which the trace's own `smt_step` counts to; no step, another trace, multiclock, demo; EQY `sub_id`, partition traces, gold and gate; the corpus digest WaveCrux pins | `[Coverage: UNIT]` | `test/services/remote/cxp/formal_stream_coordinate_test.dart` |
+| The row selection (coordinate, keys, no signal, WaveCrux gets the trace) and Show in NetCrux (signal first, property alone) | `[Coverage: UNIT]` | `test/features/remote/services/formal_handoff_test.dart` |
+| What each property reads, from the RTL | `[Coverage: UNIT]` | `test/services/formal/pretrace_detector_test.dart` |
+| The partition step from its summary | `[Coverage: UNIT]` | `test/services/formal/eqy_workdir_reader_test.dart` |
+| `multiclock on` per task | `[Coverage: UNIT]` | `test/domain/models/sby_script_test.dart` |
+| The inspector's partition hand-offs and Show in NetCrux | `[Coverage: WIDGET]` | `test/features/inspector/widgets/inspector_actions_test.dart` |
+| The receive filter, and the legacy filter without a design | `[Coverage: UNIT]` | `test/features/remote/providers/cxp_receive_filters_test.dart`, `test/features/dashboard/providers/dashboard_providers_test.dart` |
+| A counterexample crossing two shared runtimes | `[Coverage: INTEGRATION]` | `test/integration/remote/simcrux_cxp_conformance_test.dart` |
+| Every producer and filter has a caller | `[Coverage: UNIT]` | `test/static/cxp_reachability_test.dart` |
+| The drive and the two-instance check above | `[Coverage: MANUAL]` | needs release builds of three products |
+
 ---
 
 ## 27. Flow: FPGA place-and-route fixtures and the weekly live check
@@ -5735,6 +5825,89 @@ each gate.
 | The panel, the actions, the five seams, the per-tab providers, the event and the diagnostics section are reached | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
 | No signoff claim in any Flow message, the export template or the docs-site Flow pages | `[Coverage: UNIT]` | `test/static/flow_vocabulary_guard_test.dart` |
 | The release-build drive above | `[Coverage: MANUAL]` | needs a release build and the tools installed |
+
+### 27.9 Flow cross-probes: worst paths out, registers and runs in
+
+**What it covers.** A worst path as a cross-probe, a peer's register as a
+filter of the worst paths, and a peer's request for a run. Free on every tier;
+no badge on any of it.
+
+- **Sending a path.** On the Worst paths table, moving onto a path (or into
+  the table) makes it what Cross-probe Selection (Cmd/Ctrl+Shift+Enter) sends
+  while Flow Runs is shown; a row's context menu (right-click, Shift+F10 or
+  the Menu key on the current row) offers "Cross-probe to" and "Open statement
+  in editor". A directed send is one element, the one the target's kind row
+  picks: the mapped endpoint register as a `signal` for WaveCrux and NetCrux,
+  a statement as a `source` for LintCrux, the opaque `timing_path`
+  (`<run tag>/<rank>`) only when nothing else is known. Register names are
+  rooted at the flow entry's `top` when it names one. Every send also
+  announces the whole path as one `notify_selection`: the `timing_path`, the
+  start and end registers, the statements (`<file>:<line>`), with
+  `crux.mapping` as mapped (never upgraded), when "Broadcast selection
+  automatically" is on. A bare Enter or Space still opens the path; with a
+  modifier the key is left to the app's shortcuts.
+- **Open statement in editor** opens the endpoint's first statement at its
+  line in the user's editor, after resolving its file inside the project
+  directory (the span's own path, else the flow entry source it is a suffix
+  of), symlinks resolved. A file outside the project is said in a toast and
+  never opened.
+- **Show timing paths through this register.** A peer's `signal` that names
+  its design with `crux.design_id`, in a project with a `flow:` block, shows
+  Flow Runs on its Worst paths, filtered to the paths that start or end at
+  that register, with "Paths that start or end at `<register>`" and "Show all
+  paths" above the table (or, when none does, a sentence saying so).
+- **`request_open_artifact{kind: flow_run}`.** Answered with the run SimCrux
+  holds for the design: the open project tab whose design id matches, the
+  run the hint names when it is one of that project's runs (any other hint is
+  discarded, never opened), else the run selected in its panel, else its
+  newest. The run directory is held to the project directory and to the
+  floor; the tab comes forward, the run is selected and Flow Runs is shown.
+  Nothing is written. No reason repeats the sender's path, design id or kind.
+- **Other artifact kinds.** `project` opens a SimCrux project (a
+  `simcrux.yaml` or `<design>.crux-project`) as a config tab, reading
+  `project` records first and, for one release, a project file a peer still
+  publishes as `source`; a file SimCrux does not read as a project is
+  refused. SimCrux publishes each open project as its design's `project`
+  artifact, never as `source`. A kind SimCrux does not open (`timing_report`,
+  `waveform`, `netlist`, an unknown one) is answered `honored: false`,
+  reason `unsupported`, by the runtime's own answer; an unknown message kind
+  is answered `error_response(unknown_kind)`.
+- **Active document.** Each window announces its active tab's name, so a
+  peer's "Cross-probe to" menu tells two SimCrux windows apart.
+
+**Setup.** None for the automated checks. For the drive: release builds of
+this app, NetCrux, WaveCrux and LintCrux 1.2, and a project with a nextpnr
+`flow:` entry whose run holds `synth.json`.
+
+**Expected behaviour.**
+
+1. Flow Runs > Worst paths, rank 1, Cmd/Ctrl+Shift+Enter: NetCrux highlights
+   both registers, shows the path in its Inspector with the mapping label, and
+   comes forward.
+2. Right-click rank 1 > Cross-probe to > WaveCrux: WaveCrux selects the
+   endpoint register.
+3. Right-click > Open statement in editor: the editor opens the RTL file at
+   the line.
+4. In NetCrux, select the register and choose "Show timing paths through this
+   register": SimCrux shows Flow Runs, filtered, with "Show all paths".
+5. A second SimCrux window: NetCrux's "Cross-probe to" lists both, each with
+   its project's name.
+
+**Tier-gate scenarios.** None in SimCrux: every send, receive and answer is
+open core under both `kBetaPeriod` values.
+
+**Automation Assessment.**
+
+| Test | Coverage | File |
+|---|---|---|
+| The directed candidates and what each target picks; the notify order; unmapped paths; rooted and relative names; paths through a register | `[Coverage: UNIT]` | `test/features/remote/services/flow_path_selection_test.dart` |
+| Moving onto a path, Shift+F10's menu, a modified Enter left alone, the register filter note and Show all paths | `[Coverage: WIDGET]` | `test/features/flow/flow_path_cross_probe_test.dart` |
+| The register filter from a peer's signal; `flow_run` (hinted, unhinted, another design); `unsupported` kinds | `[Coverage: UNIT]` | `test/features/remote/providers/cxp_receive_filters_test.dart` |
+| A path crossing two shared runtimes to NetCrux; `unsupported` and `unknown_kind` over the wire | `[Coverage: INTEGRATION]` | `test/integration/remote/simcrux_cxp_conformance_test.dart` |
+| The active document follows the active tab | `[Coverage: UNIT]` | `test/features/remote/providers/cxp_presence_provider_test.dart` |
+| No reason repeats a path, a design id or a kind | `[Coverage: UNIT]` | `test/features/remote/providers/inbound_request_handler_reason_test.dart`, `test/features/remote/providers/cxp_receive_filters_test.dart` |
+| The per-tab providers and every caller | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart`, `test/static/cxp_reachability_test.dart` |
+| The drive above | `[Coverage: MANUAL]` | needs release builds of four products |
 
 ---
 

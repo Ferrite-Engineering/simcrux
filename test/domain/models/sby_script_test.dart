@@ -236,4 +236,29 @@ handshake_imm.sv
       expect(SbyScript.parse(handshake).assertionsDisabled, isNull);
     });
   });
+
+  group('multiclockFor', () {
+    test('multiclock on applies to every task, or to the one it scopes', () {
+      expect(
+        SbyScript.parse('[options]\nmode bmc\nmulticlock on\n').multiclockFor(
+          null,
+        ),
+        isTrue,
+      );
+      final scoped = SbyScript.parse(
+        '[tasks]\na\nb\n\n[options]\nmode bmc\na: multiclock on\n',
+      );
+      expect(scoped.multiclockFor('a'), isTrue);
+      expect(scoped.multiclockFor('b'), isFalse);
+    });
+
+    test('off, or no line at all, is single-clock', () {
+      expect(
+        SbyScript.parse('[options]\nmulticlock off\n').multiclockFor(null),
+        isFalse,
+      );
+      expect(SbyScript.parse(bmc).multiclockFor(null), isFalse);
+      expect(SbyScript.parse(handshake).multiclockFor('prove_bug'), isFalse);
+    });
+  });
 }

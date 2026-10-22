@@ -188,6 +188,25 @@ class _DashboardFilterBarState extends ConsumerState<DashboardFilterBar> {
                   ref.read(dashboardFilterProvider.notifier).toggleSimulator(s),
             ),
           ],
+          // A peer's cross-probe of a signal: only the formal rows with a
+          // property that reads it. Shown while it applies, and cleared by
+          // deselecting it or by Clear.
+          if (filter.formalReads.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            _FilterChipGroup(
+              key: const ValueKey('dashboardFilterFormalReads'),
+              heading: l10n.dashboardFilterByCrossProbe,
+              options: <_ChipOption<String>>[
+                _ChipOption<String>(
+                  value: filter.formalReads,
+                  label: l10n.dashboardFilterFormalReads(filter.formalReads),
+                ),
+              ],
+              selected: <String>{filter.formalReads},
+              onToggle: (_) =>
+                  ref.read(dashboardFilterProvider.notifier).setFormalReads(''),
+            ),
+          ],
         ],
       ),
     );
@@ -206,6 +225,7 @@ class _FilterChipGroup<T> extends StatelessWidget {
     required this.options,
     required this.selected,
     required this.onToggle,
+    super.key,
   });
 
   final String heading;

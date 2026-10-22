@@ -7,6 +7,7 @@ import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
@@ -218,6 +219,7 @@ Future<ProviderContainer> pumpFlowPanel(
   Locale locale = const Locale('en'),
   List<SimcruxAction>? dispatched,
   TelemetryService? telemetry,
+  List<Override> extra = const <Override>[],
 }) async {
   tester.view
     ..physicalSize = size
@@ -240,6 +242,7 @@ Future<ProviderContainer> pumpFlowPanel(
       telemetryServiceProvider.overrideWithValue(
         telemetry ?? RecordingTelemetry(),
       ),
+      ...extra,
     ],
   );
   addTearDown(container.dispose);

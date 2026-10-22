@@ -24,6 +24,7 @@ class DashboardFilter {
     this.minRuntime,
     this.maxRuntime,
     this.deltaBucket,
+    this.formalReads = '',
   }) : statuses = Set<TestStatus>.unmodifiable(
          statuses ?? const <TestStatus>{},
        ),
@@ -56,6 +57,12 @@ class DashboardFilter {
   /// most recent run. Null = no constraint.
   final RunDeltaBucket? deltaBucket;
 
+  /// When not empty, only the formal rows with a property that reads this
+  /// signal: what a peer's cross-probe of the signal asks for (the
+  /// selection's `crux.design_id` says it is this design's). Empty = no
+  /// constraint.
+  final String formalReads;
+
   /// Returns a copy with the given fields replaced. Pass an empty
   /// set / empty string to clear a specific axis; [clearDeltaBucket] drops
   /// [deltaBucket], which a null [deltaBucket] argument leaves unchanged.
@@ -68,6 +75,7 @@ class DashboardFilter {
     Duration? maxRuntime,
     RunDeltaBucket? deltaBucket,
     bool clearDeltaBucket = false,
+    String? formalReads,
   }) {
     return DashboardFilter(
       statuses: statuses ?? this.statuses,
@@ -77,6 +85,7 @@ class DashboardFilter {
       minRuntime: minRuntime ?? this.minRuntime,
       maxRuntime: maxRuntime ?? this.maxRuntime,
       deltaBucket: clearDeltaBucket ? null : deltaBucket ?? this.deltaBucket,
+      formalReads: formalReads ?? this.formalReads,
     );
   }
 
@@ -88,13 +97,15 @@ class DashboardFilter {
       testNameSubstring.isEmpty &&
       minRuntime == null &&
       maxRuntime == null &&
-      deltaBucket == null;
+      deltaBucket == null &&
+      formalReads.isEmpty;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! DashboardFilter) return false;
     if (other.testNameSubstring != testNameSubstring) return false;
+    if (other.formalReads != formalReads) return false;
     if (other.minRuntime != minRuntime) return false;
     if (other.maxRuntime != maxRuntime) return false;
     if (other.deltaBucket != deltaBucket) return false;
@@ -116,5 +127,6 @@ class DashboardFilter {
     minRuntime,
     maxRuntime,
     deltaBucket,
+    formalReads,
   );
 }

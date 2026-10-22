@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
+
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_table/crux_table.dart';
 import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
@@ -36,8 +38,18 @@ class FlowKeyboardTable<C extends Enum> extends StatefulWidget {
     this.onCurrentChanged,
     this.onActivate,
     this.headerTooltips = const {},
+    this.contextMenuEntries,
+    this.onFocusChanged,
     super.key,
   });
+
+  /// The context menu of row `index` (right-click on the row; Shift+F10 or
+  /// the Menu key on the current row), or null for none.
+  final List<CruxMenuEntry> Function(int index)? contextMenuEntries;
+
+  /// Called with the current row when the table takes focus, and with -1
+  /// when it loses it.
+  final ValueChanged<int>? onFocusChanged;
 
   /// The table's name, the prefix of every key under it.
   final String tableId;
@@ -109,7 +121,33 @@ class _FlowKeyboardTableState<C extends Enum>
   }
 
   void _onFocus() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    widget.onFocusChanged?.call(_focus.hasFocus ? _current : -1);
+  }
+
+  /// Opens the current row's context menu below the row, for Shift+F10 and
+  /// the Menu key.
+  void _openContextMenu() {
+    final entries = widget.contextMenuEntries;
+    final current = _current;
+    if (entries == null || current < 0) return;
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final scrolled = _scroll.hasClients ? _scroll.position.pixels : 0.0;
+    final rowBottom =
+        kCruxTableRowHeight * (current + 2) - scrolled; // header + row
+    final local = Offset(
+      kCruxTableCellPadding,
+      rowBottom.clamp(0.0, box.size.height),
+    );
+    unawaited(
+      showCruxContextMenu(
+        context,
+        globalPosition: box.localToGlobal(local),
+        entries: entries(current),
+      ),
+    );
   }
 
   void _moveTo(int index, {bool speak = true}) {
@@ -156,6 +194,14 @@ class _FlowKeyboardTableState<C extends Enum>
     }
   }
 
+  static bool get _modified {
+    final keyboard = HardwareKeyboard.instance;
+    return keyboard.isShiftPressed ||
+        keyboard.isControlPressed ||
+        keyboard.isMetaPressed ||
+        keyboard.isAltPressed;
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
@@ -177,11 +223,20 @@ class _FlowKeyboardTableState<C extends Enum>
       _moveTo(current + page);
     } else if (key == LogicalKeyboardKey.pageUp) {
       _moveTo(current - page);
-    } else if (key == LogicalKeyboardKey.enter ||
-        key == LogicalKeyboardKey.numpadEnter ||
-        key == LogicalKeyboardKey.space) {
+    } else if ((key == LogicalKeyboardKey.enter ||
+            key == LogicalKeyboardKey.numpadEnter ||
+            key == LogicalKeyboardKey.space) &&
+        !_modified) {
+      // A bare Enter or Space only: Cmd/Ctrl+Shift+Enter is Cross-probe
+      // Selection, which must reach the app's shortcuts.
       if (event is KeyRepeatEvent) return KeyEventResult.handled;
       widget.onActivate?.call(current);
+    } else if (widget.contextMenuEntries != null &&
+        (key == LogicalKeyboardKey.contextMenu ||
+            (key == LogicalKeyboardKey.f10 &&
+                HardwareKeyboard.instance.isShiftPressed))) {
+      if (event is KeyRepeatEvent) return KeyEventResult.handled;
+      _openContextMenu();
     } else {
       return KeyEventResult.ignored;
     }
@@ -214,7 +269,8 @@ class _FlowKeyboardTableState<C extends Enum>
       itemCount: widget.rowCount,
       itemBuilder: (context, index) {
         final isCurrent = index == current;
-        return GestureDetector(
+        final menu = widget.contextMenuEntries;
+        final row = GestureDetector(
           behavior: HitTestBehavior.opaque,
           excludeFromSemantics: true,
           // A click selects at once; a second click on the same row within
@@ -234,6 +290,20 @@ class _FlowKeyboardTableState<C extends Enum>
             ),
             child: Row(children: widget.cellsBuilder(context, index)),
           ),
+        );
+        if (menu == null) return row;
+        // Right-click (or a long press on touch) opens this row's menu, the
+        // one `CruxContextMenuRegion` opens, built when it opens; the
+        // keyboard opens the current row's from the table's own key handler.
+        return PlatformContextMenu(
+          onContextMenu: (position) => unawaited(
+            showCruxContextMenu(
+              context,
+              globalPosition: position,
+              entries: menu(index),
+            ),
+          ),
+          child: row,
         );
       },
     );

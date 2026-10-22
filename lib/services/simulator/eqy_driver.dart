@@ -595,6 +595,9 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
             .relative(trace, from: job.workDirectory)
             .replaceAll(r'\', '/');
       }
+      if (partition.step case final int step) {
+        metrics['${prefix}step'] = '$step';
+      }
       metrics['${prefix}id'] = partition.name;
       if (partition.strategy case final String strategy) {
         metrics['$prefix$kPropertyStrategyField'] = strategy;

@@ -3761,5 +3761,16 @@
   "diagnosticsTabRowFlowTools": "工具版本",
   "@diagnosticsTabRowFlowTools": {
     "description": "Tab Diagnostics row: the tool versions the run states."
-  }
+  },
+  "inspectorActionShowInNetcrux": "在 NetCrux 中显示",
+  "inspectorActionShowInNetcruxTooltip": "在 NetCrux 中选中失败属性读取的信号，并显示驱动它的逻辑。需要本机正在运行 NetCrux。",
+  "inspectorActionDebugPartitionInWavecrux": "在 WaveCrux 中调试 {partition}",
+  "flowPathOpenStatement": "在编辑器中打开语句",
+  "flowPathNoStatement": "此路径没有已知的源语句。",
+  "flowPathStatementNotInProject": "该语句所在的文件不在此项目中，因此未打开。",
+  "flowPathsThroughRegister": "起点或终点为 {register} 的路径",
+  "flowPathsNoneThroughRegister": "此运行中没有起点或终点为 {register} 的最差路径。",
+  "flowPathsShowAll": "显示所有路径",
+  "dashboardFilterByCrossProbe": "交叉探测",
+  "dashboardFilterFormalReads": "读取 {signal} 的属性"
 }

@@ -283,6 +283,11 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
   /// ([SbyScript.assertionsDisabledFor]). Absent otherwise.
   static const String kMetricAssertionsDisabled = 'formal.assertions_disabled';
 
+  /// Metric key: `1` when the task runs with `[options] multiclock on`.
+  /// Absent otherwise. Its witness steps are not one sample of one formal
+  /// clock, so a hand-off states no step for it.
+  static const String kMetricMulticlock = 'formal.multiclock';
+
   /// Metric key: how many properties the mode checks.
   static const String kMetricProperties = 'formal.properties';
 
@@ -315,6 +320,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     'trace',
     'id',
     'pretrace',
+    'reads',
   ];
 
   /// The most properties written as indexed metrics. The counts above
@@ -1010,6 +1016,8 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         kMetricTraceCount: '${outcome.traces.length}',
       kMetricTraceUnresolved: ?facts.traceUnresolved,
       kMetricAssertionsDisabled: ?assertionsDisabled,
+      if (facts.script?.multiclockFor(job.task) ?? false)
+        kMetricMulticlock: '1',
     };
     if (reconciliation.disagreement != null) {
       metrics[kMetricProperties] = '${reconciliation.properties.length}';
@@ -1134,6 +1142,11 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
             property.status == FormalPropertyStatus.reached ||
             property.status == FormalPropertyStatus.counterexample;
         final exposure = facts.at(property.rawLocation);
+        // The signals the property reads, for the cross-probe filters and
+        // "Show in NetCrux". Names only, comma-joined, nearest first.
+        if (exposure != null && exposure.reads.isNotEmpty) {
+          metrics['$kPropertyPrefix$n.reads'] = exposure.reads.join(',');
+        }
         // Measured on both frontends: a property `sby` reports at step s
         // samples the design at step s - 1, so a chain of depth N reads
         // before step 0 while s <= N.

@@ -13,6 +13,7 @@ class FormalCellExposure {
     required this.kind,
     required this.location,
     required this.pastDepth,
+    this.reads = const <String>[],
   });
 
   /// `assert`, `assume`, `cover`, `live` or `fair`.
@@ -26,15 +27,26 @@ class FormalCellExposure {
   /// the cell's inputs; 0 when no `$past` feeds it.
   final int pastDepth;
 
+  /// The design signals the property reads, nearest first: every named net
+  /// on the combinational paths into the cell's `A` input, then its `EN`
+  /// input, up to and including the register outputs where those paths
+  /// start. A signal of the design's top module is written rooted at it
+  /// (`handshake.f_wait`); one of another module by its own name, since a
+  /// module can be instantiated more than once. At most
+  /// [PretraceDetector.kMaxReads].
+  final List<String> reads;
+
   @override
   bool operator ==(Object other) =>
       other is FormalCellExposure &&
       other.kind == kind &&
       other.location == location &&
-      other.pastDepth == pastDepth;
+      other.pastDepth == pastDepth &&
+      other.reads.join('\n') == reads.join('\n');
 
   @override
-  int get hashCode => Object.hash(kind, location, pastDepth);
+  int get hashCode =>
+      Object.hash(kind, location, pastDepth, Object.hashAll(reads));
 
   @override
   String toString() => 'FormalCellExposure($kind @ $location, $pastDepth)';
@@ -124,18 +136,25 @@ class PretraceDetector {
 
   static final RegExp _pastName = RegExp(r'^\$+past\$');
 
+  /// The most signals [FormalCellExposure.reads] lists for one property.
+  static const int kMaxReads = 16;
+
   /// Every formal cell of [model] with its `$past` exposure.
   FormalDesignFacts analyse(NetlistModel model) {
+    final top = model.topModule?.name;
     final cells = <FormalCellExposure>[];
     for (final module in model.modules.values) {
-      cells.addAll(_analyseModule(module));
+      cells.addAll(_analyseModule(module, rooted: module.name == top));
     }
     return FormalDesignFacts(
       cells: List<FormalCellExposure>.unmodifiable(cells),
     );
   }
 
-  List<FormalCellExposure> _analyseModule(Module module) {
+  List<FormalCellExposure> _analyseModule(
+    Module module, {
+    required bool rooted,
+  }) {
     // Which cell drives each net bit.
     final driver = <int, Cell>{};
     for (final cell in module.cells.values) {
@@ -206,6 +225,63 @@ class PretraceDetector {
       return depthMemo[cell] = deepest + 1;
     }
 
+    // The user's names for each net bit, in declaration order: what a
+    // property reads is said in the names the design gave its signals.
+    final namesOf = <int, List<String>>{};
+    for (final net in module.nets.values) {
+      final name = net.name;
+      if (net.hideName ||
+          name.isEmpty ||
+          name.startsWith(r'$') ||
+          name.contains(',') ||
+          _pastName.hasMatch(name)) {
+        continue;
+      }
+      for (final bit in net.bits) {
+        if (bit is NetBit) (namesOf[bit.netId] ??= <String>[]).add(name);
+      }
+    }
+
+    /// The named signals on the combinational paths into [bits], nearest
+    /// first, stopping at (and including the outputs of) registers.
+    List<String> readsOf(List<BitRef> bits) {
+      final found = <String>[];
+      final seen = <int>{};
+      final queue = <int>[
+        for (final b in bits)
+          if (b is NetBit) b.netId,
+      ];
+      for (var i = 0; i < queue.length && found.length < kMaxReads; i++) {
+        final bit = queue[i];
+        if (!seen.add(bit)) continue;
+        for (final name in namesOf[bit] ?? const <String>[]) {
+          final shown = rooted ? '${module.name}.$name' : name;
+          if (!found.contains(shown)) found.add(shown);
+          if (found.length >= kMaxReads) break;
+        }
+        final cell = driver[bit];
+        if (cell == null || _isState(cell)) continue;
+        if (_isFlipFlop(cell)) {
+          // A `$past` register is the property's own history of a design
+          // signal, so the signal it samples is read too; a design register
+          // is where the path starts.
+          if (isPast(cell)) {
+            for (final b in cell.connections['D'] ?? const <BitRef>[]) {
+              if (b is NetBit && !seen.contains(b.netId)) queue.add(b.netId);
+            }
+          }
+          continue;
+        }
+        cell.connections.forEach((port, portBits) {
+          if (cell.portDirections[port] == PortDirection.output) return;
+          for (final b in portBits) {
+            if (b is NetBit && !seen.contains(b.netId)) queue.add(b.netId);
+          }
+        });
+      }
+      return List<String>.unmodifiable(found);
+    }
+
     final out = <FormalCellExposure>[];
     for (final cell in module.cells.values) {
       final kind = _formalKind(cell);
@@ -224,6 +300,7 @@ class PretraceDetector {
           kind: kind,
           location: cell.attributes['src'] ?? '',
           pastDepth: deepest,
+          reads: readsOf(inputs),
         ),
       );
     }

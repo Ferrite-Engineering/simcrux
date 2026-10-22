@@ -151,6 +151,48 @@ void main() {
       expect(rows.map((r) => r.testId), ['unit/REGFILE']);
     });
 
+    // A peer's cross-probe of a signal: only the formal rows with a property
+    // that reads it, and Clear (an unset filter) brings every row back.
+    test('applies the formal-reads filter', () {
+      TestResult proof(String id, String reads) => TestResult(
+        testId: id,
+        runId: 'r1',
+        status: TestStatus.fail,
+        startedAt: DateTime.utc(2026, 5),
+        finishedAt: DateTime.utc(2026, 5),
+        metrics: <String, String>{
+          'formal.tool': 'sby',
+          'formal.verdict': 'FAIL',
+          'formal.property.0.kind': 'ASSERT',
+          'formal.property.0.location': 'fifo.sv:38.3-38.9',
+          'formal.property.0.status': 'counterexample',
+          'formal.property.0.reads': reads,
+        },
+      );
+      final run = _run([
+        proof('proofs/fifo', 'fifo.full,fifo.empty'),
+        proof('proofs/alu', 'alu.sum'),
+        _result('unit/fifo_full', TestStatus.pass, Duration.zero),
+      ]);
+      final rows = filterAndSortDashboardRows(
+        run: run,
+        config: null,
+        filter: DashboardFilter(formalReads: 'fifo.full'),
+        sort: const DashboardSort(),
+      );
+      expect(rows.map((r) => r.testId), ['proofs/fifo']);
+      expect(DashboardFilter(formalReads: 'x').isUnset, isFalse);
+      expect(
+        filterAndSortDashboardRows(
+          run: run,
+          config: null,
+          filter: DashboardFilter.unset,
+          sort: const DashboardSort(),
+        ),
+        hasLength(3),
+      );
+    });
+
     test('applies the suite filter', () {
       final rows = filterAndSortDashboardRows(
         run: _run([

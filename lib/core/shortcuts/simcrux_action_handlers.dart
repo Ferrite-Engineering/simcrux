@@ -5,7 +5,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:crux_cxp_ui/crux_cxp_ui.dart' show runCrossProbeSelection;
+import 'package:crux_cxp_ui/crux_cxp_ui.dart'
+    show broadcastCruxCxpSelection, runCrossProbeSelection;
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
@@ -41,6 +42,7 @@ import 'package:simcrux/features/export/export_results_flow.dart';
 import 'package:simcrux/features/flaky_detection/providers/flaky_tests_panel_opener.dart';
 import 'package:simcrux/features/flow/flow_actions.dart';
 import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/formal_import/import_formal_project_flow.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/panel_layout/providers/panel_layout_provider.dart';
@@ -49,6 +51,7 @@ import 'package:simcrux/features/projects/providers/project_list_openers.dart';
 import 'package:simcrux/features/projects/providers/project_switcher_opener.dart';
 import 'package:simcrux/features/remote/providers/cross_probe_visibility_provider.dart';
 import 'package:simcrux/features/remote/services/cross_probe_selection.dart';
+import 'package:simcrux/features/remote/services/flow_path_selection.dart';
 import 'package:simcrux/features/search/widgets/search_dialog.dart';
 import 'package:simcrux/features/settings/screens/settings_screen.dart';
 import 'package:simcrux/features/trend_tracking/providers/trend_screen_openers.dart';
@@ -495,13 +498,21 @@ class SimcruxActionHandlers {
         final ctx = overlayContext();
         if (ctx == null) return;
         final tabContainer = activeTabContainer();
+        // A worst path the user is on in Flow Runs, else the selected test.
+        final path = tabContainer == null || !ref.read(flowRunsVisibleProvider)
+            ? null
+            : tabContainer.read(flowFocusedPathProvider);
+        if (path != null) {
+          // The whole path to every peer, the one element to the target.
+          broadcastCruxCxpSelection(ref.read, flowPathNotifySelection(path));
+        }
         unawaited(
           runCrossProbeSelection(
             ctx,
             ref,
             selection: tabContainer == null
                 ? null
-                : selectedTestCrossProbeSelection(tabContainer.read),
+                : tabCrossProbeSelection(tabContainer.read),
           ),
         );
       },

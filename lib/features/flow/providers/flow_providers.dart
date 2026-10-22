@@ -12,6 +12,8 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/remote/services/flow_path_selection.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
 import 'package:simcrux/services/flow/flow_worst_paths.dart';
 
@@ -171,6 +173,67 @@ class FlowSelectedRunNotifier extends Notifier<FlowRunSelection?> {
   void select(FlowRunSelection? selection) => state = selection;
 }
 
+/// The worst path the user is on in the Flow Runs panel's paths table, for
+/// Cross-probe Selection: set when the table takes focus or moves its
+/// current row, and cleared when the run or the selected test changes, so the
+/// command sends the path only while the path is what the user last chose.
+/// Per tab.
+final NotifierProvider<FlowFocusedPathNotifier, FlowPathTarget?>
+flowFocusedPathProvider =
+    NotifierProvider<FlowFocusedPathNotifier, FlowPathTarget?>(
+      FlowFocusedPathNotifier.new,
+      name: 'flowFocusedPathProvider',
+    );
+
+/// Backs [flowFocusedPathProvider].
+class FlowFocusedPathNotifier extends Notifier<FlowPathTarget?> {
+  @override
+  FlowPathTarget? build() {
+    // Listened, not watched: a watch would rebuild (and clear) the state on
+    // the very change it is meant to follow, and the listeners close with
+    // the provider.
+    ref
+      ..listen<String?>(selectedTestIdProvider, (previous, next) {
+        if (previous != next) state = null;
+      })
+      ..listen<FlowRunSelection?>(flowSelectedRunProvider, (previous, next) {
+        if (previous?.root != next?.root) state = null;
+      });
+    return null;
+  }
+
+  /// Records [target] as the path the user is on.
+  // ignore: use_setters_to_change_properties
+  void focus(FlowPathTarget target) => state = target;
+
+  /// Forgets it.
+  void clear() => state = null;
+}
+
+/// The register a peer asked to see the timing paths through (NetCrux's
+/// "Show timing paths through this register"): the paths table lists only
+/// the paths that start or end at it until the user shows them all. Null
+/// when the table is unfiltered. Per tab.
+final NotifierProvider<FlowPathRegisterFilterNotifier, String?>
+flowPathRegisterFilterProvider =
+    NotifierProvider<FlowPathRegisterFilterNotifier, String?>(
+      FlowPathRegisterFilterNotifier.new,
+      name: 'flowPathRegisterFilterProvider',
+    );
+
+/// Backs [flowPathRegisterFilterProvider].
+class FlowPathRegisterFilterNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  /// Filters to the paths through [register].
+  // ignore: use_setters_to_change_properties
+  void set(String register) => state = register;
+
+  /// Shows every path again.
+  void clear() => state = null;
+}
+
 /// The worst paths of the run [ref] names, each mapped to the RTL, read on
 /// a background isolate. Per tab.
 final FutureProviderFamily<FlowWorstPaths, FlowRunRef> flowWorstPathsProvider =
@@ -248,6 +311,10 @@ class FlowRunWatcher extends Notifier<int> {
 List<Override> flowTabOverrides() => <Override>[
   flowIngestedPathsProvider.overrideWith(FlowIngestedPathsNotifier.new),
   flowSelectedRunProvider.overrideWith(FlowSelectedRunNotifier.new),
+  flowFocusedPathProvider.overrideWith(FlowFocusedPathNotifier.new),
+  flowPathRegisterFilterProvider.overrideWith(
+    FlowPathRegisterFilterNotifier.new,
+  ),
   flowRunWatcherProvider.overrideWith(FlowRunWatcher.new),
   flowRunIndexProvider.overrideWith(flowRunIndex),
   flowWorstPathsProvider.overrideWith(flowWorstPaths),

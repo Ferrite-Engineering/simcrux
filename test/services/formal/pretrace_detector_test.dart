@@ -79,6 +79,51 @@ void main() {
       expect(_onLine(facts, 'fifo_slang.sv', 42).pastDepth, 0);
     });
 
+    // What each property reads, from the RTL (fifo_slang.sv): the names on
+    // the combinational paths into the check, through `$past`, stopping at
+    // the design's registers; rooted at the top module.
+    test('what each property reads: the signals its expression names', () {
+      final facts = _facts('fifo_slang', 'cov');
+      // a_never_over: count <= D, disable iff (rst).
+      final never = _onLine(facts, 'fifo_slang.sv', 38).reads;
+      expect(never.first, 'fifo_slang.count');
+      expect(never, contains('fifo_slang.rst'));
+      // a_full_empty: !(full && empty); both are decoded from count.
+      expect(
+        _onLine(facts, 'fifo_slang.sv', 39).reads,
+        containsAll(<String>['fifo_slang.full', 'fifo_slang.empty']),
+      );
+      // a_rose_full: $rose(full) || $past(wr), read through `$past`.
+      expect(
+        _onLine(facts, 'fifo_slang.sv', 41).reads,
+        containsAll(<String>['fifo_slang.full', 'fifo_slang.wr']),
+      );
+      // c_drain: $past(full, 4) && empty.
+      expect(
+        _onLine(facts, 'fifo_slang.sv', 47).reads,
+        containsAll(<String>['fifo_slang.full', 'fifo_slang.empty']),
+      );
+      for (final cell in facts.cells) {
+        // Never the clock (a check's trigger, not its expression), never a
+        // signal behind a design register, never an internal name.
+        expect(cell.reads, isNot(contains('fifo_slang.clk')), reason: '$cell');
+        expect(
+          cell.reads,
+          isNot(contains('fifo_slang.wdata')),
+          reason: '$cell',
+        );
+        expect(
+          cell.reads.where((r) => r.contains(r'$')),
+          isEmpty,
+          reason: '$cell',
+        );
+        expect(
+          cell.reads.length,
+          lessThanOrEqualTo(PretraceDetector.kMaxReads),
+        );
+      }
+    });
+
     test('every formal cell is found, with its kind', () {
       final facts = _facts('fifo_slang', 'cov');
       expect(facts.count('assert'), 5);

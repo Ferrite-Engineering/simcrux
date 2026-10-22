@@ -71,6 +71,42 @@ void main() {
       });
     }
 
+    // The step each counterexample failed at, as each partition's own
+    // SymbiYosys summary states it (read by hand from the captured
+    // `strategies/<p>/sby/sby.log`: `failed assertion … step 1`). alu_fail's
+    // alu.r summary names no step, so none is stated: the hand-off then
+    // carries no coordinate rather than a guessed step 0.
+    test('each counterexample keeps the step its summary stated', () {
+      final fail = {
+        for (final x in readRun('alu_fail').partitions) x.name: x,
+      };
+      expect(fail['alu.z']!.step, 1);
+      expect(fail['alu.r']!.step, isNull);
+      expect(fail['alu.r']!.trace, isNotNull);
+      final fail2 = readRun('alu_fail2').partitions;
+      expect(
+        {for (final x in fail2) x.name: x.step},
+        {'alu.y': 1, 'alu.z': 1},
+      );
+      final pass = readRun('alu_pass').partitions;
+      expect(
+        pass.where((x) => x.trace == null).every((x) => x.step == null),
+        isTrue,
+      );
+    });
+
+    test('summarySteps reads only a basecase trace followed by its step', () {
+      final steps = EqyWorkdirReader.summarySteps(
+        <String>[
+          'SBY 1:00:00 [p] summary: counterexample trace [basecase]: p/engine_0/trace.vcd',
+          'SBY 1:00:00 [p] summary:   failed assertion m.a at x.sv:1.1-1.2 step 3',
+          'SBY 1:00:00 [p] summary: counterexample trace [induction]: p/engine_0/trace_induct.vcd',
+          'SBY 1:00:00 [p] summary:   failed assertion m.a at x.sv:1.1-1.2',
+        ].join('\n'),
+      );
+      expect(steps, {'p/engine_0/trace.vcd': 3});
+    });
+
     test('the four acceptance verdicts', () {
       FormalVerdict verdict(String run) => EqyReconciliation.reconcile(
         taskVerdict: EqyLogReader.parse(

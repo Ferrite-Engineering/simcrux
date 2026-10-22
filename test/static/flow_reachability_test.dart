@@ -153,10 +153,31 @@ void main() {
       'flowRunWatcherProvider.overrideWith(',
       'flowRunIndexProvider.overrideWith(',
       'flowWorstPathsProvider.overrideWith(',
+      'flowFocusedPathProvider.overrideWith(',
+      'flowPathRegisterFilterProvider.overrideWith(',
     ]) {
       expect(names, contains(provider));
     }
-    expect(flowTabOverrides(), hasLength(5));
+    expect(flowTabOverrides(), hasLength(7));
+  });
+
+  test('the path rows cross-probe through the shared layer, and a peer '
+      'reaches the receive filter and the flow_run answer', () {
+    final panel = source('lib/features/flow/widgets/flow_runs_panel.dart');
+    expect(panel, contains('contextMenuEntries:'));
+    expect(panel, contains('focusFlowPath('));
+    final actions = source('lib/features/flow/widgets/flow_path_actions.dart');
+    expect(actions, contains('crossProbeMenuEntry('));
+    expect(actions, contains('broadcastCruxCxpSelection('));
+    expect(actions, contains('editorLauncherProvider'));
+    final handlers = source('lib/core/shortcuts/simcrux_action_handlers.dart');
+    expect(handlers, contains('tabCrossProbeSelection('));
+    final inbound = source(
+      'lib/features/remote/providers/inbound_request_handler.dart',
+    );
+    expect(inbound, contains('flowPathRegisterFilterProvider.notifier'));
+    expect(inbound, contains('case kCxpFlowRunArtifactKind:'));
+    expect(inbound, contains('setFormalReads('));
   });
 
   test('the panel reads the index and the worst paths, and records '

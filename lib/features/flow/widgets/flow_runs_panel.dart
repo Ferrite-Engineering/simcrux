@@ -17,6 +17,8 @@ import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/flow/providers/flow_table_layouts.dart';
 import 'package:simcrux/features/flow/widgets/flow_dialogs.dart';
 import 'package:simcrux/features/flow/widgets/flow_keyboard_table.dart';
+import 'package:simcrux/features/flow/widgets/flow_path_actions.dart';
+import 'package:simcrux/features/remote/services/flow_path_selection.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
@@ -267,9 +269,24 @@ class _RunDetailState extends ConsumerState<_RunDetail> {
   _Section _section = _Section.steps;
 
   @override
+  void initState() {
+    super.initState();
+    // A peer's "Show timing paths through this register" lands on the
+    // paths, already filtered.
+    if (ref.read(flowPathRegisterFilterProvider) != null) {
+      _section = _Section.paths;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = L10N.of(context);
     final reading = widget.entry.reading;
+    ref.listen<String?>(flowPathRegisterFilterProvider, (_, next) {
+      if (next != null && _section != _Section.paths) {
+        setState(() => _section = _Section.paths);
+      }
+    });
     return LayoutBuilder(
       builder: (context, box) {
         // The table keeps a usable height however short the dock is; the
@@ -327,7 +344,7 @@ class _RunDetailState extends ConsumerState<_RunDetail> {
                 child: switch (_section) {
                   _Section.steps => _StepsTable(reading: reading),
                   _Section.metrics => _MetricsTable(reading: reading),
-                  _Section.paths => _PathsTable(reading: reading),
+                  _Section.paths => _PathsTable(entry: widget.entry),
                 },
               ),
             ],
@@ -757,13 +774,14 @@ class _MetricsTableState extends State<_MetricsTable>
 }
 
 class _PathsTable extends ConsumerWidget {
-  const _PathsTable({required this.reading});
+  const _PathsTable({required this.entry});
 
-  final FlowReading reading;
+  final FlowRunIndexEntry entry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = L10N.of(context);
+    final reading = entry.reading;
     final runRef = reading.run.ref;
     final async = ref.watch(flowWorstPathsProvider(runRef));
     final paths = async.value;
@@ -774,6 +792,22 @@ class _PathsTable extends ConsumerWidget {
             : l10n.flowPathsReading,
       );
     }
+    final register = ref.watch(flowPathRegisterFilterProvider);
+    final top = flowEntryNamed(
+      ref.watch(activeConfigProvider),
+      entry.design,
+    )?.top;
+    final rows = register == null
+        ? paths.rows
+        : <FlowPathRow>[
+            for (final row in paths.rows)
+              if (flowPathThroughRegister(row, register, top: top)) row,
+          ];
+    // A peer's "Show timing paths through this register": said, with the
+    // way back, above whatever the filter leaves.
+    final filterNote = register == null
+        ? null
+        : _RegisterFilterNote(register: register, matches: rows.length);
     if (paths.rows.isEmpty) {
       return CruxPanelEmptyState(
         message: switch (paths.gap) {
@@ -783,8 +817,10 @@ class _PathsTable extends ConsumerWidget {
         },
       );
     }
+    if (rows.isEmpty) return filterNote!;
     final layout = ref.watch(flowPathColumnLayout.layout);
-    final rows = paths.rows;
+    FlowPathTarget targetOf(int i) =>
+        flowPathTargetFor(ref.read, entry, rows[i]);
     void open(int i) {
       final row = rows[i];
       // Which kind of run and how well its path maps: never the path, its
@@ -817,6 +853,13 @@ class _PathsTable extends ConsumerWidget {
         FlowPathColumn.mapping: l10n.flowColumnMapping,
       },
       rowCount: rows.length,
+      // Moving onto a path, or into the table, makes it what Cross-probe
+      // Selection sends; the send announces the whole path to the peers.
+      onCurrentChanged: (i) => focusFlowPath(ref, targetOf(i)),
+      onFocusChanged: (i) {
+        if (i >= 0) focusFlowPath(ref, targetOf(i));
+      },
+      contextMenuEntries: (i) => flowPathMenuEntries(context, ref, targetOf(i)),
       rowLabel: (i) {
         final row = rows[i];
         final path = row.path;
@@ -874,19 +917,60 @@ class _PathsTable extends ConsumerWidget {
         ];
       },
     );
-    if (paths.mapped) return table;
+    if (paths.mapped && filterNote == null) return table;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.flowPathsUnmappedNote,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ?filterNote,
+        if (!paths.mapped)
+          Text(
+            l10n.flowPathsUnmappedNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
         const SizedBox(height: 4),
         Expanded(child: table),
       ],
+    );
+  }
+}
+
+/// "Paths through cnt_q" and the way back to every path: what a peer's
+/// "Show timing paths through this register" left the table showing.
+class _RegisterFilterNote extends ConsumerWidget {
+  const _RegisterFilterNote({required this.register, required this.matches});
+
+  final String register;
+  final int matches;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10N.of(context);
+    final theme = Theme.of(context);
+    return Padding(
+      key: const ValueKey('flowPathRegisterFilter'),
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Wrap(
+        spacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            matches == 0
+                ? l10n.flowPathsNoneThroughRegister(register)
+                : l10n.flowPathsThroughRegister(register),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          TextButton(
+            key: const ValueKey('flowPathsShowAll'),
+            onPressed: () =>
+                ref.read(flowPathRegisterFilterProvider.notifier).clear(),
+            child: Text(l10n.flowPathsShowAll),
+          ),
+        ],
+      ),
     );
   }
 }

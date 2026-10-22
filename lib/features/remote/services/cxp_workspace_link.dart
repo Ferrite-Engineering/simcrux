@@ -34,6 +34,18 @@ const String kCxpWaveformArtifactKind = 'waveform';
 /// unsatisfiable highlight naming a design resolves this kind.
 const String kCxpSourceArtifactKind = 'source';
 
+/// The shared-workspace artifact kind for a design's project definition
+/// (CXP §9.10.2): what SimCrux publishes for a `simcrux.yaml` or
+/// `<design>.crux-project` it has open, and the first kind it reads when a
+/// peer asks for a project. Records written before the rule may carry a
+/// project file as `source`, so both kinds are read.
+const String kCxpProjectArtifactKind = 'project';
+
+/// The artifact kind for one implementation run (CXP §9.10.2, rev. 9): a
+/// LibreLane run directory or a nextpnr result folder. SimCrux answers it
+/// with the run it holds for the design.
+const String kCxpFlowRunArtifactKind = 'flow_run';
+
 /// SimCrux's producer short-name stamped into workspace records.
 const String kSimcruxWorkspaceProducer = 'simcrux';
 
@@ -307,16 +319,83 @@ Future<String?> resolveSourceArtifactPath(
   String? basename,
 }) async {
   if (designId.isEmpty) return null;
-  final artifact = await ref
-      .read(cxpWorkspaceStoreProvider)
-      .resolveArtifactAsync(
-        designId,
-        kCxpSourceArtifactKind,
-        topModule: topModule,
-        basename: basename,
-        accepts: simcruxAcceptsSourceArtifact,
-      );
+  final store = ref.read(cxpWorkspaceStoreProvider);
+  // A SimCrux project published as `project` first; then the `source`
+  // records, which still carry projects written before the rule.
+  final project = await store.resolveArtifactAsync(
+    designId,
+    kCxpProjectArtifactKind,
+    accepts: isSimcruxProjectPath,
+  );
+  if (project != null) return project.path;
+  final artifact = await store.resolveArtifactAsync(
+    designId,
+    kCxpSourceArtifactKind,
+    topModule: topModule,
+    basename: basename,
+    accepts: simcruxAcceptsSourceArtifact,
+  );
   return artifact?.path;
+}
+
+/// Records the SimCrux project at [configPath] in the shared workspace as the
+/// design's `project` artifact (CXP §9.10.2), keyed by the design id of its
+/// directory: what a peer's `request_open_artifact{kind: project}` and its
+/// `crux.design_id` fallback resolve. Never as `source`, which names one HDL
+/// file.
+///
+/// Gated on the CXP server running and best-effort, like
+/// [publishWaveformWorkspaceArtifact].
+Future<void> publishProjectWorkspaceArtifact(
+  Ref ref,
+  String configPath,
+) async {
+  if (configPath.isEmpty || !p.isAbsolute(configPath)) return;
+  if (!isSimcruxProjectPath(configPath)) return;
+  if (!ref.read(cruxCxpServerStatusProvider).running) return;
+  try {
+    await ref
+        .read(cxpWorkspaceStoreProvider)
+        .upsertArtifact(
+          designId: cxpDesignIdForPath(configPath),
+          kind: kCxpProjectArtifactKind,
+          path: configPath,
+          producer: kSimcruxWorkspaceProducer,
+          basename: p.basename(configPath),
+        );
+  } on Object {
+    // A courtesy link; never an error on the open path.
+  }
+}
+
+/// Resolves the SimCrux project recorded for [designId] the way
+/// `request_open_artifact{kind: project}` needs it: `project` records first,
+/// then a project file a peer published as `source` before the rule, both
+/// under [kCxpOpenArtifactContainment] (see [resolveOpenArtifactSourcePath]).
+/// Null when neither names a SimCrux project.
+Future<String?> resolveOpenArtifactProjectPath(
+  Ref ref,
+  String designId,
+) async {
+  if (designId.isEmpty) return null;
+  final store = ref.read(cxpWorkspaceStoreProvider);
+  final floor = CxpWorkspaceStore(
+    workspaceDirectory: store.workspaceDirectory,
+    ttl: store.ttl,
+    containment: kCxpOpenArtifactContainment,
+  );
+  for (final kind in const <String>[
+    kCxpProjectArtifactKind,
+    kCxpSourceArtifactKind,
+  ]) {
+    final artifact = await floor.resolveArtifactAsync(
+      designId,
+      kind,
+      accepts: isSimcruxProjectPath,
+    );
+    if (artifact != null) return artifact.path;
+  }
+  return null;
 }
 
 /// Resolves the `source` artifact recorded for [designId] the way
@@ -340,17 +419,25 @@ Future<String?> resolveOpenArtifactSourcePath(
 ) async {
   if (designId.isEmpty) return null;
   final store = ref.read(cxpWorkspaceStoreProvider);
-  final artifact =
-      await CxpWorkspaceStore(
-        workspaceDirectory: store.workspaceDirectory,
-        ttl: store.ttl,
-        containment: kCxpOpenArtifactContainment,
-      ).resolveArtifactAsync(
-        designId,
-        kCxpSourceArtifactKind,
-        accepts: simcruxAcceptsSourceArtifact,
-      );
-  return artifact?.path;
+  final floor = CxpWorkspaceStore(
+    workspaceDirectory: store.workspaceDirectory,
+    ttl: store.ttl,
+    containment: kCxpOpenArtifactContainment,
+  );
+  final artifact = await floor.resolveArtifactAsync(
+    designId,
+    kCxpSourceArtifactKind,
+    accepts: simcruxAcceptsSourceArtifact,
+  );
+  if (artifact != null) return artifact.path;
+  // A peer that asks for `source` while the project is recorded under the
+  // kind that now names it: read both for one release.
+  final project = await floor.resolveArtifactAsync(
+    designId,
+    kCxpProjectArtifactKind,
+    accepts: isSimcruxProjectPath,
+  );
+  return project?.path;
 }
 
 /// Opens the regression config at [configPath] as a workspace tab for a CXP

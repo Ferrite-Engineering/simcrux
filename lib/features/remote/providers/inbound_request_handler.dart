@@ -6,17 +6,28 @@ import 'dart:io';
 
 import 'package:crux_cxp/crux_cxp.dart';
 import 'package:crux_cxp_ui/crux_cxp_ui.dart';
+import 'package:crux_flow/crux_flow.dart'
+    show FlowContainment, FlowContainmentException;
 import 'package:crux_telemetry/crux_telemetry.dart';
+import 'package:crux_workspace/crux_workspace.dart' show WorkspaceTab;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
+import 'package:path/path.dart' as p;
+import 'package:simcrux/domain/models/formal_config.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
+import 'package:simcrux/features/flow/flow_actions.dart';
+import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
+import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
 import 'package:simcrux/features/workspace/providers/active_tab_container.dart';
+import 'package:simcrux/features/workspace/providers/container_managers.dart';
+import 'package:simcrux/features/workspace/providers/workspace_provider.dart';
 import 'package:simcrux/features/workspace/services/crux_project_resolution.dart';
+import 'package:simcrux/services/flow/flow_run_index.dart';
 import 'package:simcrux/services/remote/cxp/cxp_project_open_handle.dart';
 
 /// "Anchor" provider that publishes the project opener a
@@ -107,24 +118,41 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
     return result;
   }
 
-  /// Handles an inbound `request_open_artifact`: SimCrux consumes only
-  /// `source` artifacts, resolving the concrete file through its shared
-  /// workspace store (preferring that over the sender's hint path, whose
-  /// absolute path may not exist on this machine's layout), and opening it. A
-  /// SimCrux project opens as a config tab ([_openProjectForPeer]); any other
-  /// source file opens in the user's editor ([_openSourceInEditor]). Not
-  /// honoured, with a reason, when the kind is not `source`, nothing is
-  /// recorded or hinted, the path is refused, or the open fails.
+  /// Handles an inbound `request_open_artifact`. SimCrux opens three kinds
+  /// (CXP §9.10.2):
+  ///
+  /// * `project`: its own project (a `simcrux.yaml`, or a
+  ///   `<design>.crux-project` naming one) as a config tab
+  ///   ([_openProjectForPeer]);
+  /// * `source`: a project the same way, for peers that published one under
+  ///   the old kind, and any HDL file in the user's editor
+  ///   ([_openSourceInEditor]);
+  /// * `flow_run`: the implementation run it holds for the design, shown in
+  ///   that project's Flow Runs panel ([_openFlowRun]).
+  ///
+  /// The file is resolved through the shared workspace store first, the
+  /// sender's hint path only after it, whose absolute path may not exist on
+  /// this machine's layout. Not honoured, with a reason that never repeats the
+  /// sender's path, design id or kind (CXP §9.11), when the kind is another
+  /// one, nothing is recorded or hinted, the path is refused, or the open
+  /// fails.
   @override
   Future<CruxCxpHandlerResult> openArtifact(
     RequestOpenArtifact request,
     PeerIdentity from,
   ) async {
-    if (request.artifactKind != kCxpSourceArtifactKind) {
-      return const CruxCxpHandlerResult(
-        honored: false,
-        reason: 'simcrux opens only source artifacts',
-      );
+    switch (request.artifactKind) {
+      case kCxpFlowRunArtifactKind:
+        return await _openFlowRun(request);
+      case kCxpProjectArtifactKind:
+        return await _openProjectArtifact(request);
+      case kCxpSourceArtifactKind:
+        break;
+      default:
+        // A known kind SimCrux does not open (`waveform`, `netlist`,
+        // `timing_report`) or one it has never heard of: the runtime's own
+        // answer for anything a product does not handle.
+        return CruxCxpHandlerResult.unsupported;
     }
     // Read under the floor: the rooted store drops the record for a project
     // never opened here, the one "Open in SimCrux Desktop" publishes before
@@ -154,6 +182,114 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
         ? _openProjectForPeer(path)
         : _openSourceInEditor(path));
   }
+
+  /// A `project` artifact: the SimCrux project recorded for the design
+  /// (`project` records first, then a project file a peer still publishes as
+  /// `source`), else the hint, opened as a config tab under the floor. A file
+  /// that is not a SimCrux project is answered `honored: false`: several
+  /// products publish `project` for one design, and only the format says
+  /// whose it is (CXP §9.10.2).
+  Future<CruxCxpHandlerResult> _openProjectArtifact(
+    RequestOpenArtifact request,
+  ) async {
+    final path =
+        await resolveOpenArtifactProjectPath(ref, request.designId) ??
+        request.path;
+    if (path == null) {
+      return const CruxCxpHandlerResult(
+        honored: false,
+        reason: 'no project is recorded for that design',
+      );
+    }
+    final refusal = kCxpOpenArtifactContainment.refuse(path);
+    if (refusal != null) {
+      return CruxCxpHandlerResult(honored: false, reason: refusal);
+    }
+    if (!isSimcruxProjectPath(path)) {
+      return const CruxCxpHandlerResult(
+        honored: false,
+        reason: 'the project is not one SimCrux reads',
+      );
+    }
+    return await _openProjectForPeer(path);
+  }
+
+  /// A `flow_run` artifact (CXP §9.10.2): the implementation run SimCrux
+  /// holds for the design, shown in its project's Flow Runs panel.
+  ///
+  /// The design is matched against the open project tabs by the same
+  /// `crux.design_id` SimCrux attaches to what it sends. The run is the one
+  /// the hint names when it is one of that project's runs, else the run
+  /// selected in its panel, else its newest. A hint naming anything else is
+  /// discarded, as §9.10 says, never opened. The run directory is held to
+  /// the project directory (symlinks resolved) and to the floor before the
+  /// tab is brought forward; nothing is deleted or written.
+  Future<CruxCxpHandlerResult> _openFlowRun(RequestOpenArtifact request) async {
+    final workspace = ref.read(workspaceProvider).value;
+    final WorkspaceContainerManagers managers;
+    try {
+      managers = ref.read(workspaceContainerManagersProvider);
+    } on Object {
+      return _noFlowRun;
+    }
+    final hint = request.path;
+    for (final tab
+        in workspace?.tabs ?? const <WorkspaceTab<SimcruxTabPayload>>[]) {
+      final configPath = tab.payload.configPath;
+      if (configPath.isEmpty ||
+          cxpDesignIdForPath(configPath) != request.designId) {
+        continue;
+      }
+      final container = managers.tabs.containerFor(tab.id);
+      final config = container.read(activeConfigProvider);
+      if (config == null) continue;
+      final root = flowProjectRoot(config);
+      final FlowRunIndex index;
+      try {
+        index = await container.read(flowRunIndexProvider(root).future);
+      } on Object {
+        continue;
+      }
+      if (index.runs.isEmpty) continue;
+      final hinted = hint == null
+          ? null
+          : index.runs.where((r) => p.equals(r.root, hint)).firstOrNull;
+      final run =
+          hinted ??
+          index.byRoot(container.read(flowSelectedRunProvider)?.root) ??
+          index.runs.first;
+      final refusal = kCxpOpenArtifactContainment.refuse(run.root);
+      if (refusal != null) {
+        return CruxCxpHandlerResult(honored: false, reason: refusal);
+      }
+      try {
+        FlowContainment(<String>[root]).require(run.root);
+      } on FlowContainmentException {
+        return const CruxCxpHandlerResult(
+          honored: false,
+          reason: 'the run is outside its project directory',
+        );
+      }
+      await ref.read(workspaceProvider.notifier).setActiveTab(tab.id);
+      container
+          .read(flowSelectedRunProvider.notifier)
+          .select(
+            FlowRunSelection(
+              root: run.root,
+              kind: run.reading.run.ref.kind,
+              design: run.design,
+            ),
+          );
+      FlowActions.revealFlowRuns(ref.read);
+      return CruxCxpHandlerResult.ok;
+    }
+    return _noFlowRun;
+  }
+
+  static const CruxCxpHandlerResult _noFlowRun = CruxCxpHandlerResult(
+    honored: false,
+    reason: 'no implementation run is held for that design',
+  );
 
   /// Opens the file a peer named in an editor, under the rooted rule.
   @override
@@ -372,10 +508,16 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
       case KnownElementKind.signal:
       case KnownElementKind.net:
       case KnownElementKind.port:
-        // Filter the results table to tests whose name substring
-        // matches the leaf identifier. Best-effort: SimCrux does not
-        // yet maintain a signal-to-test reverse index. The substring
-        // match is the cheap approximation.
+        // A signal of this design (the sender says which design with
+        // `crux.design_id`) filters what SimCrux knows reads it: the formal
+        // properties, and the worst paths through the register.
+        if (_applyReceiveFilters(element.path, msg.metadata)) {
+          return CruxCxpHandlerResult.ok;
+        }
+        // Otherwise filter the results table to tests whose name substring
+        // matches the leaf identifier: SimCrux keeps no signal-to-test
+        // index for simulation, and the substring is the cheap
+        // approximation.
         final leaf = _leafOf(element.path);
         _readScoped(
           dashboardFilterProvider.notifier,
@@ -413,6 +555,36 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
           reason: 'simcrux does not own marker or rule elements',
         );
     }
+  }
+
+  /// The receive filters for a signal a peer named with its design's
+  /// `crux.design_id` (free on every tier): the results table to the formal
+  /// rows with a property that reads it, when the project has formal tests,
+  /// and the Flow Runs panel's worst paths to the paths that start or end at
+  /// that register, when the project has a `flow:` block (the panel is shown
+  /// on its paths). Returns whether either applied; neither applies to a
+  /// signal sent without a design.
+  bool _applyReceiveFilters(String signal, Map<String, Object?> metadata) {
+    final designId = metadata[cxpDesignIdMetadataKey];
+    if (designId is! String || designId.isEmpty) return false;
+    final config = _readScoped<RegressionConfig?>(activeConfigProvider);
+    if (config == null) return false;
+    var applied = false;
+    // `sby` rows are the ones whose properties record what they read.
+    final formal = config.suites.any(
+      (suite) =>
+          suite.tests.any((t) => t.simulatorId == FormalConfig.kSbySimulatorId),
+    );
+    if (formal) {
+      _readScoped(dashboardFilterProvider.notifier).setFormalReads(signal);
+      applied = true;
+    }
+    if (config.flow != null) {
+      _readScoped(flowPathRegisterFilterProvider.notifier).set(signal);
+      FlowActions.revealFlowRuns(ref.read);
+      applied = true;
+    }
+    return applied;
   }
 
   String _leafOf(String hierarchicalPath) {

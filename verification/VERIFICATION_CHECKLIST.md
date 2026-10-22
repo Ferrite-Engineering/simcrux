@@ -1184,6 +1184,17 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] Registered in both registries; `import-eqy` dispatched — `[Coverage: UNIT]` (`eqy_driver_reachability_test.dart`)
 - [ ] Every corpus run and the import-load-run round trip against a real eqy — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`eqy_driver_live_test.dart`, `engine-canary.yml`)
 
+### Formal cross-probes (guide §26.12)
+
+- [ ] A counterexample's hand-off carries `formal.trace_step` at the step the solver reported for its property (the corpus's hand-expected step, which the trace's own `smt_step` counts to), with the verdict, configured depth and role; none when no property states a step, when the trace is not a fired property's, or for `multiclock on`; `demo` rows say so — `[Coverage: UNIT]` (`formal_stream_coordinate_test.dart`)
+- [ ] The corpus is the one WaveCrux pins: 27 traces, the same FNV-1a digest — `[Coverage: UNIT]` (`formal_stream_coordinate_test.dart`)
+- [ ] The row selection offers the trace as `source`, never a `signal`, with `formal.property_kind` and the label; WaveCrux receives the trace — `[Coverage: UNIT]` (`formal_handoff_test.dart`), `[Coverage: INTEGRATION]` (`simcrux_cxp_conformance_test.dart`)
+- [ ] One "Debug `<partition>` in WaveCrux" per failing EQY partition, `sub_id` the partition, the step from its own summary or none; gold and gate scopes on every EQY hand-off — `[Coverage: UNIT]` (`formal_stream_coordinate_test.dart`, `eqy_workdir_reader_test.dart`), `[Coverage: WIDGET]` (`inspector_actions_test.dart`)
+- [ ] Show in NetCrux sends the first signal the failing property reads with the `formal.` keys, then the property; the property alone when no signal is known; free, no badge — `[Coverage: UNIT]` (`formal_handoff_test.dart`), `[Coverage: WIDGET]` (`inspector_actions_test.dart`)
+- [ ] What each property reads, from the RTL: through `$past`, stopping at registers, never the clock or an internal name — `[Coverage: UNIT]` (`pretrace_detector_test.dart`)
+- [ ] A peer's signal with its design filters the formal rows to the properties that read it, shown as a chip under Cross-probe and cleared by Clear filters; without a design the test-name filter applies — `[Coverage: UNIT]` (`cxp_receive_filters_test.dart`, `dashboard_providers_test.dart`)
+- [ ] Two separately signed copies of SimCrux (a second bundle identifier, re-signed) see and cross-probe each other — `[Coverage: MANUAL]` (guide §26.12)
+
 ---
 
 ## Flow: FPGA place-and-route fixtures and the weekly live check (guide §27)
@@ -1230,6 +1241,17 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] No Flow message, export template line or docs-site Flow page claims signoff, tapeout readiness, certification, qualification or a guarantee; the one disclaimer is fenced — `[Coverage: UNIT]` (`flow_vocabulary_guard_test.dart`)
 - [ ] The release-build drive (launch, ingest a directory and a zip, gate, hand-off) on macOS and Linux — `[Coverage: MANUAL]` (guide §27.8 checklist)
 - [ ] A launched LibreLane run (path, Nix and Docker launchers from the app) and a hand-off to KLayout, OpenROAD and nextpnr's GUI — `[Coverage: MANUAL]`
+
+### Flow cross-probes (guide §27.9)
+
+- [ ] A worst path sends one element per target: the endpoint register (rooted at the entry's top) to WaveCrux and NetCrux, a statement to LintCrux, the opaque `timing_path` last; the whole path goes out as one `notify_selection` with `crux.mapping` as mapped — `[Coverage: UNIT]` (`flow_path_selection_test.dart`), `[Coverage: INTEGRATION]` (`simcrux_cxp_conformance_test.dart`)
+- [ ] Moving onto a path makes it what Cross-probe Selection sends while Flow Runs shows; Shift+F10 opens "Cross-probe to" and "Open statement in editor"; a modified Enter is not activation — `[Coverage: WIDGET]` (`flow_path_cross_probe_test.dart`)
+- [ ] Open statement in editor opens the span's file only inside the project, symlinks resolved, by its own path or its suffix among the entry's sources — `[Coverage: UNIT]` (`flow_path_cross_probe_test.dart`), `[Coverage: MANUAL]` (guide §27.9)
+- [ ] A peer's register with its design filters the worst paths to the paths through it, says so, and Show all paths restores them — `[Coverage: UNIT]` (`cxp_receive_filters_test.dart`), `[Coverage: WIDGET]` (`flow_path_cross_probe_test.dart`)
+- [ ] `flow_run` answers with the run held for the design (the hinted one when it is the project's, else the selected, else the newest), contained; another design or none held is refused without repeating it; `timing_report` and other kinds are `unsupported`; an unknown message kind is `unknown_kind` — `[Coverage: UNIT]` (`cxp_receive_filters_test.dart`), `[Coverage: INTEGRATION]` (`simcrux_cxp_conformance_test.dart`)
+- [ ] `project` opens a SimCrux project, reading `project` then legacy `source` records; each open project is published as `project`; no reason repeats a path, design id or kind — `[Coverage: UNIT]` (`cxp_project_artifact_test.dart`, `cxp_reachability_test.dart`, `inbound_request_handler_reason_test.dart`)
+- [ ] The active tab's name is the window's CXP active document — `[Coverage: UNIT]` (`cxp_presence_provider_test.dart`)
+- [ ] The release-build drive across four products — `[Coverage: MANUAL]` (guide §27.9)
 
 ---
 

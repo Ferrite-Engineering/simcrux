@@ -54,6 +54,7 @@ import 'package:simcrux/features/flow/providers/flow_table_layouts.dart';
 import 'package:simcrux/features/issue_reporter/providers/issue_reporter_overrides.dart';
 import 'package:simcrux/features/lifecycle/widgets/app_exit_guard.dart';
 import 'package:simcrux/features/menu_bar/widgets/desktop_menu_bar.dart';
+import 'package:simcrux/features/remote/providers/cxp_presence_provider.dart';
 import 'package:simcrux/features/remote/providers/inbound_request_handler.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/simcrux_cxp_binding.dart';
@@ -848,6 +849,9 @@ class _SimcruxAppChrome extends StatelessWidget {
             // disabled setting (or the organization's policy) resolves to
             // null and binds nothing.
             ..watch(cruxCxpRuntimeProvider)
+            // The active tab's name as this window's CXP active document,
+            // and each open project as its design's `project` artifact.
+            ..watch(simcruxCxpPresenceProvider)
             // Registry↔workspace glue: records every opened config
             // into the project registry (recents / pins / switcher
             // / cross-project search stay true) and follows

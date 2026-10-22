@@ -128,6 +128,49 @@ void main() {
         expect(calls, contains('loadCruxCxpLaunchSettings'));
       },
     );
+
+    // The active document (CXP §8.1) and the `project` artifact are
+    // published from the workspace by one anchor the app root watches.
+    test('the app root announces the active document and publishes each '
+        'open project', () {
+      final source = File(p.join('lib', 'app.dart')).readAsStringSync();
+      expect(source, contains('..watch(simcruxCxpPresenceProvider)'));
+      expect(
+        callsByFile.values.any(
+          (calls) => calls.any((c) => c.endsWith('.setActiveDocument')),
+        ),
+        isTrue,
+      );
+      expect(libCalls('publishProjectWorkspaceArtifact'), isTrue);
+    });
+  });
+
+  group('the Formal and Flow producers have callers in lib/', () {
+    for (final producer in const <String>[
+      // The counterexample coordinate and its `formal.` keys.
+      'formalStreamCoordinateFor',
+      'formalHandoffMetadata',
+      // "Show in NetCrux" and the per-partition hand-off.
+      'formalShowInNetCruxSelection',
+      'crossProbeToProduct',
+      'eqyPartitionTracePath',
+      // The worst-path row's selection, directed and broadcast.
+      'flowPathCrossProbeSelection',
+      'flowPathNotifySelection',
+      'flowPathMenuEntries',
+      'openFlowPathStatement',
+      // The receive filters.
+      'formalRowReads',
+      'flowPathThroughRegister',
+    ]) {
+      test(producer, () {
+        expect(
+          libCalls(producer),
+          isTrue,
+          reason: '$producer exists but nothing in lib/ calls it.',
+        );
+      });
+    }
   });
 
   group('every shared surface SimCrux adopts has a caller in lib/', () {

@@ -32,6 +32,7 @@ class SbyScript {
     this.modeLines = const <SbyScopedLine>[],
     this.engineLines = const <SbyScopedLine>[],
     this.scriptLines = const <SbyScopedLine>[],
+    this.multiclockLines = const <SbyScopedLine>[],
   });
 
   /// Parses [text]. Never throws: an unreadable or unusual file yields an
@@ -46,6 +47,7 @@ class SbyScript {
     final modeLines = <SbyScopedLine>[];
     final engineLines = <SbyScopedLine>[];
     final scriptLines = <SbyScopedLine>[];
+    final multiclockLines = <SbyScopedLine>[];
     var section = '';
     for (final raw in text.split('\n')) {
       final line = raw.trim();
@@ -73,6 +75,13 @@ class SbyScript {
             depth ??= int.tryParse(parts[1]);
           case 'timeout':
             timeout ??= int.tryParse(parts[1]);
+          case 'multiclock':
+            multiclockLines.add(
+              SbyScopedLine(
+                scope: _taskScope(line),
+                text: parts[1].toLowerCase(),
+              ),
+            );
         }
       } else if (section == 'engines') {
         engineLines.add(
@@ -120,6 +129,7 @@ class SbyScript {
       modeLines: List<SbyScopedLine>.unmodifiable(modeLines),
       engineLines: List<SbyScopedLine>.unmodifiable(engineLines),
       scriptLines: List<SbyScopedLine>.unmodifiable(scriptLines),
+      multiclockLines: List<SbyScopedLine>.unmodifiable(multiclockLines),
     );
   }
 
@@ -162,6 +172,31 @@ class SbyScript {
       }
     }
     return proofMode;
+  }
+
+  /// Whether `[options] multiclock on` applies to [task]: the first
+  /// `multiclock` line in scope for it decides, a task-scoped line before an
+  /// unscoped one, as for [modeFor]. False when no line says so.
+  ///
+  /// A multi-clock task's witness steps are not one sample of one formal
+  /// clock, so its traces carry no step coordinate.
+  bool multiclockFor(String? task) {
+    if (task != null) {
+      final names = _namesOf(task);
+      for (final line in multiclockLines) {
+        if (line.scope != null && line.appliesTo(names)) {
+          return line.text == 'on';
+        }
+      }
+      for (final line in multiclockLines) {
+        if (line.appliesTo(names)) return line.text == 'on';
+      }
+      return false;
+    }
+    for (final line in multiclockLines) {
+      if (line.scope == null) return line.text == 'on';
+    }
+    return multiclockLines.any((line) => line.text == 'on');
   }
 
   /// The `[script]` lines that run for [task], or every line for a null
@@ -249,6 +284,10 @@ class SbyScript {
 
   /// The `[script]` lines with their scopes.
   final List<SbyScopedLine> scriptLines;
+
+  /// The `[options] multiclock` lines with their scopes; the text is `on`
+  /// or `off`, lower-cased.
+  final List<SbyScopedLine> multiclockLines;
 
   @override
   bool operator ==(Object other) {

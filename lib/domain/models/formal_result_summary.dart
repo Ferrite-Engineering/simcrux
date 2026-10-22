@@ -57,6 +57,7 @@ class FormalPartitionRow {
     required this.name,
     required this.status,
     this.trace,
+    this.step,
   });
 
   /// The partition's name (`alu.z`). Never translated.
@@ -67,6 +68,9 @@ class FormalPartitionRow {
 
   /// Its counterexample, relative to the run's work directory.
   final String? trace;
+
+  /// The step its counterexample failed at, when the solver stated one.
+  final int? step;
 }
 
 /// The formal facts of one result row, read back from its metrics.
@@ -342,6 +346,7 @@ class FormalResultSummary {
           // A status this build cannot read never reads as proved.
           status: status ?? FormalPropertyStatus.didNotRun,
           trace: metrics['${prefix}trace'],
+          step: int.tryParse(metrics['${prefix}step'] ?? ''),
         ),
       );
     }

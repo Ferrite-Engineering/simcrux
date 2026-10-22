@@ -14,6 +14,7 @@ import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_filter.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
+import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
 /// The active [RegressionConfig], or null when no project is open.
@@ -148,6 +149,12 @@ class DashboardFilterNotifier extends Notifier<DashboardFilter> {
   /// Update the substring-match field.
   void setTestNameSubstring(String substring) {
     state = state.copyWith(testNameSubstring: substring);
+  }
+
+  /// Show only the formal rows with a property that reads [signal]; an
+  /// empty [signal] drops the constraint.
+  void setFormalReads(String signal) {
+    state = state.copyWith(formalReads: signal);
   }
 }
 
@@ -533,6 +540,10 @@ bool _matches(DashboardRow row, DashboardFilter filter) {
   if (filter.testNameSubstring.isNotEmpty) {
     final needle = filter.testNameSubstring.toLowerCase();
     if (!_searchText(row).contains(needle)) return false;
+  }
+  if (filter.formalReads.isNotEmpty &&
+      !formalRowReads(row.result.metrics, filter.formalReads)) {
+    return false;
   }
   if (filter.minRuntime != null && row.result.runtime < filter.minRuntime!) {
     return false;

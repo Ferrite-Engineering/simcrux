@@ -3761,5 +3761,16 @@
   "diagnosticsTabRowFlowTools": "도구 버전",
   "@diagnosticsTabRowFlowTools": {
     "description": "Tab Diagnostics row: the tool versions the run states."
-  }
+  },
+  "inspectorActionShowInNetcrux": "NetCrux에서 표시",
+  "inspectorActionShowInNetcruxTooltip": "실패한 속성이 읽는 신호를 NetCrux에서 선택하고 그 신호를 구동하는 로직을 표시합니다. 이 컴퓨터에서 NetCrux가 실행 중이어야 합니다.",
+  "inspectorActionDebugPartitionInWavecrux": "WaveCrux에서 {partition} 디버그",
+  "flowPathOpenStatement": "편집기에서 구문 열기",
+  "flowPathNoStatement": "이 경로에 대해 알려진 소스 구문이 없습니다.",
+  "flowPathStatementNotInProject": "구문의 파일이 이 프로젝트에 없으므로 열지 않았습니다.",
+  "flowPathsThroughRegister": "{register}에서 시작하거나 끝나는 경로",
+  "flowPathsNoneThroughRegister": "이 실행에는 {register}에서 시작하거나 끝나는 최악 경로가 없습니다.",
+  "flowPathsShowAll": "모든 경로 표시",
+  "dashboardFilterByCrossProbe": "교차 프로브",
+  "dashboardFilterFormalReads": "{signal}을(를) 읽는 속성"
 }

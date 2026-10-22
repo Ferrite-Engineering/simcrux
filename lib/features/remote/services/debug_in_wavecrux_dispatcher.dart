@@ -9,9 +9,10 @@ import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
-import 'package:simcrux/services/remote/cxp/riscv_stream_coordinate.dart';
+import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 
 /// Product short-name string WaveCrux peers announce in their
@@ -188,6 +189,10 @@ class DebugInWaveCruxDispatcher {
   /// originating app reads the ack. It did not, and the RISC-V counterexample
   /// hand-off spent its whole life reporting "Sent to WaveCrux." while
   /// WaveCrux was replying, correctly and in detail, that it could not land.
+  ///
+  /// [partition] is the EQY partition whose trace [waveformPath] is, when the
+  /// hand-off is one partition of an equivalence row: its coordinate carries
+  /// the partition as `sub_id` (CXP §9.9.3), one cross-probe per partition.
   Future<DebugInWaveCruxResult> dispatch({
     required String? waveformPath,
     String? displayName,
@@ -195,6 +200,7 @@ class DebugInWaveCruxDispatcher {
     String? designId,
     String? topModule,
     TestResult? result,
+    FormalPartitionRow? partition,
     Duration ackTimeout = const Duration(seconds: 5),
   }) async {
     final outcome = await _dispatch(
@@ -204,6 +210,7 @@ class DebugInWaveCruxDispatcher {
       designId: designId,
       topModule: topModule,
       result: result,
+      partition: partition,
       ackTimeout: ackTimeout,
     );
     // **Every** return path is counted, which is why the body moved into
@@ -239,6 +246,7 @@ class DebugInWaveCruxDispatcher {
     required String? designId,
     required String? topModule,
     required TestResult? result,
+    required FormalPartitionRow? partition,
     required Duration ackTimeout,
   }) async {
     if (waveformPath == null || waveformPath.isEmpty) {
@@ -295,8 +303,17 @@ class DebugInWaveCruxDispatcher {
     // CXP §9.9's (https://edacrux.app/cxp#sec-9-9)
     // "absence beats approximation" has a filesystem half as well as an
     // arithmetic one. Null for every row that cannot state an index, which
-    // is most of them; see [riscvStreamCoordinateFor].
-    final coordinate = result == null ? null : riscvStreamCoordinateFor(result);
+    // is most of them; see [formalStreamCoordinateFor]: a RISC-V check's
+    // `riscv.formal.trace_step`, or an `sby` or EQY counterexample's
+    // `formal.trace_step`.
+    final coordinate = result == null
+        ? null
+        : formalStreamCoordinateFor(result, partition: partition);
+    // The registered `formal.` keys: the property's role and label, or an
+    // EQY run's gold and gate scopes, so WaveCrux can arrange the miter.
+    final formal = result == null
+        ? const <String, Object?>{}
+        : formalHandoffMetadata(result);
     // Wrap suggested signals in a RequestHighlight-compatible message. v1
     // RequestHighlight does not carry metadata in its payload directly — we
     // route through NotifySelection's metadata blob first (a courtesy ping
@@ -313,6 +330,7 @@ class DebugInWaveCruxDispatcher {
         kSimcruxSuggestedSignalsKey: List<String>.unmodifiable(
           suggestedSignals,
         ),
+      ...formal,
       cxpDesignIdMetadataKey: ?designId,
     };
     if (metadata.isNotEmpty || coordinate != null) {
@@ -340,7 +358,14 @@ class DebugInWaveCruxDispatcher {
     // The runtime records the send in the panel's event log.
     final reply = await runtime.requestHighlight(
       peerId,
-      RequestHighlight(element: element, coordinate: coordinate),
+      RequestHighlight(
+        element: element,
+        coordinate: coordinate,
+        metadata: <String, Object?>{
+          ...formal,
+          cxpDesignIdMetadataKey: ?designId,
+        },
+      ),
       timeout: ackTimeout,
       summary: displayName ?? waveformPath,
     );
