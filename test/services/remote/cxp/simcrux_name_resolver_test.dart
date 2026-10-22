@@ -9,7 +9,14 @@ void main() {
   group('SimCruxNameResolver — toCanonical / toLocal round-trips', () {
     const resolver = SimCruxNameResolver();
 
-    for (final kind in ElementKind.values) {
+    // Kinds SimCrux does not resolve yet decline, as an unknown kind does.
+    final declined = <ElementKind>{
+      ElementKind.property,
+      ElementKind.timingPath,
+      ElementKind.cell,
+    };
+
+    for (final kind in ElementKind.values.where((k) => !declined.contains(k))) {
       test('round-trips ${kind.name}', () {
         final id = resolver.toCanonical(
           kind: kind,
@@ -19,6 +26,12 @@ void main() {
         expect(id!.kind, kind);
         expect(id.path, 'top.cpu.alu/test_alu_basic');
         expect(resolver.toLocal(id), 'top.cpu.alu/test_alu_basic');
+      });
+    }
+
+    for (final kind in declined) {
+      test('declines ${kind.name}', () {
+        expect(resolver.toCanonical(kind: kind, local: 'x'), isNull);
       });
     }
   });

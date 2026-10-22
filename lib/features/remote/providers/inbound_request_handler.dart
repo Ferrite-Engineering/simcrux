@@ -329,6 +329,9 @@ class SimcruxCxpRequestHandler extends CruxCxpRequestHandler {
   CruxCxpHandlerResult _handleRequestHighlight(RequestHighlight msg) {
     final element = msg.element;
     switch (element.kind.known) {
+      case KnownElementKind.property:
+      case KnownElementKind.timingPath:
+      case KnownElementKind.cell:
       case null:
         // [ElementKind] is an open wire type: a peer on a later
         // protocol revision may send a kind this build does not model.

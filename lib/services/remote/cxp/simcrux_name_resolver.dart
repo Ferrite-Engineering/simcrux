@@ -58,6 +58,9 @@ class SimCruxNameResolver implements NameResolver {
   ElementId? toCanonical({required ElementKind kind, required String local}) {
     if (local.isEmpty) return null;
     switch (kind.known) {
+      case KnownElementKind.property:
+      case KnownElementKind.timingPath:
+      case KnownElementKind.cell:
       case null:
         // [ElementKind] is an open wire type: a peer built against a
         // later protocol revision (or a third-party tool with its own
@@ -95,6 +98,9 @@ class SimCruxNameResolver implements NameResolver {
   String? toLocal(ElementId id) {
     if (id.path.isEmpty) return null;
     switch (id.kind.known) {
+      case KnownElementKind.property:
+      case KnownElementKind.timingPath:
+      case KnownElementKind.cell:
       case null:
         // Same forward-compatibility contract as [toCanonical]: an
         // unknown kind has no local form, so decline gracefully.

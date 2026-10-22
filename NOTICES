@@ -569,7 +569,7 @@ of an attribution question.
   crux_async                                   0.1.0            SDK
   crux_audit                                   0.1.0            SDK
   crux_command_palette                         0.0.2            SDK
-  crux_cxp                                     0.10.0           SDK
+  crux_cxp                                     0.12.0           SDK
   crux_cxp_ui                                  0.1.0            SDK
   crux_dock                                    0.1.1            SDK
   crux_eula                                    0.1.0            SDK
