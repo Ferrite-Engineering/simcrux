@@ -283,6 +283,15 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
         },
         intProperties: <String>['tests'],
       ),
+      // Each gate-level triage view shown, once per view per opening: the
+      // differences, the X-asymmetry detail or the history. Pro; never a
+      // signal name, a cycle or a count.
+      TelemetryCatalogEvent(
+        'flow.gls.triage_opened',
+        enumeratedValues: <String, List<String>>{
+          'view': kFlowGlsTriageViewTokens,
+        },
+      ),
       TelemetryCatalogEvent(
         'cxp.crossprobe',
         enumeratedValues: <String, List<String>>{
@@ -933,6 +942,13 @@ const List<String> kFlowKindTokens = <String>['librelane', 'nextpnr'];
 
 /// `flow.trend.opened.view`: the Pro history views over flow runs.
 const List<String> kFlowTrendViewTokens = <String>['metric', 'ppa', 'calendar'];
+
+/// `flow.gls.triage_opened.view`: the Pro gate-level triage views.
+const List<String> kFlowGlsTriageViewTokens = <String>[
+  'mismatches',
+  'x_detail',
+  'history',
+];
 
 /// `flow.alert.raised.group`: the metric group an alert rule watches.
 const List<String> kFlowAlertGroupTokens = <String>[

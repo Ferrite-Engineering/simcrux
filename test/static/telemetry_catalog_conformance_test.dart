@@ -122,6 +122,7 @@ const Set<String> _proOnlyEvents = <String>{
   'flow.alert.raised',
   'flow.sweep.opened',
   'flow.baseline.set',
+  'flow.gls.triage_opened',
   // The Pro analysis over formal results.
   'formal.dashboard_opened',
   'formal.regression.raised',
