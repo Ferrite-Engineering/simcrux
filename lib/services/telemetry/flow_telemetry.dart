@@ -5,6 +5,7 @@
 // headless CLI reaches. The callers construct the events, with the names
 // spelled as literals, so the catalog's source scan sees them.
 
+import 'package:crux_telemetry/crux_telemetry.dart' show TelemetryEvent;
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_process_driver.dart';
@@ -92,3 +93,17 @@ Map<String, Object?>? flowGlsCompletedProperties(
   Iterable<TestResult> results, {
   required int Function(int count) clamp,
 }) => glsRunCompletedProperties(results, clamp: clamp);
+
+/// The `flow.gls.completed` event of one gate-level run, functional or
+/// annotated with the run's delays (`delays` says which), or null when
+/// [results] hold no gate-level result. The one place the event is built, so
+/// an edition that runs its own gate-level simulation records it through here.
+TelemetryEvent? flowGlsCompletedEvent(Iterable<TestResult> results) {
+  final properties = flowGlsCompletedProperties(
+    results,
+    clamp: telemetryCount,
+  );
+  return properties == null
+      ? null
+      : TelemetryEvent('flow.gls.completed', properties: properties);
+}

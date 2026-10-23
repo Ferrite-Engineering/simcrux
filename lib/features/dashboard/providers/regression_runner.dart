@@ -1178,11 +1178,8 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
       }
       // One per gate-level run: the closed outcome, never a count of
       // differences, a signal name or a cycle.
-      if (flowGlsCompletedProperties(results, clamp: telemetryCount)
-          case final properties?) {
-        telemetry.record(
-          TelemetryEvent('flow.gls.completed', properties: properties),
-        );
+      if (flowGlsCompletedEvent(results) case final event?) {
+        telemetry.record(event);
       }
     }
     for (final tool in flowToolMissingTokens(results)) {
