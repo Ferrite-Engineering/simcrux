@@ -226,6 +226,17 @@ abstract final class PdkCellModels {
     if (powerAware) resolution.powerDefine: '1',
   };
 
+  /// The defines a delay-annotated gate-level simulation adds: neither
+  /// `FUNCTIONAL` nor `UNIT_DELAY`, so the models' timing variants (the ones
+  /// with `specify` paths for the annotation to fill) are compiled; for the
+  /// power-aware netlist the run's power define.
+  static Map<String, String> annotatedDefinesFor(
+    PdkCellModelResolution resolution, {
+    required bool powerAware,
+  }) => <String, String>{
+    if (powerAware) resolution.powerDefine: '1',
+  };
+
   /// Resolves the models of the run whose `resolved.json` is [resolved] and
   /// whose root is [runRoot].
   ///

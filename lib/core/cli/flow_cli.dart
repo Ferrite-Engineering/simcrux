@@ -12,6 +12,7 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/flow_exit_code.dart';
 import 'package:simcrux/core/cli/flow_signal_reaper.dart';
+import 'package:simcrux/core/cli/gls_cli_extension.dart';
 import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/models/config_loader_error.dart';
 import 'package:simcrux/domain/models/flow_config.dart';
@@ -59,6 +60,7 @@ class FlowCli {
     this.ingestor = const FlowRunIngestor(),
     this.schedulerFactory,
     this.orgGate,
+    this.glsExtension,
     FlowSignalReaper Function()? signalReaper,
     String Function()? currentDirectory,
     Map<String, String> Function()? environment,
@@ -93,6 +95,10 @@ class FlowCli {
   /// it never exits [FlowExitCode.orgThresholdViolated]. An edition that
   /// honours the policy passes one in.
   final FlowOrgGate? orgGate;
+
+  /// What an edition adds to `flow gls`, or null. This binary installs none,
+  /// so its `flow gls` is the functional simulation only.
+  final GlsCliExtension? glsExtension;
 
   final ConfigLoader Function({required bool allowTooling}) _loaderFactory;
   final FlowSignalReaper Function() _signalReaper;
@@ -649,6 +655,7 @@ class FlowCli {
       ..addFlag('allow-project-tooling', negatable: false)
       ..addOption('junit')
       ..addFlag('json', negatable: false);
+    glsExtension?.addOptions(parser);
     final results = _parse(parser, args);
     if (results.rest.length != 1) {
       throw const _UsageException('flow gls needs exactly one run directory');
@@ -660,6 +667,13 @@ class FlowCli {
     final project = results.option('project') ?? p.join(_cwd(), 'simcrux.yaml');
     if (!File(project).existsSync()) {
       throw _UsageException('no project file at $project');
+    }
+    final extension = glsExtension != null && glsExtension!.appliesTo(results)
+        ? glsExtension
+        : null;
+    if (extension != null) {
+      final refused = await extension.admit(results);
+      if (refused != null) return refused;
     }
     final RegressionConfig config;
     try {
@@ -697,7 +711,7 @@ class FlowCli {
     }
     final defaults = entry?.gls;
     final typed = results.multiOption('test');
-    final options = GlsOptions(
+    var options = GlsOptions(
       netlist: results.option('netlist') ?? defaults?.netlist ?? 'nl',
       strictX: results.flag('strict-x') || (defaults?.strictX ?? false),
       clock: results.option('clock') ?? defaults?.clock,
@@ -738,6 +752,11 @@ class FlowCli {
           ? FlowExitCode.dataErr
           : FlowExitCode.couldNotEvaluate;
     }
+    if (extension != null) {
+      final prepared = await extension.prepare(results, info, options);
+      if (prepared.code != null) return prepared.code!;
+      options = prepared.options!;
+    }
 
     final scratch = GlsScratch(root: _glsScratchRoot());
     final runId = 'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}';
@@ -748,14 +767,15 @@ class FlowCli {
       runDir: await scratch.allocateRun(runId),
       scratch: scratch,
     );
+    final inner =
+        schedulerFactory?.call(config) ??
+        LocalJobScheduler(
+          driverRegistry: driverRegistry,
+          config: config,
+          dumpRetentionPolicy: DumpRetentionPolicy.defaultPolicy,
+        );
     final scheduler = GlsScheduler(
-      inner:
-          schedulerFactory?.call(config) ??
-          LocalJobScheduler(
-            driverRegistry: driverRegistry,
-            config: config,
-            dumpRetentionPolicy: DumpRetentionPolicy.defaultPolicy,
-          ),
+      inner: extension?.wrapInner(inner) ?? inner,
       plans: planSet.plans,
       info: info,
       options: options,
@@ -790,6 +810,15 @@ class FlowCli {
     final views = <GlsResultView>[
       for (final r in finished) ?GlsResultView.of(r),
     ];
+    if (extension != null) {
+      return await extension.report(
+        results: results,
+        info: info,
+        finished: finished,
+        views: views,
+        interrupted: reaper.exitCode,
+      );
+    }
     final code = reaper.exitCode ?? _glsCode(views);
     final label = FlowExitCode.labelFor(code);
     final junit = results.option('junit');

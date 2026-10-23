@@ -1,0 +1,94 @@
+{
+ "design": "research MAC",
+ "periods": [
+  {
+   "period_ns": 40.0,
+   "real_bits": 0,
+   "samples_with_real_difference": 0,
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "period_ns": 20.0,
+   "real_bits": 0,
+   "samples_with_real_difference": 0,
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "period_ns": 16.0,
+   "real_bits": 412,
+   "samples_with_real_difference": 157,
+   "split": {
+    "first_both_known": {
+     "port": "acc",
+     "sample": 10,
+     "time_ps": 168000
+    },
+    "first_gate_x": null,
+    "real_both_known_bits": 412,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "period_ns": 12.0,
+   "real_bits": 848,
+   "samples_with_real_difference": 195,
+   "split": {
+    "first_both_known": {
+     "port": "acc",
+     "sample": 6,
+     "time_ps": 78000
+    },
+    "first_gate_x": null,
+    "real_both_known_bits": 848,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "period_ns": 8.0,
+   "real_bits": 1266,
+   "samples_with_real_difference": 197,
+   "split": {
+    "first_both_known": {
+     "port": "acc",
+     "sample": 6,
+     "time_ps": 52000
+    },
+    "first_gate_x": null,
+    "real_both_known_bits": 1266,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "period_ns": 5.0,
+   "real_bits": 3196,
+   "samples_with_real_difference": 395,
+   "split": {
+    "first_both_known": {
+     "port": "acc",
+     "sample": 7,
+     "time_ps": 30000
+    },
+    "first_gate_x": null,
+    "real_both_known_bits": 3196,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  }
+ ],
+ "sdf": "mac_0p5ns.sdf"
+}

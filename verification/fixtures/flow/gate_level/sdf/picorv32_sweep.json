@@ -1,0 +1,424 @@
+{
+ "annotation": {
+  "examples": {
+   "ERROR: Chosen value not defined.": [
+    {
+     "line": 9,
+     "text": "(VOLTAGE 1.800::1.800)"
+    },
+    {
+     "line": 11,
+     "text": "(TEMPERATURE 25.000::25.000)"
+    }
+   ],
+   "ERROR: Could not find intermodpath!": [
+    {
+     "line": 22649,
+     "text": "(INTERCONNECT picorv32.LO eoi[0] (0.000:0.000:0.000))"
+    },
+    {
+     "line": 22650,
+     "text": "(INTERCONNECT picorv32_1482.LO eoi[1] (0.000:0.000:0.000))"
+    }
+   ],
+   "WARNING: TIMINGCHECK not supported.": [
+    {
+     "line": 82493,
+     "text": "(TIMINGCHECK"
+    },
+    {
+     "line": 82510,
+     "text": "(TIMINGCHECK"
+    }
+   ]
+  },
+  "messages": {
+   "ERROR: Chosen value not defined.": 2,
+   "ERROR: Could not find intermodpath!": 106,
+   "WARNING: TIMINGCHECK not supported.": 1597
+  },
+  "messages_by_construct": {
+   "ERROR: Chosen value not defined.": {
+    "(header)": 2
+   },
+   "ERROR: Could not find intermodpath!": {
+    "INTERCONNECT in picorv32": 106
+   },
+   "WARNING: TIMINGCHECK not supported.": {
+    "(header)": 1597
+   }
+  },
+  "other_count": 0,
+  "other_lines": [],
+  "sdf_totals": {
+   "HOLD": 3194,
+   "INTERCONNECT": 23295,
+   "IOPATH": 24001,
+   "SETUP": 3194,
+   "WIDTH": 3194
+  }
+ },
+ "corner": "nom_tt_025C_1v80",
+ "design": "picorv32",
+ "input_delay": "20% of the period",
+ "periods": [
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 137.7,
+    "tag": "sdf_p25",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 25.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.3,
+    "tag": "rtl_p25",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 126.3,
+    "tag": "sdf_p20",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 20.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.2,
+    "tag": "rtl_p20",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 109.1,
+    "tag": "sdf_p15",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 15.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.2,
+    "tag": "rtl_p15",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 88.7,
+    "tag": "sdf_p12",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 12.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.1,
+    "tag": "rtl_p12",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 93.0,
+    "tag": "sdf_p10",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 10.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.1,
+    "tag": "rtl_p10",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 0,
+    "samples_compared": 528,
+    "samples_with_real_difference": 0,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 90.9,
+    "tag": "sdf_p8",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 8.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.1,
+    "tag": "rtl_p8",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": null,
+    "first_gate_x": null,
+    "real_both_known_bits": 0,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 1,
+    "samples_compared": 528,
+    "samples_with_real_difference": 1,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 129.8,
+    "tag": "sdf_p7",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "period_ns": 7.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.1,
+    "tag": "rtl_p7",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": {
+     "port": "mem_la_addr",
+     "sample": 494,
+     "time_ps": 3461500
+    },
+    "first_gate_x": null,
+    "real_both_known_bits": 1,
+    "real_gate_x_bits": 0
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 25269,
+    "samples_compared": 528,
+    "samples_with_real_difference": 261,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 39344
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 128.2,
+    "tag": "sdf_p6",
+    "testbench": "failed",
+    "testbench_line": "cycles=4004 checks=14 errors=15",
+    "vvp_exit": 1
+   },
+   "period_ns": 6.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.3,
+    "tag": "rtl_p6",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": {
+     "port": "pcpi_rs1",
+     "sample": 267,
+     "time_ps": 1605000
+    },
+    "first_gate_x": {
+     "port": "mem_wdata",
+     "sample": 293,
+     "time_ps": 1761000
+    },
+    "real_both_known_bits": 17749,
+    "real_gate_x_bits": 7520
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 78052,
+    "samples_compared": 528,
+    "samples_with_real_difference": 519,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 35962
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 95.0,
+    "tag": "sdf_p5",
+    "testbench": "failed",
+    "testbench_line": "cycles=4004 checks=14 errors=16",
+    "vvp_exit": 1
+   },
+   "period_ns": 5.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.2,
+    "tag": "rtl_p5",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": {
+     "port": "mem_ready",
+     "sample": 16,
+     "time_ps": 82500
+    },
+    "first_gate_x": {
+     "port": "mem_valid",
+     "sample": 1,
+     "time_ps": 7500
+    },
+    "real_both_known_bits": 5117,
+    "real_gate_x_bits": 72935
+   },
+   "timing_messages": []
+  },
+  {
+   "comparison": {
+    "real_bits": 78368,
+    "samples_compared": 528,
+    "samples_with_real_difference": 524,
+    "samples_with_x_asymmetry": 528,
+    "x_asymmetry_bits": 35982
+   },
+   "gate": {
+    "compile_exit": 0,
+    "seconds": 91.0,
+    "tag": "sdf_p4",
+    "testbench": "failed",
+    "testbench_line": "cycles=4004 checks=14 errors=15",
+    "vvp_exit": 1
+   },
+   "period_ns": 4.0,
+   "rtl": {
+    "compile_exit": 0,
+    "seconds": 0.2,
+    "tag": "rtl_p4",
+    "testbench": "passed",
+    "testbench_line": "cycles=527 checks=14 errors=0",
+    "vvp_exit": 0
+   },
+   "split": {
+    "first_both_known": {
+     "port": "mem_la_read",
+     "sample": 6,
+     "time_ps": 26000
+    },
+    "first_gate_x": {
+     "port": "mem_la_write",
+     "sample": 0,
+     "time_ps": 2000
+    },
+    "real_both_known_bits": 6334,
+    "real_gate_x_bits": 72034
+   },
+   "timing_messages": []
+  }
+ ]
+}

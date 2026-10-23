@@ -184,7 +184,128 @@ void main() {
       'tool/flow/gate_level/gls_compare.py',
       'tool/flow/gate_level/eqy_summary.py',
       'tool/flow/gate_level/netlist_mutant.py',
+      '$_gl/SDF-GATE.md',
+      '$_gl/sdf/sdf_gate.expected.json',
+      '$_gl/sdf/mac_0p5ns.sdf',
+      '$_gl/sdf/picorv32_sweep.json',
+      '$_gl/sdf/mac_sweep.json',
+      '$_gl/sdf/icarus/picorv32_nom_tt_025C_1v80.log',
+      '$_gl/sdf/icarus/path_adder_sky130A_nom_tt_025C_1v80.log',
+      '$_gl/sdf/icarus/path_adder_gf180mcuD_nom_tt_025C_5v00.log',
+      '$_gl/sdf/icarus/path_adder_ihp-sg13g2_nom_typ_1p20V_25C.log',
+      'tool/flow/gate_level/sdf_gate.py',
+      'tool/flow/gate_level/gen_sdf.py',
     ].forEach(_file);
+  });
+
+  group('the SDF gate', () {
+    final expected = _json('$_gl/sdf/sdf_gate.expected.json');
+
+    int count(String log, String message) => _file(
+      '$_gl/sdf/icarus/$log',
+    ).readAsLinesSync().where((l) => l.contains(message)).length;
+
+    test('PicoRV32: no IOPATH unmatched, the INTERCONNECTs not found are the '
+        'recorded ones, one TIMINGCHECK warning per flip-flop', () {
+      final annotation =
+          (expected['picorv32'] as Map<String, dynamic>)['annotation']
+              as Map<String, dynamic>;
+      const log = 'picorv32_nom_tt_025C_1v80.log';
+      expect(count(log, 'Unable to match ModPath'), 0);
+      expect(
+        count(log, 'Could not find intermodpath'),
+        annotation['interconnect_not_found'],
+      );
+      expect(
+        count(log, 'TIMINGCHECK not supported'),
+        annotation['timingcheck_warnings'],
+      );
+      expect(count(log, 'Too many errors'), 0);
+    });
+
+    test('the adders: sky130 full, gf180 partial with the unmatched paths, '
+        'IHP failed on a COND Icarus cannot parse', () {
+      expect(
+        count('path_adder_sky130A_nom_tt_025C_1v80.log', 'SDF ERROR'),
+        2,
+        reason: 'the VOLTAGE and TEMPERATURE header triples only',
+      );
+      expect(
+        count('path_adder_gf180mcuD_nom_tt_025C_5v00.log', 'Unable to match'),
+        192,
+      );
+      const ihp = 'path_adder_ihp-sg13g2_nom_typ_1p20V_25C.log';
+      expect(count(ihp, 'Invalid/malformed COND'), 1);
+      expect(count(ihp, 'Too many errors: syntax error'), greaterThan(0));
+      final adders = expected['path_adder'] as Map<String, dynamic>;
+      expect(
+        (adders['ihp-sg13g2_met/nom_typ_1p20V_25C'] as Map)['coverage'],
+        'failed',
+      );
+    });
+
+    test('the sweep records agree with the recorded outcomes, period by '
+        'period, and no timing message appears in either', () {
+      final want = expected['picorv32'] as Map<String, dynamic>;
+      final record = _json('$_gl/sdf/picorv32_sweep.json');
+      for (final row
+          in (record['periods'] as List).cast<Map<String, dynamic>>()) {
+        final period = (row['period_ns'] as num).toInt();
+        final real =
+            (row['comparison']
+                    as Map<String, dynamic>)['samples_with_real_difference']
+                as int;
+        if ((want['equal_at_ns'] as List).contains(period)) {
+          expect(real, 0, reason: '$period ns');
+          expect((row['gate'] as Map)['testbench'], 'passed');
+        }
+        if ((want['differs_at_ns'] as List).contains(period)) {
+          expect(real, greaterThan(0), reason: '$period ns');
+        }
+        expect(row['timing_messages'], isEmpty, reason: '$period ns');
+      }
+      final mac = expected['mac'] as Map<String, dynamic>;
+      final macRecord = _json('$_gl/sdf/mac_sweep.json');
+      for (final row
+          in (macRecord['periods'] as List).cast<Map<String, dynamic>>()) {
+        final period = (row['period_ns'] as num).toInt();
+        final real = row['samples_with_real_difference'] as int;
+        if ((mac['equal_at_ns'] as List).contains(period)) {
+          expect(real, 0, reason: 'MAC $period ns');
+        }
+        if ((mac['differs_at_ns'] as List).contains(period)) {
+          expect(real, greaterThan(0), reason: 'MAC $period ns');
+        }
+        expect(
+          (row['split'] as Map)['real_gate_x_bits'],
+          mac['gate_x_where_rtl_known'],
+        );
+      }
+    });
+
+    test('the testbench defaults to the functional gate: a 25 ns clock and '
+        'inputs at the edge', () {
+      final tb = _file('$_gl/picorv32/tb_picorv32.v').readAsStringSync();
+      expect(tb, contains('`define HALF_PERIOD 12.5'));
+      expect(tb, contains('`ifdef IN_DELAY'));
+      expect(tb, contains('`define DRIVE\n'));
+      final dump = _file('$_gl/picorv32/gls_portdump.v').readAsStringSync();
+      expect(dump, contains('`ifdef GLS_SDF'));
+      expect(dump, contains(r'$sdf_annotate(`GLS_SDF, tb.uut);'));
+    });
+
+    test('the document states the recorded outcome and the label', () {
+      final doc = _file('$_gl/SDF-GATE.md').readAsStringSync();
+      expect(expected['outcome'], 'passes');
+      expect(doc, contains('**Result: passes.**'));
+      expect(
+        doc,
+        contains(
+          '"Delay-annotated simulation, no timing\nchecks. Setup and hold '
+          'violations are not detected."',
+        ),
+      );
+    });
   });
 
   test('every fixture file is under 5 MB and names no machine path', () {

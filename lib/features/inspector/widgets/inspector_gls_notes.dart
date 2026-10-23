@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/flow/gls_labels.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -15,7 +16,7 @@ import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 /// Free, like every gate-level outcome. Each sentence is its own selectable,
 /// focusable line, fact first. Nothing renders for a row that is not gate
 /// level.
-class InspectorGlsNotes extends StatelessWidget {
+class InspectorGlsNotes extends ConsumerWidget {
   /// Creates the notes for [selection].
   const InspectorGlsNotes({required this.selection, super.key});
 
@@ -23,11 +24,12 @@ class InspectorGlsNotes extends StatelessWidget {
   final SelectedTest selection;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final view = GlsResultView.of(selection.result);
     if (view == null) return const SizedBox.shrink();
     final l10n = L10N.of(context);
-    final lines = glsNoteLines(l10n, view);
+    final note = view.annotated ? ref.watch(glsAnnotatedNoteProvider) : null;
+    final lines = glsNoteLines(l10n, view, annotatedNote: note?.call(context));
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -54,11 +56,31 @@ class InspectorGlsNotes extends StatelessWidget {
 /// One line of the gate-level notes.
 typedef GlsNote = ({String text, bool title});
 
+/// The note a result annotated from the run's delay file leads with, from the
+/// edition that runs that simulation. Null here: this package runs none, and
+/// a row it did not simulate says nothing about delays rather than calling
+/// them unit delays.
+final Provider<String Function(BuildContext context)?>
+glsAnnotatedNoteProvider = Provider<String Function(BuildContext context)?>(
+  (ref) => null,
+  name: 'glsAnnotatedNote',
+);
+
 /// The lines [InspectorGlsNotes] shows for [view], in reading order: the
 /// outcome with both counts, then why, then how it was simulated.
-List<GlsNote> glsNoteLines(L10N l10n, GlsResultView view) {
+///
+/// A row annotated from the run's delay file ([GlsResultView.annotated])
+/// leads with [annotatedNote], before the outcome, and never carries the
+/// functional simulation's unit-delay sentence.
+List<GlsNote> glsNoteLines(
+  L10N l10n,
+  GlsResultView view, {
+  String? annotatedNote,
+}) {
   final notRun = view.outcome == GlsOutcome.notRun;
   return <GlsNote>[
+    if (view.annotated && annotatedNote != null)
+      (text: annotatedNote, title: true),
     (text: GlsLabels.verdict(l10n, view), title: true),
     if (view.outcome == GlsOutcome.xOnly)
       (text: l10n.glsOutcomeXOnlyTooltip, title: false),
@@ -75,7 +97,7 @@ List<GlsNote> glsNoteLines(L10N l10n, GlsResultView view) {
           : l10n.glsNoteNetlistNl,
       title: false,
     ),
-    (text: l10n.glsNoteDelays, title: false),
+    if (!view.annotated) (text: l10n.glsNoteDelays, title: false),
     (text: l10n.glsNoteSimulator, title: false),
     if (!notRun && view.clock != null)
       (text: l10n.glsNoteClock(view.clock!), title: false),

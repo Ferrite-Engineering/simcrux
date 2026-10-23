@@ -84,8 +84,11 @@ class GlsResultView {
   /// `nl` or `pnl`.
   final String netlist;
 
-  /// `functional`.
+  /// `functional`, or `sdf` for a run annotated from the run's delay file.
   final String delays;
+
+  /// Whether the run was annotated from the run's delay file.
+  bool get annotated => delays == 'sdf';
 
   /// The simulator both runs used.
   final String simulator;

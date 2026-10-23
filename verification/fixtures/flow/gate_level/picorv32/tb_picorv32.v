@@ -8,6 +8,14 @@
 // "TEST PASSED" or "TEST FAILED". It binds the core by its RTL port list, so
 // the same file runs against the RTL and against a gate-level netlist.
 `timescale 1ns/1ps
+// With IN_DELAY defined (ns), the inputs the testbench drives change that long
+// after the clock edge rather than at it: the input delay a timing analysis of
+// the run assumed. Undefined, the inputs change at the edge, as before.
+`ifdef IN_DELAY
+`define DRIVE #(`IN_DELAY)
+`else
+`define DRIVE
+`endif
 module tb;
   reg clk = 1'b0;
   reg resetn = 1'b0;
@@ -41,7 +49,10 @@ module tb;
     .trace_valid(trace_valid), .trace_data(trace_data)
   );
 
-  always #12.5 clk = ~clk;  // 25 ns, the run's CLOCK_PERIOD
+`ifndef HALF_PERIOD
+`define HALF_PERIOD 12.5
+`endif
+  always #(`HALF_PERIOD) clk = ~clk;  // 25 ns by default, the run's CLOCK_PERIOD
 
   reg [31:0] mem [0:1023];
   reg done = 1'b0;
@@ -136,14 +147,14 @@ module tb;
   // One-cycle memory: answer a request on the clock after it is raised.
   always @(posedge clk) begin
     cycles <= cycles + 1;
-    mem_ready <= 1'b0;
+    mem_ready <= `DRIVE 1'b0;
     if (resetn && mem_valid && !mem_ready) begin
       if (mem_addr == 32'h10000000) begin
-        mem_ready <= 1'b1;
+        mem_ready <= `DRIVE 1'b1;
         if (mem_wstrb != 4'b0000) done <= 1'b1;
       end else if (mem_addr < 32'h00001000) begin
-        mem_ready <= 1'b1;
-        mem_rdata <= mem[mem_addr[11:2]];
+        mem_ready <= `DRIVE 1'b1;
+        mem_rdata <= `DRIVE mem[mem_addr[11:2]];
         if (mem_wstrb[0]) mem[mem_addr[11:2]][7:0] <= mem_wdata[7:0];
         if (mem_wstrb[1]) mem[mem_addr[11:2]][15:8] <= mem_wdata[15:8];
         if (mem_wstrb[2]) mem[mem_addr[11:2]][23:16] <= mem_wdata[23:16];
@@ -165,7 +176,7 @@ module tb;
 
   initial begin
     repeat (5) @(posedge clk);
-    resetn <= 1'b1;
+    resetn <= `DRIVE 1'b1;
     while (!done && cycles < 4000) @(posedge clk);
     repeat (4) @(posedge clk);
     if (!done) begin

@@ -130,6 +130,20 @@ void main() {
       expect(text, contains('FLOW_LIVE_LIBRELANE_WORK'));
     });
 
+    test('the SDF gate job is capped at 60 minutes, runs its live test on '
+        'the LibreLane runs, and the runs it is handed carry the nominal '
+        'SDF', () {
+      final text = file.readAsStringSync();
+      expect(jobTimeouts(text)['sdf-gate'], 60);
+      const live = 'test/static/flow_sdf_gate_live_test.dart';
+      expect(text, contains(live));
+      expect(File(live).readAsStringSync(), contains("'oss-cad-live'"));
+      final doc = loadYaml(text) as YamlMap;
+      final job = (doc['jobs'] as YamlMap)['sdf-gate'] as YamlMap;
+      expect(job['needs'], 'librelane');
+      expect(text, contains('final/sdf/nom_tt_025C_1v80/'));
+    });
+
     test('the LibreLane job runs its live test with a cached PDK', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_live_test.dart';

@@ -48,9 +48,13 @@ class TestSpec {
     this.formal,
     this.flow,
     List<String>? extraTops,
+    List<String>? extraCompileArgs,
   }) : sources = List<String>.unmodifiable(sources ?? const []),
        includeDirs = List<String>.unmodifiable(includeDirs ?? const []),
        extraTops = List<String>.unmodifiable(extraTops ?? const []),
+       extraCompileArgs = List<String>.unmodifiable(
+         extraCompileArgs ?? const [],
+       ),
        defines = Map<String, String>.unmodifiable(defines ?? const {}),
        parameters = Map<String, String>.unmodifiable(parameters ?? const {}),
        resources = List<ResourceLock>.unmodifiable(resources ?? const []),
@@ -231,6 +235,16 @@ class TestSpec {
   /// carried through [copyWith], [operator ==] and [hashCode].
   final List<String> extraTops;
 
+  /// Further compile arguments, passed to the Icarus compile right after the
+  /// language generation and before the tops.
+  ///
+  /// Empty for every test the loader builds: the project file has no key for
+  /// it, so no project can put an argument here. A gate-level simulation that
+  /// reads a netlist's delays sets the specify and interconnect generations on
+  /// the specs it derives. Only the Icarus driver reads it; it is carried
+  /// through [copyWith], [operator ==] and [hashCode].
+  final List<String> extraCompileArgs;
+
   /// Explicit per-source language overrides. Keys are source paths
   /// (as they appear in [sources]); values are the user-declared
   /// [HdlLanguage].
@@ -310,6 +324,7 @@ class TestSpec {
     FormalConfig? formal,
     FlowEntry? flow,
     List<String>? extraTops,
+    List<String>? extraCompileArgs,
     bool clearSeeds = false,
     bool clearParameterSweeps = false,
   }) {
@@ -341,6 +356,7 @@ class TestSpec {
       formal: formal ?? this.formal,
       flow: flow ?? this.flow,
       extraTops: extraTops ?? this.extraTops,
+      extraCompileArgs: extraCompileArgs ?? this.extraCompileArgs,
     );
   }
 
@@ -369,7 +385,8 @@ class TestSpec {
         other.riscv == riscv &&
         other.formal == formal &&
         other.flow == flow &&
-        _listEq(other.extraTops, extraTops);
+        _listEq(other.extraTops, extraTops) &&
+        _listEq(other.extraCompileArgs, extraCompileArgs);
   }
 
   // `Object.hashAll` over a list: with [flow] the field count is past
@@ -411,6 +428,7 @@ class TestSpec {
     formal,
     flow,
     Object.hashAll(extraTops),
+    Object.hashAll(extraCompileArgs),
   ]);
 }
 

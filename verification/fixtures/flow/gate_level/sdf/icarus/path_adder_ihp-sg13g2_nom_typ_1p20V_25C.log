@@ -1,0 +1,7 @@
+SDF ERROR: <sdf>:9: Chosen value not defined.
+SDF ERROR: <sdf>:11: Chosen value not defined.
+SDF ERROR: <sdf>: Too many errors: syntax error
+SDF ERROR: <sdf>:1676: Invalid/malformed COND
+SDF ERROR: <sdf>:1668: Invalid/malformed delay type
+SDF ERROR: <sdf>: Too many errors: syntax error
+SDF ERROR: <sdf>:1: Invalid DELAYFILE format

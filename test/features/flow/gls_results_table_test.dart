@@ -368,6 +368,40 @@ void main() {
       );
     });
 
+    test("a row annotated from the run's delays leads with the note the "
+        'edition that ran it supplies, and never says unit delays; without '
+        'a note it says nothing about delays', () {
+      final annotated = view(
+        _metrics(
+          'equal',
+          real: 0,
+          x: 0,
+          extra: {GlsMetricKeys.delays: 'sdf'},
+        ),
+      );
+      final unitDelays = en().glsNoteDelays;
+      final noted = glsNoteLines(
+        en(),
+        annotated,
+        annotatedNote: 'the edition note',
+      );
+      expect(noted.first.text, 'the edition note');
+      expect(noted.first.title, isTrue);
+      expect(noted[1].text, startsWith('Equal'));
+      expect(noted.map((l) => l.text), isNot(contains(unitDelays)));
+      final bare = glsNoteLines(en(), annotated).map((l) => l.text);
+      expect(bare.first, startsWith('Equal'));
+      expect(bare, isNot(contains(unitDelays)));
+      // A functional row ignores a note and keeps the unit-delay sentence.
+      final functional = glsNoteLines(
+        en(),
+        view(_metrics('equal', real: 0, x: 0)),
+        annotatedNote: 'the edition note',
+      ).map((l) => l.text);
+      expect(functional, isNot(contains('the edition note')));
+      expect(functional, contains(unitDelays));
+    });
+
     test('a power-aware netlist says its power pins were tied', () {
       final lines = glsNoteLines(
         en(),

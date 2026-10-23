@@ -69,4 +69,17 @@ void main() {
     );
     expect(extra.copyWith(name: 'm').extraTops, ['gls_portdump']);
   });
+
+  test('extra compile arguments are carried, compared and hashed, and empty '
+      'by default', () {
+    final plain = spec();
+    const args = ['-gspecify', '-ginterconnect'];
+    final extra = plain.copyWith(extraCompileArgs: args);
+    expect(plain.extraCompileArgs, isEmpty);
+    expect(extra.extraCompileArgs, args);
+    expect(extra, isNot(plain));
+    expect(extra, plain.copyWith(extraCompileArgs: args));
+    expect(extra.hashCode, plain.copyWith(extraCompileArgs: args).hashCode);
+    expect(extra.copyWith(name: 'm').extraCompileArgs, args);
+  });
 }

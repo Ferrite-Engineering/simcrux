@@ -124,6 +124,9 @@ class IcarusDriver extends ProcessBackedSimulatorDriver {
 
     final args = <String>[
       '-g$generation',
+      // Generated specs only (gate level's specify and interconnect
+      // generations); the project file cannot set these.
+      ...request.test.extraCompileArgs,
       '-o',
       artifact,
       '-s',

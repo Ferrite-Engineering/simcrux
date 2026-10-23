@@ -8,13 +8,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
+import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/flow/widgets/flow_dialogs.dart';
 import 'package:simcrux/features/flow/widgets/flow_runs_panel.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
+import 'package:simcrux/shared/widgets/simcrux_feature_tier_badge.dart';
 
 import 'flow_panel_harness.dart';
+
+/// A delay-annotated runner an edition would install: records what it is
+/// handed.
+class _FakeDelaysRunner implements FlowSdfGlsRunner {
+  final List<GlsRunRequest> requests = <GlsRunRequest>[];
+
+  @override
+  String label(BuildContext context) => 'Delays (fake)';
+
+  @override
+  Future<void> run(BuildContext context, GlsRunRequest request) async =>
+      requests.add(request);
+}
 
 /// The Flow Runs panel at Open Core with the beta period over: the runs,
 /// the verdict, the unverified-reader banner, the last-run delta, the
@@ -175,6 +190,59 @@ void main() {
       [SimcruxAction.runGateLevelSimulation],
       reason: 'a nextpnr run is not offered gate level',
     );
+  });
+
+  testWidgets('with no delay-annotated runner installed (open core) the panel '
+      'offers none; an installed one is offered under its own label, badged, '
+      'on a LibreLane run only', (tester) async {
+    await pumpFlowPanel(tester);
+    final button = find.byKey(
+      const ValueKey('flowPanel.runGateLevelWithDelays'),
+    );
+    expect(button, findsNothing);
+
+    final runner = _FakeDelaysRunner();
+    final container = await pumpFlowPanel(
+      tester,
+      extra: [flowSdfGlsRunnerProvider.overrideWithValue(runner)],
+    );
+    expect(button, findsOneWidget);
+    expect(
+      find.descendant(of: button, matching: find.text('Delays (fake)')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: button,
+        matching: find.byType(SimCruxFeatureTierBadge),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(container.read(flowSelectedRunProvider)?.root, endsWith('RUN_2'));
+    // The harness project names no gate-level tests: the shared checks stop
+    // it before the runner is handed anything.
+    expect(runner.requests, isEmpty);
+
+    Future<void> openMenu(String run) async {
+      await tester.tap(find.text(run));
+      await tester.pumpAndSettle();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.f10);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+    }
+
+    final item = find.byKey(const ValueKey('flowRunRunGateLevelWithDelays'));
+    await openMenu('RUN_2');
+    expect(item, findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    // A nextpnr run: no button, and the menu item is there but greyed.
+    await tester.tap(find.text('t2'));
+    await tester.pumpAndSettle();
+    expect(button, findsNothing);
   });
 
   testWidgets('metrics: a localized label with the raw key on hover, and '

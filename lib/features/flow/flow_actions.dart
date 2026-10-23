@@ -122,19 +122,85 @@ abstract final class FlowActions {
     ProviderContainer? tab,
     FlowRead read,
   ) async {
+    final prepared = await _prepareGateLevel(context, tab, read);
+    if (prepared == null) return;
+    final request = prepared.request;
+    final runner = prepared.runner;
+    final info = request.info;
+    final options = request.options;
+    final scratch = request.scratch;
+    final background = request.background;
+    final runDir = await scratch.allocateRun(
+      'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}',
+    );
+    final planSet = await GlsPlanner.plan(
+      info: info,
+      options: options,
+      selected: request.tests,
+      runDir: runDir,
+      scratch: scratch,
+      background: background,
+    );
+    // Said plainly, before anything runs: a Verilator test reruns under
+    // Icarus, both its RTL and its gate-level run.
+    if (request.tests.any((s) => s.simulatorId == 'verilator') &&
+        context != null &&
+        context.mounted) {
+      _toast(context, (l10n) => l10n.flowGlsIcarusNote);
+    }
+    await runner.submitSpecs(
+      <TestSpec>[for (final plan in planSet.plans) plan.submitSpec],
+      concurrency: 2,
+      trigger: RegressionTrigger.gls,
+      wrapScheduler: (inner) => GlsScheduler(
+        inner: inner,
+        plans: planSet.plans,
+        info: info,
+        options: options,
+        background: background,
+      ),
+    );
+  }
+
+  /// Hands the selected LibreLane run's gate-level request to the edition's
+  /// delay-annotated runner ([flowSdfGlsRunnerProvider]), with the same
+  /// checks and inputs as [runGateLevel]. The runner owns the tier gate, the
+  /// run and the result surface. Does nothing when no runner is installed:
+  /// the panel offers this only when one is.
+  static Future<void> runGateLevelWithDelays(
+    BuildContext? context,
+    ProviderContainer? tab,
+    FlowRead read,
+  ) async {
+    final runner = read(flowSdfGlsRunnerProvider);
+    if (runner == null) return;
+    final prepared = await _prepareGateLevel(context, tab, read);
+    if (prepared == null || context == null || !context.mounted) return;
+    await runner.run(context, prepared.request);
+  }
+
+  /// What both gate-level actions start from: the selected LibreLane run,
+  /// its entry's `gls:` tests, and the run's netlist and models, read; or
+  /// null after a toast that says why not.
+  static Future<({GlsRunRequest request, RegressionRunner runner})?>
+  _prepareGateLevel(
+    BuildContext? context,
+    ProviderContainer? tab,
+    FlowRead read,
+  ) async {
     final config = tab?.read(activeConfigProvider);
     if (tab == null || config == null) {
       _toast(context, (l10n) => l10n.snackNoProjectOpen);
-      return;
+      return null;
     }
     final selection = tab.read(flowSelectedRunProvider);
     if (selection == null) {
       _toast(context, (l10n) => l10n.flowGlsNoRun);
-      return;
+      return null;
     }
     if (selection.kind != FlowKind.librelane) {
       _toast(context, (l10n) => l10n.flowGlsNeedsLibreLane);
-      return;
+      return null;
     }
     FlowEntry? entry;
     for (final e in config.flow?.entries ?? const <FlowEntry>[]) {
@@ -143,9 +209,9 @@ abstract final class FlowActions {
       }
     }
     final gls = entry?.gls;
-    if (gls == null || gls.tests.isEmpty) {
+    if (entry == null || gls == null || gls.tests.isEmpty) {
       _toast(context, (l10n) => l10n.flowGlsNoTests);
-      return;
+      return null;
     }
     final candidates = <TestSpec>[
       for (final suite in config.suites)
@@ -157,7 +223,7 @@ abstract final class FlowActions {
         context,
         (l10n) => l10n.flowGlsNoMatch(chosen.unmatched.join(', ')),
       );
-      return;
+      return null;
     }
 
     // Everything the rest needs, read before the first await: the tab can
@@ -175,6 +241,7 @@ abstract final class FlowActions {
     final env = Platform.environment;
     final root = selection.root;
     final netlist = gls.netlist;
+    final entryName = entry.name;
 
     final read0 = await background(
       () => GlsRunInfo.read(
@@ -195,43 +262,24 @@ abstract final class FlowActions {
           error: true,
         );
       }
-      return;
+      return null;
     }
-    final options = GlsOptions(
-      netlist: netlist,
-      strictX: gls.strictX,
-      clock: gls.clock,
-      tests: gls.tests,
-    );
-    final runDir = await scratch.allocateRun(
-      'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}',
-    );
-    final planSet = await GlsPlanner.plan(
-      info: info,
-      options: options,
-      selected: chosen.selected,
-      runDir: runDir,
-      scratch: scratch,
-      background: background,
-    );
-    // Said plainly, before anything runs: a Verilator test reruns under
-    // Icarus, both its RTL and its gate-level run.
-    if (chosen.selected.any((s) => s.simulatorId == 'verilator') &&
-        context != null &&
-        context.mounted) {
-      _toast(context, (l10n) => l10n.flowGlsIcarusNote);
-    }
-    await runner.submitSpecs(
-      <TestSpec>[for (final plan in planSet.plans) plan.submitSpec],
-      concurrency: 2,
-      trigger: RegressionTrigger.gls,
-      wrapScheduler: (inner) => GlsScheduler(
-        inner: inner,
-        plans: planSet.plans,
+    return (
+      request: GlsRunRequest(
         info: info,
-        options: options,
+        options: GlsOptions(
+          netlist: netlist,
+          strictX: gls.strictX,
+          clock: gls.clock,
+          tests: gls.tests,
+        ),
+        tests: chosen.selected,
+        entry: entryName,
+        scheduler: () => runner.schedulerFor(config),
+        scratch: scratch,
         background: background,
       ),
+      runner: runner,
     );
   }
 

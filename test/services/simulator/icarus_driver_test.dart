@@ -249,6 +249,39 @@ void main() {
       },
     );
 
+    test('extra compile arguments follow the generation, before the output '
+        'and the tops; a plain test has none', () async {
+      File(p.join(tmp.path, 'sim.vvp')).createSync();
+      final rec = _RecordingLauncher({
+        'iverilog': () => _FakeProcess(stdoutLines: const ['compiled']),
+      });
+      final driver = IcarusDriver(launcher: rec.launch);
+      await driver.compile(
+        CompileRequest(
+          test: _spec().copyWith(
+            extraCompileArgs: ['-gspecify', '-ginterconnect'],
+          ),
+          workingDirectory: tmp.path,
+          binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+        ),
+      );
+      final args = rec.calls.single.args;
+      expect(args.take(4), <String>[
+        '-g2012',
+        '-gspecify',
+        '-ginterconnect',
+        '-o',
+      ]);
+      await driver.compile(
+        CompileRequest(
+          test: _spec(),
+          workingDirectory: tmp.path,
+          binaryConfig: const SimulatorBinaryConfig(simulatorId: 'icarus'),
+        ),
+      );
+      expect(rec.calls.last.args.take(2), <String>['-g2012', '-o']);
+    });
+
     test('a plain test still names exactly one top', () async {
       File(p.join(tmp.path, 'sim.vvp')).createSync();
       final rec = _RecordingLauncher({

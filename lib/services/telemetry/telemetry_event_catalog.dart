@@ -292,6 +292,17 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'view': kFlowGlsTriageViewTokens,
         },
       ),
+      // Once per delay-annotated gate-level run, when its delays have been
+      // read: whether every delay annotated, some did, or none did, and
+      // whether every interconnect delay annotated. Pro; never a corner, a
+      // cell, an instance or a count.
+      TelemetryCatalogEvent(
+        'flow.sdf.annotated',
+        enumeratedValues: <String, List<String>>{
+          'result': kFlowSdfAnnotationTokens,
+        },
+        boolProperties: <String>['interconnect'],
+      ),
       TelemetryCatalogEvent(
         'cxp.crossprobe',
         enumeratedValues: <String, List<String>>{
@@ -948,6 +959,14 @@ const List<String> kFlowGlsTriageViewTokens = <String>[
   'mismatches',
   'x_detail',
   'history',
+];
+
+/// `flow.sdf.annotated.result`: how much of the run's delay file the
+/// simulator annotated.
+const List<String> kFlowSdfAnnotationTokens = <String>[
+  'full',
+  'partial',
+  'failed',
 ];
 
 /// `flow.alert.raised.group`: the metric group an alert rule watches.

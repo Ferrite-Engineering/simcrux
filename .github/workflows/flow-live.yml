@@ -269,8 +269,8 @@ jobs:
           set -euo pipefail
           flutter test test/static/flow_librelane_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-live.log"
 
-      # The gate-level job reads the PicoRV32 runs (plain and clock-gated):
-      # their records and text netlists only.
+      # The gate-level and SDF jobs read the PicoRV32 runs (plain and
+      # clock-gated): their records, text netlists and the nominal SDF only.
       - name: Keep the PicoRV32 runs for the gate-level job
         if: matrix.all_pdks
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -282,6 +282,7 @@ jobs:
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1/design/runs/g1/resolved.json
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1/design/runs/g1/final/nl/
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1/design/runs/g1/final/pnl/
+            ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1/design/runs/g1/final/sdf/nom_tt_025C_1v80/
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1_cg/design/runs/g1_cg/resolved.json
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1_cg/design/runs/g1_cg/final/nl/
 
@@ -372,3 +373,105 @@ jobs:
         run: |
           set -euo pipefail
           flutter test test/static/flow_gate_level_live_test.dart test/static/flow_gls_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/gate-level-live.log"
+
+  # Delay annotation in Icarus, re-measured: the PicoRV32 run's nominal SDF
+  # (equal at 25 ns, different at 6 ns), the committed adder runs' SDFs on the
+  # three PDKs, and the research MAC's synthetic SDF. It fails when an outcome
+  # recorded in verification/fixtures/flow/gate_level/sdf/ changes.
+  sdf-gate:
+    name: SDF annotation gate
+    needs: librelane
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    # SDF live: 60 minutes. Four delay-annotated PicoRV32 runs are most of it.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Check out LibreLane (for the PDK versions it pins)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: librelane/librelane
+          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          path: .librelane
+          persist-credentials: false
+
+      - name: Read the PDK versions LibreLane pins
+        id: pdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          for family in sky130 gf180mcu ihp-sg13g2; do
+            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" .librelane/librelane/pdk_hashes.yaml)"
+            test -n "$hash"
+            echo "${family//-/_}=${hash}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Restore sky130
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/sky130/versions/${{ steps.pdk.outputs.sky130 }}
+          key: ciel-sky130-${{ steps.pdk.outputs.sky130 }}
+          fail-on-cache-miss: true
+
+      - name: Restore gf180mcu
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/gf180mcu/versions/${{ steps.pdk.outputs.gf180mcu }}
+          key: ciel-gf180mcu-${{ steps.pdk.outputs.gf180mcu }}
+          fail-on-cache-miss: true
+
+      - name: Restore ihp-sg13g2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/ihp-sg13g2/versions/${{ steps.pdk.outputs.ihp_sg13g2 }}
+          key: ciel-ihp-sg13g2-${{ steps.pdk.outputs.ihp_sg13g2 }}
+          fail-on-cache-miss: true
+
+      - name: Cache OSS CAD Suite
+        id: suite-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/oss-cad-suite
+          key: oss-cad-suite-${{ env.OSS_CAD_SUITE_TAG }}-linux-x64
+
+      - name: Install OSS CAD Suite
+        if: steps.suite-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${OSS_CAD_SUITE_TAG}/${OSS_CAD_SUITE_FILE}"
+          curl --fail --location --retry 3 --output "${RUNNER_TEMP}/suite.tgz" "$url"
+          echo "${OSS_CAD_SUITE_SHA256}  ${RUNNER_TEMP}/suite.tgz" | sha256sum --check -
+          mkdir -p "${RUNNER_TEMP}/oss-cad-suite"
+          tar -xzf "${RUNNER_TEMP}/suite.tgz" -C "${RUNNER_TEMP}/oss-cad-suite"
+          rm "${RUNNER_TEMP}/suite.tgz"
+
+      - name: Fetch the PicoRV32 runs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: librelane-picorv32-runs
+          path: ${{ runner.temp }}/librelane-runs
+
+      - name: Install Flutter (pinned)
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Re-measure the SDF gate against the real tools
+        shell: bash
+        env:
+          OSS_CAD_SUITE: ${{ runner.temp }}/oss-cad-suite/oss-cad-suite
+          GATE_LEVEL_RUNS: ${{ runner.temp }}/librelane-runs
+          FLOW_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_sdf_gate_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/sdf-gate-live.log"

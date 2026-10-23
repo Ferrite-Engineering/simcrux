@@ -1,6 +1,10 @@
 // Port dump added beside the testbench as a second top; the testbench is not edited.
+// With GLS_SDF defined, the netlist under tb.uut is annotated from that SDF first.
 module gls_portdump;
   initial begin
+`ifdef GLS_SDF
+    $sdf_annotate(`GLS_SDF, tb.uut);
+`endif
     $dumpfile(`GLS_VCD);
     $dumpvars(0, tb.uut.clk, tb.uut.resetn, tb.uut.trap, tb.uut.mem_valid,
       tb.uut.mem_instr, tb.uut.mem_ready, tb.uut.mem_addr, tb.uut.mem_wdata,

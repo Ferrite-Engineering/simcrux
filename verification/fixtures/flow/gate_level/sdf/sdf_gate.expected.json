@@ -1,0 +1,46 @@
+{
+  "outcome": "passes",
+  "picorv32": {
+    "corner": "nom_tt_025C_1v80",
+    "input_delay_pct": 20,
+    "annotation": {
+      "iopath": 24001,
+      "iopath_unmatched": 0,
+      "interconnect": 23295,
+      "interconnect_not_found": 106,
+      "interconnect_not_found_all_tie_off_to_port": true,
+      "timingcheck_warnings": 1597,
+      "coverage": "partial"
+    },
+    "equal_at_ns": [25, 20, 15, 14, 13, 12, 10, 8],
+    "differs_at_ns": [7, 6, 5, 4],
+    "first_failing_testbench_ns": 6,
+    "first_difference_at_6ns_is_known": true,
+    "timing_messages": 0,
+    "at_edge_differs_at_ns": [25, 100]
+  },
+  "path_adder": {
+    "sky130A_met/nom_tt_025C_1v80": {
+      "coverage": "full",
+      "iopath_unmatched": 0,
+      "interconnect_not_found": 0
+    },
+    "gf180mcuD_met/nom_tt_025C_5v00": {
+      "coverage": "partial",
+      "iopath_unmatched": 192,
+      "iopath_under_cond": 385,
+      "interconnect_not_found": 0
+    },
+    "ihp-sg13g2_met/nom_typ_1p20V_25C": {
+      "coverage": "failed",
+      "malformed_cond_line": 1676
+    }
+  },
+  "mac": {
+    "sdf": "mac_0p5ns.sdf",
+    "equal_at_ns": [40, 20],
+    "differs_at_ns": [16, 12, 8],
+    "gate_x_where_rtl_known": 0,
+    "timing_messages": 0
+  }
+}

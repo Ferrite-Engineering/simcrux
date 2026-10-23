@@ -4,7 +4,8 @@ Fixtures for functional gate-level simulation on LibreLane netlists and on
 the research MAC. Consumers: the gate-level runner and its port comparator,
 the cell-model resolver, the gate-level triage, the SDF gate, and the
 netlist-equivalence recipe beside them in `../../formal/eqy_flow/`.
-`GLS-GATE.md` records the gate measured on them.
+`GLS-GATE.md` records the gate measured on them; `SDF-GATE.md` the delay
+annotation gate.
 
 ## Tools and date
 
@@ -33,6 +34,11 @@ gf180mcuD and ihp-sg13g2 from ciel, as recorded in
 | `resetless/rl.nl.v` | `rl.v` as synthesis would write it on sky130_fd_sc_hd: one `dfxtp_1`, which has no reset | hand-written structural netlist |
 | `resetless/rl_renamed.nl.v` | the same netlist with its output port renamed `qq`, so the testbench's `.q(q)` binds nothing | hand-edited copy of `rl.nl.v` |
 | `gls.expected.json` | the recorded outcomes, per design and simulator | hand-written from the RTL, the testbenches and the tools' own output records |
+| `picorv32/tb_picorv32.v` (`HALF_PERIOD`, `IN_DELAY`), `picorv32/gls_portdump.v` (`GLS_SDF`) | the period, the input delay after the edge and the SDF annotation for the SDF gate; undefined, the testbench and dump are the functional gate's | written here |
+| `sdf/icarus/*.log` | every `SDF ...` line `vvp` printed annotating PicoRV32's `nom_tt_025C_1v80` SDF and the three committed adder runs' nominal SDFs, the SDF's path replaced by `<sdf>` | `tool/flow/gate_level/sdf_gate.py sweep` and `annotate` (the lines as printed) |
+| `sdf/mac_0p5ns.sdf` | the research MAC's synthetic SDF: 0.5 ns on every path, one 0.7 ns interconnect | `tool/flow/gate_level/gen_sdf.py mac/net.v sdf/mac_0p5ns.sdf 0.5 0.7`, byte-identical to the research file |
+| `sdf/sdf_gate.expected.json` | the SDF gate's recorded outcomes | hand-written from `SDF-GATE.md`'s measurements |
+| `sdf/picorv32_sweep.json`, `sdf/mac_sweep.json` | the measurement records of the two sweeps | `tool/flow/gate_level/sdf_gate.py sweep` (periods 25 to 4 ns) and `mac` (40 to 5 ns), unedited |
 
 The adder's netlist, power-aware netlist and SDF are not copied here: the
 committed trimmed run `../librelane/3.0.16/sky130A_met/run/final/{nl,pnl,sdf}`

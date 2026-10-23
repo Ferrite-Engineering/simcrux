@@ -74,7 +74,7 @@ abstract final class GlsMetricKeys {
   /// `nl` or `pnl`.
   static const String netlist = 'flow.gls.netlist';
 
-  /// `functional`.
+  /// `functional`, or `sdf` for a run annotated from the run's delay file.
   static const String delays = 'flow.gls.delays';
 
   /// The simulator both runs used: `icarus`.

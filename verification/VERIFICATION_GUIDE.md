@@ -6495,6 +6495,80 @@ tests it both ways).
 | The CLI against the real Icarus and cell models | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_gls_live_test.dart`, `.github/workflows/flow-live.yml` |
 | Tools > Run Gate-Level Simulation on a real LibreLane run, the waveform in WaveCrux | `[Coverage: MANUAL]` | needs LibreLane, Icarus, WaveCrux |
 
+### 27.15 Delay-annotated gate-level simulation: the SDF gate and the open-core seams
+
+**What it covers.** The measurement that decided whether a gate-level run may
+read the run's own delays, and the open-core pieces the Pro build's
+delay-annotated simulation stands on. The open core runs no such simulation
+and shows no word of it.
+
+- **The gate** (`verification/fixtures/flow/gate_level/SDF-GATE.md`, the tool
+  `tool/flow/gate_level/sdf_gate.py`): PicoRV32's `final/sdf/nom_tt_025C_1v80/`
+  from LibreLane 3.0.16 annotates in Icarus with every IOPATH annotated and
+  106 of 23,295 interconnects named as not found (tie-off cells driving
+  top-level outputs through an `assign`); the nominal 25 ns period matches RTL
+  and shortened periods differ (from 7 ns, the testbench failing from 6 ns), a
+  late capture being a wrong known value, never an X or a message. The
+  testbench must change its inputs after the clock edge, as the run's input
+  delay assumes: changed at the edge, the annotated netlist differs at every
+  period. The committed adder runs show the three coverages: sky130A full,
+  gf180mcuD partial (192 unconditional paths its models do not declare),
+  ihp-sg13g2 failed (a COND Icarus cannot parse).
+- **Seams**: `GlsOptions.delayFile` (a file inside the run root; the planner
+  writes `$sdf_annotate` into the gate's dump module, compiles the gate run
+  with `GlsPlanner.delayCompileArgs` through `TestSpec.extraCompileArgs` and
+  without the unit-delay defines, and records `flow.gls.delays=sdf`);
+  `flowSdfGlsRunnerProvider` (null; when filled, the Flow Runs panel offers the
+  runner's own label, badged, beside Run Gate-Level Simulation and hands it the
+  same request the functional run starts from); `glsAnnotatedNoteProvider`
+  (null; an annotated row in the inspector leads with the note it supplies and
+  never says unit delays); `GlsCliExtension` (an edition's options, licence
+  check, prepared options, scheduler and report for `flow gls`); the catalog
+  entry `flow.sdf.annotated`.
+
+**Setup.** None for the unit tests. For the live check: an OSS CAD Suite, the
+sky130A, gf180mcuD and ihp-sg13g2 PDKs from ciel, and the PicoRV32 run; then
+`OSS_CAD_SUITE=<suite> GATE_LEVEL_RUNS=<work>/3.0.16 FLOW_LIVE_REQUIRED=1
+flutter test test/static/flow_sdf_gate_live_test.dart`.
+
+**Expected behaviour.**
+
+1. `flutter test test/static/flow_gate_level_fixtures_test.dart` passes: the
+   SDF fixtures are present and scrubbed, the committed Icarus messages agree
+   with `sdf/sdf_gate.expected.json`, and the PicoRV32 testbench defaults to
+   the functional gate's 25 ns clock with inputs at the edge.
+2. `flutter test test/services/flow/gate_level/gls_runner_test.dart
+   test/services/simulator/icarus_driver_test.dart
+   test/core/cli/flow_cli_gls_extension_test.dart
+   test/features/flow test/static/flow_reachability_test.dart` passes.
+3. The live check passes: the MAC with 0.5 ns per path is equal at 20 ns and
+   differs at 12 ns, with no X and no message; the adders annotate as
+   recorded; PicoRV32 is equal at 25 ns, differs at 6 ns, and differs at 25 ns
+   with inputs at the edge. The weekly `flow-live.yml` job `sdf-gate`
+   (`timeout-minutes: 60`) runs it on the current LibreLane release's run.
+
+**Edge cases.** A delay-annotated PicoRV32 run takes about 100 seconds for 527
+cycles, two hundred times the functional run. OpenSTA wrote no escaped name
+and, on sky130, no COND clause on these runs; both are measured where they
+occur (the gf180mcuD and ihp-sg13g2 adders).
+
+**Tier-gate scenarios.** Open Core runs no delay-annotated simulation and
+offers no entry for it: every seam above is null or unset here. The
+functional simulation and everything in sections 27.12 to 27.14 are
+unchanged at Open Core with the beta period over.
+
+| Test | Coverage | File |
+|---|---|---|
+| SDF fixtures, the recorded outcomes, the testbench defaults | `[Coverage: UNIT]` | `test/static/flow_gate_level_fixtures_test.dart` |
+| Delay file: annotation, compile arguments, defines, metric, containment | `[Coverage: UNIT]` | `test/services/flow/gate_level/gls_runner_test.dart` |
+| Extra compile arguments after the generation | `[Coverage: UNIT]` | `test/services/simulator/icarus_driver_test.dart`, `test/domain/models/test_spec_flow_test.dart` |
+| The `flow gls` extension's order, refusal and usage | `[Coverage: UNIT]` | `test/core/cli/flow_cli_gls_extension_test.dart` |
+| The panel entry under an installed runner, none without; the inspector note | `[Coverage: UNIT]` | `test/features/flow/flow_runs_panel_test.dart`, `test/features/flow/gls_results_table_test.dart` |
+| Seams null, and read where the open core offers them | `[Coverage: UNIT]` | `test/static/flow_reachability_test.dart` |
+| `flow.sdf.annotated` catalogued | `[Coverage: UNIT]` | `test/static/telemetry_catalog_conformance_test.dart` |
+| The gate re-measured on the real tools | `[Coverage: AUTOMATED — GitHub Actions]` | `test/static/flow_sdf_gate_live_test.dart`, `.github/workflows/flow-live.yml` |
+| The SDF job is capped at 60 minutes and handed the nominal SDF | `[Coverage: UNIT]` | `test/static/workflow_timeout_guard_test.dart` |
+
 ---
 
 ## 9+. Subsequent features

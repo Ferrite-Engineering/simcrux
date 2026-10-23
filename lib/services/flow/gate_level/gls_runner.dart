@@ -4,6 +4,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_flow/crux_flow.dart'
+    show FlowContainment, FlowContainmentException;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -39,6 +41,7 @@ class GlsOptions {
     this.strictX = false,
     this.clock,
     this.tests = const <String>[],
+    this.delayFile,
   });
 
   /// `nl` (the default) or `pnl`.
@@ -52,6 +55,23 @@ class GlsOptions {
 
   /// SimCrux test names to rerun (a test's name, or its full id).
   final List<String> tests;
+
+  /// A delay file of the run to annotate the netlist from, or null for the
+  /// functional simulation with unit delays.
+  ///
+  /// Null everywhere in this package: nothing here sets it. An edition that
+  /// offers delay annotation sets it, and the planner then writes the
+  /// annotation into the generated dump module, compiles the gate run with
+  /// [GlsPlanner.delayCompileArgs] and without the unit-delay defines, and
+  /// records the result's delays as [GlsPlanner.delaysAnnotated]. The file
+  /// must resolve inside the run root.
+  final String? delayFile;
+
+  /// The delays a result of these options records: [GlsPlanner.delaysAnnotated]
+  /// with a [delayFile], else [GlsPlanner.delaysFunctional].
+  String get delays => delayFile == null
+      ? GlsPlanner.delaysFunctional
+      : GlsPlanner.delaysAnnotated;
 }
 
 /// The plan for one gate-level test: the derived specs, the generated files,
@@ -191,6 +211,20 @@ abstract final class GlsPlanner {
   /// The suite gate-level tests are listed under.
   static const String suiteName = 'gls';
 
+  /// The `flow.gls.delays` value of a functional simulation.
+  static const String delaysFunctional = 'functional';
+
+  /// The `flow.gls.delays` value of a simulation annotated from the run's
+  /// delay file ([GlsOptions.delayFile]).
+  static const String delaysAnnotated = 'sdf';
+
+  /// The Icarus generations a delay-annotated gate run is compiled with:
+  /// `specify` blocks kept, and interconnect delays accepted.
+  static const List<String> delayCompileArgs = <String>[
+    '-gspecify',
+    '-ginterconnect',
+  ];
+
   /// The id of the gate-level test that reruns [rtl].
   static String gateIdFor(TestSpec rtl) => '$suiteName/${rtl.id}';
 
@@ -253,6 +287,10 @@ abstract final class GlsPlanner {
         info: info,
       );
     }
+    final delayFile = options.delayFile;
+    if (delayFile != null && !_delayFileInRun(delayFile, info.runRoot)) {
+      return _allSkipped(info, selected, GlsNotRunReason.runUnreadable);
+    }
     final netlistPath = info.netlistPath;
     final design = info.design;
     final GlsNetlistPorts? netlistPorts;
@@ -300,6 +338,17 @@ abstract final class GlsPlanner {
     info: info,
     runProblem: reason,
   );
+
+  /// Whether [file] is a regular file that resolves inside [runRoot]
+  /// (symlinks resolved).
+  static bool _delayFileInRun(String file, String runRoot) {
+    try {
+      final contained = FlowContainment(<String>[runRoot]).require(file);
+      return File(contained).existsSync();
+    } on FlowContainmentException {
+      return false;
+    }
+  }
 
   static bool _isVhdl(String path) {
     final ext = p.extension(path).toLowerCase();
@@ -399,7 +448,9 @@ abstract final class GlsPlanner {
     final gateDump = p.join(gateDir, 'gls_portdump.v');
     final names = <String>[for (final port in signalPorts) port.name];
     await File(rtlDump).writeAsString(_dumpModule(scope.path, names, rtlVcd));
-    await File(gateDump).writeAsString(_dumpModule(scope.path, names, gateVcd));
+    await File(gateDump).writeAsString(
+      _dumpModule(scope.path, names, gateVcd, annotate: options.delayFile),
+    );
     final tops = <String>['gls_portdump'];
     final extraSources = <String>[gateDump];
     if (info.powerAware) {
@@ -417,6 +468,7 @@ abstract final class GlsPlanner {
       gateExtraSources: extraSources,
       gateExtraTops: tops,
       info: info,
+      annotated: options.delayFile != null,
     );
     return GlsPlan.run(
       original: spec,
@@ -436,6 +488,10 @@ abstract final class GlsPlanner {
   /// parameters and defines, which are copied and never chosen: `$random(seed)`
   /// sequences differ between simulators, so a comparison across two of them
   /// is noise, and this function cannot produce one.
+  ///
+  /// [annotated] is a delay-annotated gate run: no unit-delay defines (the
+  /// cell models' timing variants, whose `specify` paths take the delays) and
+  /// the [delayCompileArgs]. The RTL rerun is the same either way.
   @visibleForTesting
   static RtlGateSpecs derive({
     required TestSpec original,
@@ -445,6 +501,7 @@ abstract final class GlsPlanner {
     required List<String> gateExtraSources,
     required List<String> gateExtraTops,
     required GlsRunInfo info,
+    bool annotated = false,
   }) {
     const quiet = WaveformPolicy(capture: WaveformCapturePolicy.never);
     final rtl = original.copyWith(
@@ -467,10 +524,17 @@ abstract final class GlsPlanner {
       ],
       defines: <String, String>{
         ...original.defines,
-        ...PdkCellModels.definesFor(info.models, powerAware: info.powerAware),
+        if (annotated)
+          ...PdkCellModels.annotatedDefinesFor(
+            info.models,
+            powerAware: info.powerAware,
+          )
+        else
+          ...PdkCellModels.definesFor(info.models, powerAware: info.powerAware),
       },
       waveform: quiet,
       extraTops: gateExtraTops,
+      extraCompileArgs: annotated ? delayCompileArgs : null,
     );
     return RtlGateSpecs(rtl: rtl, gate: gate);
   }
@@ -510,19 +574,37 @@ abstract final class GlsPlanner {
 
   /// The generated module that dumps the DUT's top-level ports to [vcd]: a
   /// second top, so the user's testbench is not edited.
+  ///
+  /// With [annotate], a delay file, the module first annotates the netlist
+  /// instance [scope] from it (`$sdf_annotate`), at time zero and before the
+  /// dump starts.
   @visibleForTesting
-  static String dumpModule(String scope, List<String> ports, String vcd) =>
-      _dumpModule(scope, ports, vcd);
+  static String dumpModule(
+    String scope,
+    List<String> ports,
+    String vcd, {
+    String? annotate,
+  }) => _dumpModule(scope, ports, vcd, annotate: annotate);
 
-  static String _dumpModule(String scope, List<String> ports, String vcd) {
-    final file = vcd.replaceAll(r'\', '/').replaceAll('"', '');
+  static String _dumpModule(
+    String scope,
+    List<String> ports,
+    String vcd, {
+    String? annotate,
+  }) {
+    String literal(String path) =>
+        path.replaceAll(r'\', '/').replaceAll('"', '');
+    final file = literal(vcd);
     final signals = ports.map((n) => '$scope.$n').join(',\n      ');
+    final annotation = annotate == null
+        ? ''
+        : '    \$sdf_annotate("${literal(annotate)}", $scope);\n';
     return '''
 // Generated for gate-level simulation. The testbench is not edited: this is a
 // second top that dumps the design's top-level ports.
 module gls_portdump;
   initial begin
-    \$dumpfile("$file");
+$annotation    \$dumpfile("$file");
     \$dumpvars(0,
       $signals);
   end
@@ -1075,7 +1157,7 @@ class GlsScheduler implements JobScheduler {
       GlsMetricKeys.outcome: outcome.wireName,
       if (reason != null) GlsMetricKeys.reason: reason.wireName,
       GlsMetricKeys.netlist: info.netlistKind,
-      GlsMetricKeys.delays: 'functional',
+      GlsMetricKeys.delays: options.delays,
       GlsMetricKeys.simulator:
           plan.gateSpec?.simulatorId ??
           glsSimulatorIdFor(plan.original.simulatorId) ??

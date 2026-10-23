@@ -10,6 +10,7 @@ import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
 import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
+import 'package:simcrux/features/inspector/widgets/inspector_gls_notes.dart';
 import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
 import 'package:simcrux/services/flow/flow_handoff_provider.dart';
 import 'package:simcrux/services/flow/librelane_flow_driver.dart';
@@ -230,6 +231,33 @@ void main() {
     addTearDown(container.dispose);
     expect(container.read(flowGlsTriageOpenerProvider), isNull);
     expect(container.read(flowSdfGlsRunnerProvider), isNull);
+    expect(container.read(glsAnnotatedNoteProvider), isNull);
+  });
+
+  test('the delay-annotated seams are read where the open core offers and '
+      'shows them: the Flow Runs panel hands the runner the shared request, '
+      'the inspector leads with the note, and the CLI calls the extension', () {
+    final panel = source('lib/features/flow/widgets/flow_runs_panel.dart');
+    expect(panel, contains('ref.read(flowSdfGlsRunnerProvider)'));
+    expect(panel, contains('ref.watch(flowSdfGlsRunnerProvider)'));
+    expect(panel, contains('FlowActions.runGateLevelWithDelays('));
+    final actions = source('lib/features/flow/flow_actions.dart');
+    expect(actions, contains('read(flowSdfGlsRunnerProvider)'));
+    expect(actions, contains('runner.run(context, prepared.request)'));
+    expect(
+      source('lib/features/inspector/widgets/inspector_gls_notes.dart'),
+      contains('ref.watch(glsAnnotatedNoteProvider)'),
+    );
+    final cli = source('lib/core/cli/flow_cli.dart');
+    for (final call in const [
+      'glsExtension?.addOptions(',
+      'extension.admit(',
+      'extension.prepare(',
+      'extension?.wrapInner(',
+      'extension.report(',
+    ]) {
+      expect(cli, contains(call));
+    }
   });
 
   test('the Flow Runs panel is a movable tab of both docks, and keeps its '

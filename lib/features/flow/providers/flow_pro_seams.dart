@@ -3,11 +3,13 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
 import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
+import 'package:simcrux/services/job_scheduler/gls_scratch.dart';
 
 /// Opener callback for one of the Pro implementation-flow screens.
 ///
@@ -56,7 +58,8 @@ typedef FlowGlsTriageOpener =
 /// What a gate-level simulation that reads delays runs against: the run, what
 /// the user asked, and the tests selected. The SDF seam below is handed this,
 /// so a runner that annotates the run's delays starts from exactly the
-/// functional simulation's inputs.
+/// functional simulation's inputs, and runs its tests through the same
+/// scheduler the project's own tests use.
 @immutable
 class GlsRunRequest {
   /// Creates the request.
@@ -64,6 +67,10 @@ class GlsRunRequest {
     required this.info,
     required this.options,
     required this.tests,
+    required this.entry,
+    required this.scheduler,
+    required this.scratch,
+    this.background = glsRunDirect,
   });
 
   /// The simulated run.
@@ -74,13 +81,35 @@ class GlsRunRequest {
 
   /// The RTL tests selected.
   final List<TestSpec> tests;
+
+  /// The name of the flow entry the run belongs to.
+  final String entry;
+
+  /// The scheduler the project's tests run on (its simulators, with the
+  /// app's binary overrides), resolved when called.
+  final JobScheduler Function() scheduler;
+
+  /// Where the generated modules and the port dumps go.
+  final GlsScratch scratch;
+
+  /// Runs a task off the UI isolate.
+  final GlsBackgroundRunner background;
 }
 
-/// Runs a delay-annotated gate-level simulation of [request]. Gate
+/// Runs a gate-level simulation annotated with the run's own delays. Gate
 /// `SimcruxGatedFeature.flowSdfGls`. Null in open core, and filled by the Pro
 /// overlay only where delay annotation is measured to work.
-typedef FlowSdfGlsRunner =
-    Future<void> Function(BuildContext context, GlsRunRequest request);
+///
+/// The edition that fills it names the entry the Flow Runs panel shows for
+/// it ([label]), so the open core carries none of its words.
+abstract interface class FlowSdfGlsRunner {
+  /// The entry's name in the Flow Runs panel and the run's context menu.
+  String label(BuildContext context);
+
+  /// Runs [request]: owns the tier gate, the choice of delay file, the run
+  /// and the result surface.
+  Future<void> run(BuildContext context, GlsRunRequest request);
+}
 
 // The five Pro Flow seams, in one file so every one is reachable from the
 // action handler that reads the first.
@@ -127,7 +156,9 @@ final Provider<FlowBaselineWriter?> flowBaselineWriterProvider =
 final Provider<FlowGlsTriageOpener?> flowGlsTriageOpenerProvider =
     Provider<FlowGlsTriageOpener?>((ref) => null, name: 'flowGlsTriageOpener');
 
-/// The delay-annotated gate-level runner. Null in open core and in every
-/// build until the Pro overlay fills it.
+/// The delay-annotated gate-level runner. Null in open core, so the Flow Runs
+/// panel lists no entry for it; the Pro overlay fills it, and the panel then
+/// lists the entry under the runner's own label beside Run Gate-Level
+/// Simulation, on every LibreLane run.
 final Provider<FlowSdfGlsRunner?> flowSdfGlsRunnerProvider =
     Provider<FlowSdfGlsRunner?>((ref) => null, name: 'flowSdfGlsRunner');

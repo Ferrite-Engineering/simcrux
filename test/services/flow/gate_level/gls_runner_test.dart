@@ -269,6 +269,87 @@ void main() {
       expect(text, isNot(contains('VPWR')));
     });
 
+    test('a delay file in the run: the gate dump annotates the instance '
+        'from it, the gate run compiles the specify and interconnect '
+        'generations without the unit-delay defines, and the RTL rerun is '
+        'unchanged', () async {
+      final info = await macRun();
+      final sdf = p.join(run, 'final', 'sdf', 'nom', 'dut__nom.sdf');
+      Directory(p.dirname(sdf)).createSync(recursive: true);
+      File(sdf).writeAsStringSync('(DELAYFILE)\n');
+      final set = await plan(
+        info,
+        <TestSpec>[macTest()],
+        options: GlsOptions(delayFile: sdf),
+      );
+      final one = set.plans.single;
+      final gate = one.gateSpec!;
+      expect(gate.extraCompileArgs, GlsPlanner.delayCompileArgs);
+      expect(gate.extraCompileArgs, <String>['-gspecify', '-ginterconnect']);
+      expect(gate.defines.containsKey('FUNCTIONAL'), isFalse);
+      expect(gate.defines.containsKey('UNIT_DELAY'), isFalse);
+      expect(gate.defines['OUT'], '"mac.txt"');
+      final dump = File(
+        gate.sources.firstWhere((s) => s.endsWith('gls_portdump.v')),
+      ).readAsStringSync();
+      final annotate =
+          '\$sdf_annotate("${sdf.replaceAll(r'\', '/')}", tb.uut);';
+      expect(dump, contains(annotate));
+      expect(
+        dump.indexOf(annotate),
+        lessThan(dump.indexOf(r'$dumpfile(')),
+        reason: 'annotated before the dump starts',
+      );
+      final rtl = one.rtlSpec!;
+      expect(rtl.extraCompileArgs, isEmpty);
+      final rtlDump = File(
+        rtl.sources.firstWhere((s) => s.endsWith('gls_portdump.v')),
+      ).readAsStringSync();
+      expect(rtlDump, isNot(contains('sdf_annotate')));
+      expect(const GlsOptions().delays, 'functional');
+      expect(GlsOptions(delayFile: sdf).delays, 'sdf');
+    });
+
+    test('a delay file outside the run, or missing, runs nothing', () async {
+      final info = await macRun();
+      final outside = p.join(tmp.path, 'elsewhere.sdf');
+      File(outside).writeAsStringSync('(DELAYFILE)\n');
+      for (final file in <String>[
+        outside,
+        p.join(run, 'final', 'sdf', 'nom', 'missing.sdf'),
+      ]) {
+        final set = await plan(
+          info,
+          <TestSpec>[macTest()],
+          options: GlsOptions(delayFile: file),
+        );
+        expect(set.plans.single.runs, isFalse, reason: file);
+        expect(set.runProblem, GlsNotRunReason.runUnreadable, reason: file);
+      }
+    });
+
+    test('without a delay file the dump module annotates nothing and the '
+        'gate run has no extra compile arguments', () async {
+      final info = await macRun();
+      final gate = (await plan(info, <TestSpec>[
+        macTest(),
+      ])).plans.single.gateSpec!;
+      expect(gate.extraCompileArgs, isEmpty);
+      expect(
+        GlsPlanner.dumpModule('tb.uut', <String>['clk'], '/x/ports.vcd'),
+        isNot(contains('sdf_annotate')),
+      );
+      expect(
+        GlsPlanner.dumpModule(
+          'tb.uut',
+          <String>['clk'],
+          '/x/ports.vcd',
+          annotate: r'C:\run\final\sdf\c\d"x.sdf',
+        ),
+        contains(r'$sdf_annotate("C:/run/final/sdf/c/dx.sdf", tb.uut);'),
+      );
+    });
+
     test("generated files live only in SimCrux's own scratch", () async {
       final info = await macRun();
       final set = await plan(info, <TestSpec>[macTest()]);
@@ -515,6 +596,29 @@ endmodule
       expect(s.inner.submitted, hasLength(2));
       expect(s.inner.submitted.first.id, 'gls-rtl/mac/plain');
       expect(s.inner.submitted.last.id, 'gls/mac/plain');
+    });
+
+    test('a delay-annotated run records its delays as sdf, and the gate '
+        'spec it hands the scheduler carries the annotation', () async {
+      final sdf = p.join(run, 'final', 'sdf', 'nom', 'dut__nom.sdf');
+      final info = await macRun();
+      Directory(p.dirname(sdf)).createSync(recursive: true);
+      File(sdf).writeAsStringSync('(DELAYFILE)\n');
+      final options = GlsOptions(delayFile: sdf);
+      final set = await plan(info, <TestSpec>[macTest()], options: options);
+      final inner = _FakeInner(
+        (_) => _ok(),
+        onRun: dumps(() => set, rtl: 'rtl', gate: 'gate'),
+      );
+      final result = (await exec((
+        inner: inner,
+        info: info,
+        set: set,
+      ), options: options)).single;
+      expect(result.metrics[GlsMetricKeys.delays], 'sdf');
+      expect(GlsResultView.of(result)!.annotated, isTrue);
+      expect(inner.submitted.last.extraCompileArgs, isNotEmpty);
+      expect(inner.submitted.first.extraCompileArgs, isEmpty);
     });
 
     test('strict x turns an X-only result into a failing test', () async {

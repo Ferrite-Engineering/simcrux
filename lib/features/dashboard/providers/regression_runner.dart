@@ -426,6 +426,12 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
     return changed ? config.copyWith(simulatorBinaries: merged) : config;
   }
 
+  /// The scheduler [config]'s tests run on, resolved exactly as [submitSpecs]
+  /// resolves it (the app's binary overrides applied), for a caller that runs
+  /// derived specs outside the results table.
+  JobScheduler schedulerFor(RegressionConfig config) =>
+      ref.read(jobSchedulerProvider).schedulerFor(_withBinaryOverrides(config));
+
   /// Subscribes to a submitted run's event stream and threads every
   /// event into the in-memory store, the log buffers, the buffered
   /// trend writer, and the runner state. The single handler shared by
@@ -907,9 +913,7 @@ class RegressionRunner extends AsyncNotifier<RegressionRunState?> {
     final trendStore = await trendStoreForRun(ref);
     if (_superseded(generation)) return;
 
-    final resolved = ref
-        .read(jobSchedulerProvider)
-        .schedulerFor(_withBinaryOverrides(config));
+    final resolved = schedulerFor(config);
     final scheduler = wrapScheduler == null
         ? resolved
         : wrapScheduler(resolved);

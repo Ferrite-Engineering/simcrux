@@ -1323,6 +1323,16 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The gate-level strings and the five ARBs name none of the timing-check words (timing violation, timing failure, setup violation, hold violation, timing clean) — `[Coverage: UNIT]` (`flow_vocabulary_guard_test.dart`)
 - [ ] The research MAC, a reset-less register, a bit-split netlist, a renamed port, a failing RTL and the committed adder run give the recorded outcomes against the real Icarus and sky130 cell models — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_gls_live_test.dart`, `flow-live.yml`)
 
+### Delay-annotated gate-level simulation: the SDF gate and the open-core seams (guide §27.15)
+
+- [ ] `SDF-GATE.md` records the gate as passed and matches `sdf/sdf_gate.expected.json`; the committed Icarus SDF messages agree with it (PicoRV32: no IOPATH unmatched, 106 interconnects not found, one TIMINGCHECK warning per flip-flop; the gf180mcuD adder 192 unmatched paths; the IHP adder a COND Icarus cannot parse); the PicoRV32 testbench and port dump default to the functional gate — `[Coverage: UNIT]` (`flow_gate_level_fixtures_test.dart`)
+- [ ] Against the real Icarus: the MAC with 0.5 ns per path is equal at 20 ns and different at 12 ns with no X and no message; the adder SDFs annotate full, partial and failed as recorded; PicoRV32's nominal SDF is equal at 25 ns, different at 6 ns with a known wrong value first, and different at 25 ns with inputs at the clock edge — `[Coverage: AUTOMATED — GitHub Actions]` (`flow_sdf_gate_live_test.dart`, `flow-live.yml` job `sdf-gate`, capped at 60 minutes)
+- [ ] A delay file in the run (`GlsOptions.delayFile`, contained in the run root) puts `$sdf_annotate` on the gate dump module before the dump starts, compiles the gate run with `-gspecify -ginterconnect` (`TestSpec.extraCompileArgs`, passed by the Icarus driver after `-g2012`) and without `FUNCTIONAL` or `UNIT_DELAY`, leaves the RTL rerun unchanged, and records `flow.gls.delays=sdf`; a file outside the run or missing runs nothing — `[Coverage: UNIT]` (`gls_runner_test.dart`, `icarus_driver_test.dart`, `test_spec_flow_test.dart`)
+- [ ] The open core offers no delay-annotated entry and ships no word of it: the runner seam and the inspector note seam are null; with a runner installed the Flow Runs panel offers it under the runner's label, badged, on a LibreLane run, and hands it the same request the functional run starts from — `[Coverage: UNIT]` (`flow_runs_panel_test.dart`, `flow_reachability_test.dart`)
+- [ ] An annotated row never carries the unit-delay sentence in the inspector and leads with the edition's note — `[Coverage: UNIT]` (`gls_results_table_test.dart`)
+- [ ] `flow gls` takes an edition's extension: its options, a licence check before any project or run work, the options it prepares, a scheduler between the pairs and the simulators, its own report and exit code; without its flag nothing changes — `[Coverage: UNIT]` (`flow_cli_gls_extension_test.dart`)
+- [ ] `flow.sdf.annotated` is catalogued (result full, partial or failed; interconnect true or false), listed as recorded only by the Pro build — `[Coverage: UNIT]` (`telemetry_catalog_conformance_test.dart`)
+
 ---
 
 ## Subsequent features

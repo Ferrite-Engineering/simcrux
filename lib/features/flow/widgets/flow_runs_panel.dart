@@ -6,13 +6,16 @@ import 'dart:math' as math;
 
 import 'package:crux_flow/crux_flow.dart';
 import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_license/crux_license.dart' show LicenseTier;
 import 'package:crux_table/crux_table.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
+import 'package:simcrux/features/flow/flow_actions.dart';
 import 'package:simcrux/features/flow/flow_labels.dart';
+import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/flow/providers/flow_table_layouts.dart';
 import 'package:simcrux/features/flow/widgets/flow_dialogs.dart';
@@ -23,6 +26,7 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
 import 'package:simcrux/services/flow/flow_worst_paths.dart';
+import 'package:simcrux/shared/widgets/simcrux_feature_tier_badge.dart';
 
 /// The Flow Runs panel: the project's implementation-flow runs, newest
 /// first, and the selected run's verdict, steps, metrics and worst paths.
@@ -74,6 +78,16 @@ void _dispatch(BuildContext context, SimcruxAction action) =>
       context,
       SimcruxActionIntent(action),
     );
+
+/// The delay-annotated gate-level run of the selected run, handed to the
+/// installed runner from inside this tab's scope.
+void _runWithDelays(BuildContext context, WidgetRef ref) => unawaited(
+  FlowActions.runGateLevelWithDelays(
+    context,
+    ProviderScope.containerOf(context, listen: false),
+    ref.read,
+  ),
+);
 
 class _FlowRunsBody extends ConsumerWidget {
   const _FlowRunsBody({required this.root, required this.index});
@@ -185,19 +199,37 @@ class _RunList extends ConsumerWidget {
       // netlist, at gate level. LibreLane runs only; free on every tier.
       contextMenuEntries: (i) {
         final run = runs[i];
+        final librelane = run.reading.run.ref.kind == FlowKind.librelane;
+        final delays = ref.read(flowSdfGlsRunnerProvider);
+        void select() => ref
+            .read(flowSelectedRunProvider.notifier)
+            .select(flowSelectionOf(run.reading.run.ref, run.design));
         return <CruxMenuEntry>[
           CruxMenuItem(
             key: const ValueKey('flowRunRunGateLevel'),
             label: SimcruxAction.runGateLevelSimulation.label(l10n),
             icon: Icons.memory_outlined,
-            enabled: run.reading.run.ref.kind == FlowKind.librelane,
+            enabled: librelane,
             onSelected: () {
-              ref
-                  .read(flowSelectedRunProvider.notifier)
-                  .select(flowSelectionOf(run.reading.run.ref, run.design));
+              select();
               _dispatch(context, SimcruxAction.runGateLevelSimulation);
             },
           ),
+          // The delay-annotated run, when an edition installs one: its label
+          // is the edition's, and it owns its own tier gate.
+          if (delays != null)
+            CruxMenuItem(
+              key: const ValueKey('flowRunRunGateLevelWithDelays'),
+              label: delays.label(context),
+              icon: Icons.timer_outlined,
+              enabled: librelane,
+              trailingBuilder: (_) =>
+                  const SimCruxFeatureTierBadge(requiredTier: LicenseTier.pro),
+              onSelected: () {
+                select();
+                _runWithDelays(context, ref);
+              },
+            ),
         ];
       },
       onCurrentChanged: (i) {
@@ -431,6 +463,7 @@ class _Summary extends ConsumerWidget {
     final reading = entry.reading;
     final ref0 = reading.run.ref;
     final delta = flowRunDelta(reading, previous?.reading);
+    final delays = ref.watch(flowSdfGlsRunnerProvider);
     final handoff = switch (ref0.kind) {
       FlowKind.librelane => <SimcruxAction>[
         SimcruxAction.openInKlayout,
@@ -474,6 +507,24 @@ class _Summary extends ConsumerWidget {
               _dispatch(context, action);
             },
             child: Text(action.label(l10n)),
+          ),
+        if (delays != null && ref0.kind == FlowKind.librelane)
+          OutlinedButton(
+            key: const ValueKey<String>('flowPanel.runGateLevelWithDelays'),
+            onPressed: () {
+              ref
+                  .read(flowSelectedRunProvider.notifier)
+                  .select(flowSelectionOf(ref0, entry.design));
+              _runWithDelays(context, ref);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(delays.label(context)),
+                const SizedBox(width: 6),
+                const SimCruxFeatureTierBadge(requiredTier: LicenseTier.pro),
+              ],
+            ),
           ),
       ],
     );
