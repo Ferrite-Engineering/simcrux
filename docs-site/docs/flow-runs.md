@@ -24,6 +24,7 @@ Select a run and the panel shows, above its details:
 - **The heading**, the design and its verdict in words: Met, Violated, Stopped
   at a step, Did not run, or Unrecognised.
 - **How it was read**: "Read by `<reader>` (`<version>`)". A LibreLane run
+  from a release the readers are not [verified for](flow-librelane.md#reading)
   also carries a banner before the heading, "Reader not verified for this run's
   LibreLane version. Results are read best-effort from the run directory."
 - **The change since the last run**, compared with the same design's previous
@@ -68,9 +69,12 @@ are shown whole and other numbers to four significant places.
 For a nextpnr run, the table lists the paths its report names, worst first:
 the rank, the clock, where the path starts and ends, its delay in nanoseconds
 and how it [maps to your RTL](#mapping). Open a path for a dialog with each
-segment of the path and the mapping of each end. A LibreLane run's paths are not
-listed yet: the panel says so, and its worst slack and its counts of paths that
-miss are under **Metrics**.
+segment of the path and the mapping of each end.
+
+For a LibreLane run, the table lists the setup paths OpenSTA reported in the
+run's post-route timing step, worst first, and each end is mapped as the
+**nearest register** (see [below](#mapping)). A run without that listing says so,
+and its worst slack and its counts of paths that miss are under **Metrics**.
 
 A run ingested without its netlists lists its paths and says "This run holds no
 synthesised netlist, so its paths are not mapped to the RTL."
@@ -94,7 +98,13 @@ its nearest mapped neighbour, "unmapped; nearest mapped: `<mapping>`", so you
 can see where on the path the trail goes cold. A path labelled **Statement** is
 not a **Register**, and SimCrux never upgrades one label to another.
 
-The mapping reads the netlist Yosys wrote for the run: the entry's
+On a LibreLane run a register is the **nearest register** the synthesised design
+records, not a proof of source: most flip-flops carry no source span, so the
+register is found by the name of the net on the flip-flop's output, and a
+register-file bit maps to the memory rather than to one word. See [LibreLane
+runs](flow-librelane.md#paths).
+
+The mapping of an nextpnr run reads the netlist Yosys wrote for the run: the entry's
 [`netlist:`](projects-and-simulators.md#flow-netlist) file, else `synth.json`,
 else the run's one Yosys netlist, and the placed netlist `post.json`. Register
 names are rooted at the entry's `top` when it names one.

@@ -356,8 +356,8 @@ only the Verilator driver takes extra flags (below).
 | EQY | `eqy` | `eqy -f -d <work dir>/<file name> …` per `.eqy` file | From 1.2. See [Formal verification](formal.md#eqy). |
 
 From 1.2, a `flow:` entry runs through the `nextpnr` driver (and a LibreLane
-driver, described separately) rather than a `simulator:` key; see
-[Implementation flow](flow.md).
+driver, see [LibreLane runs](flow-librelane.md)) rather than a `simulator:` key;
+see [Implementation flow](flow.md).
 
 ### Verilator flags {#verilator}
 

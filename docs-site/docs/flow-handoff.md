@@ -18,9 +18,26 @@ Results are findings, not signoff.
 | **OpenROAD** | The run's final database, from `final/odb/`, through a one-line read script SimCrux writes to its own scratch directory, never into the run. | LibreLane runs |
 | **nextpnr GUI** | The placed and routed netlist, `post.json`, with the device the entry names. | nextpnr runs |
 
-How a LibreLane run is produced and read is described separately. A viewer that
-is given the wrong kind of run says so in a toast ("KLayout opens LibreLane
-runs. Select a LibreLane run first.") instead of starting.
+How a LibreLane run is produced and read is on [LibreLane
+runs](flow-librelane.md). A viewer that is given the wrong kind of run says so in
+a toast ("KLayout opens LibreLane runs. Select a LibreLane run first.") instead of
+starting.
+
+### LibreLane runs in KLayout and OpenROAD {#librelane}
+
+For a LibreLane run that belongs to a project entry, SimCrux opens the viewer
+through LibreLane's own `OpenInKLayout` or `OpenInOpenROAD` flow, because that
+flow supplies the PDK's layer properties and the run's own views. SimCrux starts
+it from the run's newest step state, `--with-initial-state`, into a **new run
+tag**, `simcrux-view-<UTC time>`, beside the run. The run you measured is never
+written to, and SimCrux never passes `--overwrite` or `--last-run`. This needs the
+Executable or Nix launcher and a run in the entry's own `runs/` folder.
+
+Otherwise, for example for a Docker launcher (a container has no display), an
+ingested run or a run outside the entry's `runs/` folder, KLayout opens the run's
+final GDS directly, with the run's DRC markers when it has them, and OpenROAD
+reads the final database. The layout is whatever the flow produced on one of the
+open PDKs, sky130, gf180mcu or ihp-sg13g2.
 
 ## Open a run {#open}
 

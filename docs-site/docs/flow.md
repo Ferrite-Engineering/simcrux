@@ -19,6 +19,7 @@ comparison and trend screens listed under [Pro](#pro).
 |---|---|
 | This page | What a flow run is, the `flow:` block, the verdict, settings |
 | [nextpnr runs](flow-nextpnr.md) | FPGA place and route, directly or through FuseSoC |
+| [LibreLane runs](flow-librelane.md) | ASIC runs on the open PDKs: launchers, the entry, run directories, the verified releases, the verdict, worst paths |
 | [Ingesting runs](flow-ingest.md) | Runs SimCrux did not launch, and zipped CI artifacts |
 | [The Flow Runs panel](flow-runs.md) | Run list, steps, metrics, worst paths, RTL mapping and fidelity labels |
 | [Hand-off to viewers](flow-handoff.md) | Opening a run in KLayout, OpenROAD or nextpnr's own viewer |
@@ -26,9 +27,10 @@ comparison and trend screens listed under [Pro](#pro).
 | [CI gate](flow-ci.md) | `simcrux flow`, thresholds, the exit-code table and recipes |
 | [Troubleshooting](flow-troubleshooting.md) | macOS `PATH`, Windows, `XDG_DATA_HOME` |
 
-A LibreLane run that SimCrux lists is labelled **reader not
-verified**: SimCrux reads the run directory best-effort and says so before the
-verdict, so read its result as such.
+A LibreLane run is read by a reader for its release. The releases the readers
+are verified for are listed on [LibreLane runs](flow-librelane.md#reading); a run
+from any other release is read best-effort and labelled **reader not verified**,
+with the reason, before the verdict.
 
 ## The `flow:` block {#flow-block}
 
@@ -91,7 +93,10 @@ never from the process exit code:
 A violated run is a finding about your design, and the table shows it that way,
 not as a tool error. The exit code is recorded as `flow.process_exit_code` and
 decides nothing: nextpnr exits `1` on a timing miss and still writes its report,
-and that report is what makes the run **Violated**.
+and that report is what makes the run **Violated**. A LibreLane run follows
+LibreLane's own checkers instead: a check its configuration waives is a note, and
+negative slack alone is not a violation. See [the LibreLane
+verdict](flow-librelane.md#verdict).
 
 ## Run flow entries {#run}
 
@@ -116,8 +121,9 @@ for flows. Leave a path empty to use `PATH`.
 | OpenROAD path | The OpenROAD executable used by [Open in OpenROAD](flow-handoff.md) |
 | FuseSoC path | The FuseSoC executable used by a [FuseSoC entry](flow-nextpnr.md#fusesoc) |
 
-The same card holds the settings for LibreLane runs, which are described
-separately. **Check flow tools** probes every tool and lists which were found
+The same card holds the settings for LibreLane runs (the launcher, the Docker
+image, the PDK root and the **librelane** path), described on [LibreLane
+runs](flow-librelane.md#launchers). **Check flow tools** probes every tool and lists which were found
 and which were not, with the platform's guidance for each missing one. An app
 opened from the Finder does not see your shell's `PATH`; see
 [Troubleshooting](flow-troubleshooting.md).
@@ -130,6 +136,11 @@ opened from the Finder does not see your shell's `PATH`; see
 `simcrux-pro flow compare` and `simcrux-pro flow baseline write`. They read the
 same runs the free panel lists and change no verdict. In an open core build each
 menu item stays enabled, badged, and answers that it requires SimCrux Pro.
+
+<span class="tier tier-pro">Pro</span> A LibreLane run's gate-level netlist can
+also be simulated with the delays of the run's SDF file, in the app and with
+`simcrux-pro flow gls --sdf`. It has no timing checks, and its page says what that
+means: [Delay-annotated simulation](flow-gate-level.md#sdf).
 
 <span class="tier tier-enterprise">Enterprise</span> A signed policy file can set
 [thresholds for every implementation run](administration.md#flow-thresholds).

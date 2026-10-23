@@ -78,6 +78,7 @@ nav:
       - Formal verification, from 1.2: formal.md
       - Implementation flow, from 1.2: flow.md
       - nextpnr runs: flow-nextpnr.md
+      - LibreLane runs: flow-librelane.md
       - Ingesting runs: flow-ingest.md
       - The Flow Runs panel: flow-runs.md
       - Hand-off to viewers: flow-handoff.md

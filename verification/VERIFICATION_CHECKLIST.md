@@ -1168,6 +1168,8 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] The inspector's Formal result lines are Tab stops in order, construct and location before any advice, in five locales — `[Coverage: WIDGET]` (`formal_diagnostic_focus_walk_test.dart`)
 - [ ] `formal.sva.unsupported{construct, frontend}` and `formal.pretrace.flagged{kind}` are recorded once per distinct value on the real run path, from closed vocabularies only — `[Coverage: UNIT]` (`formal_events_test.dart`, `telemetry_catalog_conformance_test.dart`)
 - [ ] The committed docs-site SVA table is what the generator makes of the measured matrix, with its date and build — `[Coverage: UNIT]` (`sva_support_table_test.dart`)
+- [ ] The committed docs-site list of verified LibreLane releases is what the generator makes of `kLibreLane30Verified`, and the page includes it rather than copying it — `[Coverage: UNIT]` (`librelane_verified_list_test.dart`)
+- [ ] The gate-level docs page leads its delay-annotated section with the label word for word and uses no timing-result wording for a gate-level result — `[Coverage: UNIT]` (`flow_vocabulary_guard_test.dart`)
 - [ ] The 51-probe matrix through the driver on both frontends: every refusal diagnosed, nothing refused reported passing, nothing accepted reported dropped; the measured rows match the table — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sva_matrix_driver_live_test.dart`, `engine-canary.yml`)
 - [ ] Every corpus case through the driver carries the hand-expected diagnostic and markers — `[Coverage: INTEGRATION — needs OSS CAD Suite]` (`sby_driver_live_test.dart`)
 

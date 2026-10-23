@@ -5087,6 +5087,18 @@ the `#import` and `#tools` headings of `docs-site/docs/formal.md`;
 Flow siblings, the generated SVA table it includes and the nav entries are held
 by `test/static/docs_site_formal_flow_pages_test.dart`.
 
+**The LibreLane and gate-level pages.** `docs-site/docs/flow-librelane.md`
+lists the verified LibreLane releases by including
+`docs-site/generated/librelane-verified.md`, which
+`tool/generate_librelane_verified_list.dart` writes from crux_flow's
+`kLibreLane30Verified`; `test/static/librelane_verified_list_test.dart` fails
+when the committed file stops matching the constant or the page carries a
+release number of its own. The gate-level page leads its delay-annotated
+section with the label word for word and words no gate-level result as a
+timing violation, failure or timing clean
+(`test/static/flow_vocabulary_guard_test.dart`). There is no netlist
+equivalence section for LibreLane runs.
+
 **The engine canary** (`.github/workflows/engine-canary.yml`). Monthly and
 on dispatch, on Linux, with an OSS CAD Suite pinned by tag and SHA-256 (a
 build from 2026-10-21 or newer; earlier yosys-slang builds refuse

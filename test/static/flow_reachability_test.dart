@@ -166,8 +166,11 @@ void main() {
     expect(runner, contains('wrapScheduler'));
     expect(runner, contains('GlsResultView.of('));
     expect(runner, contains('recordFlowGls('));
-    expect(runner, contains('flowGlsCompletedProperties('));
-    expect(runner, contains("'flow.gls.completed'"));
+    expect(runner, contains('flowGlsCompletedEvent('));
+    expect(
+      source('lib/services/telemetry/flow_telemetry.dart'),
+      contains("'flow.gls.completed'"),
+    );
     expect(
       source('lib/services/trend_store/sql_trend_store_io.dart'),
       contains('INSERT INTO flow_gls_results'),

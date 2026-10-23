@@ -25,6 +25,10 @@ simcrux flow gate   <run-dir|report.json>
                     [--fail-on '<metric><op><value>']... [--baseline <file>]
                     [--sarif <out>] [--junit <out>] [--json]
 simcrux flow export <run-dir|report.json> --format json|junit|sarif|html --out <file>
+simcrux flow gls    <run-dir> [--entry <name>] [--test <name>]... [--netlist nl|pnl]
+                    [--strict-x] [--clock <port>] [--allow-project-tooling]
+                    [--junit <out>] [--json]
+simcrux-pro flow gls --sdf <corner> <run-dir> [the options of simcrux flow gls]
 ```
 
 - **`flow run`** runs the project's `flow:` entries (`simcrux.yaml` in the
@@ -39,6 +43,12 @@ simcrux flow export <run-dir|report.json> --format json|junit|sarif|html --out <
 - **`flow gate`** reads one run and decides whether it passes.
 - **`flow export`** writes one run as JSON, JUnit XML, SARIF or a self-contained
   HTML page, and exits `0`.
+- **`flow gls`** reruns a LibreLane run's tests at gate level and compares the
+  ports with RTL. It is free, and its exit codes (the same family, read for a
+  gate-level run) are on [Gate-level simulation](flow-gate-level.md#cli).
+  <span class="tier tier-pro">Pro</span> `simcrux-pro flow gls --sdf` adds the
+  delays of the run's SDF file, with no timing checks; see [Delay-annotated
+  simulation](flow-gate-level.md#sdf) for its label and exit codes.
 
 Results go to stdout and diagnostics to stderr. `--json` prints one document on
 stdout with the exit code and its label.
@@ -77,7 +87,7 @@ file can be opened in [LintCrux](https://docs.lintcrux.app/opening-flow-sarif).
 | `3` | organization threshold violated | An organization's signed policy threshold failed, apart from your own. Only `simcrux-pro flow gate` and the desktop app's `--ci` return it; `simcrux flow` never does. |
 | `64` | usage | An unknown flag, a missing value or path, an unknown entry or subcommand |
 | `65` | data error | A report or metrics file exists but cannot be converted |
-| `77` | license required | `simcrux-pro flow compare` or `flow baseline write` was refused for want of a Pro license, or a named license file could not be read. `simcrux flow` never returns it. |
+| `77` | license required | `simcrux-pro flow compare`, `flow baseline write` or `flow gls --sdf` was refused for want of a Pro license, or a named license file could not be read. `simcrux flow` never returns it. |
 | `130`, `143` | interrupted | Cancelled with `Ctrl+C` or a termination signal. The run's process trees were killed. |
 
 The codes are disjoint on purpose: a pipeline can tell "the design has

@@ -216,6 +216,41 @@ void main() {
     expect(found, isEmpty, reason: found.join('\n'));
   });
 
+  test(
+    'the gate-level page names no timing result, and leads with the label',
+    () {
+      // The one sentence that says setup and hold violations are not detected
+      // is the delay-annotated label, word for word; with it set aside, the page
+      // never words a gate-level result as a timing violation, a timing failure
+      // or timing clean.
+      const label =
+          'Delay-annotated simulation, no timing checks. Setup and hold '
+          'violations are not detected.';
+      final text = File('docs-site/docs/flow-gate-level.md').readAsStringSync();
+      expect(text, contains(label));
+      final section = text.substring(
+        text.indexOf('## Delay-annotated simulation'),
+      );
+      final afterHeading = section.substring(section.indexOf('\n') + 1).trim();
+      expect(
+        afterHeading,
+        startsWith('**$label**'),
+        reason: 'the label is the first thing in its section',
+      );
+      final found = <String>[];
+      final lines = text
+          .replaceAll(label, '')
+          .replaceAll('Results are findings, not signoff.', '')
+          .split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        found.addAll(
+          offences('flow-gate-level.md:${i + 1}', lines[i], timing: true),
+        );
+      }
+      expect(found, isEmpty, reason: found.join('\n'));
+    },
+  );
+
   test('the guard catches each claim it names', () {
     for (final claim in const [
       'Ready for signoff',

@@ -218,6 +218,12 @@ const _allowlist = <_Allowance>[
     'the shipped Pro CLI executable whose flow gate a CI job runs',
   ),
   _Allowance(
+    'docs-site/docs/flow-gate-level.md',
+    'simcrux-pro',
+    'the shipped Pro CLI executable whose delay-annotated gate-level command '
+        'is documented for users',
+  ),
+  _Allowance(
     'docs-site/docs/integrations.md',
     'simcrux-pro push-results',
     'the shipped Pro CLI executable a CI job runs, documented for users',

@@ -19,8 +19,10 @@ Results are findings, not signoff.
 | A directory that holds runs | Every run found under it |
 | A zipped CI artifact | The runs inside it, after the archive passes the checks [below](#zip) |
 
-A LibreLane run directory is read too. SimCrux labels it **reader not
-verified**, reads it best-effort, and says so before its verdict.
+A LibreLane run directory is read too, by the reader for the release its
+`resolved.json` names. A release the readers are not
+[verified for](flow-librelane.md#reading) is labelled **reader not verified**,
+read best-effort, and said so before its verdict.
 
 ## In the app {#app}
 

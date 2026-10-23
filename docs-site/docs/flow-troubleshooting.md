@@ -37,8 +37,8 @@ started from, so it is not affected.
 The OSS CAD Suite has a Windows build, and SimCrux runs `nextpnr-*.exe` and Yosys
 from the directory you set. If a native tool is the problem, run the
 tools, and the headless `simcrux flow` commands, under WSL2 instead, with Linux
-paths. LibreLane runs are described separately; ingesting a run
-directory works natively on Windows.
+paths. LibreLane runs are described on [LibreLane runs](flow-librelane.md);
+ingesting a run directory works natively on Windows.
 
 ## `XDG_DATA_HOME` {#xdg}
 
@@ -79,8 +79,19 @@ The panel's problems line counts the refusals and its tooltip names them. See
 
 ## A run says "reader not verified" {#unverified}
 
-That label is on LibreLane runs. SimCrux reads the run directory best-effort and
-says so before the verdict. Treat its result accordingly.
+That label is on a LibreLane run from a release the readers are not verified for.
+SimCrux reads the run directory best-effort and says so before the verdict, and
+records why as `version_unknown`, `layout_unknown` or `schema_unknown`. The
+verified releases are listed on [LibreLane runs](flow-librelane.md#reading). Treat
+the result of any other release accordingly.
+
+## A LibreLane run does not start {#librelane}
+
+The row reads **Did not run** and names the tool: `librelane`, `nix` or `docker`.
+Check **Settings → Engines → Implementation flow**: the launcher, the
+**librelane** path (for Nix, the LibreLane checkout that holds its flake), the
+Docker image and the PDK root, then **Check flow tools**. See [LibreLane
+runs](flow-librelane.md#launchers).
 
 ## The project does not load {#load}
 

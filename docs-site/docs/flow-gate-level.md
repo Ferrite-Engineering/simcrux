@@ -14,8 +14,8 @@ Results are findings, not signoff.
 
 Gate-level simulation is open core and free in every tier: running it, each
 test's outcome and both counts, the reasons a test did not run, and the
-waveform hand-off. The view of which port differs at which cycle is a Pro
-analysis.
+waveform hand-off. The view of which port differs at which cycle, and the
+[delay-annotated simulation](#sdf), are Pro analyses.
 
 ## What it runs {#what}
 
@@ -126,11 +126,112 @@ LibreLane entry in the project it is chosen for you.
 `--json` and `--junit` carry each test's outcome and both counts. Results go to
 stdout, diagnostics to stderr, and nothing is transmitted.
 
+## Delay-annotated simulation {#sdf}
+
+**Delay-annotated simulation, no timing checks. Setup and hold violations are not detected.**
+
+<span class="tier tier-pro">Pro</span> From SimCrux 1.2, SimCrux Pro can run the
+same tests with the delays OpenSTA wrote for the run, in the file
+`final/sdf/<corner>/<top>__<corner>.sdf`. The netlist is annotated with those
+delays and simulated under Icarus, both at RTL and at gate level, and the ports
+are compared as for the functional simulation. Everything above applies except
+the unit delay.
+
+The label above is shown first on every surface that shows a result, and it is
+exact. The cell models' own setup and hold checks are parsed and not evaluated,
+so a value captured too late in the cycle is a wrong value in the result, never
+an X and never a message. A run of this kind tells you whether the design still
+behaves like the RTL once the gates take time. It does not say whether the
+design meets its constraints; that is static timing analysis, the flow's own
+result, read on the [Flow Runs panel](flow-runs.md).
+
+### What the result says
+
+| Outcome | Meaning |
+|---|---|
+| **Matches RTL with delays** | The testbench passes and no port differs between RTL and the delay-annotated gates. A port that is X in the RTL and known in the gates is counted apart, as in the functional simulation. |
+| **Behaviour differs with delays** | The testbench fails, or a port is known on both sides and unequal, or the gates are X where the RTL is known. A finding about the run's behaviour with these delays. |
+| **No result** | The delays could not be annotated, so nothing was compared. |
+
+Each result also states how much of the delay file was annotated: **full**,
+**partial** (the items that were not annotated are named) or **failed** (no
+result is shown). A partial annotation still gives an outcome, with what was
+left out listed beside it.
+
+### Drive inputs after the clock edge
+
+The netlist's clock reaches the flip-flops through the clock tree, later than
+the testbench's clock edge. An input that your testbench changes **at** the
+clock edge therefore reaches some flip-flops before their clock does, and the
+annotated netlist differs from the RTL at every period, whatever the period is.
+The run's timing analysis assumed something else: that inputs arrive after the
+edge, by the flow's input delay (LibreLane's `IO_DELAY_CONSTRAINT`, 20% of the
+clock period by default).
+
+So drive the testbench's inputs after the clock edge, as that input delay
+assumes. The command line prints the same sentence with every run. On a
+PicoRV32 testbench that changed its inputs at the edge, the annotated netlist
+differed at both 25 ns and 100 ns; with the inputs moved 20% of the period after
+the edge, the nominal period matched the RTL.
+
+### Which delay file
+
+SimCrux uses the run's nominal corner without asking. When the run has no
+nominal corner, you choose once for the flow entry. SimCrux never picks a
+"worst" corner for you.
+
+### Which PDKs
+
+| PDK | Annotation | What it means |
+|---|---|---|
+| sky130A | Full | Every path and interconnect in the delay file is annotated or named as skipped with its reason. |
+| gf180mcuD | Partial | The unconditional paths of the `xor2_1` and `xnor2_1` cells are not annotated, because the cell models declare only conditional paths. They are named, and the rest is annotated. |
+| ihp-sg13g2 | Failed | Icarus cannot parse a conditional delay that OpenSTA writes for the IHP library (a single `&` inside a `COND`). The file is not annotated and a delay file for this PDK gives no result today. |
+
+These were measured on small adder runs of each PDK. The functional simulation
+above is not affected.
+
+### Running it
+
+In SimCrux Pro, select a LibreLane run in **View > Flow Runs** and choose **Run
+Gate-Level Simulation with Delays…** from the run's button or menu. The results
+open on their own screen, led by the label, with each test's outcome, the
+counts and the annotation.
+
+A delay-annotated run is much slower than the functional one. A PicoRV32 run of
+527 cycles took about 100 seconds of simulation, where the functional run took
+half a second.
+
+From a terminal:
+
+```
+simcrux-pro flow gls --sdf <corner> <run-dir> [the options of simcrux flow gls]
+                     [--license-file <path>]
+```
+
+The label and the testbench sentence go to stderr before any result.
+`--json` carries `"analysis": "delay_annotated_no_timing_checks"` and
+`"timing_checks": false` on the document and on every test. `simcrux flow gls`
+without `--sdf` is the free functional simulation above.
+
+| Exit code | Meaning |
+|---|---|
+| `0` | The behaviour matches RTL with delays |
+| `1` | The behaviour differs with delays (`behaviour_differs_with_delays` in `--json`) |
+| `2` | No result: the delays could not be annotated, or no test could run |
+| `64` | The command line could not be honoured, including a corner the run has no delay file for |
+| `65` | The delay file exists and cannot be read |
+| `77` | The licence does not include delay-annotated simulation |
+
+A partial annotation exits on the behaviour, `0` or `1`, with what was not
+annotated on stderr and in `--json`.
+
 ## What it does not do {#limits}
 
-- No timing: no setup or hold checks, and no delays from the run's SDF file. Static
-  timing analysis is the flow's own result, read on the [Flow Runs
-  panel](flow-runs.md).
+- No timing in the free simulation: no setup or hold checks, and no delays from
+  the run's SDF file. Delays are the Pro [delay-annotated simulation](#sdf), and
+  even that has no timing checks. Static timing analysis is the flow's own
+  result, read on the [Flow Runs panel](flow-runs.md).
 - No Verilator, and no comparison across simulators.
 - No synthesis and no netlist reshaping.
 - On gf180mcuD and ihp-sg13g2 a result carries a banner: the models resolve and

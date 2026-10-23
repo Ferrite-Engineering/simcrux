@@ -205,6 +205,8 @@ own `--help`.
 | `simcrux import-sby <file.sby\|dir>` | From 1.2. Import a SymbiYosys job file, or every one in a directory, as one test per task. See [below](#import-sby). |
 | `simcrux import-eqy <file.eqy>` | From 1.2. Import an EQY file as one test. See [below](#import-eqy). |
 | `simcrux flow run\|ingest\|gate\|export` | From 1.2. Run, read, gate and export implementation runs. See [CI gate](flow-ci.md). |
+| `simcrux flow gls <run-dir>` | From 1.2. Rerun a LibreLane run's tests against its gate-level netlist, functional simulation under Icarus. Exit codes `0`, `1`, `2`, `64`, `65`. See [Gate-level simulation](flow-gate-level.md#cli). |
+| `simcrux-pro flow gls --sdf <corner> <run-dir>` | <span class="tier tier-pro">Pro</span> From 1.2. The same, with the delays of the run's SDF file and no timing checks; exit `77` without a Pro licence. See [Delay-annotated simulation](flow-gate-level.md#sdf). |
 | `simcrux license fingerprint` | Print this install's machine fingerprint, the value a machine file is issued for. From 1.1. |
 | `simcrux license request --out <file>` | Write an offline activation request for this install to `<file>`, as **Settings → License** would, without the app. From 1.1. |
 
