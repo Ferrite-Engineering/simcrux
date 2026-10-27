@@ -51,6 +51,11 @@ jobs:
       # adb9c24b739d58618779b0b78bfb5d4f072c2d4e, dispatched fresh since the
       # daily schedule's last run was 39 commits stale). Floor set a couple
       # of points below to absorb measurement variance.
+      #
+      # Re-measured 87.9% on this runner 2026-10-27 (run 40545133883, commit
+      # fe0eb328d0bc6e9b079ccac266881036abc4ba8d). Measured less two is 85.9,
+      # under the floor already here, so the floor stays: a ratchet never
+      # moves down.
       MIN_COVERAGE: '86'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
