@@ -95,8 +95,11 @@ class FlowHandoffLauncher {
   final FlowDetachedStarter _start;
   final FlowToolchainProbe _probe;
 
-  /// SimCrux's own scratch directory for generated scripts; the system
-  /// temporary directory's `simcrux/` when null.
+  /// SimCrux's own scratch directory for generated scripts. When null each
+  /// script gets a fresh directory of its own made directly in the system
+  /// temporary directory, never under a fixed name there: on a shared Linux
+  /// host `/tmp` belongs to every user, and a fixed `/tmp/simcrux` another
+  /// user made first would let them rewrite the script OpenROAD runs.
   final Directory? scratch;
 
   /// Where `flow.handoff.launched` and `flow.tool.missing` go; none in
@@ -413,12 +416,19 @@ class FlowHandoffLauncher {
   }
 
   /// Writes `read_db <odb>` to a fresh file in SimCrux's scratch directory.
+  ///
+  /// The directory is made by `createTempSync` (a new, unpredictable name,
+  /// readable by its owner only on POSIX) directly in [scratch] or the system
+  /// temporary directory, so no other user can have made it or a parent of it.
+  @visibleForTesting
+  String? writeReadScript(String odb) => _writeReadScript(odb);
+
   String? _writeReadScript(String odb) {
     try {
-      final base =
-          scratch ?? Directory(p.join(Directory.systemTemp.path, 'simcrux'))
-            ..createSync(recursive: true);
-      final dir = base.createTempSync('handoff_');
+      final custom = scratch?..createSync(recursive: true);
+      final dir = custom != null
+          ? custom.createTempSync('handoff_')
+          : Directory.systemTemp.createTempSync('simcrux_handoff_');
       final script = File(p.join(dir.path, 'open.tcl'))
         ..writeAsStringSync('read_db {${odb.replaceAll('}', r'\}')}}\n');
       return script.path;

@@ -341,5 +341,27 @@ void main() {
       expect(planned.argv![2], '-m');
       expect(planned.argv![3], endsWith('drc.klayout.lyrdb'));
     });
+
+    test('the OpenROAD read script gets a fresh directory of its own, made '
+        'directly in the system temporary directory', () {
+      final launcher = FlowHandoffLauncher();
+      final first = launcher.writeReadScript('/run/final/odb/top.odb')!;
+      final second = launcher.writeReadScript('/run/final/odb/top.odb')!;
+      for (final script in <String>[first, second]) {
+        addTearDown(() => File(script).parent.deleteSync(recursive: true));
+      }
+      final dir = File(first).parent;
+      expect(p.basename(dir.path), startsWith('simcrux_handoff_'));
+      // Never under a fixed name another user of a shared /tmp could own.
+      expect(
+        dir.parent.resolveSymbolicLinksSync(),
+        Directory.systemTemp.resolveSymbolicLinksSync(),
+      );
+      expect(File(second).parent.path, isNot(dir.path));
+      expect(
+        File(first).readAsStringSync(),
+        'read_db {/run/final/odb/top.odb}\n',
+      );
+    });
   });
 }
