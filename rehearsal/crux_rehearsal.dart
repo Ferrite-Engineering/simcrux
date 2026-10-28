@@ -47,6 +47,16 @@ void registerCruxRehearsal() {
   }
   CruxRehearsal? rehearsal;
   developer.registerExtension(kRehearsalExtension, (method, params) async {
+    // The extension is registered before the app's own main runs, so a
+    // driver can reach it while the app is still starting. Until the first
+    // frame is on screen there is nothing to drive; say so, and the driver
+    // asks again.
+    final waiting = rehearsalNotReady();
+    if (waiting != null) {
+      return developer.ServiceExtensionResponse.result(
+        jsonEncode({'ok': false, 'ready': false, 'detail': waiting}),
+      );
+    }
     rehearsal ??= CruxRehearsal(LiveWidgetController(WidgetsBinding.instance));
     Map<String, Object?> request;
     try {
@@ -61,6 +71,20 @@ void registerCruxRehearsal() {
     final response = await rehearsal!.handle(request);
     return developer.ServiceExtensionResponse.result(jsonEncode(response));
   });
+}
+
+/// Why the app cannot be driven yet, or null once its first frame has been
+/// drawn.
+String? rehearsalNotReady() {
+  final WidgetsBinding binding;
+  try {
+    binding = WidgetsBinding.instance;
+  } on Object {
+    return 'the app has not initialized its bindings yet';
+  }
+  return binding.firstFrameRasterized
+      ? null
+      : 'the app has not drawn its first frame yet';
 }
 
 /// One rehearsal session against a widget tree.
@@ -90,6 +114,7 @@ class CruxRehearsal {
         case 'ping':
           return {
             'ok': true,
+            'ready': true,
             'platform': defaultTargetPlatform.name,
             'debug': kDebugMode,
           };

@@ -363,6 +363,17 @@ void main() {
     });
   });
 
+  group('readiness', () {
+    testWidgets('names what the app is still waiting for', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: Text('x')));
+      final binding = WidgetsBinding.instance;
+      expect(
+        rehearsalNotReady(),
+        binding.firstFrameRasterized ? isNull : contains('first frame'),
+      );
+    });
+  });
+
   group('keys', () {
     test('every key word the scripts use has a logical key', () {
       for (final name in [
