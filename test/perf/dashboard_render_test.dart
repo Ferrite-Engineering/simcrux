@@ -87,9 +87,11 @@ void main() {
       reason: '$realizedRows rows realized — the table must be virtualized',
     );
 
-    // Soft, CI-tolerant: building the virtualized table is cheap even at
-    // 10k rows because the row work is bounded by the viewport.
-    expect(sw.elapsedMilliseconds, lessThan(2000));
+    // No wall-clock bound: the realized-row count above is what holds the
+    // table to the viewport, on any machine. A 2-second build budget failed
+    // on a machine under heavy load with the count still in bounds.
+    // ignore: avoid_print
+    print('10k-row table: first frame in ${sw.elapsedMilliseconds} ms');
   });
 }
 
@@ -115,8 +117,8 @@ class _ImmediateResultStoreNotifier extends ResultStoreNotifier {
 ///
 /// MUTATION: reverting the store to per-result `copyWith` copies, or
 /// removing `coalesceLatest`, blows the emission bound (every result
-/// produces a rows rebuild) and — for the store copy — the elapsed
-/// bound at larger N.
+/// produces a rows rebuild). The elapsed time is printed, not asserted:
+/// a wall-clock budget fails on a loaded machine whatever the code does.
 void _streamingBench() {
   testWidgets('streaming run: 2000 fast results coalesce to few rebuilds', (
     tester,
@@ -230,9 +232,6 @@ void _streamingBench() {
           '$rowsRebuilds rows rebuilds for $total streamed results — '
           'coalescing must bound recomputation',
     );
-    // Soft, CI-tolerant wall-clock bound for the whole streamed run.
-    expect(sw.elapsedMilliseconds, lessThan(3000));
-
     // Bench numbers for the record:
     // ignore: avoid_print
     print(

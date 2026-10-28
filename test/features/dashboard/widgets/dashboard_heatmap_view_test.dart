@@ -226,21 +226,38 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byType(DashboardHeatmapView)),
       );
-      final firstCell = find.byType(Tooltip).first;
-      final before = tester.widgetList<Tooltip>(find.byType(Tooltip)).length;
-      final sw = Stopwatch()..start();
-      await tester.tap(firstCell);
-      await tester.pump();
-      sw.stop();
-      expect(container.read(selectedTestIdProvider), isNotNull);
-      // The cell count is unchanged (nothing new was materialized) and the
-      // frame is quick, because only the tapped cell rebuilt.
-      expect(tester.widgetList<Tooltip>(find.byType(Tooltip)).length, before);
-      expect(
-        sw.elapsedMilliseconds,
-        lessThan(250),
-        reason: 'selection frame took ${sw.elapsedMilliseconds} ms',
-      );
+      final cells = find.byType(Tooltip);
+      final before = tester.widgetList<Tooltip>(cells).length;
+
+      // Counts the heatmap cells the next frame rebuilds. A count, not a
+      // stopwatch: the frame time this used to assert (under 250 ms) failed
+      // on a loaded machine with the rebuild count still at two.
+      Future<int> cellRebuildsOnTap(Finder cell) async {
+        await tester.tap(cell);
+        var rebuilt = 0;
+        debugOnRebuildDirtyWidget = (element, _) {
+          if (element.widget.runtimeType.toString() == '_Cell') rebuilt++;
+        };
+        try {
+          await tester.pump();
+        } finally {
+          debugOnRebuildDirtyWidget = null;
+        }
+        return rebuilt;
+      }
+
+      // First selection: only the tapped cell changes.
+      final first = await cellRebuildsOnTap(cells.at(0));
+      final firstId = container.read(selectedTestIdProvider);
+      expect(firstId, isNotNull);
+      expect(first, inInclusiveRange(1, 2), reason: 'rebuilt $first cells');
+      // Moving the selection: the old cell and the new one, nothing else.
+      final moved = await cellRebuildsOnTap(cells.at(1));
+      final movedId = container.read(selectedTestIdProvider);
+      expect(movedId, allOf(isNotNull, isNot(firstId)));
+      expect(moved, inInclusiveRange(1, 2), reason: 'rebuilt $moved cells');
+      // Nothing new was materialized either.
+      expect(tester.widgetList<Tooltip>(cells).length, before);
     });
 
     testWidgets('locale sweep renders without exceptions', (tester) async {

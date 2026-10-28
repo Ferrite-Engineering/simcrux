@@ -20,11 +20,13 @@ void main() {
 
   setUp(() async {
     store = await SqlTrendStore.open();
-    // 200 tests × 50 runs = 10k rows, time-ordered.
+    // 200 tests × 50 runs = 10k rows, time-ordered. One transaction, the
+    // production ingest path: 10 000 single-row commits took long enough
+    // on a loaded machine to time the setUp out.
     final origin = DateTime.utc(2026);
-    for (var run = 0; run < 50; run++) {
-      for (var t = 0; t < 200; t++) {
-        await store.recordTrendPoint(
+    await store.recordTrendPoints([
+      for (var run = 0; run < 50; run++)
+        for (var t = 0; t < 200; t++)
           TrendPoint(
             runId: 'r$run',
             testId: 'cpu_unit/t$t',
@@ -32,9 +34,7 @@ void main() {
             runtime: const Duration(milliseconds: 5),
             startedAt: origin.add(Duration(hours: run)),
           ),
-        );
-      }
-    }
+    ]);
   });
   tearDown(() => store.close());
 
