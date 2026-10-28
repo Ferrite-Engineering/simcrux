@@ -3542,8 +3542,8 @@ mixing both flows cannot end up with two spellings of one fact.
 | `riscv.formal.proof_mode` | `bmc` / `prove` / `cover` / `live`, read from the `.sby` at run time |
 | `riscv.formal.depth_configured` | the bound the `.sby` set |
 | `riscv.formal.depth_reached` | the deepest step the engine reported |
-| `riscv.formal.wall_time_ms` | the proof's wall time |
-| `riscv.formal.wall_time_source` | `engine` (`sby`'s own elapsed clock time) or `measured` (this driver's stopwatch) — never conflated |
+| `riscv.formal.wall_time_ms` | the proof's wall time, in milliseconds |
+| `riscv.formal.wall_time_source` | `measured` (this driver's stopwatch around the `sby` process: every real run) or `engine` (`sby`'s own elapsed clock time, whole seconds: a `mode: demo` replay). Never conflated |
 | `riscv.formal.engine` | e.g. `smtbmc boolector` |
 | `riscv.formal.trace_count` | how many traces were announced |
 | `riscv.formal.trace_unresolved` | an announced trace that is not on disk |

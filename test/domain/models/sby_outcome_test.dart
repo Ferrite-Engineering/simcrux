@@ -311,6 +311,94 @@ SBY [t] DONE (PASS, rc=0)
     });
   });
 
+  // Found running a real riscv-formal check set: the verdicts were right,
+  // but what the row said beside them was not.
+  group('what a row says beside the verdict', () {
+    test('an ERROR behind a step prefix is the error line', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [insn_add_ch0] base: starting process "yosys -ql design.log design.ys"',
+          "SBY 10:00:00 [insn_add_ch0] base: ERROR: No such command: read_slang (type 'help' for a command overview)",
+          'SBY 10:00:00 [insn_add_ch0] DONE (ERROR, rc=16)',
+        ].join('\n'),
+      );
+      expect(outcome.verdict, FormalVerdict.error);
+      expect(outcome.errorLine, startsWith('base: ERROR: No such command'));
+    });
+
+    test('an engine step error is caught too', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [t] engine_0: ERROR: solver boolector not found',
+          'SBY 10:00:00 [t] DONE (ERROR, rc=16)',
+        ].join('\n'),
+      );
+      expect(outcome.errorLine, 'engine_0: ERROR: solver boolector not found');
+    });
+
+    test('a summary line that only mentions ERROR is not an error line', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [t] summary: engine_0 (smtbmc) returned ERROR',
+          'SBY 10:00:00 [t] DONE (ERROR, rc=16)',
+        ].join('\n'),
+      );
+      expect(outcome.errorLine, isNull);
+    });
+
+    test('unreached cover statements are collected, in order, once each', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [cov] engine_0: ##   0:00:00  Checking cover reachability in step 0..',
+          'SBY 10:00:01 [cov] engine_0: ##   0:00:01  Checking cover reachability in step 11..',
+          'SBY 10:00:01 [cov] engine_0: ##   0:00:01  Unreached cover statement at fifo.sv:41.3-41.30.',
+          'SBY 10:00:01 [cov] engine_0: ##   0:00:01  Unreached cover statement at fifo.sv:44.3-44.28.',
+          'SBY 10:00:01 [cov] summary: Unreached cover statement at fifo.sv:41.3-41.30.',
+          'SBY 10:00:01 [cov] DONE (FAIL, rc=2)',
+        ].join('\n'),
+      );
+      expect(outcome.verdict, FormalVerdict.fail);
+      expect(outcome.unreachedCovers, [
+        'fifo.sv:41.3-41.30',
+        'fifo.sv:44.3-44.28',
+      ]);
+      // smtbmc's cover spelling carries the depth.
+      expect(outcome.depthReached, 11);
+    });
+
+    test('a passing ABC proof reports its depth', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [t] engine_0: abc bmc3',
+          'SBY 10:00:02 [t] engine_0: No output asserted in 20 frames.',
+          'SBY 10:00:02 [t] DONE (PASS, rc=0)',
+        ].join('\n'),
+      );
+      expect(outcome.verdict, FormalVerdict.pass);
+      // Frames 0..19: the step smtbmc would report for the same bound.
+      expect(outcome.depthReached, 19);
+    });
+
+    test('a failing ABC proof reports the frame it failed in', () {
+      final outcome = SbyLogReader.parse(
+        [
+          'SBY 10:00:00 [t] engine_0: Output 0 of miter "top" was asserted in frame 7.',
+          'SBY 10:00:00 [t] DONE (FAIL, rc=2)',
+        ].join('\n'),
+      );
+      expect(outcome.depthReached, 7);
+    });
+
+    test('unreached covers are part of the value', () {
+      const a = SbyOutcome(
+        verdict: FormalVerdict.fail,
+        unreachedCovers: ['a.sv:1.1-1.2'],
+      );
+      const b = SbyOutcome(verdict: FormalVerdict.fail);
+      expect(a, isNot(b));
+    });
+  });
+
   group('value semantics', () {
     test('equal outcomes compare and hash equal', () {
       const a = SbyOutcome(

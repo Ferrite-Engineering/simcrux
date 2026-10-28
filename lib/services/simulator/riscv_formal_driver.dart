@@ -126,10 +126,11 @@ class RiscvFormalDriver extends SbyDriver {
   /// Metric key: wall time in milliseconds. See [kMetricWallTimeSource].
   static const String kMetricWallTimeMs = 'riscv.formal.wall_time_ms';
 
-  /// Metric key: `engine` when the wall time is `sby`'s own reported
-  /// elapsed clock time, `measured` when it is this driver's stopwatch
-  /// around the job. In `mode: demo` the replayed log's own elapsed time is
-  /// the number a stopwatch could not give.
+  /// Metric key: `measured` when the wall time is this driver's stopwatch
+  /// around the `sby` process (every real run, to the millisecond),
+  /// `engine` when it is `sby`'s own reported elapsed clock time in whole
+  /// seconds (a `mode: demo` replay, where the replayed log's own elapsed
+  /// time is the number a stopwatch could not give).
   static const String kMetricWallTimeSource = 'riscv.formal.wall_time_source';
 
   /// [kMetricWallTimeSource] value meaning the figure is `sby`'s own
@@ -139,7 +140,7 @@ class RiscvFormalDriver extends SbyDriver {
   static const String kWallTimeSourceEngine = SbyDriver.kWallTimeSourceEngine;
 
   /// [kMetricWallTimeSource] value meaning the figure is this driver's
-  /// stopwatch around the job, used when `sby` reported no elapsed time.
+  /// stopwatch around the job: every real run.
   static const String kWallTimeSourceMeasured =
       SbyDriver.kWallTimeSourceMeasured;
 
@@ -293,7 +294,10 @@ class RiscvFormalDriver extends SbyDriver {
       metrics[kMetricDepthReached] = '${outcome.depthReached}';
     }
     if (outcome.engine != null) metrics[kMetricEngine] = outcome.engine!;
-    if (outcome.elapsedSeconds != null) {
+    // A real run is timed by the stopwatch, to the millisecond: `sby`'s own
+    // clock is whole seconds, which read `0` for every sub-second proof.
+    if (cfg.effectiveMode == RiscvRunMode.demo &&
+        outcome.elapsedSeconds != null) {
       metrics[kMetricWallTimeMs] = '${outcome.elapsedSeconds! * 1000}';
       metrics[kMetricWallTimeSource] = kWallTimeSourceEngine;
     } else {

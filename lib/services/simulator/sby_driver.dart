@@ -259,9 +259,15 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
   static const String kMetricDepthReached = 'formal.depth_reached';
 
   /// Metric key: wall time in milliseconds.
+  ///
+  /// A real run reports the stopwatch around the `sby` process, to the
+  /// millisecond. `sby`'s own "Elapsed clock time" is whole seconds, so
+  /// times 1000 it read `0` for every proof shorter than a second; it is
+  /// used only in `mode: demo`, where a stopwatch would time the replay.
   static const String kMetricWallTimeMs = 'formal.wall_time_ms';
 
-  /// Metric key: `engine` (`sby`'s own clock) or `measured` (a stopwatch).
+  /// Metric key: `measured` (a stopwatch around the process, every real
+  /// run) or `engine` (`sby`'s own clock, whole seconds, a demo replay).
   static const String kMetricWallTimeSource = 'formal.wall_time_source';
 
   /// Metric key: the engine (`smtbmc`, `abc`, …), the first word of the
@@ -944,7 +950,12 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     };
 
     var status = verdict.status;
-    var failureMessage = describe(verdict, outcome, job.subject);
+    var failureMessage = describe(
+      verdict,
+      outcome,
+      job.subject,
+      proofMode: metrics[kMetricMode] ?? script?.proofMode,
+    );
     if (reconciliation.taskVerdict.proved && !verdict.proved) {
       final unproved = reconciliation.properties
           .where((r) => !r.status.verdict.proved)
@@ -1039,7 +1050,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         kMetricDepthConfigured: '${facts.script!.depth}',
       if (outcome.depthReached != null)
         kMetricDepthReached: '${outcome.depthReached}',
-      if (outcome.elapsedSeconds != null) ...<String, String>{
+      if (job.demo && outcome.elapsedSeconds != null) ...<String, String>{
         kMetricWallTimeMs: '${outcome.elapsedSeconds! * 1000}',
         kMetricWallTimeSource: kWallTimeSourceEngine,
       } else ...<String, String>{
@@ -1225,13 +1236,38 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     SvaConstructClass.other => 'an assertion form',
   };
 
+  /// `base: ERROR: …`: the `sby` step that printed an error, and the error.
+  static final RegExp _stepError = RegExp(r'^([\w.-]+):\s+(ERROR:.*)$');
+
   /// The failure message for [verdict], naming [subject].
+  ///
+  /// [proofMode] is the task's mode: in `cover` mode a `FAIL` means a cover
+  /// statement was not reached, which is not a counterexample.
   @protected
-  String? describe(FormalVerdict verdict, SbyOutcome outcome, String subject) {
+  String? describe(
+    FormalVerdict verdict,
+    SbyOutcome outcome,
+    String subject, {
+    String? proofMode,
+  }) {
     final depth = outcome.depthReached;
     switch (verdict) {
       case FormalVerdict.pass:
         return null;
+      case FormalVerdict.fail when proofMode?.toLowerCase() == 'cover':
+        final unreached = outcome.unreachedCovers;
+        final within = depth == null ? '' : ' within ${depth + 1} steps';
+        if (unreached.isEmpty) {
+          return 'cover not reached: SymbiYosys could not reach a cover '
+              'statement of $subject$within. No trace exists for an '
+              'unreached cover.';
+        }
+        final count = unreached.length == 1
+            ? 'a cover statement'
+            : '${unreached.length} cover statements';
+        return 'cover not reached: SymbiYosys could not reach $count of '
+            '$subject$within (first: ${unreached.first}). No trace exists '
+            'for an unreached cover.';
       case FormalVerdict.fail:
         return depth == null
             ? 'property violated: SymbiYosys found a counterexample for '
@@ -1248,8 +1284,14 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
             '$subject${depth == null ? '' : ' at step $depth'} — the property '
             'was not proved.';
       case FormalVerdict.error:
-        return outcome.errorLine ??
-            'SymbiYosys errored out for $subject — the proof did not run.';
+        final error = outcome.errorLine;
+        if (error == null) {
+          return 'SymbiYosys errored out for $subject — the proof did not run.';
+        }
+        final inStep = _stepError.firstMatch(error);
+        if (inStep == null) return error;
+        return 'SymbiYosys stopped in its `${inStep.group(1)}` step for '
+            '$subject, so the proof did not run: ${inStep.group(2)}';
       case FormalVerdict.noOutcome:
         return 'SymbiYosys produced no verdict for $subject — no '
             '`DONE (…)` line was reported, so nothing was proved.';

@@ -476,6 +476,95 @@ democore.v
     });
   });
 
+  group('what the row says beside the verdict', () {
+    test('a step-prefixed sby error is the failure message', () async {
+      final recorder = _Recorder(
+        process: _FakeProcess(
+          stdoutLines: const [
+            'SBY 10:00:00 [insn_add_ch0] base: ERROR: No such command: read_slang',
+            'SBY 10:00:00 [insn_add_ch0] DONE (ERROR, rc=16)',
+          ],
+          exit: 16,
+        ),
+      );
+      final events = await execute(
+        RiscvFormalDriver(launcher: recorder.launch),
+        normalConfig(),
+      );
+      final finished = events.whereType<TestExecutionFinished>().single;
+      expect(finished.status, TestStatus.fail);
+      expect(finished.failureMessage, contains('`base` step'));
+      expect(
+        finished.failureMessage,
+        contains('ERROR: No such command: read_slang'),
+      );
+    });
+
+    test('an unreached cover is not reported as a counterexample', () async {
+      File(p.join(checksDir.path, 'cover.sby')).writeAsStringSync('''
+[options]
+mode cover
+depth 12
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal democore.v
+
+[files]
+democore.v
+''');
+      final recorder = _Recorder(
+        process: _FakeProcess(
+          stdoutLines: const [
+            'SBY 10:00:00 [cover] engine_0: ##   0:00:01  Checking cover reachability in step 11..',
+            'SBY 10:00:01 [cover] engine_0: ##   0:00:01  Unreached cover statement at democore.v:41.3-41.30.',
+            'SBY 10:00:01 [cover] DONE (FAIL, rc=2)',
+          ],
+          exit: 2,
+        ),
+      );
+      final events = await execute(
+        RiscvFormalDriver(launcher: recorder.launch),
+        RiscvConfig(
+          formal: RiscvFormalConfig(
+            checksDir: checksDir.path,
+            sbyFile: 'cover.sby',
+            check: 'cover',
+          ),
+        ),
+      );
+      final finished = events.whereType<TestExecutionFinished>().single;
+      expect(finished.status, TestStatus.fail);
+      expect(finished.failureMessage, startsWith('cover not reached'));
+      expect(finished.failureMessage, contains('democore.v:41.3-41.30'));
+      expect(finished.failureMessage, isNot(contains('counterexample')));
+      expect(finished.metrics[RiscvFormalDriver.kMetricDepthReached], '11');
+    });
+
+    test('a real run reports measured wall time to the millisecond, not '
+        "sby's whole seconds", () async {
+      final recorder = _Recorder(
+        process: _FakeProcess(stdoutLines: passLog),
+      );
+      final events = await execute(
+        RiscvFormalDriver(launcher: recorder.launch),
+        normalConfig(),
+      );
+      final metrics = events.whereType<TestExecutionFinished>().single.metrics;
+      // passLog says "Elapsed clock time ... (7)": 7000 would be sby's
+      // figure. The fake process takes milliseconds.
+      expect(
+        metrics[RiscvFormalDriver.kMetricWallTimeSource],
+        RiscvFormalDriver.kWallTimeSourceMeasured,
+      );
+      expect(metrics[RiscvFormalDriver.kMetricWallTimeMs], isNot('7000'));
+      expect(metrics['formal.wall_time_source'], 'measured');
+      expect(metrics['formal.wall_time_ms'], isNot('7000'));
+    });
+  });
+
   group('SymbiYosys missing — detect and guide, never bundle', () {
     test('the failure message is the actionable remediation', () async {
       final recorder = _Recorder(missing: {'sby'});

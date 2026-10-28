@@ -32,6 +32,7 @@ class SbyOutcome {
     this.elapsedSeconds,
     this.traces = const <String>[],
     this.errorLine,
+    this.unreachedCovers = const <String>[],
   });
 
   /// What `sby` concluded. [FormalVerdict.noOutcome] when the log
@@ -54,10 +55,11 @@ class SbyOutcome {
 
   /// `sby`'s own "Elapsed clock time" in seconds, when it reported one.
   ///
-  /// Preferred over a stopwatch around the subprocess because it is the
-  /// **proof's** wall time rather than the job's, and because it replays
-  /// honestly in demo mode — a stopwatch there would report the
-  /// milliseconds it took to read a committed log.
+  /// Whole seconds, so the drivers report it only for a `mode: demo`
+  /// replay, where a stopwatch would report the milliseconds it took to
+  /// read a committed log. A real run is timed by the stopwatch around the
+  /// process instead: this figure times 1000 read `0` for every sub-second
+  /// proof.
   final int? elapsedSeconds;
 
   /// Trace files `sby` announced, exactly as it spelled them — usually
@@ -67,9 +69,16 @@ class SbyOutcome {
   /// class does no I/O.
   final List<String> traces;
 
-  /// The first `ERROR:` line, when one appeared. Used for the failure
-  /// message on [FormalVerdict.error].
+  /// The first `ERROR:` line, when one appeared, with the `sby` step that
+  /// printed it when there was one (`base: ERROR: No such command:
+  /// read_slang`). Used for the failure message on [FormalVerdict.error].
   final String? errorLine;
+
+  /// The locations of the cover statements `sby` reported as unreached
+  /// (`Unreached cover statement at fifo.sv:41.3-41.30`), in the order it
+  /// reported them. In `cover` mode these are what a `FAIL` means: no trace
+  /// reached them within the depth, which is not a counterexample.
+  final List<String> unreachedCovers;
 
   /// The counterexample trace, or null when none was announced.
   String? get primaryTrace => traces.isEmpty ? null : traces.first;
@@ -84,7 +93,8 @@ class SbyOutcome {
         other.engine == engine &&
         other.elapsedSeconds == elapsedSeconds &&
         other.errorLine == errorLine &&
-        _listEquals(other.traces, traces);
+        _listEquals(other.traces, traces) &&
+        _listEquals(other.unreachedCovers, unreachedCovers);
   }
 
   @override
@@ -96,6 +106,7 @@ class SbyOutcome {
     elapsedSeconds,
     errorLine,
     Object.hashAll(traces),
+    Object.hashAll(unreachedCovers),
   );
 
   @override
@@ -151,12 +162,35 @@ class SbyLogReader {
   );
 
   /// `engine_0: ##   0:00:04  Checking assertions in step 19..`, plus the
-  /// induction and bound spellings. All of them carry a step number, and
-  /// the deepest one seen is the depth actually reached.
+  /// induction, bound and cover spellings (`Checking cover reachability in
+  /// step 12..`). All of them carry a step number, and the deepest one seen
+  /// is the depth actually reached.
   static final RegExp _step = RegExp(
     '(?:Checking assertions in step|Checking assumptions in step|'
+    'Checking cover reachability in step|'
     r'Trying induction in step|Solving for step|Reached bound)\s+(\d+)',
   );
+
+  /// ABC's spellings of the depth: `No output asserted in 20 frames.` (a
+  /// bounded run that found nothing: frames 0..19, so step 19, as smtbmc
+  /// would say) and `Output 0 of miter "x" was asserted in frame 7.` (the
+  /// step of the failure).
+  static final RegExp _abcFrames = RegExp(
+    r'No output asserted in (\d+) frames?',
+  );
+  static final RegExp _abcAssertedFrame = RegExp(
+    r'was asserted in frame (\d+)',
+  );
+
+  /// `engine_0: ##   0:00:00  Unreached cover statement at fifo.sv:41.3-41.30.`
+  static final RegExp _unreachedCover = RegExp(
+    r'Unreached cover statement at\s+(\S+?)\.?$',
+  );
+
+  /// An `ERROR:` line, bare or behind the `sby` step that printed it
+  /// (`base: ERROR: …`, `engine_0: ERROR: …`). The step prefix is what
+  /// says the design never reached the solver.
+  static final RegExp _errorPattern = RegExp(r'^(?:[\w.-]+:\s+)?ERROR:');
 
   /// `summary: engine_0 (smtbmc boolector) returned pass`.
   static final RegExp _engineSummary = RegExp(
@@ -209,6 +243,7 @@ class SbyLogReader {
   String? _engineFallback;
   int? _elapsedSeconds;
   String? _errorLine;
+  final List<String> _unreached = <String>[];
   final List<String> _written = <String>[];
   final List<String> _summarized = <String>[];
 
@@ -237,11 +272,18 @@ class SbyLogReader {
     }
 
     final step = _step.firstMatch(line);
-    if (step != null) {
-      final value = int.tryParse(step.group(1)!);
-      if (value != null && (_depth == null || value > _depth!)) {
-        _depth = value;
-      }
+    if (step != null) _noteDepth(int.tryParse(step.group(1)!));
+    final frames = _abcFrames.firstMatch(line);
+    if (frames != null) {
+      final n = int.tryParse(frames.group(1)!);
+      if (n != null && n > 0) _noteDepth(n - 1);
+    }
+    final asserted = _abcAssertedFrame.firstMatch(line);
+    if (asserted != null) _noteDepth(int.tryParse(asserted.group(1)!));
+
+    final unreached = _unreachedCover.firstMatch(line);
+    if (unreached != null && !_unreached.contains(unreached.group(1))) {
+      _unreached.add(unreached.group(1)!);
     }
 
     final engine = _engineSummary.firstMatch(line);
@@ -266,9 +308,13 @@ class SbyLogReader {
       _summarized.add(summarized.group(2)!);
     }
 
-    if (_errorLine == null && line.startsWith('ERROR:')) {
+    if (_errorLine == null && _errorPattern.hasMatch(line)) {
       _errorLine = line;
     }
+  }
+
+  void _noteDepth(int? value) {
+    if (value != null && (_depth == null || value > _depth!)) _depth = value;
   }
 
   /// Whether [candidate] should replace the verdict recorded so far.
@@ -302,6 +348,7 @@ class SbyLogReader {
       _summarized.isNotEmpty ? _summarized : _written,
     ),
     errorLine: _errorLine,
+    unreachedCovers: List<String>.unmodifiable(_unreached),
   );
 
   /// Convenience for tests, tools and demo replay of an already-captured
