@@ -458,6 +458,97 @@ directory, which `sby -f` deletes and recreates, so it must be a single file
 name such as `insn_add_ch0`: a path (`../..`, `/abs/dir`, anything with `/` or
 `\`), `.` or `..` stops the project from loading, with the file and line.
 
+#### The `riscv.formal:` block {#riscv-formal}
+
+`simcrux import-riscv-formal` writes this block for you, one test per generated
+`.sby` file. Every key can also be written by hand, at any level of the
+`riscv:` inheritance.
+
+```yaml
+defaults:
+  simulator: riscv_formal
+  riscv:
+    isa: rv32imc
+    formal:
+      checks_dir: ../../prepared/2stg-any/checks   # relative to this file
+suites:
+  formal:
+    tests:
+      - name: insn_add_ch0
+        top: insn_add_ch0
+        riscv:
+          formal: { check: insn_add_ch0, sby_file: insn_add_ch0.sby }
+```
+
+| Key | Meaning |
+|---|---|
+| `checks_dir` | The folder holding the generated `.sby` files: riscv-formal's `checks/` after `genchecks.py`. `sby` runs **in** this folder, because the generated `[files]` entries are relative to it. Required in `mode: normal` unless `sby_file` is absolute. A relative path resolves against the project file's folder (from 1.2; 1.1 resolved it against the working directory `simcrux` was started in). A folder that does not exist fails the test with its path, and nothing is run. |
+| `sby_file` | The test's `.sby` job file, relative to `checks_dir` or absolute. One file is one bounded proof. May not start with `-`. |
+| `check` | The riscv-formal check name, such as `insn_add_ch0`. Names the SymbiYosys task directory, so it must be one plain file name (see above). Recorded as `riscv.formal.check`. |
+| `group` | The property group: `insn`, `reg`, `pc_fwd`, `causal`, `liveness`, `unique`, `cover` and so on. Optional: derived from `check` when absent (`insn_add_ch0` is `insn`). The Pro **Formal proofs** screen groups on it. |
+| `task` | The `[tasks]` name to run, for a `.sby` file that declares tasks. Normally absent: `genchecks.py` writes single-task files. |
+| `command` | A whole command line in place of `sby -f -d {task_dir} {sby_file} [task]`, for a wrapper script. A list of strings, with the placeholders below. Needs [project tooling](#schema). |
+| `sby_binary` | The SymbiYosys executable, when it is not `sby` on `PATH`. Needs [project tooling](#schema). |
+| `demo_outputs` | The folder of captured SymbiYosys output a `riscv.mode: demo` run replays, one subfolder per case. Relative to the project file. |
+
+`riscv.mode` (`normal`, the default, or `demo`) and `riscv.demo_case` (the
+subfolder of `demo_outputs` a test replays; the test name when absent) sit on
+the `riscv:` block itself.
+
+Placeholders in `command`, expanded per test. An unknown one is left as written,
+so a typo shows up in the command line rather than as an empty argument.
+
+| Placeholder | Value |
+|---|---|
+| `{sby_file}` | Absolute path of the `.sby` file |
+| `{task_dir}` | The folder `sby -d` writes to, inside the test's [work folder](cli.md#work-folders) |
+| `{task}` | The `[tasks]` name, or empty |
+| `{check}` | The check name |
+| `{checks_dir}` | The `checks_dir` folder |
+| `{isa}` | `riscv.isa` |
+| `{name}` | The SimCrux test name |
+| `{work_dir}` | The test's work folder |
+
+Each riscv-formal row records these metrics, in the JSON export
+(`--export json=<path>`) under the row's `metrics` and in the inspector, beside
+`riscv.mode` and `riscv.isa`:
+
+| Metric | Meaning |
+|---|---|
+| `riscv.formal.check`, `.group`, `.channel` | The check, its group, and the RVFI channel from a `…_chN` name |
+| `riscv.formal.verdict` | SymbiYosys's own result: `PASS`, `FAIL`, `UNKNOWN`, `ERROR`, `TIMEOUT`, or `NO_OUTCOME` when it printed none |
+| `riscv.formal.rc` | The `rc=` value on SymbiYosys's `DONE` line |
+| `riscv.formal.process_exit_code` | `0` when the process exited 0 but the result was not a pass (see below) |
+| `riscv.formal.proof_mode` | `bmc`, `prove`, `cover` or `live`, from the `.sby` file |
+| `riscv.formal.depth_configured` | The `depth` the `.sby` file sets |
+| `riscv.formal.depth_reached` | The deepest step the engine reported, counted from 0: a `depth 20` bounded check that completes reaches 19. From 1.2 read from ABC and from cover runs too |
+| `riscv.formal.wall_time_ms`, `.wall_time_source` | How long the proof took, in milliseconds. From 1.2 a real run is timed around the `sby` process (`measured`); a `mode: demo` replay reports SymbiYosys's own whole-second clock (`engine`) |
+| `riscv.formal.engine` | The engine, such as `smtbmc boolector` |
+| `riscv.formal.trace_count`, `.trace_unresolved` | How many traces SymbiYosys announced, and one it announced that is not on disk |
+
+**Why `exit_code` is empty on a failing row.** The `.sby` files riscv-formal
+generates say `expect pass,fail`, so SymbiYosys exits `0` whether the proof
+passed or found a counterexample. SimCrux takes the result from the `DONE` line,
+never from the exit code, and does not pass on a `0` that contradicts it: the
+row's `exit_code` is empty and `riscv.formal.process_exit_code` records the `0`.
+
+**Where the counterexample is.** Each proof writes into the test's
+[work folder](cli.md#work-folders). A passing proof's folder is deleted when it
+finishes, so its logs are not kept; a failing proof's folder, with the
+counterexample VCD, is kept up to the retention cap.
+
+**What a check set needs.**
+
+- **SymbiYosys from source** needs the Python package `click`
+  (`pip install click`); without it `sby` stops with a Python traceback before
+  any proof runs. The OSS CAD Suite build includes it.
+- **A check set whose script uses `read_slang`** (SystemVerilog read through
+  [yosys-slang](https://github.com/povik/yosys-slang)) needs a Yosys with the
+  slang frontend. The OSS CAD Suite has it; Homebrew's `yosys` does not. With a
+  separate yosys-slang build, load it with `yosys -m slang.so`. Without it every
+  proof stops in SymbiYosys's `base` step with
+  `ERROR: No such command: read_slang`, which the row shows.
+
 ### Flow entries: the netlist behind a worst path {#flow-netlist}
 
 From SimCrux 1.2, a nextpnr run's worst paths are mapped back to your RTL

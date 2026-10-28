@@ -350,6 +350,10 @@ A `.sby` that declares a `[tasks]` section becomes **one test per task**, with a
 `multi_task_sby` warning saying so — one `sby` invocation over several tasks
 prints several `DONE (…)` lines, which would collapse into a single result row.
 
+The keys the written file uses, the metrics each row records and what a check
+set needs installed are in
+[The `riscv.formal:` block](projects-and-simulators.md#riscv-formal).
+
 ### Both imports, from the app {#imports-from-the-app}
 
 The same two importers are on the File menu:

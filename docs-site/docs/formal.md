@@ -36,6 +36,13 @@ and then on `PATH`.
 - **Versions.** The `sby` output was measured on SymbiYosys 0.68, 0.69 and 0.70.
   A job run by an older `sby` that does not accept `--live` ends as
   **Did not run**, never as a pass.
+- **SymbiYosys from source** needs the Python package `click`
+  (`pip install click`); without it `sby` stops with a Python traceback.
+- **`read_slang`.** A job file whose script reads the design with `read_slang`
+  needs a Yosys with the yosys-slang frontend. The OSS CAD Suite has it;
+  Homebrew's `yosys` does not, and a separate yosys-slang build is loaded with
+  `yosys -m slang.so`. Without it the job stops in SymbiYosys's `base` step with
+  `ERROR: No such command: read_slang`, and the row says so.
 
 A job file that needs a tool from somewhere else names it with
 [`formal.tools`](#config), which needs project tooling to be allowed.
