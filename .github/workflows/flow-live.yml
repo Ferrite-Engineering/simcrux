@@ -290,6 +290,18 @@ jobs:
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1_cg/design/runs/g1_cg/resolved.json
             ${{ runner.temp }}/librelane-work/${{ matrix.librelane }}/g1_cg/design/runs/g1_cg/final/nl/
 
+      # SimCrux's own `nix` launcher (`nix develop <checkout> --command
+      # librelane`), started from a GUI-like PATH: a run that reads met, and a
+      # SIGTERM mid-run that leaves no process of the tree behind.
+      - name: Run LibreLane through the nix launcher, and cancel it
+        shell: bash
+        env:
+          LIBRELANE_NIX_CHECKOUT: ${{ github.workspace }}/librelane-src
+          FLOW_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_librelane_nix_launcher_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-nix-launcher.log"
+
   # Functional gate-level simulation and RTL-to-netlist equivalence, re-measured
   # on the current LibreLane release's runs with the pinned OSS CAD Suite. It
   # fails when a recorded outcome under verification/fixtures/flow/gate_level/

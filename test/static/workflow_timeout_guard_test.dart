@@ -169,6 +169,14 @@ void main() {
       expect(file.readAsStringSync(), isNot(contains(' .librelane/')));
     });
 
+    test('the LibreLane job runs the nix launcher live test', () {
+      final text = file.readAsStringSync();
+      const live = 'test/static/flow_librelane_nix_launcher_live_test.dart';
+      expect(text, contains(live));
+      expect(File(live).readAsStringSync(), contains("'oss-cad-live'"));
+      expect(text, contains('LIBRELANE_NIX_CHECKOUT'));
+    });
+
     test('the LibreLane job runs its live test with a cached PDK', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_live_test.dart';
