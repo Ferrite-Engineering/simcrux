@@ -565,6 +565,19 @@ democore.v
     });
   });
 
+  test("the frontend is recorded from the job file's [script]", () async {
+    // `read -formal democore.v`: Yosys's built-in frontend. The
+    // formal.run.completed event reports it.
+    final recorder = _Recorder(process: _FakeProcess(stdoutLines: passLog));
+    final events = await execute(
+      RiscvFormalDriver(launcher: recorder.launch),
+      normalConfig(),
+    );
+    final metrics = events.whereType<TestExecutionFinished>().single.metrics;
+    expect(metrics['formal.frontend'], 'builtin');
+    expect(metrics['formal.solver'], 'boolector');
+  });
+
   group('SymbiYosys missing — detect and guide, never bundle', () {
     test('the failure message is the actionable remediation', () async {
       final recorder = _Recorder(missing: {'sby'});

@@ -75,8 +75,8 @@ final _propertyKey = RegExp(r'^[a-z][a-z0-9_]{0,31}$');
 /// The ingestion Worker's `PROPERTY_VALUE`.
 final _propertyValue = RegExp(r'^[a-z0-9_]{1,64}$');
 
-/// The Worker's `MAX_PROPERTIES`.
-const int _maxProperties = 6;
+/// The Worker's `MAX_PROPERTIES` (8 since the Worker's 1.5.0).
+const int _maxProperties = 8;
 
 /// Matches the event-name argument of a `TelemetryEvent('…')` construction, or
 /// of the workspace notifier's `_emit('…')` wrapper around one.

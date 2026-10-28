@@ -18,9 +18,10 @@ import 'package:simcrux/services/telemetry/telemetry_event_catalog.dart';
 /// answers ("who runs formal, with what, and how often it decides") is
 /// answered per run.
 ///
-/// Six properties, the Worker's current cap: `tool`, `mode`, `engine`,
-/// `properties`, `failed`, `undecided`. `frontend` and `solver` join when
-/// the Worker accepts eight. Never a name, a path, a depth or a step.
+/// Eight properties, the Worker's cap: `tool`, `mode`, `engine`,
+/// `frontend`, `solver`, `properties`, `failed`, `undecided`. The frontend
+/// and the solver are each one token for the group: `unknown` and `mixed`
+/// when its runs disagree. Never a name, a path, a depth or a step.
 List<Map<String, Object?>> formalRunCompletedProperties(
   Iterable<TestResult> results,
 ) {
@@ -42,7 +43,11 @@ List<Map<String, Object?>> formalRunCompletedProperties(
           key,
           () => _FormalRunGroup(tool: summary.tool, mode: mode, engine: engine),
         )
-        .add(summary);
+        .add(
+          summary,
+          frontend: formalRunFrontendToken(summary),
+          solver: formalRunSolverToken(summary),
+        );
   }
   return <Map<String, Object?>>[
     for (final group in groups.values)
@@ -50,6 +55,10 @@ List<Map<String, Object?>> formalRunCompletedProperties(
         'tool': group.tool,
         'mode': ?group.mode,
         'engine': ?group.engine,
+        'frontend': group.frontends.length == 1
+            ? group.frontends.single
+            : 'unknown',
+        'solver': group.solvers.length == 1 ? group.solvers.single : 'mixed',
         if (group.counted) ...<String, Object?>{
           'properties': telemetryCount(group.properties),
           'failed': telemetryCount(group.failed),
@@ -57,6 +66,35 @@ List<Map<String, Object?>> formalRunCompletedProperties(
         },
       },
   ];
+}
+
+/// `formal.run.completed.frontend` for one row: its `formal.frontend`, or
+/// `unknown`.
+String formalRunFrontendToken(FormalResultSummary summary) {
+  final token = summary.frontend?.wireName;
+  return token != null && kFormalRunFrontendTokens.contains(token)
+      ? token
+      : 'unknown';
+}
+
+/// `formal.run.completed.solver` for one row, from its engine and the rest
+/// of its engine line: the first word that is not an option.
+String formalRunSolverToken(FormalResultSummary summary) {
+  final engine = summary.engine?.toLowerCase();
+  if (engine == null || engine.isEmpty) return 'none';
+  if (engine == 'abc') return 'abc';
+  final words = (summary.solver ?? '')
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((w) => w.isNotEmpty && !w.startsWith('-'));
+  final word = words.isEmpty ? null : words.first.toLowerCase();
+  if (word == null) return engine == 'smtbmc' ? 'yices' : 'none';
+  final token = word == 'yices-smt2' ? 'yices' : word;
+  return kFormalRunSolverTokens.contains(token) &&
+          token != 'mixed' &&
+          token != 'none'
+      ? token
+      : 'other';
 }
 
 /// The distinct `formal.assertions.disabled.how` tokens among [results],
@@ -118,12 +156,20 @@ class _FormalRunGroup {
   final String tool;
   final String? mode;
   final String? engine;
+  final Set<String> frontends = <String>{};
+  final Set<String> solvers = <String>{};
   bool counted = false;
   int properties = 0;
   int failed = 0;
   int undecided = 0;
 
-  void add(FormalResultSummary summary) {
+  void add(
+    FormalResultSummary summary, {
+    required String frontend,
+    required String solver,
+  }) {
+    frontends.add(frontend);
+    solvers.add(solver);
     final n = summary.properties;
     if (n == null) return;
     counted = true;

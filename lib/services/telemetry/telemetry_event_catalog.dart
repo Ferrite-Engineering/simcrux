@@ -182,6 +182,8 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'tool': kFormalRunToolTokens,
           'mode': kFormalRunModeTokens,
           'engine': kFormalRunEngineTokens,
+          'frontend': kFormalRunFrontendTokens,
+          'solver': kFormalRunSolverTokens,
         },
         intProperties: <String>['properties', 'failed', 'undecided'],
       ),
@@ -876,6 +878,33 @@ const List<String> kFormalRunEngineTokens = <String>[
   'btor',
   'mixed',
   'other',
+];
+
+/// `formal.run.completed.frontend`: the frontend that read the design
+/// (Yosys's built-in one, yosys-slang, Verific), and `unknown` when it was
+/// not recorded or the runs of the group disagree.
+const List<String> kFormalRunFrontendTokens = <String>[
+  'builtin',
+  'slang',
+  'verific',
+  'unknown',
+];
+
+/// `formal.run.completed.solver`: the solver behind the engine. `abc` for
+/// the ABC engine, `yices` for an `smtbmc` line that names none (its
+/// default), `mixed` when the runs of the group used different ones,
+/// `other` for one outside this list, and `none` when no engine line was
+/// recorded.
+const List<String> kFormalRunSolverTokens = <String>[
+  'yices',
+  'boolector',
+  'bitwuzla',
+  'z3',
+  'abc',
+  'ric3',
+  'mixed',
+  'other',
+  'none',
 ];
 
 /// `formal.dashboard_opened.view`: the formal properties dashboard, the

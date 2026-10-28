@@ -267,6 +267,9 @@ void main() {
         'tool': 'sby',
         'mode': 'prove',
         'engine': 'smtbmc',
+        'frontend': 'unknown',
+        // smtbmc with no solver named runs its default, yices.
+        'solver': 'yices',
         'properties': 6,
         'failed': 1,
         'undecided': 2,
@@ -276,6 +279,8 @@ void main() {
         'tool': 'sby',
         'mode': 'prove',
         'engine': 'abc',
+        'frontend': 'unknown',
+        'solver': 'abc',
       }, reason: 'no status was read, so no counts are claimed');
       runs.forEach(expectMatchesCatalog);
 
@@ -284,7 +289,7 @@ void main() {
       expectMatchesCatalog(disabled);
 
       for (final event in runs) {
-        expect(event.properties.length, lessThanOrEqualTo(6));
+        expect(event.properties.length, lessThanOrEqualTo(8));
       }
     });
 
@@ -297,6 +302,8 @@ void main() {
         'tool': 'eqy',
         'mode': 'equiv',
         'engine': 'smtbmc',
+        'frontend': 'unknown',
+        'solver': 'yices',
         'properties': 3,
         'failed': 1,
         'undecided': 0,
@@ -345,6 +352,73 @@ void main() {
       expect(props['tool'], 'riscv_formal');
       expect(props['mode'], 'bmc');
       expect(props['engine'], 'smtbmc');
+    });
+
+    test('frontend and solver: one token per row, unknown and mixed when the '
+        "group's rows disagree", () {
+      Map<String, Object?> one(Map<String, String> metrics) =>
+          formalRunCompletedProperties([_result('a/b', metrics)]).single;
+      const base = {'formal.tool': 'sby', 'formal.verdict': 'PASS'};
+      expect(one({...base, 'formal.engine': 'smtbmc'})['solver'], 'yices');
+      expect(
+        one({
+          ...base,
+          'formal.engine': 'smtbmc',
+          'formal.solver': '--nopresat boolector',
+        })['solver'],
+        'boolector',
+      );
+      expect(
+        one({...base, 'formal.engine': 'smtbmc', 'formal.solver': 'z3'}),
+        containsPair('solver', 'z3'),
+      );
+      expect(
+        one({...base, 'formal.engine': 'aiger', 'formal.solver': 'rIC3'}),
+        containsPair('solver', 'ric3'),
+      );
+      expect(
+        one({...base, 'formal.engine': 'aiger', 'formal.solver': 'avy'}),
+        containsPair('solver', 'other'),
+      );
+      expect(
+        one({...base, 'formal.engine': 'abc', 'formal.solver': 'pdr'}),
+        containsPair('solver', 'abc'),
+      );
+      expect(one(base)['solver'], 'none');
+      expect(one(base)['frontend'], 'unknown');
+      expect(
+        one({...base, 'formal.frontend': 'verific'}),
+        containsPair('frontend', 'verific'),
+      );
+      // A RISC-V row: the solver is the rest of its engine line.
+      expect(
+        one(const {
+          'riscv.formal.verdict': 'PASS',
+          'riscv.formal.engine': 'smtbmc bitwuzla',
+        }),
+        containsPair('solver', 'bitwuzla'),
+      );
+
+      final mixed = formalRunCompletedProperties([
+        _result('a/b', {
+          ...base,
+          'formal.engine': 'smtbmc',
+          'formal.solver': 'yices',
+          'formal.frontend': 'slang',
+        }),
+        _result('a/c', {
+          ...base,
+          'formal.engine': 'smtbmc',
+          'formal.solver': 'boolector',
+          'formal.frontend': 'builtin',
+        }),
+      ]).single;
+      expect(mixed['solver'], 'mixed');
+      expect(mixed['frontend'], 'unknown');
+      expect(
+        mixed.keys,
+        unorderedEquals(['tool', 'engine', 'frontend', 'solver']),
+      );
     });
 
     test('counts are clamped to the Worker ceiling', () {
@@ -426,7 +500,7 @@ void main() {
     });
   });
 
-  test('the catalog lists the three formal events at six properties or '
+  test('the catalog lists the formal events at eight properties or '
       'fewer', () {
     for (final name in const [
       'formal.run.completed',
@@ -436,7 +510,7 @@ void main() {
       'formal.pretrace.flagged',
     ]) {
       final entry = kSimcruxEventCatalog.singleWhere((e) => e.name == name);
-      expect(entry.propertyKeys.length, lessThanOrEqualTo(6), reason: name);
+      expect(entry.propertyKeys.length, lessThanOrEqualTo(8), reason: name);
     }
     final run = kSimcruxEventCatalog.singleWhere(
       (e) => e.name == 'formal.run.completed',
@@ -445,6 +519,8 @@ void main() {
       'tool',
       'mode',
       'engine',
+      'frontend',
+      'solver',
       'properties',
       'failed',
       'undecided',

@@ -91,6 +91,7 @@ class FormalResultSummary {
     required this.verdictToken,
     this.mode,
     this.engine,
+    this.solver,
     this.depthConfigured,
     this.properties,
     this.propertiesFailed,
@@ -140,6 +141,9 @@ class FormalResultSummary {
 
   /// `formal.engine`.
   static const String kEngineKey = 'formal.engine';
+
+  /// `formal.solver`.
+  static const String kSolverKey = 'formal.solver';
 
   /// `formal.depth_configured`.
   static const String kDepthConfiguredKey = 'formal.depth_configured';
@@ -192,6 +196,14 @@ class FormalResultSummary {
         ? kToolRiscvFormal
         : (metrics[kToolKey] == kToolEqy ? kToolEqy : kToolSby);
     final engine = metrics[kEngineKey] ?? metrics[kRiscvEngineKey];
+    final engineWords = engine?.trim().split(RegExp(r'\s+'));
+    // A RISC-V row stored before the general driver existed carries the
+    // whole engine line (`smtbmc boolector`) and no `formal.solver`.
+    final solver =
+        metrics[kSolverKey] ??
+        (engineWords == null || engineWords.length < 2
+            ? null
+            : engineWords.skip(1).join(' '));
     final frontend = FormalFrontend.fromWireName(metrics[kFrontendKey]);
     final svaClass = SvaConstructClass.fromWireName(metrics[kSvaClassKey]);
     final location = metrics[kSvaLocationKey];
@@ -203,7 +215,8 @@ class FormalResultSummary {
       tool: tool,
       verdictToken: token,
       mode: metrics[kModeKey] ?? metrics[kRiscvProofModeKey],
-      engine: engine?.trim().split(RegExp(r'\s+')).first,
+      engine: engineWords?.first,
+      solver: solver,
       depthConfigured: int.tryParse(
         metrics[kDepthConfiguredKey] ?? metrics[kRiscvDepthConfiguredKey] ?? '',
       ),
@@ -251,6 +264,10 @@ class FormalResultSummary {
 
   /// The engine word (`smtbmc`, `abc`), when recorded.
   final String? engine;
+
+  /// The rest of the engine line, as written (`boolector`, `pdr`,
+  /// `--nopresat yices`), when there was one.
+  final String? solver;
 
   /// The configured bound, when the job file set one.
   final int? depthConfigured;

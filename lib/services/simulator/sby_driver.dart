@@ -25,6 +25,7 @@ import 'package:simcrux/services/formal/formal_reconciliation.dart';
 import 'package:simcrux/services/formal/formal_run_analysis.dart';
 import 'package:simcrux/services/formal/sby_status_database.dart';
 import 'package:simcrux/services/formal/sby_status_reader.dart';
+import 'package:simcrux/services/formal/sva_refusal_classifier.dart';
 import 'package:simcrux/services/simulator/process_backed_simulator_driver.dart';
 import 'package:simcrux/services/simulator/python_traceback_reducer.dart';
 
@@ -1037,6 +1038,15 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     }
     final mode = recordMode ?? facts.script?.modeFor(job.task);
     final assertionsDisabled = facts.script?.assertionsDisabledFor(job.task);
+    // From the task's `[script]` lines, for every row with a readable job
+    // file. A driver that also reads the design log replaces it with what
+    // the log says (`_applyAnalysis`).
+    final script = facts.script;
+    final frontend = script == null
+        ? null
+        : SvaRefusalClassifier.detectFrontend(
+            script: script.scriptFor(job.task),
+          );
     final metrics = <String, String>{
       kMetricTool: 'sby',
       kMetricRunMode: job.demo ? 'demo' : 'normal',
@@ -1063,6 +1073,8 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
         kMetricTraceCount: '${outcome.traces.length}',
       kMetricTraceUnresolved: ?facts.traceUnresolved,
       kMetricAssertionsDisabled: ?assertionsDisabled,
+      if (frontend != null && frontend != FormalFrontend.unknown)
+        kMetricFrontend: frontend.wireName,
       if (facts.script?.multiclockFor(job.task) ?? false)
         kMetricMulticlock: '1',
     };
