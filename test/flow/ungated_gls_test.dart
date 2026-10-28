@@ -189,6 +189,24 @@ suites:
     expect(inner.submitted, hasLength(1));
   });
 
+  test('a refused scratch is said on stderr and exits 2, not thrown', () async {
+    writeMacRun(run: run, pdkParent: tmp.path);
+    final elsewhere = Directory(p.join(tmp.path, 'elsewhere'))..createSync();
+    Link(p.join(tmp.path, 'scratch')).createSync(elsewhere.path);
+    final inner = FakeGlsInner((_) => glsPass());
+    final r = await gls(<String>['--test', 'plain'], inner: inner);
+    expect(r.code, 2);
+    expect(
+      r.err.join('\n'),
+      contains(
+        'simcrux flow gls: SimCrux will not use this scratch directory: '
+        'it is a symbolic link',
+      ),
+    );
+    expect(inner.submitted, isEmpty);
+    expect(elsewhere.listSync(), isEmpty);
+  }, skip: Platform.isWindows ? 'links need privilege on Windows' : false);
+
   test('a netlist with split ports is port_shape, exit 2, and no simulator '
       'is started', () async {
     writeMacRun(

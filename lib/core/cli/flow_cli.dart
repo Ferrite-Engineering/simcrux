@@ -760,11 +760,20 @@ class FlowCli {
 
     final scratch = GlsScratch(root: _glsScratchRoot());
     final runId = 'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}';
+    final String glsRunDir;
+    try {
+      glsRunDir = await scratch.allocateRun(runId);
+    } on FileSystemException catch (e) {
+      // A refused scratch (a link, a directory other users can write or
+      // another user's) or one that cannot be made: said, not thrown.
+      stderrSink('$programName flow gls: ${e.message} (${e.path})');
+      return FlowExitCode.couldNotEvaluate;
+    }
     final planSet = await GlsPlanner.plan(
       info: info,
       options: options,
       selected: selection.selected,
-      runDir: await scratch.allocateRun(runId),
+      runDir: glsRunDir,
       scratch: scratch,
     );
     final inner =

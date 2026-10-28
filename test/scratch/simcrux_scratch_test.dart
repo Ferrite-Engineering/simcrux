@@ -56,6 +56,11 @@ void main() {
       );
       expect(base, isNot(p.join(temp.path, SimcruxScratch.kName)));
       expect(p.basename(base), startsWith('${SimcruxScratch.kName}-'));
+      if (!Platform.isWindows) {
+        // Made under the umask (0775 under 002) it would be refused, and
+        // under 022 others could read it.
+        expect(FileStat.statSync(base).mode & 0x3F, 0, reason: 'mode 0700');
+      }
     });
 
     test('elsewhere is in the per-user system temporary directory', () {
@@ -78,16 +83,73 @@ void main() {
     });
   });
 
+  group('SimcruxScratch.chmodExecutable', () {
+    test('is a fixed path when one exists', () {
+      expect(
+        SimcruxScratch.chmodExecutable(exists: (p) => p == '/usr/bin/chmod'),
+        '/usr/bin/chmod',
+      );
+    });
+
+    test('is found on PATH when neither fixed path exists (NixOS)', () {
+      expect(SimcruxScratch.chmodExecutable(exists: (_) => false), 'chmod');
+    });
+  });
+
   group('SimcruxScratch.prepare', () {
     late Directory tmp;
 
     setUp(() {
       tmp = Directory.systemTemp.createTempSync('simcrux_scratch_');
+      SimcruxScratch.resetForTesting();
     });
 
     tearDown(() {
+      SimcruxScratch.runProcess = Process.runSync;
+      SimcruxScratch.resetForTesting();
       if (tmp.existsSync()) tmp.deleteSync(recursive: true);
     });
+
+    test('refuses a base that belongs to another user', () {
+      // A 0755 base someone else made: its mode passes, but chmod, which
+      // only the owner may run on it, fails.
+      final base = Directory(p.join(tmp.path, 'simcrux'))..createSync();
+      SimcruxScratch.runProcess = (exe, args) => ProcessResult(
+        0,
+        args.first == 'u+rwx' ? 1 : 0,
+        '',
+        'Operation not permitted',
+      );
+      expect(
+        () => SimcruxScratch.prepare(p.join(base.path, 'gls'), base: base.path),
+        throwsA(
+          isA<FileSystemException>().having(
+            (e) => e.message,
+            'message',
+            contains('another user'),
+          ),
+        ),
+      );
+      expect(Directory(p.join(base.path, 'gls')).existsSync(), isFalse);
+    }, skip: Platform.isWindows ? 'no POSIX owners on Windows' : false);
+
+    test("probes the user's own base once, and leaves its mode alone", () {
+      final base = p.join(tmp.path, 'simcrux');
+      SimcruxScratch.prepare(base, base: base);
+      final before = FileStat.statSync(base).mode;
+      final probes = <List<String>>[];
+      SimcruxScratch.resetForTesting();
+      SimcruxScratch.runProcess = (exe, args) {
+        probes.add(args);
+        return Process.runSync(exe, args);
+      };
+      for (var i = 0; i < 3; i++) {
+        SimcruxScratch.prepare(p.join(base, 'runs'), base: base);
+      }
+      expect(probes, hasLength(1));
+      expect(probes.single.first, 'u+rwx');
+      expect(FileStat.statSync(base).mode, before);
+    }, skip: Platform.isWindows ? 'no POSIX owners on Windows' : false);
 
     test('makes a missing base private to the user', () {
       final base = p.join(tmp.path, 'simcrux');

@@ -91,7 +91,8 @@ SimCrux's own scratch directory:
 - **Windows:** `simcrux` in `%TEMP%`.
 
 SimCrux makes the `simcrux` folder readable by you alone, and refuses to use one
-that is a symbolic link or that other users can write.
+that is a symbolic link, that other users can write, or that belongs to another
+user.
 The simulator's or prover's logs, the waveform and, for a formal check, the
 SymbiYosys work directory with its counterexample trace are written there, and
 the `waveform_path` in the results points into it.
