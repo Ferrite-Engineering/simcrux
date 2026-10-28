@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crux_a11y/crux_a11y.dart' show CruxRoutedContent;
 import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_eula/crux_eula.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
@@ -923,7 +924,10 @@ class _SimcruxAppChrome extends StatelessWidget {
                 action,
                 innerRef.read(simcruxActionContextProvider),
               ),
-              child: child ?? const SizedBox.shrink(),
+              // Its own semantics container, so a route's modal barrier
+              // does not hide the strips and the menu bar above from a
+              // screen reader.
+              child: CruxRoutedContent(child: child),
             ),
           );
         },
