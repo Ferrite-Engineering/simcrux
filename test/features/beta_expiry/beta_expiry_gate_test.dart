@@ -112,19 +112,19 @@ void main() {
       expect(find.text(l10n.betaExpiryBannerAction), findsOneWidget);
 
       // The dismiss button has no visible label and carries its accessible
-      // name via Semantics rather than a Tooltip: the strip renders above the
-      // Navigator, so a Tooltip would throw for want of an Overlay ancestor.
-      // Load-bearing — see the comment in CruxBetaExpiryBanner. The package's
-      // own suite asserts the node is announced; what is SimCrux's to prove is
-      // that SimCrux's string is the one that reaches it.
-      expect(
-        find.byWidgetPredicate(
-          (w) =>
-              w is Semantics &&
-              w.properties.label == l10n.betaExpiryDismissLabel,
+      // name as the close glyph's semantic label rather than a Tooltip: the
+      // strip renders above the Navigator, so a Tooltip would throw for want
+      // of an Overlay ancestor. Load-bearing; see the comment in
+      // CruxBetaExpiryBanner. The package's own suite asserts the focused
+      // node is announced; what is SimCrux's to prove is that SimCrux's
+      // string is the one that reaches it.
+      final glyph = tester.widget<Icon>(
+        find.descendant(
+          of: find.byKey(CruxBetaExpiryBanner.dismissButtonKey),
+          matching: find.byType(Icon),
         ),
-        findsOneWidget,
       );
+      expect(glyph.semanticLabel, l10n.betaExpiryDismissLabel);
     });
 
     testWidgets('the warning banner is dismissible for the session', (
