@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
+import 'package:simcrux/services/scratch/simcrux_scratch.dart';
 
 /// SimCrux's own scratch directory for gate-level simulation: the generated
 /// port-dump modules and the two port dumps of every gate-level test.
@@ -18,13 +19,19 @@ import 'package:path/path.dart' as p;
 /// place that deletes anything on behalf of gate level, and what it deletes is
 /// only ever its own scratch, never anything under a flow run's root.
 class GlsScratch {
-  /// Creates the scratch. [root] defaults to `simcrux_gls` in the system
-  /// temporary directory.
+  /// Creates the scratch. [root] defaults to `gls` in SimCrux's own scratch
+  /// ([SimcruxScratch]), which on Linux is in the user's cache directory
+  /// rather than the shared `/tmp`.
   GlsScratch({String? root, this.keepRuns = 3})
-    : root = root ?? p.join(Directory.systemTemp.path, 'simcrux_gls');
+    : root = root ?? SimcruxScratch.gateLevel(),
+      _base = root ?? SimcruxScratch.defaultBase();
 
   /// The directory runs are allocated under.
   final String root;
+
+  /// The directory checked before anything is written: SimCrux's scratch
+  /// base for the default root, else [root] itself.
+  final String _base;
 
   /// How many runs are kept.
   final int keepRuns;
@@ -42,9 +49,11 @@ class GlsScratch {
   /// Creates the directory for [runId] and returns its path, removing the
   /// oldest runs beyond [keepRuns] first. A directory the run id already has
   /// gets a numeric suffix, so nothing an earlier run wrote is reused.
+  ///
+  /// Throws a [FileSystemException] when the scratch is refused: a symbolic
+  /// link, or a directory other users can write.
   Future<String> allocateRun(String runId) async {
-    final base = Directory(root);
-    await base.create(recursive: true);
+    SimcruxScratch.prepare(root, base: _base);
     await _prune();
     final segment = segmentFor(runId);
     var name = segment;

@@ -81,9 +81,17 @@ it. A headless invocation of the desktop app (`--ci`, `--help`, the imports,
 
 ## Work folders {#work-folders}
 
-Each test runs in its own folder, `$TMPDIR/runs/<run_id>/<test>/`, where
-`$TMPDIR` is the system temporary directory (`/tmp` when `TMPDIR` is unset on
-Linux; `%TEMP%` on Windows).
+Each test runs in its own folder, `<scratch>/runs/<run_id>/<test>/`, in
+SimCrux's own scratch directory:
+
+- **Linux:** `$XDG_CACHE_HOME/simcrux`, or `~/.cache/simcrux` when
+  `XDG_CACHE_HOME` is unset. Never the shared `/tmp`, where another user of
+  the machine could make the folder first.
+- **macOS:** `simcrux` in the per-user temporary directory (`$TMPDIR`).
+- **Windows:** `simcrux` in `%TEMP%`.
+
+SimCrux makes the `simcrux` folder readable by you alone, and refuses to use one
+that is a symbolic link or that other users can write.
 The simulator's or prover's logs, the waveform and, for a formal check, the
 SymbiYosys work directory with its counterexample trace are written there, and
 the `waveform_path` in the results points into it.
@@ -98,9 +106,10 @@ the `waveform_path` in the results points into it.
   oldest first. A `--ci` run lists every folder it removed on stderr.
 - **To keep a folder for good**, put an empty file named `.simcrux-keep` in it,
   or in the `runs/<run_id>/` folder above it to keep the whole run.
-- **To put the folders somewhere else**, set `TMPDIR` for the run, for example
-  `TMPDIR=/scratch/simcrux simcrux project.yaml --ci`. There is no flag or
-  project key for the location.
+- **To put the folders somewhere else**, set `XDG_CACHE_HOME` for the run on
+  Linux, for example `XDG_CACHE_HOME=/scratch/me simcrux project.yaml --ci`
+  (`TMPDIR` on macOS, `TEMP` on Windows). There is no flag or project key for
+  the location.
 
 ## License tier in CI {#license-in-ci}
 

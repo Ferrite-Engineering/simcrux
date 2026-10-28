@@ -130,9 +130,23 @@ abstract final class FlowActions {
     final options = request.options;
     final scratch = request.scratch;
     final background = request.background;
-    final runDir = await scratch.allocateRun(
-      'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}',
-    );
+    final String runDir;
+    try {
+      runDir = await scratch.allocateRun(
+        'gls-${DateTime.now().toUtc().microsecondsSinceEpoch}',
+      );
+    } on FileSystemException catch (e) {
+      // A refused scratch (a link, or a directory other users can write) or
+      // one that cannot be made: said, not thrown into the zone.
+      if (context != null && context.mounted) {
+        _toast(
+          context,
+          (l10n) => l10n.flowGlsCannotRun('${e.message} (${e.path})'),
+          error: true,
+        );
+      }
+      return;
+    }
     final planSet = await GlsPlanner.plan(
       info: info,
       options: options,

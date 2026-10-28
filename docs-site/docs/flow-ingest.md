@@ -67,10 +67,14 @@ input that exists but cannot be converted.
 
 ## Zipped artifacts {#zip}
 
-A zipped artifact is extracted into SimCrux's own scratch directory (a
-`simcrux/ingest/` folder inside the system temporary directory), never into your
-project, under a name made from the file's path, size and modification time.
-Ingesting it again reuses that copy and files the runs under the same ids.
+A zipped artifact is extracted into SimCrux's own scratch directory, never into
+your project, under a name made from the file's path, size and modification
+time. Ingesting it again reuses that copy and files the runs under the same ids.
+The scratch is `simcrux/ingest/` in your cache directory on Linux
+(`$XDG_CACHE_HOME`, else `~/.cache`) and in the system temporary directory on
+macOS and Windows, which keep it per user. SimCrux makes the `simcrux` folder
+readable by you alone, and refuses to use one that is a symbolic link or that
+other users can write.
 
 Before anything is written, SimCrux checks the whole archive and refuses all of
 it if any entry:

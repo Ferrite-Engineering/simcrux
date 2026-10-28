@@ -13,7 +13,7 @@ import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
 // Both headless schedulers used to be built with the unbounded retention
 // policy, so a failing test's work dir — and its waveform — was never pruned
-// from `$TMPDIR/runs/` on a long-lived CI runner.
+// from the scratch `runs/` on a long-lived CI runner.
 
 RegressionConfig _config() => RegressionConfig(
   projectFilePath: '/p/simcrux.yaml',

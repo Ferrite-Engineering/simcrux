@@ -34,8 +34,8 @@ final Provider<FlowBackgroundRunner> flowBackgroundRunnerProvider =
 
 Future<T> _isolateRun<T>(FutureOr<T> Function() task) => Isolate.run(task);
 
-/// Where zipped artifacts are extracted; SimCrux's own temporary directory
-/// when null. Tests point it at a temporary directory of their own.
+/// Where zipped artifacts are extracted; `ingest/` in SimCrux's own scratch
+/// (`SimcruxScratch`) when null. Tests point it at a temporary directory of their own.
 final Provider<String?> flowArchiveScratchProvider = Provider<String?>(
   (ref) => null,
   name: 'flowArchiveScratchProvider',
@@ -43,7 +43,8 @@ final Provider<String?> flowArchiveScratchProvider = Provider<String?>(
 
 /// Where gate-level simulation writes its generated port-dump modules and the
 /// two port dumps of each test: SimCrux's own scratch, never a run directory
-/// or the project. `simcrux_gls` in the system temporary directory when null.
+/// or the project. `gls/` in SimCrux's own scratch (`SimcruxScratch`) when
+/// null.
 /// Tests point it at a temporary directory of their own.
 final Provider<String?> flowGlsScratchProvider = Provider<String?>(
   (ref) => null,

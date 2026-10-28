@@ -34,6 +34,7 @@ import 'package:simcrux/services/job_scheduler/semaphore.dart';
 import 'package:simcrux/services/job_scheduler/simulator_budget.dart';
 import 'package:simcrux/services/job_scheduler/waveform_archive.dart';
 import 'package:simcrux/services/pass_fail_detector/pass_fail_detector_registry.dart';
+import 'package:simcrux/services/scratch/simcrux_scratch.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 import 'package:simcrux/services/simulator/simulator_not_available_exception.dart';
 
@@ -183,7 +184,8 @@ class LocalJobScheduler implements JobScheduler {
     this.passingWaveformArchive,
     this.passingWaveformRetentionPolicy = DumpRetentionPolicy.unbounded,
     this.budget,
-  }) : runRoot = runRoot ?? Directory.systemTemp.path;
+  }) : runRoot = runRoot ?? SimcruxScratch.jobs(),
+       _checkRunRoot = runRoot == null;
 
   /// The process-wide cap on simulator processes every run shares, or null
   /// for a scheduler that is the only one in its process (the `--ci`
@@ -218,9 +220,14 @@ class LocalJobScheduler implements JobScheduler {
   final bool retainSuccessfulWorkDirs;
 
   /// Base directory under which per-test working directories are
-  /// allocated. Defaults to the system temp directory when the
-  /// constructor's `runRoot` is null.
+  /// allocated. Defaults to SimCrux's own scratch ([SimcruxScratch]) when
+  /// the constructor's `runRoot` is null: on Linux that is in the user's
+  /// cache directory, never a fixed name in the shared `/tmp`.
   final String runRoot;
+
+  /// Whether [runRoot] is the default scratch, which is checked (not a link,
+  /// not writable by other users) before a work directory is made in it.
+  final bool _checkRunRoot;
 
   /// Active retry policy. Open-core ships [NoopRetryPolicy]; the Pro
   /// overlay injects `FlakyRetryPolicy` via `retryPolicyProvider`.
@@ -1076,6 +1083,7 @@ class LocalJobScheduler implements JobScheduler {
 
   String _allocateWorkDir(String runId, String testId) {
     final safeTestId = testId.replaceAll(RegExp('[^A-Za-z0-9._+-]'), '_');
+    if (_checkRunRoot) SimcruxScratch.prepare(runRoot, base: runRoot);
     final dirPath = p.join(runRoot, 'runs', runId, safeTestId);
     final dir = Directory(dirPath)..createSync(recursive: true);
     return dir.path;

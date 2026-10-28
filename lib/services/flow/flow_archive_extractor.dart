@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
+import 'package:simcrux/services/scratch/simcrux_scratch.dart';
 
 /// Why a zipped run was not extracted.
 enum FlowArchiveRefusal {
@@ -108,7 +109,8 @@ class FlowArchiveExtraction {
 /// used.
 class FlowArchiveExtractor {
   /// Creates the extractor. [scratch] is the directory extractions go under;
-  /// the system temporary directory's `simcrux/ingest/` when null.
+  /// `ingest/` in SimCrux's own scratch ([SimcruxScratch]) when null, which
+  /// on Linux is in the user's cache directory rather than the shared `/tmp`.
   const FlowArchiveExtractor({
     this.scratch,
     this.limits = FlowArchiveLimits.defaults,
@@ -168,7 +170,15 @@ class FlowArchiveExtractor {
       final planned = plan(archive);
       if (planned.refusal != null) return planned.refusal!;
 
-      final dest = _destination(zipPath, length, modified);
+      final String? dest;
+      try {
+        dest = _destination(zipPath, length, modified);
+      } on FileSystemException catch (e) {
+        return _refuse(
+          FlowArchiveRefusal.unreadable,
+          '${e.message} (${e.path})',
+        );
+      }
       if (dest == null) {
         return _refuse(
           FlowArchiveRefusal.unreadable,
@@ -339,10 +349,14 @@ class FlowArchiveExtractor {
   }
 
   /// The directory this archive extracts to: a finished extraction of the
-  /// same file when there is one, else a fresh one.
+  /// same file when there is one, else a fresh one. Throws a
+  /// [FileSystemException] when the scratch is refused ([SimcruxScratch]).
   String? _destination(String zipPath, int length, DateTime modified) {
-    final base =
-        scratch ?? p.join(Directory.systemTemp.path, 'simcrux', 'ingest');
+    final base = scratch ?? SimcruxScratch.ingest();
+    SimcruxScratch.prepare(
+      base,
+      base: scratch ?? SimcruxScratch.defaultBase(),
+    );
     final String resolved;
     try {
       resolved = File(zipPath).resolveSymbolicLinksSync();

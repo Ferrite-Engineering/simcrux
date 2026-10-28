@@ -243,7 +243,7 @@ final Provider<JobSchedulerCache> jobSchedulerProvider =
 ///
 /// Dump retention is the exception, and deliberately shared: without it a
 /// failing test's work dir (and its waveform) is never pruned, so a
-/// long-lived self-hosted runner fills `$TMPDIR/runs/` night after night.
+/// long-lived self-hosted runner fills the scratch `runs/` night after night.
 /// [dumpRetentionPolicyProvider]'s default (50 failure dirs, 2 GiB) exists to
 /// bound exactly that.
 ///

@@ -52,11 +52,13 @@ class CliArgParser {
         'keep-failures',
         help:
             "In --ci mode, how many failing tests' work folders (logs, "
-            'counterexample and waveform files) to keep under '
-            r'$TMPDIR/runs across runs (default 50; a 2 GiB ceiling also '
-            "applies). This run's own are never removed and count toward "
-            "the number; earlier runs' are removed oldest first, and each "
-            'removal is listed on stderr. Set TMPDIR to move the folder.',
+            "counterexample and waveform files) to keep under SimCrux's "
+            'scratch runs/ folder across runs (default 50; a 2 GiB ceiling '
+            "also applies). This run's own are never removed and count "
+            "toward the number; earlier runs' are removed oldest first, and "
+            'each removal is listed on stderr. The scratch is '
+            r'${XDG_CACHE_HOME:-~/.cache}/simcrux on Linux and simcrux in '
+            'the temporary directory elsewhere.',
         valueHelp: 'n',
       )
       ..addFlag(

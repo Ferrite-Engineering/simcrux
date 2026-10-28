@@ -246,7 +246,7 @@ class CliArgs {
   final String? licenseFile;
 
   /// `--keep-failures <n>` value: how many failure work folders a `--ci`
-  /// run keeps under `$TMPDIR/runs` across runs. The run's own are always
+  /// run keeps under the scratch `runs/` (`SimcruxScratch`) across runs. The run's own are always
   /// kept and count toward the number; earlier runs' are removed oldest
   /// first. Null = the default, 50.
   final int? keepFailures;
