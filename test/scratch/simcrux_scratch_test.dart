@@ -114,6 +114,9 @@ void main() {
       // A 0755 base someone else made: its mode passes, but chmod, which
       // only the owner may run on it, fails.
       final base = Directory(p.join(tmp.path, 'simcrux'))..createSync();
+      // Set, not left to the umask: under 002 it would be 0775 and refused
+      // by the mode check before ownership is asked.
+      expect(Process.runSync('chmod', ['755', base.path]).exitCode, 0);
       SimcruxScratch.runProcess = (exe, args) => ProcessResult(
         0,
         args.first == 'u+rwx' ? 1 : 0,
