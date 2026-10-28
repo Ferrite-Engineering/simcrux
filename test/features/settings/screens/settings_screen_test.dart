@@ -105,6 +105,56 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  // The menu dispatch and the licence-expiry strip both open Settings here;
+  // the strip passes the License category, and the shared shell turns the id
+  // into the selected category, which crux_settings_ui's own tests cover.
+  testWidgets('openAdaptive passes initialCategoryId to the body', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1200, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final prefs = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsServiceProvider.overrideWithValue(
+            SettingsService<AppSettings>(
+              const SimcruxSettingsCodec(),
+              prefsOverride: prefs,
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: L10N.localizationsDelegates,
+          supportedLocales: L10N.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => SettingsScreen.openAdaptive(
+                  context,
+                  initialCategoryId: CruxSettingsCategoryId.editors,
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      tester
+          .widget<CruxSettingsInitialCategory>(
+            find.byType(CruxSettingsInitialCategory),
+          )
+          .id,
+      CruxSettingsCategoryId.editors,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('collapses to a single column (no divider) when narrow', (
     tester,
   ) async {

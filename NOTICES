@@ -585,7 +585,7 @@ of an attribution question.
   crux_linux_integration                       0.1.0            SDK
   crux_menu_bar                                0.1.0            SDK
   crux_netlist                                 0.1.0            SDK
-  crux_policy                                  0.1.0            SDK
+  crux_policy                                  0.2.0            SDK
   crux_project                                 0.1.1            SDK
   crux_projects                                0.3.0            SDK
   crux_settings                                0.0.1            SDK

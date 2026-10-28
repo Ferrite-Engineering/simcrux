@@ -1,10 +1,12 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart' show ModalGuard;
 import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/core/platform_utils.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/settings/providers/settings_extensions.dart';
 import 'package:simcrux/features/settings/widgets/color_theme_section.dart';
@@ -34,6 +36,37 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 class SettingsScreen extends ConsumerWidget {
   /// Creates a [SettingsScreen].
   const SettingsScreen({super.key});
+
+  /// Opens Settings through the suite-shared shell (crux_settings_ui): the
+  /// same clamped modal dialog, title row, close x and non-dismissible
+  /// barrier as the other three Crux apps on desktop, a pushed route
+  /// elsewhere. `barrierDismissible: false` also disables Escape (Flutter
+  /// routes the DismissIntent through the barrier flag), so closing is the
+  /// x button, deliberately.
+  ///
+  /// Guarded by `ModalGuard`: Cmd/Ctrl+, auto-repeat or a double-tap on the
+  /// menu or palette entry must not stack a second settings surface. Every
+  /// caller (the action dispatch, the licence-expiry strip) opens it here.
+  ///
+  /// [initialCategoryId] opens it at that category instead of the first: the
+  /// licence-expiry strip opens Settings → License this way.
+  static Future<void> openAdaptive(
+    BuildContext context, {
+    String? initialCategoryId,
+  }) {
+    final l10n = L10N.of(context);
+    return ModalGuard.run(
+      'settings',
+      () => openCruxSettings(
+        context,
+        title: l10n.settingsTitle,
+        closeTooltip: l10n.dialogClose,
+        asDialog: isDesktopPlatform,
+        initialCategoryId: initialCategoryId,
+        bodyBuilder: (_) => const SettingsBody(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

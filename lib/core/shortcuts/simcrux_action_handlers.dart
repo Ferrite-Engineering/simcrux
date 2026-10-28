@@ -11,7 +11,6 @@ import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_project/crux_project.dart' show kCruxProjectExtension;
-import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:crux_theme/crux_theme.dart';
 import 'package:crux_updates/crux_updates.dart';
@@ -22,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/help_urls.dart';
-import 'package:simcrux/core/platform_utils.dart';
 import 'package:simcrux/core/router/app_router.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/core/simcrux_url_launcher.dart';
@@ -391,27 +389,9 @@ class SimcruxActionHandlers {
       SimcruxAction.openSettings: () {
         final ctx = navigatorContext();
         if (ctx == null) return;
-        // The suite-shared Settings shell (crux_settings_ui): same clamped
-        // modal dialog, title row, close x, and non-dismissible barrier as
-        // the other three Crux apps. Note: barrierDismissible:false also
-        // disables Escape (Flutter routes the DismissIntent through the
-        // barrier flag) — closing is the x button, deliberately.
-        // ModalGuard: Cmd/Ctrl+, auto-repeat or a double-tap on the menu /
-        // palette entry must not stack a second settings surface. Guarded
-        // here because SimCrux has no static SettingsScreen opener — this
-        // dispatch is the single open path.
-        unawaited(
-          ModalGuard.run(
-            'settings',
-            () => openCruxSettings(
-              ctx,
-              title: L10N.of(ctx).settingsTitle,
-              closeTooltip: L10N.of(ctx).dialogClose,
-              asDialog: isDesktopPlatform,
-              bodyBuilder: (_) => const SettingsBody(),
-            ),
-          ),
-        );
+        // The shared shell, guarded against stacking; see
+        // SettingsScreen.openAdaptive.
+        unawaited(SettingsScreen.openAdaptive(ctx));
       },
       SimcruxAction.openAbout: () {
         final ctx = navigatorContext();

@@ -60,6 +60,7 @@ import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart'
 import 'package:simcrux/features/remote/simcrux_cxp_binding.dart';
 import 'package:simcrux/features/remote/simcrux_cxp_overrides.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
+import 'package:simcrux/features/settings/screens/settings_screen.dart';
 import 'package:simcrux/features/telemetry/simcrux_telemetry_overrides.dart';
 import 'package:simcrux/features/update/providers/update_overrides.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
@@ -795,15 +796,32 @@ class SimcruxApp extends ConsumerWidget {
                     iconSize: kBetaExpiryIconSize,
                   ),
                   child: UpdateBanner(
-                    // The one mount of the policy-lock sentence, above the
-                    // root navigator so a locked control in a dialog reads
-                    // the same sentence as one in Settings.
-                    child: CruxPolicyLockScope(
-                      message: policyLockMessage(
-                        context,
-                        ref.watch(policyLockMessageProvider),
+                    // The licence-expiry strip (crux_license): below the
+                    // update prompt, inside the agreement and the expiry
+                    // gate, which outrank it. Shows nothing in an open-core
+                    // build; the Pro overlay supplies the status and strings.
+                    child: CruxLicenseExpiryGate(
+                      onOpenLicenseSettings: () {
+                        final ctx =
+                            router.routerDelegate.navigatorKey.currentContext;
+                        if (ctx == null) return;
+                        unawaited(
+                          SettingsScreen.openAdaptive(
+                            ctx,
+                            initialCategoryId: kCruxLicenseCategoryId,
+                          ),
+                        );
+                      },
+                      // The one mount of the policy-lock sentence, above the
+                      // root navigator so a locked control in a dialog reads
+                      // the same sentence as one in Settings.
+                      child: CruxPolicyLockScope(
+                        message: policyLockMessage(
+                          context,
+                          ref.watch(policyLockMessageProvider),
+                        ),
+                        child: _SimcruxAppChrome(child: child),
                       ),
-                      child: _SimcruxAppChrome(child: child),
                     ),
                   ),
                 ),
