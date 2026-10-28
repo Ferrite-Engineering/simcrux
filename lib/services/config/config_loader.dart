@@ -749,8 +749,9 @@ class ConfigLoader {
     );
   }
 
-  /// Resolves the two RISC-V **demo-corpus roots** against the project
-  /// file's directory, leaving absolute paths untouched.
+  /// Resolves the RISC-V **project folders** (the two demo-corpus roots,
+  /// and the suite and check-set folders below) against the project file's
+  /// directory, leaving absolute paths untouched.
   ///
   /// `riscv.demo_signatures` and `riscv.formal.demo_outputs` name
   /// directories that live in the user's project tree next to the
@@ -774,23 +775,35 @@ class ConfigLoader {
   ///   element are placeholder-bearing (`{elf}`, `{work_dir}`, …) and are
   ///   expanded at spawn time, so pre-resolving them would corrupt a
   ///   placeholder into a path;
-  /// * `arch_test.suite_path` and `formal.checks_dir` are consumed on the
-  ///   spawn path only, where the drivers already resolve against their own
-  ///   roots.
+  ///
+  /// The project *folders* the drivers read are resolved too:
+  /// `arch_test.suite_path` and `formal.checks_dir` (`formal.sby_file` stays
+  /// relative to `checks_dir`, and the driver joins the two; without a
+  /// `checks_dir` it must already be absolute). Left verbatim they resolved
+  /// against the process working directory, so a project with
+  /// `checks_dir: ../prepared/checks` ran from its own folder and failed from
+  /// anywhere else, with a spawn error that read as "`sby` is not on PATH".
   RiscvConfig? _resolveRiscvDemoCorpora(
     RiscvConfig? riscv,
     String Function(String) resolve,
   ) {
     if (riscv == null) return null;
-    final demoSignatures = riscv.demoSignatures;
+    String? resolved(String? path) =>
+        path == null || path.isEmpty ? path : resolve(path);
     final formal = riscv.formal;
-    final demoOutputs = formal?.demoOutputs;
-    if (demoSignatures == null && demoOutputs == null) return riscv;
+    final archTest = riscv.archTest;
     return riscv.copyWith(
-      demoSignatures: demoSignatures == null ? null : resolve(demoSignatures),
-      formal: demoOutputs == null
+      demoSignatures: resolved(riscv.demoSignatures),
+      archTest: archTest == null
           ? null
-          : formal!.copyWith(demoOutputs: resolve(demoOutputs)),
+          : RiscvArchTestConfig(
+              suitePath: resolved(archTest.suitePath),
+              revision: archTest.revision,
+            ),
+      formal: formal?.copyWith(
+        demoOutputs: resolved(formal.demoOutputs),
+        checksDir: resolved(formal.checksDir),
+      ),
     );
   }
 

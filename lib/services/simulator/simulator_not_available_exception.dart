@@ -23,6 +23,8 @@ class SimulatorNotAvailableException implements Exception {
     required this.binary,
     required this.source,
     this.cause,
+    this.toolName,
+    this.remediationOverride,
   });
 
   /// The `SimulatorDriver.id` (e.g. `icarus`).
@@ -38,6 +40,18 @@ class SimulatorNotAvailableException implements Exception {
   /// Underlying OS error, when one is available.
   final Object? cause;
 
+  /// The tool's own name for messages (`SymbiYosys`), when it is not the
+  /// simulator id. A driver id such as `riscv_formal` is not something a
+  /// user installs, so "Install riscv_formal" sent people looking for a
+  /// package that does not exist.
+  final String? toolName;
+
+  /// The driver's own guidance, used in place of [remediation]'s
+  /// per-source text. Set by drivers whose engine is not configured
+  /// through `Settings → Engines` alone (SymbiYosys under riscv-formal),
+  /// so a headless run is not pointed at a setting it does not have.
+  final String? remediationOverride;
+
   /// What the user should do about it, phrased per resolution source.
   ///
   /// The old message ended at "via $source resolution", which printed
@@ -47,6 +61,9 @@ class SimulatorNotAvailableException implements Exception {
   /// for a binary that was never there. Each source now names the actual
   /// remedy.
   String get remediation {
+    final override = remediationOverride;
+    if (override != null && override.isNotEmpty) return override;
+    final simulatorId = toolName ?? this.simulatorId;
     switch (source) {
       case SimulatorBinarySource.system:
         return 'Install $simulatorId and make sure `$binary` is on your '
@@ -67,7 +84,9 @@ class SimulatorNotAvailableException implements Exception {
 
   @override
   String toString() {
-    final base = '$simulatorId driver: could not run `$binary`. $remediation';
+    final base = toolName != null
+        ? '$toolName: could not run `$binary`. $remediation'
+        : '$simulatorId driver: could not run `$binary`. $remediation';
     if (cause == null) return base;
     return '$base ($cause)';
   }

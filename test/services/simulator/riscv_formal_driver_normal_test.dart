@@ -497,6 +497,50 @@ democore.v
       );
     });
 
+    test('the spawn error names SymbiYosys and gives its guidance, not the '
+        'driver id or a GUI setting', () async {
+      final recorder = _Recorder(missing: {'sby'});
+      final errors = <Object>[];
+      await RiscvFormalDriver(
+            launcher: recorder.launch,
+            platform: RiscvHostPlatform.linux,
+          )
+          .execute(executeRequest(normalConfig()))
+          .handleError(errors.add)
+          .toList();
+      final message = errors.single.toString();
+      expect(message, startsWith('SymbiYosys: could not run `sby`.'));
+      expect(message, contains('OSS CAD Suite'));
+      expect(message, isNot(contains('Install riscv_formal')));
+      expect(message, isNot(contains('Settings')));
+    });
+
+    test('a missing check-set folder is reported as that, with its path, '
+        'and nothing is spawned', () async {
+      // The same ProcessException ("No such file or directory") a missing
+      // binary raises, which used to read as "`sby` is not on your PATH".
+      final recorder = _Recorder(process: _FakeProcess(stdoutLines: passLog));
+      final gone = p.join(workDir.path, 'prepared', 'checks');
+      final cfg = RiscvConfig(
+        formal: RiscvFormalConfig(
+          checksDir: gone,
+          sbyFile: 'insn_add_ch0.sby',
+          check: 'insn_add_ch0',
+        ),
+      );
+      final events = await execute(
+        RiscvFormalDriver(launcher: recorder.launch),
+        cfg,
+      );
+      expect(recorder.spawns, isEmpty);
+      final finished = events.whereType<TestExecutionFinished>().single;
+      expect(finished.status, TestStatus.fail);
+      expect(finished.failureMessage, contains(gone));
+      expect(finished.failureMessage, contains('does not exist'));
+      expect(finished.failureMessage, contains('riscv.formal.checks_dir'));
+      expect(finished.failureMessage, isNot(contains('PATH')));
+    });
+
     test('nothing anywhere offers to install or bundle a toolchain', () async {
       for (final platform in RiscvHostPlatform.values) {
         final recorder = _Recorder(missing: {'sby'});

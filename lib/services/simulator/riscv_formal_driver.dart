@@ -200,6 +200,12 @@ class RiscvFormalDriver extends SbyDriver {
   }
 
   @override
+  String missingSpawnDirectoryMessage(String directory) =>
+      'SymbiYosys was not started: the check-set folder $directory does not '
+      'exist. Check `riscv.formal.checks_dir` (or `sby_file`) in the project '
+      "file; a relative path resolves against the project file's folder.";
+
+  @override
   String demoNotConfiguredMessage() =>
       'riscv_formal: `riscv.formal.demo_outputs` is not set, so there '
       'is no captured corpus to replay.';

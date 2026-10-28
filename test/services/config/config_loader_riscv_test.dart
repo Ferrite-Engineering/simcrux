@@ -762,9 +762,43 @@ suites:
       expect(riscv.demoSignatures, p.join(_projRoot, 'corpus'));
       expect(riscv.reference!.path, 'bin/spike');
       expect(riscv.toolchain!.path, 'bin');
-      expect(riscv.archTest!.suitePath, 'third_party/riscv-arch-test');
+      // A project folder, not an install location: resolved like the corpora.
+      expect(
+        riscv.archTest!.suitePath,
+        p.join(_projRoot, 'third_party', 'riscv-arch-test'),
+      );
       expect(riscv.compile!.linkScript, '{work_dir}/link.ld');
       expect(riscv.target!.command, contains('{elf}'));
+    });
+
+    // A relative `checks_dir` used to resolve against the process working
+    // directory: the project ran from its own folder and failed from any
+    // other, with a spawn error that blamed PATH.
+    test('`riscv.formal.checks_dir` is rooted at the config directory, and '
+        '`sby_file` stays relative to it', () async {
+      final config = await loadWith('''
+version: '1'
+defaults:
+  simulator: riscv_formal
+  riscv:
+    formal:
+      checks_dir: ../../prepared/2stg-any/checks
+suites:
+  formal:
+    tests:
+      - name: insn_add_ch0
+        top: insn_add_ch0
+        riscv:
+          formal: { sby_file: insn_add_ch0.sby, check: insn_add_ch0 }
+''');
+      final formal = onlyTest(config).riscv!.formal!;
+      expect(
+        formal.checksDir,
+        p.normalize(
+          p.join(_projRoot, '..', '..', 'prepared', '2stg-any', 'checks'),
+        ),
+      );
+      expect(formal.sbyFile, 'insn_add_ch0.sby');
     });
   });
 }

@@ -276,6 +276,11 @@ abstract class ProcessBackedSimulatorDriver implements SimulatorDriver {
   /// test's working directory, so the counterexample VCD lands where the
   /// scheduler's retain-on-failure rule protects it. Every other driver
   /// omits it and keeps the existing behavior exactly.
+  ///
+  /// [unavailableToolName] names the tool in the not-found error
+  /// (`SymbiYosys` rather than the driver id) and makes
+  /// [unavailableMessage] its remediation, in place of the generic
+  /// per-source text.
   @protected
   Future<void> runProcessStreaming({
     required ExecuteRequest request,
@@ -293,6 +298,7 @@ abstract class ProcessBackedSimulatorDriver implements SimulatorDriver {
     Map<String, String>? environment,
     void Function(String line, {required bool fromStderr})? onLine,
     String? workingDirectoryOverride,
+    String? unavailableToolName,
   }) async {
     ReapableProcess? process;
     int? exitCode;
@@ -313,6 +319,10 @@ abstract class ProcessBackedSimulatorDriver implements SimulatorDriver {
               binary: unavailableBinaryLabel,
               source: request.binaryConfig.source,
               cause: e,
+              toolName: unavailableToolName,
+              remediationOverride: unavailableToolName == null
+                  ? null
+                  : unavailableMessage,
             ),
           )
           ..add(

@@ -519,9 +519,10 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       projectRoot: cfg.projectRoot,
       subject: subject,
       unavailableMessage:
-          'SymbiYosys (`$binary`) was not found. Set its path in '
-          'Settings → Engines, or put the directory holding `sby` (an OSS '
-          'CAD Suite `bin/`, for example) on PATH.',
+          'SymbiYosys (`$binary`) was not found. Put the directory holding '
+          '`sby` (an OSS CAD Suite `bin/`, for example) on PATH, or give its '
+          'path: Settings → Engines in the app, `formal.sby_binary` in the '
+          'project file for a `--ci` run (with `--allow-project-tooling`).',
     );
   }
 
@@ -565,6 +566,18 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       );
       return;
     }
+    // A spawn into a folder that does not exist fails with the same
+    // "No such file or directory" as a missing binary, which used to be
+    // reported as "`sby` is not on PATH". Say what is actually missing.
+    final spawnDirectory = job.spawnDirectory;
+    if (spawnDirectory != null && !Directory(spawnDirectory).existsSync()) {
+      await failBeforeRunning(
+        controller,
+        startedAt,
+        missingSpawnDirectoryMessage(spawnDirectory),
+      );
+      return;
+    }
 
     final script = _readScript(job.sbyFile);
     final reader = SbyLogReader();
@@ -583,6 +596,7 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
       controller: controller,
       unavailableBinaryLabel: job.argv.first,
       unavailableMessage: job.unavailableMessage,
+      unavailableToolName: 'SymbiYosys',
       workingDirectoryOverride: job.spawnDirectory,
       onLine: (line, {required fromStderr}) {
         reader.addLine(line);
@@ -698,6 +712,14 @@ class SbyDriver extends ProcessBackedSimulatorDriver {
     );
     await controller.close();
   }
+
+  /// Why the proof was not started when the folder `sby` runs in, the one
+  /// holding the `.sby` file, does not exist.
+  @protected
+  String missingSpawnDirectoryMessage(String directory) =>
+      'SymbiYosys was not started: the folder holding the `.sby` file, '
+      '$directory, does not exist. Check `formal.sby_file` in the project '
+      "file; a relative path resolves against the project file's folder.";
 
   /// The demo message when no capture corpus is configured.
   @protected
