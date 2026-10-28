@@ -23,12 +23,31 @@ import 'package:path/path.dart' as p;
 /// ranks every retained directory under `<runRoot>/runs/` together; a
 /// per-run cap cannot bound growth, because N failures per run times
 /// unboundedly many runs is unbounded.
+///
+/// **The run that just finished is never pruned.** Its failure folders
+/// hold the counterexamples and logs its results point at, so the
+/// scheduler passes it as a protected run: its folders count toward the
+/// cap but are never deleted, and only earlier runs' folders make room.
 class DumpRetentionPolicy {
   /// Creates a [DumpRetentionPolicy].
   const DumpRetentionPolicy({
     this.keepLastNFailures,
     this.maxTotalBytes,
+    this.onPruned,
   });
+
+  /// [defaultPolicy] with its failure count replaced by [keepLastNFailures]
+  /// when that is non-null, reporting removals to [onPruned].
+  ///
+  /// What `--ci --keep-failures <n>` runs under.
+  factory DumpRetentionPolicy.withKeepCount(
+    int? keepLastNFailures, {
+    void Function(List<String> removedPaths)? onPruned,
+  }) => DumpRetentionPolicy(
+    keepLastNFailures: keepLastNFailures ?? defaultPolicy.keepLastNFailures,
+    maxTotalBytes: defaultPolicy.maxTotalBytes,
+    onPruned: onPruned,
+  );
 
   /// The default: keep the 50 most recent failure directories and cap the
   /// retained set at 2 GiB. Generous enough for interactive debugging,
@@ -47,6 +66,13 @@ class DumpRetentionPolicy {
   /// Maximum total bytes across all retained directories. Null = no byte
   /// cap. When exceeded, oldest directories are pruned until under it.
   final int? maxTotalBytes;
+
+  /// Called with the absolute path of every directory a prune removed,
+  /// once per prune that removed at least one. Null = say nothing.
+  ///
+  /// The `--ci` runner sets this to list the removals on stderr, so a
+  /// folder never disappears without a line in the job log.
+  final void Function(List<String> removedPaths)? onPruned;
 
   /// Whether this policy prunes anything at all.
   bool get isUnbounded => keepLastNFailures == null && maxTotalBytes == null;
@@ -72,29 +98,36 @@ const String kRetentionKeepMarker = '.simcrux-keep';
 /// deletes recursively, which on a large run tree with waveform dumps is
 /// seconds of blocking filesystem work — far too much for the UI isolate.
 /// Only plain sendables (the path string, the policy's two ints and the
-/// excluded run ids) cross the isolate boundary.
+/// excluded and protected run ids) cross the isolate boundary; the
+/// policy's [DumpRetentionPolicy.onPruned] callback stays here and is
+/// called with the removed paths once the walk returns.
 Future<int> pruneRetainedDumpsAcrossRunsAsync(
   Directory runsRoot,
   DumpRetentionPolicy policy, {
   Set<String> excludeRunIds = const <String>{},
-}) {
-  if (policy.isUnbounded) return Future.value(0);
+  Set<String> protectRunIds = const <String>{},
+}) async {
+  if (policy.isUnbounded) return 0;
   final path = runsRoot.path;
   final keepLastNFailures = policy.keepLastNFailures;
   final maxTotalBytes = policy.maxTotalBytes;
-  // Copy to a plain set so only sendables cross the isolate boundary.
+  // Copy to plain sets so only sendables cross the isolate boundary.
   final excluded = Set<String>.of(excludeRunIds);
-  return Isolate.run(
-    () => pruneRetainedDumpsAcrossRuns(
+  final protected = Set<String>.of(protectRunIds);
+  final removed = await Isolate.run(
+    () => _pruneAcrossRuns(
       Directory(path),
       DumpRetentionPolicy(
         keepLastNFailures: keepLastNFailures,
         maxTotalBytes: maxTotalBytes,
       ),
       excludeRunIds: excluded,
+      protectRunIds: protected,
     ),
     debugName: 'simcrux-dump-retention-all-runs',
   );
+  if (removed.isNotEmpty) policy.onPruned?.call(removed);
+  return removed.length;
 }
 
 /// Prunes retained per-test working directories across **every** run
@@ -119,6 +152,13 @@ Future<int> pruneRetainedDumpsAcrossRunsAsync(
 /// as empty. The caller passes every in-flight run except the one whose
 /// completion triggered this prune.
 ///
+/// [protectRunIds] names run directories that are ranked but never
+/// deleted: the run whose completion triggered this prune. Its folders
+/// are charged against the cap exactly like pinned ones, so they claim
+/// their slots first and the cap is enforced on earlier runs only. A
+/// run with more failures than the cap therefore keeps every one of
+/// them, and every earlier run's folders are removed.
+///
 /// The directory walks are per-directory exception-tolerant: when two
 /// tabs prune the same tree near-simultaneously a directory can vanish
 /// mid-walk, and a thrown [FileSystemException] must not abort the whole
@@ -129,17 +169,38 @@ int pruneRetainedDumpsAcrossRuns(
   Directory runsRoot,
   DumpRetentionPolicy policy, {
   Set<String> excludeRunIds = const <String>{},
+  Set<String> protectRunIds = const <String>{},
 }) {
-  if (policy.isUnbounded || !runsRoot.existsSync()) return 0;
+  final removed = _pruneAcrossRuns(
+    runsRoot,
+    policy,
+    excludeRunIds: excludeRunIds,
+    protectRunIds: protectRunIds,
+  );
+  if (removed.isNotEmpty) policy.onPruned?.call(removed);
+  return removed.length;
+}
+
+/// [pruneRetainedDumpsAcrossRuns] without the callback: returns the
+/// absolute paths of the directories it deleted. Runs on the prune
+/// isolate, so it must not touch [DumpRetentionPolicy.onPruned].
+List<String> _pruneAcrossRuns(
+  Directory runsRoot,
+  DumpRetentionPolicy policy, {
+  required Set<String> excludeRunIds,
+  required Set<String> protectRunIds,
+}) {
+  if (policy.isUnbounded || !runsRoot.existsSync()) return const <String>[];
   final runDirs = _listDirsTolerant(
     runsRoot,
   ).where((d) => !excludeRunIds.contains(p.basename(d.path))).toList();
   final candidates = <_DumpDir>[];
   for (final runDir in runDirs) {
-    // A marker at the run level pins the whole run.
-    final runPinned = File(
-      p.join(runDir.path, kRetentionKeepMarker),
-    ).existsSync();
+    // A marker at the run level pins the whole run, and so does being the
+    // run that just finished: its results point into these folders.
+    final runPinned =
+        protectRunIds.contains(p.basename(runDir.path)) ||
+        File(p.join(runDir.path, kRetentionKeepMarker)).existsSync();
     for (final testDir in _listDirsTolerant(runDir)) {
       candidates.add(_describe(testDir, forcePinned: runPinned));
     }
@@ -220,14 +281,17 @@ _DumpDir _describe(Directory dir, {bool forcePinned = false}) {
 }
 
 /// Ranks [candidates] newest-first and deletes those the policy does
-/// not admit. Returns the number of directories deleted.
+/// not admit. Returns the absolute paths of the directories deleted.
 ///
 /// The byte ceiling is enforced against a **running** total rather
 /// than by re-folding the survivor list per candidate, which would be
 /// O(n²) in the number of retained directories — on the cross-run set
 /// (thousands of dirs across months of runs) that is the difference
 /// between a linear walk and a quadratic one.
-int _applyPolicy(List<_DumpDir> candidates, DumpRetentionPolicy policy) {
+List<String> _applyPolicy(
+  List<_DumpDir> candidates,
+  DumpRetentionPolicy policy,
+) {
   // Newest first.
   candidates.sort((a, b) => b.mtime.compareTo(a.mtime));
 
@@ -264,11 +328,11 @@ int _applyPolicy(List<_DumpDir> candidates, DumpRetentionPolicy policy) {
     }
   }
 
-  var deleted = 0;
+  final deleted = <String>[];
   for (final dir in doomed) {
     try {
       dir.deleteSync(recursive: true);
-      deleted++;
+      deleted.add(p.absolute(dir.path));
     } on Object {
       // Best-effort; a locked dir is skipped rather than failing the run.
     }

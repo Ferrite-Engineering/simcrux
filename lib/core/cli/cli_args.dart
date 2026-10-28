@@ -39,7 +39,7 @@ class CliExportTarget {
 /// simcrux [config.yaml ...] [--filter <pattern>] [--max-parallel <n>]
 ///         [--json] [--ci] [--export <fmt>=<path>]…
 ///         [--fail-threshold <count>] [--session <path>]
-///         [--workspace <path>]
+///         [--workspace <path>] [--keep-failures <n>]
 ///
 /// simcrux export-dashboard <out-dir>
 ///         [--results <path>] [--web-bundle <dir>]
@@ -88,6 +88,7 @@ class CliArgs {
     this.allowProjectTooling = false,
     this.baselineRunPath,
     this.licenseFile,
+    this.keepFailures,
   });
 
   /// Stable id of the sub-command the user invoked, or null for the
@@ -244,6 +245,12 @@ class CliArgs {
   /// to the organization policy file — see `HeadlessLicenseTierResolver`.
   final String? licenseFile;
 
+  /// `--keep-failures <n>` value: how many failure work folders a `--ci`
+  /// run keeps under `$TMPDIR/runs` across runs. The run's own are always
+  /// kept and count toward the number; earlier runs' are removed oldest
+  /// first. Null = the default, 50.
+  final int? keepFailures;
+
   /// True when the user passed at least one positional argument.
   bool get hasProject => projectPaths.isNotEmpty;
 
@@ -272,6 +279,7 @@ class CliArgs {
     bool? allowProjectTooling,
     String? baselineRunPath,
     String? licenseFile,
+    int? keepFailures,
   }) {
     return CliArgs(
       projectPaths: projectPaths ?? this.projectPaths,
@@ -293,6 +301,7 @@ class CliArgs {
       allowProjectTooling: allowProjectTooling ?? this.allowProjectTooling,
       baselineRunPath: baselineRunPath ?? this.baselineRunPath,
       licenseFile: licenseFile ?? this.licenseFile,
+      keepFailures: keepFailures ?? this.keepFailures,
     );
   }
 
@@ -315,6 +324,7 @@ class CliArgs {
     if (other.allowProjectTooling != allowProjectTooling) return false;
     if (other.baselineRunPath != baselineRunPath) return false;
     if (other.licenseFile != licenseFile) return false;
+    if (other.keepFailures != keepFailures) return false;
     if (projectPaths.length != other.projectPaths.length) return false;
     for (var i = 0; i < projectPaths.length; i++) {
       if (projectPaths[i] != other.projectPaths[i]) return false;
@@ -350,5 +360,6 @@ class CliArgs {
     allowProjectTooling,
     baselineRunPath,
     licenseFile,
+    keepFailures,
   );
 }

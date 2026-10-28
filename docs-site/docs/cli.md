@@ -59,6 +59,7 @@ nothing (see
 | `--max-parallel <n>` / `-j` | Concurrency for the run. Must be a positive integer; defaults to `4`. **`--ci` only** — the GUI always uses 4. |
 | `--fail-threshold <n>` | In `--ci` mode, exit `1` when the number of failed, timed-out or `unknown` tests is `>= n`. Defaults to `1`, or to the organization's [failure ceiling](administration.md#ci-ceiling) where one is set; a value typed here always wins. |
 | `--fail-on-vacuous` | In `--ci` mode, also count tests classified `vacuous` (the testbench completed without exercising its checks) toward `--fail-threshold`. |
+| `--keep-failures <n>` | From 1.2. In `--ci` mode, how many failing tests' [work folders](#work-folders) to keep across runs. Defaults to `50`; a non-negative integer. The run's own failure folders are never removed and count toward `n`, so its results never point at a deleted counterexample; earlier runs' folders are removed oldest first, and each removal is listed on stderr. |
 | `--baseline <path>` | A `results.ndjson` from an earlier `--ci` run, used by `--fail-on-regression`. |
 | `--allow-project-tooling` | Honour the project file's tooling keys: `simulators.<id>.path` and `.env`; the `riscv` `target` / `riscof` / `compile` / `formal` `command:` lists; and the `riscv` executable paths `reference.path`, `toolchain.path`, `toolchain.prefix`, `riscof.binary` and `formal.sby_binary`. From 1.2 it also covers the [`formal:` block](formal.md#tooling)'s `command`, `extra_args`, `sby_binary`, `eqy_binary`, `ghdl_binary` and `tools`, and each [`flow:` entry](flow.md#flow-block)'s `launcher`, `librelane_binary`, `docker_image`, `fusesoc` (with `fusesoc.binary`), `extra_args` and `handoff`. Each of them chooses what this run executes or its environment, so without this flag a `command:` fails the load and the others are dropped with an advisory. It also lets `output.results_path` and `output.summary_path` point outside the project directory; without it such a path fails the load, because a `--ci` run creates and truncates those files. It also lets `simulators.<id>.options` values that `make` would expand (`$(`, `${`, a backtick), Verilator `options.args` that name a build tool (`-CFLAGS`, `-LDFLAGS`, `-MAKEFLAGS`, `--compiler`, `--make`, `--Mdir`, `--prefix`, `-o`, `-f`, `-F`) and cocotb `top` / `parameters` values with make expansions through; without it the options are dropped with an advisory and such a cocotb test does not load. Pass it only for project files you trust. The app takes the same decision in **Settings → Engines → Let project files choose simulator binaries and environment** (from 1.2; earlier versions call the category **Simulators**). See [Projects and simulators](projects-and-simulators.md#schema). |
 | `--license-file <path>` | In `--ci` mode, the SimCrux license file to run under. See [License tier in CI](#license-in-ci). |
@@ -77,6 +78,29 @@ An unrecognized argument prints the error and the usage block on stderr and
 exits `2` from either executable — the desktop app does not open a window for
 it. A headless invocation of the desktop app (`--ci`, `--help`, the imports,
 `export-dashboard`) exits as soon as it finishes.
+
+## Work folders {#work-folders}
+
+Each test runs in its own folder, `$TMPDIR/runs/<run_id>/<test>/`, where
+`$TMPDIR` is the system temporary directory (`/tmp` when `TMPDIR` is unset on
+Linux; `%TEMP%` on Windows).
+The simulator's or prover's logs, the waveform and, for a formal check, the
+SymbiYosys work directory with its counterexample trace are written there, and
+the `waveform_path` in the results points into it.
+
+- **A passing test's folder is deleted** when the test finishes. (In the
+  desktop app its waveform is first moved to a separate archive so it can still
+  be opened.) So a passing formal check keeps no work folder to look at later.
+- **A failing test's folder is kept**, across runs, up to a cap: the newest 50
+  failure folders and 2 GiB in all, by default. `--keep-failures <n>` changes
+  the count for a `--ci` run. The run that just finished never loses a folder
+  to the cap: its failures count toward it, and older runs' folders are removed
+  oldest first. A `--ci` run lists every folder it removed on stderr.
+- **To keep a folder for good**, put an empty file named `.simcrux-keep` in it,
+  or in the `runs/<run_id>/` folder above it to keep the whole run.
+- **To put the folders somewhere else**, set `TMPDIR` for the run, for example
+  `TMPDIR=/scratch/simcrux simcrux project.yaml --ci`. There is no flag or
+  project key for the location.
 
 ## License tier in CI {#license-in-ci}
 

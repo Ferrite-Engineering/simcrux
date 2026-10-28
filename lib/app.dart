@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
+import 'package:simcrux/core/cli/ci_retention.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/cli_args_provider.dart';
@@ -83,6 +84,7 @@ import 'package:simcrux/services/export/dashboard_bundle_writer.dart';
 import 'package:simcrux/services/export/exporter_registry.dart';
 import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_import_cli.dart';
+import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/logging/headless_debug_print.dart';
@@ -563,8 +565,20 @@ Future<void> _runCiInvocation(
   // [bootstrap] builds. They are what let `resolveHeadlessTelemetry` read the consent the
   // GUI wrote — the `--ci` rule is a *read* of the GUI's decision, never a
   // second decision of its own.
+  //
+  // `--keep-failures` and the removal report go in as the retention policy
+  // every CI scheduler factory reads (open core's and the Pro overlay's).
   final ciContainer = ProviderContainer(
-    overrides: [...simcruxTelemetryOverrides, ...extraOverrides],
+    overrides: [
+      ...simcruxTelemetryOverrides,
+      dumpRetentionPolicyProvider.overrideWithValue(
+        ciDumpRetentionPolicy(
+          keepFailures: parsedArgs.keepFailures,
+          log: stderr.writeln,
+        ),
+      ),
+      ...extraOverrides,
+    ],
   );
   final policy = ciContainer.read(failOnRegressionPolicyProvider);
   // The license tier the project loads at. A CI agent has no license

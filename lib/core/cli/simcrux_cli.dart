@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:crux_license/crux_license_core.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
+import 'package:simcrux/core/cli/ci_retention.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/flow_cli.dart';
@@ -400,13 +401,16 @@ class SimcruxCli {
   ///
   /// Dump retention is bounded, as in the app: an unbounded policy never
   /// prunes failing tests' work dirs, which fills a long-lived CI runner's
-  /// temp directory.
-  LocalJobScheduler ciSchedulerFor(RegressionConfig config) =>
-      LocalJobScheduler(
-        driverRegistry: driverRegistry,
-        config: config,
-        dumpRetentionPolicy: DumpRetentionPolicy.defaultPolicy,
-      );
+  /// temp directory. [retention] is what `--keep-failures` built; the run's
+  /// own failure folders are never pruned whatever it says.
+  LocalJobScheduler ciSchedulerFor(
+    RegressionConfig config, {
+    DumpRetentionPolicy retention = DumpRetentionPolicy.defaultPolicy,
+  }) => LocalJobScheduler(
+    driverRegistry: driverRegistry,
+    config: config,
+    dumpRetentionPolicy: retention,
+  );
 
   Future<int> _runCi(
     CliArgs parsedArgs,
@@ -424,12 +428,17 @@ class SimcruxCli {
       stderrSink('simcrux: error: $e');
       return 2;
     }
+    final retention = ciDumpRetentionPolicy(
+      keepFailures: parsedArgs.keepFailures,
+      log: stderrSink,
+    );
     final runner = CiRunner(
       configLoader: configLoaderFactory(
         tier,
         allowTooling: parsedArgs.allowProjectTooling,
       ),
-      schedulerFactory: ciSchedulerFor,
+      schedulerFactory: (config) =>
+          ciSchedulerFor(config, retention: retention),
       exporterRegistry: const ExporterRegistry(),
       stdoutWriter: stdoutSink,
       stderrWriter: stderrSink,

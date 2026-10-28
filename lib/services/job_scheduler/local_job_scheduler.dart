@@ -402,11 +402,12 @@ class LocalJobScheduler implements JobScheduler {
       // Exclude every *other* in-flight run's directory from the cross-run
       // prune: another tab's live run must never have its work dir ranked
       // and deleted under the running simulator by the byte ceiling. The
-      // run that just finished (this `state`) is still in `_runs` here — it
-      // is deliberately prunable, so it is not excluded.
-      final inFlight = _runs.keys
-          .where((id) => id != state.request.runId)
-          .toSet();
+      // run that just finished (this `state`) is still in `_runs` here. It
+      // is ranked, so its failures count toward the cap, but protected:
+      // its results point at these folders' counterexamples and logs, so
+      // only earlier runs' folders make room.
+      final thisRun = state.request.runId;
+      final inFlight = _runs.keys.where((id) => id != thisRun).toSet();
       // Guard the await: the off-isolate walk can throw a FileSystemException
       // when two tabs prune the same tree near-simultaneously. Unguarded, that
       // exception skips markFinished / RegressionFinished / eventSink.close,
@@ -417,6 +418,7 @@ class LocalJobScheduler implements JobScheduler {
           runsRootFor(runRoot),
           dumpRetentionPolicy,
           excludeRunIds: inFlight,
+          protectRunIds: {thisRun},
         );
       } on Object {
         // Swallow: a failed prune leaves extra dumps on disk (bounded next
