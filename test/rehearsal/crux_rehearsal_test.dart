@@ -341,6 +341,49 @@ void main() {
     });
   });
 
+  group('click then scroll', () {
+    testWidgets('a scroll after a mouse click uses a device of its own', (
+      tester,
+    ) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      var taps = 0;
+      final rehearsal = await _pump(
+        tester,
+        Column(
+          children: [
+            TextButton(onPressed: () => taps++, child: const Text('Open')),
+            Expanded(
+              child: ListView(
+                controller: controller,
+                children: [
+                  for (var i = 0; i < 100; i++)
+                    SizedBox(height: 40, child: Text('row $i')),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+      expect(
+        (await rehearsal.perform(_step('click', label: 'Open')))['ok'],
+        isTrue,
+      );
+      final down = await rehearsal.perform({
+        'kind': 'scroll',
+        'direction': 'down',
+      });
+      expect(down['ok'], isTrue, reason: '${down['detail']}');
+      expect(controller.offset, greaterThan(0));
+      final again = await rehearsal.perform({
+        'kind': 'scroll',
+        'direction': 'up',
+      });
+      expect(again['ok'], isTrue, reason: '${again['detail']}');
+      expect(taps, 1);
+    });
+  });
+
   group('requests', () {
     testWidgets('a step a driver cannot perform is skipped, not failed', (
       tester,

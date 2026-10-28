@@ -293,7 +293,13 @@ class CruxRehearsal {
     }
     final box = largest!.renderObject! as RenderBox;
     final centre = box.localToGlobal(box.size.center(Offset.zero));
-    final pointer = TestPointer(_scrollPointer, PointerDeviceKind.mouse);
+    // A device of its own: the mouse a click used stays added (it keeps
+    // hovering), and adding a device twice is an error.
+    final pointer = TestPointer(
+      _scrollPointer,
+      PointerDeviceKind.mouse,
+      _scrollPointer,
+    );
     await controller.sendEventToBinding(pointer.addPointer(location: centre));
     await controller.sendEventToBinding(pointer.hover(centre));
     await controller.sendEventToBinding(
