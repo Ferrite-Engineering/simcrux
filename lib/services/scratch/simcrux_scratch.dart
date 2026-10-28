@@ -17,7 +17,7 @@ import 'package:path/path.dart' as p;
 ///   and Windows keep per user.
 ///
 /// A missing base is made private (it is created as a fresh temporary
-/// directory, which is `0700`, and moved into place), and every use checks
+/// directory, set to `0700`, and moved into place), and every use checks
 /// it: a base that is a symbolic link, is not a directory, or that group or
 /// others can write is refused with a [FileSystemException] rather than
 /// written into.
@@ -101,6 +101,16 @@ abstract final class SimcruxScratch {
         FileSystemEntityType.notFound) {
       final parent = Directory(p.dirname(base))..createSync(recursive: true);
       final fresh = parent.createTempSync('.$kName-');
+      // A new directory takes the umask's mode (0775 under a umask of 002),
+      // so it is made 0700 before it appears under its own name. dart:io
+      // sets no mode; chmod(1) is in /bin on Linux and macOS.
+      if (!Platform.isWindows) {
+        try {
+          Process.runSync('/bin/chmod', <String>['700', fresh.path]);
+        } on ProcessException {
+          // Checked below: a base other users can write is refused.
+        }
+      }
       try {
         fresh.renameSync(base);
       } on FileSystemException {
