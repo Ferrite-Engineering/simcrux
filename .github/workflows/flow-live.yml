@@ -331,20 +331,39 @@ jobs:
           path: librelane-src
           persist-credentials: false
 
-      - name: Read the sky130 version LibreLane pins
+      # All three families: the equivalence recipe gate checks the adder on
+      # gf180mcuD and ihp-sg13g2 as well as sky130A, and reads each one's
+      # liberty file from the PDK.
+      - name: Read the PDK versions LibreLane pins
         id: pdk
         shell: bash
         run: |
           set -euo pipefail
-          hash="$(sed -n "s/^sky130: *\([0-9a-f]\{40\}\)\$/\1/p" librelane-src/librelane/pdk_hashes.yaml)"
-          test -n "$hash"
-          echo "sky130=${hash}" >> "$GITHUB_OUTPUT"
+          for family in sky130 gf180mcu ihp-sg13g2; do
+            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" librelane-src/librelane/pdk_hashes.yaml)"
+            test -n "$hash"
+            echo "${family//-/_}=${hash}" >> "$GITHUB_OUTPUT"
+          done
 
       - name: Restore sky130
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.ciel/ciel/sky130/versions/${{ steps.pdk.outputs.sky130 }}
           key: ciel-sky130-${{ steps.pdk.outputs.sky130 }}
+          fail-on-cache-miss: true
+
+      - name: Restore gf180mcu
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/gf180mcu/versions/${{ steps.pdk.outputs.gf180mcu }}
+          key: ciel-gf180mcu-${{ steps.pdk.outputs.gf180mcu }}
+          fail-on-cache-miss: true
+
+      - name: Restore ihp-sg13g2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/ihp-sg13g2/versions/${{ steps.pdk.outputs.ihp_sg13g2 }}
+          key: ciel-ihp-sg13g2-${{ steps.pdk.outputs.ihp_sg13g2 }}
           fail-on-cache-miss: true
 
       - name: Cache OSS CAD Suite

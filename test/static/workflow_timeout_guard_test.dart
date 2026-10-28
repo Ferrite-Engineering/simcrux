@@ -169,6 +169,36 @@ void main() {
       expect(file.readAsStringSync(), isNot(contains(' .librelane/')));
     });
 
+    test('the gate-level job restores every PDK the equivalence recipe '
+        'gate names', () {
+      // It restored sky130 only, and the recipe gate's gf180mcuD and
+      // ihp-sg13g2 adders failed reading their liberty files.
+      final recipe = File(
+        'verification/fixtures/formal/eqy_flow/recipe.expected.json',
+      ).readAsStringSync();
+      final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+      final steps =
+          ((doc['jobs'] as YamlMap)['gate-level'] as YamlMap)['steps']
+              as YamlList;
+      final keys = [
+        for (final s in steps)
+          if ('${(s as YamlMap)['uses']}'.startsWith('actions/cache@'))
+            '${(s['with'] as YamlMap)['key']}',
+      ];
+      for (final (family, variant) in const [
+        ('sky130', 'path_adder_sky130A'),
+        ('gf180mcu', 'path_adder_gf180mcuD'),
+        ('ihp-sg13g2', 'path_adder_ihp-sg13g2'),
+      ]) {
+        if (!recipe.contains(variant)) continue;
+        expect(
+          keys.any((k) => k.startsWith('ciel-$family-')),
+          isTrue,
+          reason: '$variant needs the $family PDK restored',
+        );
+      }
+    });
+
     test('the LibreLane job runs the nix launcher live test', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_nix_launcher_live_test.dart';
