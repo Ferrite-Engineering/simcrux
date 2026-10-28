@@ -275,8 +275,10 @@ jobs:
 
       # The gate-level and SDF jobs read the PicoRV32 runs (plain and
       # clock-gated): their records, text netlists and the nominal SDF only.
+      # Kept even when a case's facts drifted above, so one drifted case does
+      # not also hide the gate-level and SDF gates.
       - name: Keep the PicoRV32 runs for the gate-level job
-        if: matrix.all_pdks
+        if: ${{ !cancelled() && matrix.all_pdks }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: librelane-picorv32-runs
@@ -294,6 +296,7 @@ jobs:
       # librelane`), started from a GUI-like PATH: a run that reads met, and a
       # SIGTERM mid-run that leaves no process of the tree behind.
       - name: Run LibreLane through the nix launcher, and cancel it
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           LIBRELANE_NIX_CHECKOUT: ${{ github.workspace }}/librelane-src

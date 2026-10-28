@@ -9,6 +9,11 @@
   "final_metrics": true,
   "last_step": "76-misc-reportmanufacturability",
   "steps_without_state_out": ["72-checker-setupviolations"],
+  "differs_by_platform": {
+    "why": "With a 2 ns clock and post-route repair gated off, hold is incidental to this case. The darwin arm64 capture has no hold violation; the Linux x64 tool build of the same LibreLane commit and PDK has hold violations, so the hold checker also raises its deferred error there (flow-live, 2026-10-28). Setup, the case's point, agrees on both.",
+    "steps_without_state_out": ["73-checker-holdviolations"],
+    "metrics": ["timing__hold_vio__count"]
+  },
   "step_ids": {"72-checker-setupviolations": "Checker.SetupViolations"},
   "gated_off_steps": [
     "Repair Design (Post-Global Routing)",

@@ -106,6 +106,12 @@ of the product's readers; `flow_librelane_fixtures_test.dart` compares them
 exactly against the commit and `flow_librelane_live_test.dart` compares them
 (metric signs, not values) against a fresh run.
 
+A case's `differs_by_platform` names the facts the Linux x64 and darwin arm64
+tool builds were seen to disagree on, with why: they are held exactly against
+the commit and left out of the live comparison. Only `3.0.16/sky130A_timing`
+has one: its hold result (no violation on the darwin capture, violations on
+the Linux rerun of 2026-10-28) is incidental to a case about setup.
+
 ## Measured layout
 
 **Run-root records.** `runs/<tag>/` holds `resolved.json`, `flow.log`,

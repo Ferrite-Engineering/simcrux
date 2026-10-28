@@ -357,11 +357,28 @@ List<String> caseDifferences(
     expected['final_metrics'],
   );
 
+  // Facts the tool builds of two platforms are known to disagree on
+  // (`differs_by_platform`): held exactly on the committed capture, and not
+  // compared on a live rerun on another machine.
+  final differs = exactMetrics
+      ? const <String, dynamic>{}
+      : expected['differs_by_platform'] as Map<String, dynamic>? ??
+            const <String, dynamic>{};
+  final looseSteps = <String>{
+    for (final s in differs['steps_without_state_out'] as List<dynamic>? ?? [])
+      s as String,
+  };
+  final looseMetrics = <String>{
+    for (final m in differs['metrics'] as List<dynamic>? ?? []) m as String,
+  };
+
   final dirs = stepDirs(run);
   check('last step directory', dirName(dirs.last), expected['last_step']);
   final withoutStateOut = [
     for (final d in dirs)
-      if (!File('${d.path}/state_out.json').existsSync()) dirName(d),
+      if (!File('${d.path}/state_out.json').existsSync() &&
+          !looseSteps.contains(dirName(d)))
+        dirName(d),
   ];
   check(
     'steps without state_out.json',
@@ -403,6 +420,7 @@ List<String> caseDifferences(
       if (metrics.containsKey(key)) diffs.add('metric $key is present');
     }
     for (final e in wantMetrics.entries) {
+      if (looseMetrics.contains(e.key)) continue;
       final got = metrics[e.key];
       if (got is! num) {
         diffs.add('metric ${e.key} missing');
