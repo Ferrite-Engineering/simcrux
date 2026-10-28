@@ -207,6 +207,49 @@ void main() {
       expect(text, contains('LIBRELANE_NIX_CHECKOUT'));
     });
 
+    test('the docker launcher job runs its live test, capped at 45 '
+        'minutes, with an image and a cached PDK', () {
+      final text = file.readAsStringSync();
+      expect(jobTimeouts(text)['librelane-docker'], 45);
+      const live = 'test/static/flow_librelane_docker_launcher_live_test.dart';
+      expect(text, contains(live));
+      expect(File(live).readAsStringSync(), contains("'oss-cad-live'"));
+      expect(text, contains('LIBRELANE_DOCKER_IMAGE'));
+      expect(text, contains('ghcr.io/librelane/librelane:'));
+      final doc = loadYaml(text) as YamlMap;
+      final steps =
+          ((doc['jobs'] as YamlMap)['librelane-docker'] as YamlMap)['steps']
+              as YamlList;
+      expect(
+        steps.any(
+          (s) =>
+              '${(s as YamlMap)['uses']}'.startsWith('actions/cache@') &&
+              '${(s['with'] as YamlMap)['key']}'.startsWith('ciel-sky130-'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the cold nix develop job is capped at 30 minutes', () {
+      expect(jobTimeouts(file.readAsStringSync())['nix-cold'], 30);
+    });
+
+    test('a dispatch can run only one launcher job, and a scheduled run '
+        'runs every job', () {
+      final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+      final jobs = doc['jobs'] as YamlMap;
+      for (final MapEntry(:key, :value) in jobs.entries) {
+        final condition = '${(value as YamlMap)['if']}';
+        expect(condition, contains("inputs.only || 'all'"), reason: '$key');
+      }
+      final only =
+          (((doc['on'] as YamlMap)['workflow_dispatch'] as YamlMap)['inputs']
+                  as YamlMap)['only']
+              as YamlMap;
+      expect(only['default'], 'all');
+      expect(only['options'], containsAll(['all', 'librelane-docker']));
+    });
+
     test('the LibreLane job runs its live test with a cached PDK', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_live_test.dart';

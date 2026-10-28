@@ -68,9 +68,11 @@ typedef LibreLaneRunReading =
 /// - `path`: `librelane [--pdk-root ROOT] [--pdk PDK] --run-tag TAG CONFIG`;
 /// - `nix`: `nix develop CHECKOUT --command librelane ...`, the checkout
 ///   being the LibreLane path Settings names;
-/// - `docker`: `docker run --rm --name simcrux-TAG -v DESIGN:DESIGN
-///   [-v PDK_ROOT:PDK_ROOT] -w DESIGN IMAGE librelane ...`, so a cancel stops
-///   the named container as well as the client.
+/// - `docker`: `docker run --rm --name simcrux-TAG [--user UID:GID]
+///   -v DESIGN:DESIGN -v PDK_ROOT:PDK_ROOT -w DESIGN IMAGE librelane ...`,
+///   so a cancel stops the named container as well as the client. The PDK
+///   root is the one a host run would use (see [_dockerPdkRoot]); `--user`
+///   is passed on Linux (see [hostDockerUser]).
 ///
 /// **Never `--overwrite`, never `--last-run`.** The tag is
 /// `<tag_prefix>-<UTC timestamp>`, one generated safe segment, and a tag
@@ -98,7 +100,9 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
     this.pollInterval = const Duration(seconds: 2),
     LibreLaneRunReading? readRun,
     this.hostEnvironment,
-  }) : _readRun = readRun ?? const LibreLaneVersionedReader().read;
+    String? Function()? dockerUser,
+  }) : _readRun = readRun ?? const LibreLaneVersionedReader().read,
+       dockerUser = dockerUser ?? hostDockerUser;
 
   /// The `simulatorId` this driver claims.
   static const String kId = 'librelane';
@@ -111,6 +115,40 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
   /// The environment `XDG_DATA_HOME` is looked up in; this process's when
   /// null. Tests pass one without it.
   final Map<String, String>? hostEnvironment;
+
+  /// The `--user` the `docker` launcher passes, or null for the image's own
+  /// user. [hostDockerUser] by default; tests pass their own.
+  final String? Function() dockerUser;
+
+  /// `UID:GID` of this process on Linux, so the run directory a container
+  /// writes into the bind-mounted design belongs to the user and not to
+  /// root; null elsewhere (Docker Desktop on macOS and Windows maps file
+  /// ownership itself) and for a rootless daemon named by `DOCKER_HOST`,
+  /// whose container root already is the user.
+  static String? hostDockerUser() {
+    if (!Platform.isLinux) return null;
+    final dockerHost = Platform.environment['DOCKER_HOST'] ?? '';
+    if (dockerHost.contains('/run/user/')) return null;
+    try {
+      final status = File('/proc/self/status').readAsLinesSync();
+      String? field(String name) {
+        final line = status.firstWhere(
+          (l) => l.startsWith('$name:'),
+          orElse: () => '',
+        );
+        final parts = line.split(RegExp(r'\s+'));
+        // `Uid:  real  effective  saved  filesystem`: the effective id.
+        return parts.length > 2 ? parts[2] : null;
+      }
+
+      final uid = field('Uid');
+      final gid = field('Gid');
+      if (uid == null || gid == null) return null;
+      return '$uid:$gid';
+    } on FileSystemException {
+      return null;
+    }
+  }
 
   final Map<String, String> _containers = <String, String>{};
 
@@ -169,6 +207,30 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
     } on Object {
       // Docker gone or the container already removed: nothing left to stop.
     }
+  }
+
+  /// The PDK root the `docker` launcher mounts: the Settings one, else the
+  /// host's `PDK_ROOT`, else LibreLane's own default, `~/.ciel`. The same
+  /// root a `path` or `nix` run on this host would use, so a container never
+  /// fetches a PDK into itself that `--rm` then throws away. Created when
+  /// missing, so Docker does not create it as root.
+  String? _dockerPdkRoot(String settingsRoot) {
+    final host = hostEnvironment ?? Platform.environment;
+    final home = host['HOME'] ?? '';
+    final root = settingsRoot.isNotEmpty
+        ? settingsRoot
+        : (host['PDK_ROOT'] ?? '').isNotEmpty
+        ? host['PDK_ROOT']!
+        : home.isNotEmpty
+        ? p.join(home, '.ciel')
+        : null;
+    if (root == null) return null;
+    try {
+      Directory(root).createSync(recursive: true);
+    } on FileSystemException {
+      // Docker reports a root it cannot mount; nothing to add here.
+    }
+    return root;
   }
 
   /// The invocation for [entry], or a reason it cannot run.
@@ -300,6 +362,8 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
           );
         }
         final container = 'simcrux-$tag';
+        final mountedPdkRoot = _dockerPdkRoot(pdkRoot);
+        final user = dockerUser();
         return (
           invocation: LibreLaneInvocation(
             argv: <String>[
@@ -308,10 +372,15 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
               '--rm',
               '--name',
               container,
+              if (user != null) ...['--user', user],
               '-v',
               '$design:$design',
-              if (pdkRoot.isNotEmpty) ...['-v', '$pdkRoot:$pdkRoot'],
-              if (pdkRoot.isNotEmpty) ...['-e', 'PDK_ROOT=$pdkRoot'],
+              if (mountedPdkRoot != null) ...[
+                '-v',
+                '$mountedPdkRoot:$mountedPdkRoot',
+                '-e',
+                'PDK_ROOT=$mountedPdkRoot',
+              ],
               '-w',
               design,
               image,

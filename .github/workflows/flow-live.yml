@@ -11,12 +11,22 @@ name: Flow live
 # PROVENANCE.md.
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: 'Run every job, or only the LibreLane launcher checks'
+        type: choice
+        default: all
+        options:
+          - all
+          - librelane-docker
+          - nix-cold
   schedule:
     # Mondays, staggered off the shared 05:00 slot and the Sunday platform runs.
     - cron: '40 5 * * 1'
 
+# A scheduled run has no inputs: `inputs.only || 'all'` reads it as `all`.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.only || 'all' }}
   cancel-in-progress: false
 
 permissions:
@@ -30,6 +40,7 @@ env:
 jobs:
   nextpnr:
     name: nextpnr fixtures
+    if: ${{ (inputs.only || 'all') == 'all' }}
     runs-on: ubuntu-latest
     # nextpnr live: 30 minutes. A regeneration takes a few.
     timeout-minutes: 30
@@ -90,6 +101,7 @@ jobs:
 
   fusesoc:
     name: FuseSoC fixture
+    if: ${{ (inputs.only || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -151,6 +163,7 @@ jobs:
   # the sky130A reference case its fixture set holds.
   librelane:
     name: LibreLane fixtures (${{ matrix.librelane }})
+    if: ${{ (inputs.only || 'all') == 'all' }}
     runs-on: ubuntu-latest
     # LibreLane live: 150 minutes. The mapping-gate design is most of it.
     timeout-minutes: 150
@@ -305,6 +318,162 @@ jobs:
           set -euo pipefail
           flutter test test/static/flow_librelane_nix_launcher_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-nix-launcher.log"
 
+  # SimCrux's own `docker` launcher (`docker run --rm --name simcrux-TAG ...
+  # IMAGE librelane ...`) with LibreLane's published image for the current
+  # release, started from a GUI-like PATH: a run that reads met, leaves no
+  # container and leaves a run directory the user owns, and a SIGTERM mid-run
+  # after which neither the container nor any of its tools is left. Docker is
+  # preinstalled on the runner. sky130 comes from the same cache the LibreLane
+  # job fills, fetched with ciel when GitHub evicted it.
+  librelane-docker:
+    name: LibreLane docker launcher (3.0.16)
+    if: ${{ contains(fromJSON('["all", "librelane-docker"]'), inputs.only || 'all') }}
+    runs-on: ubuntu-latest
+    # Docker launcher live: 45 minutes. The image pull and one path_adder run
+    # are most of it.
+    timeout-minutes: 45
+    env:
+      LIBRELANE_IMAGE: 'ghcr.io/librelane/librelane:3.0.16'
+    steps:
+      - name: Free disk space for the image and the PDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Check out LibreLane (for the PDK version it pins)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: librelane/librelane
+          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          path: librelane-src
+          persist-credentials: false
+
+      - name: Read the sky130 version LibreLane pins
+        id: pdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          hash="$(sed -n 's/^sky130: *\([0-9a-f]\{40\}\)$/\1/p' librelane-src/librelane/pdk_hashes.yaml)"
+          test -n "$hash"
+          echo "sky130=${hash}" >> "$GITHUB_OUTPUT"
+
+      - name: Cache sky130
+        id: sky130
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.ciel/ciel/sky130/versions/${{ steps.pdk.outputs.sky130 }}
+          key: ciel-sky130-${{ steps.pdk.outputs.sky130 }}
+
+      - name: Fetch sky130 when the cache did not hold it
+        if: steps.sky130.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          pipx run --spec 'ciel>=2.3.1,<3' ciel fetch --pdk-family sky130 '${{ steps.pdk.outputs.sky130 }}'
+
+      - name: Pull the LibreLane image, and report it
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker version --format 'docker {{.Server.Version}}'
+          start=$(date +%s)
+          docker pull --quiet "$LIBRELANE_IMAGE"
+          pulled=$(( $(date +%s) - start ))
+          digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$LIBRELANE_IMAGE")"
+          size="$(docker image inspect --format '{{.Size}}' "$LIBRELANE_IMAGE")"
+          user="$(docker image inspect --format '{{.Config.User}}' "$LIBRELANE_IMAGE")"
+          entry="$(docker image inspect --format '{{json .Config.Entrypoint}} {{json .Config.Cmd}}' "$LIBRELANE_IMAGE")"
+          as_me="$(docker run --rm --user "$(id -u):$(id -g)" "$LIBRELANE_IMAGE" sh -c 'echo "id=$(id -u):$(id -g) HOME=$HOME librelane=$(command -v librelane)"' 2>&1 || true)"
+          {
+            echo "### LibreLane docker image"
+            echo ""
+            echo "- image: \`$digest\`, $(( size / 1000000 )) MB, pulled in ${pulled} s"
+            echo "- image user: \`${user:-<unset: root>}\`; entrypoint and cmd: \`$entry\`"
+            echo "- run as the runner's user: \`$as_me\`"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Install Flutter (pinned)
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run LibreLane through the docker launcher, and cancel it
+        shell: bash
+        env:
+          LIBRELANE_DOCKER_IMAGE: ${{ env.LIBRELANE_IMAGE }}
+          FLOW_LIVE_REQUIRED: '1'
+        run: |
+          set -euo pipefail
+          flutter test test/static/flow_librelane_docker_launcher_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-docker-launcher.log"
+          grep '^docker launcher:' "${RUNNER_TEMP}/librelane-docker-launcher.log" | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true
+
+  # A cold `nix develop`: a fresh runner's store is empty, so this is the
+  # first launch a new user of the `nix` launcher waits through, with the
+  # FOSSi binary cache LibreLane's install instructions configure. Timed, then
+  # timed again warm, into the job summary.
+  nix-cold:
+    name: Cold nix develop (3.0.16)
+    if: ${{ contains(fromJSON('["all", "nix-cold"]'), inputs.only || 'all') }}
+    runs-on: ubuntu-latest
+    # Cold nix develop: 30 minutes. The substitution is a few.
+    timeout-minutes: 30
+    steps:
+      - name: Free disk space for the Nix store
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      # Not under a dot-name: see the LibreLane job.
+      - name: Check out LibreLane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: librelane/librelane
+          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          path: librelane-src
+          persist-credentials: false
+
+      - name: Install Nix with the FOSSi binary cache
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+        with:
+          determinate: false
+          extra-conf: |
+            extra-substituters = https://nix-cache.fossi-foundation.org
+            extra-trusted-public-keys = nix-cache.fossi-foundation.org:3+K59iFwXqKsL7BNu6Guy0v+uTlwsxYQxjspXzqLYQs=
+
+      - name: Time nix develop, cold then warm
+        shell: bash
+        run: |
+          set -euo pipefail
+          before="$(du -sm /nix/store | cut -f1)"
+          start=$(date +%s)
+          nix develop "${GITHUB_WORKSPACE}/librelane-src" --command librelane --version
+          cold=$(( $(date +%s) - start ))
+          after="$(du -sm /nix/store | cut -f1)"
+          start=$(date +%s)
+          nix develop "${GITHUB_WORKSPACE}/librelane-src" --command librelane --version
+          warm=$(( $(date +%s) - start ))
+          {
+            echo "### Cold nix develop (LibreLane 3.0.16)"
+            echo ""
+            echo "- $(nix --version), $(nproc) CPUs"
+            echo "- cold: ${cold} s (store ${before} MB to ${after} MB)"
+            echo "- warm: ${warm} s"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
   # Functional gate-level simulation and RTL-to-netlist equivalence, re-measured
   # on the current LibreLane release's runs with the pinned OSS CAD Suite. It
   # fails when a recorded outcome under verification/fixtures/flow/gate_level/
@@ -313,7 +482,7 @@ jobs:
   gate-level:
     name: Gate-level and equivalence gates
     needs: librelane
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && (inputs.only || 'all') == 'all' }}
     runs-on: ubuntu-latest
     # Gate-level live: 60 minutes. EQY on PicoRV32 is most of it.
     timeout-minutes: 60
@@ -419,7 +588,7 @@ jobs:
   sdf-gate:
     name: SDF annotation gate
     needs: librelane
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && (inputs.only || 'all') == 'all' }}
     runs-on: ubuntu-latest
     # SDF live: 60 minutes. Four delay-annotated PicoRV32 runs are most of it.
     timeout-minutes: 60

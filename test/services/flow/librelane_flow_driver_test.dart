@@ -73,6 +73,7 @@ void main() {
     clock: () => DateTime.utc(2026, 10, 21, 12),
     pollInterval: const Duration(milliseconds: 5),
     hostEnvironment: const <String, String>{},
+    dockerUser: () => null,
   );
 
   /// Plays LibreLane: builds the run directory `--run-tag` names, then
@@ -269,6 +270,77 @@ void main() {
       );
     });
 
+    // A container run without the host's PDK root fetched the PDK into the
+    // container, which `--rm` then threw away; and as root on Linux it left
+    // a run directory the user could not delete.
+    group('docker launcher, the PDK root and the user', () {
+      const docker = FlowToolSettings(
+        launcher: FlowLauncher.docker,
+        dockerImage: 'example/librelane:3.0',
+      );
+
+      List<String> argvWith(
+        Map<String, String> host, {
+        String? user,
+        FlowToolSettings settings = docker,
+      }) => LibreLaneFlowDriver(
+        clock: () => DateTime.utc(2026, 10, 21, 12),
+        hostEnvironment: host,
+        dockerUser: () => user,
+      ).prepare(entry(), binary(settings: settings)).invocation!.argv;
+
+      test('the host PDK_ROOT is mounted when Settings names none', () {
+        final root = p.join(work.path, 'pdks');
+        final argv = argvWith(<String, String>{'PDK_ROOT': root});
+        expect(argv, containsAllInOrder(['-v', '$root:$root']));
+        expect(argv, containsAllInOrder(['-e', 'PDK_ROOT=$root']));
+      });
+
+      test("else LibreLane's default, ~/.ciel, created when missing", () {
+        final home = p.join(work.path, 'home');
+        final ciel = p.join(home, '.ciel');
+        final argv = argvWith(<String, String>{'HOME': home});
+        expect(argv, containsAllInOrder(['-v', '$ciel:$ciel']));
+        expect(argv, containsAllInOrder(['-e', 'PDK_ROOT=$ciel']));
+        expect(Directory(ciel).existsSync(), isTrue);
+      });
+
+      test('the Settings PDK root outranks the host one', () {
+        final argv = argvWith(
+          <String, String>{'PDK_ROOT': p.join(work.path, 'other')},
+          settings: FlowToolSettings(
+            launcher: FlowLauncher.docker,
+            dockerImage: 'example/librelane:3.0',
+            pdkRoot: p.join(work.path, 'pdks'),
+          ),
+        );
+        final root = p.join(work.path, 'pdks');
+        expect(argv, containsAllInOrder(['-e', 'PDK_ROOT=$root']));
+        expect(argv.where((a) => a.contains('other')), isEmpty);
+      });
+
+      test('--user runs the container as the host user, before the image', () {
+        final argv = argvWith(const <String, String>{}, user: '1001:118');
+        expect(argv, containsAllInOrder(['--user', '1001:118']));
+        expect(
+          argv.indexOf('--user'),
+          lessThan(argv.indexOf('example/librelane:3.0')),
+        );
+        expect(argvWith(const <String, String>{}), isNot(contains('--user')));
+      });
+
+      test('the host user on Linux is UID:GID, and none elsewhere', () {
+        final user = LibreLaneFlowDriver.hostDockerUser();
+        if (Platform.isLinux) {
+          expect(user, matches(RegExp(r'^\d+:\d+$')));
+          final uid = (Process.runSync('id', ['-u']).stdout as String).trim();
+          expect(user!.split(':').first, uid);
+        } else {
+          expect(user, isNull);
+        }
+      });
+    });
+
     test('docker launcher without an image is refused', () {
       final prepared = driver(FlowSpawnRecorder()).prepare(
         entry(),
@@ -354,13 +426,10 @@ void main() {
     )) {
       if (event is TestLogLine) lines.add(event.line);
     }
-    expect(
-      lines.where((l) => l.startsWith('librelane: step')).toList(),
-      [
-        'librelane: step 01-yosys-synthesis',
-        'librelane: step 02-openroad-floorplan',
-      ],
-    );
+    expect(lines.where((l) => l.startsWith('librelane: step')).toList(), [
+      'librelane: step 01-yosys-synthesis',
+      'librelane: step 02-openroad-floorplan',
+    ]);
   });
 
   test('a missing librelane is notRun and names it', () async {
