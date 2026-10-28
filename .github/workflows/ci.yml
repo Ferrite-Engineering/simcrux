@@ -423,6 +423,30 @@ jobs:
       - name: Build ${{ matrix.target }} (release)
         run: flutter build ${{ matrix.target }} --release
 
+      # The release bundle must draw a window on a display without OpenGL
+      # (VNC, X forwarding, a virtual machine without 3D) by falling back to
+      # the software renderer, and must not fall back when GLX is there
+      # (#36). A screenshot of each Xvfb screen is the proof.
+      - name: Launch smoke with and without GLX (Linux)
+        if: matrix.target == 'linux'
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            xvfb dbus-x11 libgl1-mesa-dri libegl1 libgles2
+          ./tool/linux_smoke/launch_smoke.sh build/linux/x64/release/bundle "$RUNNER_TEMP/linux-smoke"
+
+      - name: Upload launch smoke screenshots (Linux)
+        if: ${{ always() && matrix.target == 'linux' }}
+        timeout-minutes: 5
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: simcrux-linux-launch-smoke
+          path: ${{ runner.temp }}/linux-smoke
+          retention-days: 7
+          if-no-files-found: warn
+
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
