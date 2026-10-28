@@ -203,7 +203,10 @@ class PdkCellModelResolution {
 /// silent substitution. Nothing here downloads a file.
 ///
 /// Every model path is resolved through its symbolic links and must lie
-/// inside the PDK root or the run root.
+/// inside the PDK root or the run root. The PDK root is always one this
+/// machine has (the fallback the caller passes, `PDK_ROOT` in the
+/// environment, `~/.ciel`, `~/.volare`, or a directory inside one of them),
+/// never a directory the run alone names.
 abstract final class PdkCellModels {
   /// The `FUNCTIONAL` define the models need for a functional simulation.
   static const String functionalDefine = 'FUNCTIONAL';
@@ -290,12 +293,21 @@ abstract final class PdkCellModels {
         p.join(home, '.volare'),
       ],
     ];
+    // The recorded `PDK_ROOT` is a hint from the run, not a permission: it
+    // is a containment root only when it lies inside (or is) one of this
+    // user's own PDK roots. A run that names `/`, or any directory of its
+    // choosing, goes straight to the relocation candidates below, which
+    // rebase its recorded paths onto those roots.
+    final trustRecorded =
+        recordedRoot != null &&
+        bases.isNotEmpty &&
+        FlowContainment(bases).allows(recordedRoot);
     // `root` is where a recorded model's path relative to the recorded
     // `PDK_ROOT` is joined; `contain` is the directory every model must lie
     // inside. The two differ for the enabled PDK (`<base>/<pdk>`), whose
     // relative paths already start with `<pdk>/`.
     final candidates = <({String root, String contain, bool sameVersion})>[
-      if (recordedRoot != null)
+      if (trustRecorded)
         (root: recordedRoot, contain: recordedRoot, sameVersion: true),
       if (recorded != null)
         for (final base in bases)

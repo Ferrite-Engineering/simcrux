@@ -135,9 +135,12 @@ String writeMacRun({
   Map<String, Object?> extra = const <String, Object?>{},
   bool withModels = true,
 }) {
+  // Under `<pdkParent>/.ciel`, ciel's own layout: a run's recorded PDK root
+  // is trusted only inside one of the user's PDK roots, so callers pass
+  // [pdkParent] as the home (or `<pdkParent>/.ciel` as the PDK root).
   final root = p.join(
     pdkParent,
-    'pdk',
+    '.ciel',
     'ciel',
     'sky130',
     'versions',

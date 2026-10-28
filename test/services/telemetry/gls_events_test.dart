@@ -94,6 +94,7 @@ void main() {
     writeMacRun(run: run, pdkParent: tmp.path, withModels: withModels);
     final info = (await GlsRunInfo.read(
       runRoot: run,
+      home: tmp.path,
       flowRunId: 'flow-run-1',
     )).info!;
     final scratch = GlsScratch(root: p.join(tmp.path, 'scratch'));

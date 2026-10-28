@@ -68,6 +68,7 @@ void main() {
       final got = PdkCellModels.resolve(
         resolved: _resolved(root),
         runRoot: run,
+        pdkRootFallback: p.join(tmp.path, 'here'),
       );
       expect(got.ok, isTrue);
       expect(got.warnings, isEmpty);
@@ -231,10 +232,65 @@ void main() {
         final got = PdkCellModels.resolve(
           resolved: _resolved(root),
           runRoot: run,
+          pdkRootFallback: p.join(tmp.path, 'here'),
         );
         expect(got.problem, PdkModelsProblem.outside);
         expect(got.problemDetail, 'sky130_fd_sc_hd.v');
       },
+    );
+
+    test('a run that names / as its PDK root cannot pull in any file', () {
+      _ciel(p.join(tmp.path, 'mine'));
+      final secret = File(p.join(tmp.path, 'secret', 'machine.v'))
+        ..createSync(recursive: true)
+        ..writeAsStringSync('// not a cell model\n');
+      final got = PdkCellModels.resolve(
+        resolved: <String, Object?>{
+          'PDK': 'sky130A',
+          'PDK_ROOT': p.rootPrefix(tmp.path),
+          'CELL_VERILOG_MODELS': <String>[secret.path],
+        },
+        runRoot: run,
+        pdkRootFallback: p.join(tmp.path, 'mine'),
+      );
+      expect(got.ok, isFalse);
+      expect(got.models, isEmpty);
+      expect(got.pdkRoot, isNull);
+    });
+
+    test('a recorded PDK root outside the user roots is never a root', () {
+      // The run names a directory of its own that holds files at exactly the
+      // recorded paths; the models still come from the user's own PDK.
+      final theirs = _ciel(p.join(tmp.path, 'theirs'));
+      final mine = _ciel(p.join(tmp.path, 'mine'));
+      final got = PdkCellModels.resolve(
+        resolved: _resolved(theirs),
+        runRoot: run,
+        pdkRootFallback: p.join(tmp.path, 'mine'),
+      );
+      expect(got.ok, isTrue, reason: '${got.problem}');
+      final mineResolved = Directory(mine).resolveSymbolicLinksSync();
+      for (final model in got.models) {
+        expect(p.isWithin(mineResolved, model), isTrue, reason: model);
+      }
+      expect(got.pdkRoot, isNot(theirs));
+    });
+
+    test(
+      'a recorded PDK root with no user root to hold it is not used',
+      () {
+        final theirs = _ciel(p.join(tmp.path, 'theirs'));
+        final got = PdkCellModels.resolve(
+          resolved: _resolved(theirs),
+          runRoot: run,
+          home: p.join(tmp.path, 'empty-home'),
+        );
+        expect(got.ok, isFalse);
+        expect(got.problem, PdkModelsProblem.notFound);
+      },
+      skip: Platform.environment.containsKey('PDK_ROOT')
+          ? 'PDK_ROOT is set in this environment'
+          : false,
     );
 
     test('the committed LibreLane record names the fields this reads', () {
@@ -243,7 +299,11 @@ void main() {
       _ciel(p.join(home, '.ciel'));
       final resolved =
           jsonDecode(text.replaceAll('<home>', home)) as Map<String, Object?>;
-      final got = PdkCellModels.resolve(resolved: resolved, runRoot: run);
+      final got = PdkCellModels.resolve(
+        resolved: resolved,
+        runRoot: run,
+        home: home,
+      );
       expect(got.ok, isTrue, reason: '${got.problem} ${got.problemDetail}');
       expect(got.recordedVersion, _hash);
       expect(got.models.map(p.basename), <String>[

@@ -51,6 +51,7 @@ void main() {
     final result = await GlsRunInfo.read(
       runRoot: run,
       netlist: kind,
+      home: tmp.path,
       flowRunId: 'flow-run-1',
     );
     return result.info!;
