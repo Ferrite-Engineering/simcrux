@@ -139,12 +139,16 @@ jobs:
           flutter test test/static/flow_nextpnr_live_test.dart --plain-name 'FuseSoC live' --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/fusesoc-live.log"
 
   # LibreLane through its own Nix shell, pinned by release commit, with the
-  # PDKs from ciel. Each PDK family is cached under the version hash that
-  # LibreLane itself pins (librelane/pdk_hashes.yaml), so a LibreLane bump
-  # that moves a PDK misses the cache and fetches the new one; a cache that
-  # GitHub evicted is fetched again the same way. The current release runs
-  # every case and the mapping gate; the previous release runs the sky130A
-  # reference case its fixture set holds.
+  # PDKs from ciel. The checkout's directory name must not start with a dot:
+  # LibreLane's derivation takes its source from the checkout (`./.`), the
+  # store path is named after the directory, and Nix's unpackPhase looks for
+  # the unpacked source with `*`, which skips dot-names ("unpacker appears to
+  # have produced no directories"). Each PDK family is cached under the
+  # version hash that LibreLane itself pins (librelane/pdk_hashes.yaml), so a
+  # LibreLane bump that moves a PDK misses the cache and fetches the new one;
+  # a cache that GitHub evicted is fetched again the same way. The current
+  # release runs every case and the mapping gate; the previous release runs
+  # the sky130A reference case its fixture set holds.
   librelane:
     name: LibreLane fixtures (${{ matrix.librelane }})
     runs-on: ubuntu-latest
@@ -180,14 +184,14 @@ jobs:
         with:
           repository: librelane/librelane
           ref: ${{ matrix.commit }}
-          path: .librelane
+          path: librelane-src
           persist-credentials: false
 
       - name: Confirm the release
         shell: bash
         run: |
           set -euo pipefail
-          grep -qx 'version = "${{ matrix.librelane }}"' .librelane/pyproject.toml
+          grep -qx 'version = "${{ matrix.librelane }}"' librelane-src/pyproject.toml
 
       - name: Install Nix with the FOSSi binary cache
         uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
@@ -203,7 +207,7 @@ jobs:
         run: |
           set -euo pipefail
           for family in sky130 gf180mcu ihp-sg13g2; do
-            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" .librelane/librelane/pdk_hashes.yaml)"
+            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" librelane-src/librelane/pdk_hashes.yaml)"
             test -n "$hash"
             echo "${family//-/_}=${hash}" >> "$GITHUB_OUTPUT"
           done
@@ -240,12 +244,12 @@ jobs:
         run: |
           set -euo pipefail
           fetch() {
-            nix-shell .librelane/shell.nix --run "ciel fetch --pdk-family $1 $2"
+            nix-shell librelane-src/shell.nix --run "ciel fetch --pdk-family $1 $2"
           }
           if [ "$FETCH_SKY130" = true ]; then fetch sky130 '${{ steps.pdk.outputs.sky130 }}'; fi
           if [ "$FETCH_GF180" = true ]; then fetch gf180mcu '${{ steps.pdk.outputs.gf180mcu }}'; fi
           if [ "$FETCH_IHP" = true ]; then fetch ihp-sg13g2 '${{ steps.pdk.outputs.ihp_sg13g2 }}'; fi
-          nix-shell .librelane/shell.nix --run "librelane --version" | tee "${RUNNER_TEMP}/versions.txt"
+          nix-shell librelane-src/shell.nix --run "librelane --version" | tee "${RUNNER_TEMP}/versions.txt"
 
       - name: Install Flutter (pinned)
         id: flutter
@@ -261,7 +265,7 @@ jobs:
       - name: Regenerate and check the LibreLane fixtures
         shell: bash
         env:
-          LIBRELANE_NIX_SHELL: ${{ github.workspace }}/.librelane/shell.nix
+          LIBRELANE_NIX_SHELL: ${{ github.workspace }}/librelane-src/shell.nix
           FLOW_LIVE_REQUIRED: '1'
           FLOW_LIVE_LIBRELANE_CASES: ${{ matrix.cases }}
           FLOW_LIVE_LIBRELANE_WORK: ${{ runner.temp }}/librelane-work
@@ -309,7 +313,7 @@ jobs:
         with:
           repository: librelane/librelane
           ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
-          path: .librelane
+          path: librelane-src
           persist-credentials: false
 
       - name: Read the sky130 version LibreLane pins
@@ -317,7 +321,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          hash="$(sed -n "s/^sky130: *\([0-9a-f]\{40\}\)\$/\1/p" .librelane/librelane/pdk_hashes.yaml)"
+          hash="$(sed -n "s/^sky130: *\([0-9a-f]\{40\}\)\$/\1/p" librelane-src/librelane/pdk_hashes.yaml)"
           test -n "$hash"
           echo "sky130=${hash}" >> "$GITHUB_OUTPUT"
 
@@ -396,7 +400,7 @@ jobs:
         with:
           repository: librelane/librelane
           ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
-          path: .librelane
+          path: librelane-src
           persist-credentials: false
 
       - name: Read the PDK versions LibreLane pins
@@ -405,7 +409,7 @@ jobs:
         run: |
           set -euo pipefail
           for family in sky130 gf180mcu ihp-sg13g2; do
-            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" .librelane/librelane/pdk_hashes.yaml)"
+            hash="$(sed -n "s/^${family}: *\([0-9a-f]\{40\}\)\$/\1/p" librelane-src/librelane/pdk_hashes.yaml)"
             test -n "$hash"
             echo "${family//-/_}=${hash}" >> "$GITHUB_OUTPUT"
           done

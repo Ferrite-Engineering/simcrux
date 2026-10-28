@@ -144,6 +144,31 @@ void main() {
       expect(text, contains('final/sdf/nom_tt_025C_1v80/'));
     });
 
+    test('no LibreLane checkout is a dot-directory Nix cannot unpack', () {
+      // LibreLane's derivation takes `./.` as its source, named after the
+      // checkout directory, and Nix's unpackPhase finds the unpacked source
+      // with `*`, which skips a dot-name: a `.librelane` checkout failed
+      // every LibreLane job with "unpacker appears to have produced no
+      // directories" before a single case ran.
+      final doc = loadYaml(file.readAsStringSync()) as YamlMap;
+      final paths = <String>[];
+      for (final job in (doc['jobs'] as YamlMap).values) {
+        final steps = (job as YamlMap)['steps'];
+        if (steps is! YamlList) continue;
+        for (final step in steps) {
+          final w = (step as YamlMap)['with'];
+          if (w is YamlMap && w['repository'] == 'librelane/librelane') {
+            paths.add('${w['path']}');
+          }
+        }
+      }
+      expect(paths, isNotEmpty);
+      for (final path in paths) {
+        expect(path.split('/').last, isNot(startsWith('.')), reason: path);
+      }
+      expect(file.readAsStringSync(), isNot(contains(' .librelane/')));
+    });
+
     test('the LibreLane job runs its live test with a cached PDK', () {
       final text = file.readAsStringSync();
       const live = 'test/static/flow_librelane_live_test.dart';
