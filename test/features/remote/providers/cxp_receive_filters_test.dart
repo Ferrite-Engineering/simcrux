@@ -257,7 +257,13 @@ void main() {
         index: flowPanelIndex(),
       );
       final result = await h.handler.openArtifact(
-        ask(cxpDesignIdForPath(file), kCxpFlowRunArtifactKind, path: '/etc'),
+        ask(
+          cxpDesignIdForPath(file),
+          kCxpFlowRunArtifactKind,
+          // Absolute on every platform: `/etc` is root-relative on Windows,
+          // which is refused before the hint is looked up at all.
+          path: Platform.isWindows ? r'C:\Windows' : '/etc',
+        ),
         _peer,
       );
       expect(result.honored, isTrue, reason: result.reason);

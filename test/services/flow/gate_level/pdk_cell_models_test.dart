@@ -297,8 +297,16 @@ void main() {
       final text = File('$_fixtureRun/resolved.json').readAsStringSync();
       final home = p.join(tmp.path, 'home');
       _ciel(p.join(home, '.ciel'));
+      // Escaped for JSON: a Windows home holds backslashes.
+      final escaped = jsonEncode(home);
       final resolved =
-          jsonDecode(text.replaceAll('<home>', home)) as Map<String, Object?>;
+          jsonDecode(
+                text.replaceAll(
+                  '<home>',
+                  escaped.substring(1, escaped.length - 1),
+                ),
+              )
+              as Map<String, Object?>;
       final got = PdkCellModels.resolve(
         resolved: resolved,
         runRoot: run,

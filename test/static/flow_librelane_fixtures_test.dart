@@ -254,7 +254,13 @@ void main() {
           final sta = stepDir(run, 'openroad-stapostpnr');
           if (sta == null) continue;
           for (final f in sta.listSync(recursive: true).whereType<File>()) {
-            if (!RegExp(r'/(max|min)\.rpt$').hasMatch(f.path)) continue;
+            // Matched by base name: the listed path is native, `\` on
+            // Windows.
+            if (!RegExp(
+              r'^(max|min)\.rpt$',
+            ).hasMatch(f.uri.pathSegments.last)) {
+              continue;
+            }
             if (f.lengthSync() == 0) continue;
             for (final p in parseStaReport(f.readAsStringSync())) {
               final want = p.type == 'max'

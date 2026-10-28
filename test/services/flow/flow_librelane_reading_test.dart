@@ -35,7 +35,9 @@ List<String> _cases() => <String>[
   for (final version in Directory(_root).listSync().whereType<Directory>())
     for (final c in version.listSync().whereType<Directory>())
       if (File(p.join(c.path, 'case.expected.json')).existsSync())
-        p.relative(c.path, from: _root),
+        // `<version>/<case>` with `/` on every platform: the names are
+        // matched by their version prefix and joined back with `p.join`.
+        p.posix.joinAll(p.split(p.relative(c.path, from: _root))),
 ]..sort();
 
 void main() {
@@ -266,7 +268,10 @@ void main() {
       expect(argv.first, 'librelane');
       expect(argv, containsAllInOrder(<String>['--flow', 'OpenInKLayout']));
       final state = argv[argv.indexOf('--with-initial-state') + 1];
-      expect(state, endsWith('76-misc-reportmanufacturability/state_out.json'));
+      expect(
+        state,
+        endsWith(p.join('76-misc-reportmanufacturability', 'state_out.json')),
+      );
       expect(p.isWithin(run, state), isTrue);
       final tag = argv[argv.indexOf('--run-tag') + 1];
       expect(tag, 'simcrux-view-20261022T120000Z');

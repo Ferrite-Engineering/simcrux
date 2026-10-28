@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:io';
+
 import 'package:crux_flow/crux_flow.dart';
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
@@ -25,10 +27,16 @@ import 'package:simcrux/services/flow/flow_worst_paths.dart';
 ///
 /// The numbers mean what they say (a run that misses its clock has the
 /// lower slack); nothing here comes from the code under test.
-const String kFlowProjectRoot = '/projects/counter';
+///
+/// The root is absolute on the platform the test runs on: a CXP hint names a
+/// run by its root, and a root-relative `/projects/...` is not an absolute
+/// path on Windows.
+final String kFlowProjectRoot = Platform.isWindows
+    ? r'C:\projects\counter'
+    : '/projects/counter';
 
 /// A LibreLane run read best-effort: steps, corner metrics, unverified.
-FlowReading librelaneReading() => const FlowReading(
+FlowReading librelaneReading() => FlowReading(
   run: FlowRun(
     ref: FlowRunRef(
       kind: FlowKind.librelane,
@@ -45,7 +53,7 @@ FlowReading librelaneReading() => const FlowReading(
         tool: 'yosys',
         dir: '$kFlowProjectRoot/runs/RUN_2/01-yosys-synthesis',
         status: FlowStepStatus.completed,
-        runtime: Duration(seconds: 12),
+        runtime: const Duration(seconds: 12),
       ),
       FlowStep(
         ordinal: 2,
@@ -55,14 +63,14 @@ FlowReading librelaneReading() => const FlowReading(
         status: FlowStepStatus.completed,
       ),
     ],
-    metrics: <String, Object?>{
+    metrics: const <String, Object?>{
       'timing__setup__ws': -0.25,
       'timing__setup__ws__corner:nom_tt_025C_1v80': 0.4,
       'timing__setup__ws__corner:max_ss_100C_1v60': -0.25,
       'route__drc_errors': 0,
       'design__instance__count': 412,
     },
-    toolVersions: <String, String>{'librelane': '3.0.16'},
+    toolVersions: const <String, String>{'librelane': '3.0.16'},
   ),
   reader: 'librelane-contract',
   target: 'sky130',
