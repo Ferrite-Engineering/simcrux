@@ -20,52 +20,10 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
 }
 
-// Flutter's GTK embedder presents frames through a GDK OpenGL context. When
-// the display cannot create one (a remote X display without GLX: VNC, X
-// forwarding, ETX or NX, or a virtual machine without 3D acceleration) it logs
-// "Failed to create OpenGL context" and draws nothing, and the window never
-// appears. It falls back to its software renderer only when
-// FLUTTER_LINUX_RENDERER=software is set, so set it here when a throwaway
-// window cannot get a working context. The engine reads the variable when it
-// is created, inside fl_view_new, so this must run before that. A value the
-// user has set, "opengl" included, is left alone.
-static void select_renderer_for_display() {
-  if (g_getenv("FLUTTER_LINUX_RENDERER") != nullptr) {
-    return;
-  }
-
-  GdkWindowAttr attributes = {};
-  attributes.window_type = GDK_WINDOW_TOPLEVEL;
-  attributes.wclass = GDK_INPUT_OUTPUT;
-  attributes.width = 1;
-  attributes.height = 1;
-  // Never shown: it exists only to ask the display for a context.
-  GdkWindow* probe = gdk_window_new(nullptr, &attributes, 0);
-  if (probe == nullptr) {
-    return;
-  }
-
-  g_autoptr(GError) error = nullptr;
-  GdkGLContext* context = gdk_window_create_gl_context(probe, &error);
-  gboolean usable =
-      context != nullptr && gdk_gl_context_realize(context, &error);
-  g_clear_object(&context);
-  gdk_window_destroy(probe);
-
-  if (!usable) {
-    g_printerr(
-        "SimCrux: OpenGL is unavailable on this display (%s); falling back to "
-        "the software renderer. Set FLUTTER_LINUX_RENDERER=opengl to override."
-        "\n",
-        error != nullptr ? error->message : "unknown error");
-    g_setenv("FLUTTER_LINUX_RENDERER", "software", FALSE);
-  }
-}
-
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
-  select_renderer_for_display();
+  crux_select_renderer_for_display("SimCrux");
 
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
@@ -184,6 +142,7 @@ MyApplication* my_application_new() {
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
   g_set_prgname(APPLICATION_ID);
+  crux_skip_accessibility_bridge_without_session_bus("SimCrux");
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",

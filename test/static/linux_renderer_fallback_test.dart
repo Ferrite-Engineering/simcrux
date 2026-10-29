@@ -25,51 +25,60 @@ void main() {
   const path = 'linux/runner/my_application.cc';
   late String source;
   late String activate;
+  // The probe itself, which every product's runner calls.
+  late String probe;
 
   setUpAll(() {
     final file = File(path);
     expect(file.existsSync(), isTrue, reason: '$path is missing');
     source = file.readAsStringSync();
+    probe = File(
+      'crux-shared/packages/crux_file_dialogs/native/linux/crux_file_dialogs.cc',
+    ).readAsStringSync();
     final start = source.indexOf('static void my_application_activate(');
     expect(start, isNonNegative, reason: 'no my_application_activate');
     activate = source.substring(start, source.indexOf('\n}\n', start));
   });
 
   test('the runner probes the display for an OpenGL context', () {
-    expect(source, contains('gdk_window_create_gl_context'));
-    expect(source, contains('gdk_gl_context_realize'));
+    expect(probe, contains('gdk_window_create_gl_context'));
+    expect(probe, contains('gdk_gl_context_realize'));
+  });
+
+  test('a display on another machine selects the software renderer', () {
+    expect(probe, contains('x_display_is_remote(gdk_display_get_name('));
   });
 
   test('a renderer the user chose is left alone', () {
     expect(
-      source,
+      probe,
       contains('if (g_getenv("FLUTTER_LINUX_RENDERER") != nullptr) {'),
     );
     expect(
-      source,
+      probe,
       contains('g_setenv("FLUTTER_LINUX_RENDERER", "software", FALSE)'),
     );
   });
 
   test('the fallback says so on stderr', () {
-    expect(source, contains('falling back to'));
-    expect(source, contains('the software renderer'));
+    expect(probe, contains('falling back to'));
+    expect(probe, contains('the software renderer'));
   });
 
   test('probe and Impeller switch both run before the engine is made', () {
-    final probe = activate.indexOf('select_renderer_for_display();');
+    final call = activate.indexOf('crux_select_renderer_for_display(');
     final impeller = activate.indexOf(
       'fl_dart_project_set_enable_impeller(project, FALSE)',
     );
     final view = activate.indexOf('fl_view_new(');
-    expect(probe, isNonNegative, reason: 'activate does not call the probe');
+    expect(call, isNonNegative, reason: 'activate does not call the probe');
     expect(
       impeller,
       isNonNegative,
       reason: 'Impeller must be off under the software renderer',
     );
     expect(view, isNonNegative);
-    expect(probe, lessThan(view));
+    expect(call, lessThan(view));
     expect(impeller, lessThan(view));
   });
 
