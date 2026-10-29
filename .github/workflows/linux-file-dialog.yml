@@ -1,0 +1,94 @@
+name: Linux file dialog (no session bus)
+
+# Proves that a file dialog opens on Linux with no reachable DBus session bus,
+# as on a host displayed remotely (ssh X forwarding, VNC, ETX or NX, a farm
+# job started from another host). file_picker's own Linux code needs the
+# desktop portal over that bus, so the runner serves crux_file_dialogs'
+# in-process GTK chooser instead (linux/runner/my_application.cc).
+#
+# integration_test/linux_file_dialog_test.dart is built into this app with its
+# own runner. Under Xvfb, with DBUS_SESSION_BUS_ADDRESS naming a socket that
+# does not exist, it checks that file_picker's portal call fails, opens the
+# GTK picker, finds the dialog's X window by its title, and cancels it with
+# Escape. test/static/remote_display_guard_test.dart holds the wiring on
+# every push; this proves it works.
+#
+# Linux only, on a push that touches the runner, the shared packages, the
+# bootstrap or the test, plus weekly and on dispatch. One debug build and one
+# test file: about ten minutes of a Linux runner.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'linux/**'
+      - 'crux-shared'
+      - 'lib/app.dart'
+      - 'integration_test/linux_file_dialog_test.dart'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/linux-file-dialog.yml'
+  schedule:
+    # Tuesday 05:50 UTC.
+    - cron: '50 5 * * 2'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  file-dialog:
+    name: File dialog / Linux, no session bus
+    runs-on: ubuntu-latest
+    # Cost guardrail: one debug build and one test file.
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Linux desktop build deps, xvfb and xdotool
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev xvfb xdotool
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+            !.dart_tool/build
+          key: pub-file-dialog-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-file-dialog-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Enable Linux desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Open a file dialog with no session bus
+        env:
+          # A bus address that answers nothing, as on a farm host whose
+          # environment names the submitting machine's socket.
+          DBUS_SESSION_BUS_ADDRESS: unix:path=/nonexistent/crux-no-session-bus
+        run: |
+          xvfb-run -a --server-args="-screen 0 1920x1080x24" \
+            flutter test integration_test/linux_file_dialog_test.dart -d linux \
+            --dart-define=CRUX_FILE_DIALOG_PROBE=true

@@ -6,6 +6,7 @@
 #endif
 
 #include "flutter/generated_plugin_registrant.h"
+#include "crux_file_dialogs.h"
 
 struct _MyApplication {
   GtkApplication parent_instance;
@@ -110,6 +111,12 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_realize(GTK_WIDGET(view));
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
+  // File dialogs drawn in-process with GTK, on this window's display, since
+  // file_picker's DBus portal is often unreachable on a remote display; and
+  // an X server's refusal of the alert sound (ssh -X) kept from ending the
+  // process.
+  crux_register_file_dialog_channel(view);
+  crux_tolerate_refused_x_bell("SimCrux");
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }

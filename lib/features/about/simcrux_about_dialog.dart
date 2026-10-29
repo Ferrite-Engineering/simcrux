@@ -16,7 +16,6 @@ import 'package:simcrux/core/app_info/about_providers.dart';
 import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/shared/widgets/glowing_app_icon.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// The SimCrux About dialog.
 ///
@@ -74,12 +73,12 @@ abstract final class SimcruxAboutDialog {
         AboutAction(
           label: l10n.aboutButtonVisitWebsite,
           icon: Icons.language_outlined,
-          onTap: (_) => unawaited(launchUrl(Uri.parse(branding.websiteUrl))),
+          onTap: (_) => unawaited(cruxOpenUrl(Uri.parse(branding.websiteUrl))),
         ),
         AboutAction(
           label: l10n.aboutButtonDocs,
           icon: Icons.menu_book_outlined,
-          onTap: (_) => unawaited(launchUrl(Uri.parse(HelpUrls.docs))),
+          onTap: (_) => unawaited(cruxOpenUrl(Uri.parse(HelpUrls.docs))),
         ),
         // Beta issue reporter, reachable from the box that already tells the
         // user their version and build SHA — the two facts a report needs.
@@ -99,13 +98,14 @@ abstract final class SimcruxAboutDialog {
         AboutAction(
           label: l10n.aboutButtonPrivacy,
           icon: Icons.privacy_tip_outlined,
-          onTap: (_) => unawaited(launchUrl(Uri.parse(HelpUrls.privacyPolicy))),
+          onTap: (_) =>
+              unawaited(cruxOpenUrl(Uri.parse(HelpUrls.privacyPolicy))),
         ),
         AboutAction(
           label: l10n.aboutButtonTerms,
           icon: Icons.description_outlined,
           onTap: (_) =>
-              unawaited(launchUrl(Uri.parse(HelpUrls.termsOfService))),
+              unawaited(cruxOpenUrl(Uri.parse(HelpUrls.termsOfService))),
         ),
         AboutAction(
           label: l10n.aboutButtonCopyVersionInfo,

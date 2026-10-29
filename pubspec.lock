@@ -167,6 +167,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  crux_file_dialogs:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_file_dialogs"
+      relative: true
+    source: path
+    version: "0.1.0"
   crux_file_watcher:
     dependency: "direct main"
     description:

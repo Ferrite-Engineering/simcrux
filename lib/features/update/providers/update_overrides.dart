@@ -1,6 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:crux_ide_layout/crux_ide_layout.dart' show cruxOpenUrl;
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_updates/crux_updates.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -8,7 +9,6 @@ import 'package:simcrux/core/app_info/about_providers.dart';
 import 'package:simcrux/core/update/simcrux_update_config.dart';
 import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/update/providers/observed_server_time_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Root-container overrides that bind `package:crux_updates` to SimCrux.
 ///
@@ -81,5 +81,5 @@ final List<Override> simcruxUpdateOverrides = <Override>[
 
   // "Update Now" / "View Changes" open a URL. The package default throws
   // rather than doing nothing, so a missing binding is loud.
-  updateUrlLauncherProvider.overrideWithValue(launchUrl),
+  updateUrlLauncherProvider.overrideWithValue(cruxOpenUrl),
 ];

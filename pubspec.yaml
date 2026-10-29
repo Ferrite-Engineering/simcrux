@@ -49,6 +49,12 @@ dependencies:
   # localized — it is executed in English.
   crux_eula:
     path: ./crux-shared/packages/crux_eula
+  # file_picker's Linux dialogs drawn in-process by the runner with GTK
+  # (no DBus desktop portal, which a remote display often lacks):
+  # `useGtkFileDialogsOnLinux` in bootstrap, and the runner C++ that
+  # linux/runner/CMakeLists.txt compiles from this package.
+  crux_file_dialogs:
+    path: ./crux-shared/packages/crux_file_dialogs
   crux_file_watcher:
     path: ./crux-shared/packages/crux_file_watcher
   # Implementation-flow models, the nextpnr readers, metrics and SARIF. Pure

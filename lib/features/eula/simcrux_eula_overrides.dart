@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:crux_eula/crux_eula.dart';
+import 'package:crux_ide_layout/crux_ide_layout.dart' show cruxOpenUrl;
 import 'package:crux_telemetry/crux_telemetry.dart' show cruxExit;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:simcrux/core/eula/simcrux_eula_storage.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Where the published agreement lives. The dialog carries the full text
 /// already; this is for a user who wants it in a browser tab, to print or to
@@ -28,7 +28,7 @@ final List<Override> simcruxEulaOverrides = <Override>[
   // "Read it on edacrux.app". Unbound, the package hides the link rather than
   // rendering one that does nothing.
   cruxEulaOpenOnlineProvider.overrideWithValue(
-    () => launchUrl(Uri.parse(kSimcruxEulaUrl)),
+    () => cruxOpenUrl(Uri.parse(kSimcruxEulaUrl)),
   ),
 
   // Decline ends the session, because EULA section 2.1 leaves no third

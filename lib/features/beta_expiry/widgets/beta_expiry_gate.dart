@@ -3,6 +3,7 @@
 
 import 'dart:async' show unawaited;
 
+import 'package:crux_ide_layout/crux_ide_layout.dart' show cruxOpenUrl;
 import 'package:crux_license/crux_license.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,12 +13,11 @@ import 'package:simcrux/features/beta_expiry/widgets/beta_expiry_strings.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/lifecycle/app_exit_coordinator.dart';
 import 'package:simcrux/services/lifecycle/app_exit_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Seam for opening the "download the latest build" page. Overridable in tests
 /// so the banner / modal actions can be exercised without the `url_launcher`
 /// platform channel.
-Future<bool> Function(Uri uri) betaExpiryLaunchUrl = launchUrl;
+Future<bool> Function(Uri uri) betaExpiryLaunchUrl = cruxOpenUrl;
 
 /// Startup/resume gate enforcing the per-release hard beta build-expiry.
 ///

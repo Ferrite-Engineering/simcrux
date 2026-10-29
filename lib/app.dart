@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:crux_a11y/crux_a11y.dart' show CruxRoutedContent;
 import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_eula/crux_eula.dart';
+import 'package:crux_file_dialogs/crux_file_dialogs.dart';
 import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_license/crux_license.dart';
 import 'package:crux_linux_integration/crux_linux_integration.dart';
@@ -158,6 +159,9 @@ Future<bool> bootstrap({
   LinuxDesktopApp? linuxDesktopApp,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
+  // file_picker's Linux dialogs need a desktop session's DBus portal, which a
+  // remotely displayed host often lacks; the runner draws them with GTK.
+  useGtkFileDialogsOnLinux();
 
   // `--reset-telemetry-consent` puts this installation back to "never
   // answered", so the one-time disclosure mounts again this launch rather than
