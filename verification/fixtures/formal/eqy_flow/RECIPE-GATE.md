@@ -146,6 +146,16 @@ cannot tell the fault from the cut-point failures. Simulation does: the same
 mutant gives 8 real port differences under Icarus where the correct netlist
 gives none (`../../flow/gate_level/GLS-GATE.md`).
 
+The weekly rerun proves the PicoRV32 netlist LibreLane's Linux x64 build
+writes, which is not the darwin one. On the netlist of the flow-live run of
+2026-10-28 the correct netlist fails 6 of 75 partitions (`mem_instr` and
+`mem_valid` prove there) and its mutant (`_04951_`) fails the same 6; the
+darwin arm64 EQY build gives those 6 on that netlist and these 8 on the darwin
+one. So which partitions fail is a property of the netlist, recorded as
+`differs_by_platform` in `recipe.expected.json`, and what the outcome rests on
+holds on both: the correct netlist fails, and the mutant fails in exactly its
+partitions.
+
 ## Clock gating
 
 `config_cg.yaml` (`SYNTH_CLOCKGATE_MIN_WIDTH: 8`,

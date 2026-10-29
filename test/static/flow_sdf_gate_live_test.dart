@@ -194,9 +194,9 @@ void main() {
     });
 
     test(
-      'PicoRV32: equal to RTL at the nominal 25 ns, different at 6 ns, a '
-      'silent wrong capture first; with inputs at the clock edge it differs '
-      'at 25 ns too',
+      'PicoRV32: equal to RTL at the nominal 25 ns, different at 6 ns with '
+      'no timing message; with inputs at the clock edge it differs at 25 ns '
+      'too',
       () {
         final runs = _env('GATE_LEVEL_RUNS')!;
         final run = '$runs/g1/design/runs/g1';
@@ -251,7 +251,15 @@ void main() {
         final firstKnown = split['first_both_known'] as Map<String, dynamic>?;
         final firstX = split['first_gate_x'] as Map<String, dynamic>?;
         expect(firstKnown, isNotNull);
-        if (firstX != null) {
+        // Which comes first at 6 ns depends on the netlist this platform's
+        // LibreLane wrote (`differs_by_platform`); the committed darwin
+        // capture holds it, checked by flow_gate_level_fixtures_test.dart.
+        final loose =
+            ((want['differs_by_platform'] as Map?)?['facts'] as List?) ??
+            const <Object?>[];
+        if (want['first_difference_at_6ns_is_known'] == true &&
+            !loose.contains('first_difference_at_6ns_is_known') &&
+            firstX != null) {
           expect(
             firstKnown!['sample'] as int,
             lessThan(firstX['sample'] as int),

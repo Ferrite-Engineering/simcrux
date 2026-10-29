@@ -22,6 +22,19 @@ later release as a unit. The threshold does not move.
 | A shortened period differs | equal down to 8 ns; 7 ns: 1 real difference while the testbench still passes; 6 ns: 261 samples and the testbench fails; 5 ns: 519; 4 ns: 524 | yes |
 | A setup-violating period is a wrong capture, no X, no message | 6 ns: the first difference is a wrong known value (`pcpi_rs1` at sample 267, `0xc0200001` for `0x1`), with no X and no message; X appear 26 samples later, downstream of the wrong program flow | yes |
 
+**On the Linux tool build's run.** The weekly rerun annotates the PicoRV32
+run that LibreLane's Linux x64 build writes, whose netlist and SDF are not the
+darwin ones (24,014 IOPATH and 23,288 INTERCONNECT against 24,001 and
+23,295; the same 106 not found). Measured on the run of the flow-live job of
+2026-10-28: equal to RTL at 25 ns, and at 6 ns the testbench fails with no
+timing message, as above. Which difference comes first at 6 ns does not hold:
+`mem_la_write` settles from the X every net starts at to 0 at 3.009 ns, 9 ps
+after the first sample, as the darwin run's does at 4 ns, and the first known
+wrong value is at sample 148. The darwin arm64 Icarus build gives the same
+samples on that run, so the runs differ and the simulator agrees. The
+expectation file names that fact in `differs_by_platform`: the committed
+darwin sweep record holds it, and the weekly rerun leaves it out.
+
 Two numbers the header line hides: the timing variants of the sky130 models
 are compiled (no `FUNCTIONAL`, no `UNIT_DELAY`), and their `$setuphold`
 checks are parsed with the warning "Timing checks are not supported. Delayed

@@ -85,6 +85,17 @@ without any tool.
   the rule (gate X where the RTL is known), at 10 ns, while the testbench,
   which checks only after each edge, passes on both. `rl_renamed.nl.v` binds
   neither the testbench nor the port dump, whatever the simulator.
+- **`differs_by_platform`** (in `gls.expected.json`,
+  `sdf/sdf_gate.expected.json` and `../../formal/eqy_flow/recipe.expected.json`):
+  facts that hold on the darwin capture and not
+  on the netlist LibreLane's Linux x64 build writes, each with why. They come
+  from the flow-live run of 2026-10-28 (its `librelane-picorv32-runs`
+  artifact) re-measured on the Apple M4 with the darwin arm64 build of the
+  same OSS CAD Suite: the regenerator's mutant, simulated alone, the
+  regenerator with `--case picorv32` on that run and on the darwin one, and
+  `sdf_gate.py sweep --period 25 --period 6`. They gave the Linux job's
+  numbers on its run and the recorded ones on the darwin run, which is what
+  shows the netlists differ and the tools agree.
 - **Outcomes in `gls.expected.json`:** pass or fail per run is the
   testbench's own `TEST PASSED` and exit status; difference counts are
   `gls_compare.py`'s classification of the simulators' VCDs, a measurement

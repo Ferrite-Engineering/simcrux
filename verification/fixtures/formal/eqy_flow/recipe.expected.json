@@ -32,7 +32,12 @@
           "picorv32.pcpi_rs2 FAIL"
         ]
       },
-      "eqy_mutant": {"overall": "FAIL", "partitions": 75, "not_passed_count": 8}
+      "eqy_mutant": {"overall": "FAIL", "partitions": 75, "not_passed_count": 8, "not_passed_as_correct": true},
+      "differs_by_platform": {
+        "why": "Which partitions fail depends on how synthesis shaped the netlist's registers, and LibreLane's Linux x64 and darwin arm64 tool builds write different PicoRV32 netlists from the same release, configuration and PDK. On the Linux netlist of flow-live 2026-10-28 the correct netlist fails 6 of 75 partitions (mem_instr and mem_valid prove), and its mutant fails the same 6. The darwin arm64 EQY build gives those 6 on the Linux netlist and the recorded 8 on the darwin one, so the prover agrees and the netlists differ. On both, the correct netlist fails and the mutant fails in exactly its partitions.",
+        "eqy": ["not_passed"],
+        "eqy_mutant": ["not_passed_count"]
+      }
     },
     "picorv32_cg": {
       "blackboxes": {"sky130_fd_sc_hd__dlclkp_1": 41},

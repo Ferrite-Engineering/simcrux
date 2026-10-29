@@ -17,7 +17,11 @@
     "first_failing_testbench_ns": 6,
     "first_difference_at_6ns_is_known": true,
     "timing_messages": 0,
-    "at_edge_differs_at_ns": [25, 100]
+    "at_edge_differs_at_ns": [25, 100],
+    "differs_by_platform": {
+      "why": "Where 6 ns falls against the netlist's own paths depends on the netlist, and LibreLane's Linux x64 and darwin arm64 tool builds write different PicoRV32 netlists and SDFs from the same release, configuration and PDK (24,014 against 24,001 IOPATH, 23,288 against 23,295 INTERCONNECT). On the darwin run the first difference at 6 ns is a known wrong value at sample 267 and the first gate X comes at 293. On the Linux run of flow-live 2026-10-28 an output is still X at sample 0: mem_la_write settles from the X every net starts at to 0 at 3.009 ns, 9 ps after that first sample at 3 ns, as the darwin run's does at 4 ns. Its first known wrong value is at sample 148. The darwin arm64 Icarus build reproduces both samples on the Linux run, so the simulators agree and the runs differ. Equal at 25 ns, different at 6 ns with a failing testbench, and no timing message hold on both.",
+      "facts": ["first_difference_at_6ns_is_known"]
+    }
   },
   "path_adder": {
     "sky130A_met/nom_tt_025C_1v80": {

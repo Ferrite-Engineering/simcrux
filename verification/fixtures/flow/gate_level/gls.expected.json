@@ -17,7 +17,11 @@
         "tied_passes": true,
         "tied_real_bits": 0
       },
-      "mutant_icarus": {"rtl_passes": true, "gate_passes": true, "real_bits_above_zero": true}
+      "mutant_icarus": {"rtl_passes": true, "gate_passes": true, "real_bits_above_zero": true},
+      "differs_by_platform": {
+        "why": "The mutant is the netlist's first and2_2 cell, so which gate it is depends on the netlist, and LibreLane's Linux x64 and darwin arm64 tool builds write different PicoRV32 netlists from the same release, configuration and PDK (50,417 against 50,339 cells, 75 cell types in different numbers). On the darwin netlist the first and2_2 is _04946_ and Icarus sees 8 real bits; on the Linux netlist of flow-live 2026-10-28 it is _04951_, which the program never makes observable at a port: 0 real bits under Icarus, and Verilator's 78 are its baseline's. The darwin arm64 Icarus build reproduces the 0 on the Linux netlist, so the simulators agree and the netlists differ. The mutant's testbench verdicts agree on both.",
+        "mutant_icarus": ["real_bits_above_zero"]
+      }
     },
     "picorv32_cg": {
       "icarus": {"rtl_passes": true, "gate_passes": true, "real_bits": 0, "x_only": true}

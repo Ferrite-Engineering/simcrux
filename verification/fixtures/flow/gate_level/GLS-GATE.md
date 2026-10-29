@@ -161,6 +161,20 @@ So the port comparison catches a fault the self-checking testbench misses,
 and a design that never leaves x under four-state simulation (the adder)
 cannot be judged by Icarus at all.
 
+**On the Linux tool build's netlist.** The weekly rerun measures the PicoRV32
+run that LibreLane's Linux x64 build writes, and that netlist is not the
+darwin one: the same release, configuration and PDK give 50,417 cells against
+50,339, with 75 cell types in different numbers. Its first `and2_2` is
+another gate, `_04951_`. Measured on the netlist of the flow-live run of
+2026-10-28: the correct netlist classifies as on darwin (Icarus 0 real bits;
+Verilator 78 on 19 samples), and that mutant is not observable at any port
+with this program: Icarus 0 real bits, Verilator 78, its baseline. The darwin
+arm64 Icarus and Verilator builds give the same numbers on that netlist, so
+the netlists differ and the simulators agree. `gls.expected.json` therefore
+names the mutant's real bits under Icarus in the case's `differs_by_platform`:
+the weekly rerun still checks both testbench verdicts of the mutant and leaves
+its bit count out, and the darwin outcome above stays the record.
+
 ## gf180mcuD and ihp-sg13g2
 
 Measured on the adder only (the committed `gf180mcuD_met` and

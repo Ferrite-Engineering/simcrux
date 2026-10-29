@@ -22,6 +22,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'flow_gate_level_facts.dart';
+
 const _gl = 'verification/fixtures/flow/gate_level';
 const _eqy = 'verification/fixtures/formal/eqy_flow';
 const _smallRun = 'verification/fixtures/flow/librelane/3.0.16/sky130A_met/run';
@@ -283,6 +285,38 @@ void main() {
       }
     });
 
+    // The facts `differs_by_platform` names are left out of the live rerun,
+    // which measures the netlist the Linux tool build wrote; the committed
+    // darwin capture holds them exactly.
+    test('the darwin sweep record holds the platform-dependent facts', () {
+      final want = expected['picorv32'] as Map<String, dynamic>;
+      final differs = want['differs_by_platform'] as Map<String, dynamic>;
+      expect(differs['why'], isA<String>());
+      expect((differs['why'] as String).length, greaterThan(40));
+      for (final fact in differs['facts'] as List) {
+        expect(want, contains(fact), reason: 'names a recorded fact');
+      }
+      final rows = (_json('$_gl/sdf/picorv32_sweep.json')['periods'] as List)
+          .cast<Map<String, dynamic>>();
+      final failing = [
+        for (final r in rows)
+          if ((r['gate'] as Map)['testbench'] == 'failed')
+            (r['period_ns'] as num).toInt(),
+      ];
+      expect(
+        failing.reduce((a, b) => a > b ? a : b),
+        want['first_failing_testbench_ns'],
+      );
+      final six = rows.singleWhere((r) => r['period_ns'] == 6);
+      final split = six['split'] as Map<String, dynamic>;
+      final known = (split['first_both_known'] as Map)['sample'] as int;
+      final x = (split['first_gate_x'] as Map?)?['sample'] as int?;
+      expect(
+        x == null || known < x,
+        want['first_difference_at_6ns_is_known'],
+      );
+    });
+
     test('the testbench defaults to the functional gate: a 25 ns clock and '
         'inputs at the edge', () {
       final tb = _file('$_gl/picorv32/tb_picorv32.v').readAsStringSync();
@@ -417,6 +451,126 @@ void main() {
     final recipe = _json('$_eqy/recipe.expected.json');
     final recipeDoc = _file('$_eqy/RECIPE-GATE.md').readAsStringSync();
     expect(recipeDoc, contains('Outcome: `${recipe['outcome']}`'));
+  });
+
+  group('facts that differ by platform', () {
+    final cases =
+        _json('$_gl/gls.expected.json')['cases'] as Map<String, dynamic>;
+    final recipe =
+        _json('$_eqy/recipe.expected.json')['cases'] as Map<String, dynamic>;
+
+    test('each names recorded facts of its own case, with why', () {
+      for (final entry in [...cases.entries, ...recipe.entries]) {
+        final want = entry.value as Map<String, dynamic>;
+        final differs = want[kDiffersByPlatform] as Map<String, dynamic>?;
+        if (differs == null) continue;
+        expect(differs['why'], isA<String>(), reason: entry.key);
+        for (final block in differs.entries) {
+          if (block.key == 'why') continue;
+          final facts = want[block.key] as Map<String, dynamic>?;
+          expect(facts, isNotNull, reason: '${entry.key}: ${block.key}');
+          for (final fact in block.value as List) {
+            expect(facts, contains(fact), reason: '${entry.key}: $fact');
+          }
+        }
+      }
+    });
+
+    // EQY on PicoRV32 as the Linux x64 tool build's netlist gave it on
+    // flow-live of 2026-10-28 (6 partitions), and as the darwin capture
+    // records it (8).
+    Map<String, dynamic> eqyRun(List<String> correct, List<String> mutant) {
+      Map<String, dynamic> block(List<String> failing) => <String, dynamic>{
+        'overall': 'FAIL',
+        'partitions': 75,
+        'internal_errors': const <Object?>[],
+        'not_passed': [
+          for (final f in failing)
+            <String, dynamic>{'partition': 'picorv32.$f', 'status': 'FAIL'},
+        ],
+      };
+      return <String, dynamic>{
+        'blackboxes': <String, dynamic>{},
+        'eqy': block(correct),
+        'eqy_mutant': block(mutant),
+      };
+    }
+
+    const linux = [
+      'mem_addr',
+      'mem_la_wdata',
+      'mem_la_wstrb',
+      'mem_wdata',
+      'mem_wstrb',
+      'pcpi_rs2',
+    ];
+    const darwin = [
+      'mem_addr',
+      'mem_instr',
+      'mem_la_wdata',
+      'mem_la_wstrb',
+      'mem_valid',
+      'mem_wdata',
+      'mem_wstrb',
+      'pcpi_rs2',
+    ];
+    final picorv32Eqy = recipe['picorv32'] as Map<String, dynamic>;
+
+    test('EQY: a live rerun on the Linux netlist agrees with the record, and '
+        'a mutant told apart from the correct netlist does not', () {
+      expect(
+        eqyDifferences(picorv32Eqy, eqyRun(linux, linux), live: true),
+        isEmpty,
+      );
+      expect(
+        eqyDifferences(picorv32Eqy, eqyRun(darwin, darwin), live: true),
+        isEmpty,
+      );
+      expect(
+        eqyDifferences(
+          picorv32Eqy,
+          eqyRun(linux, [...linux, 'trap']),
+          live: true,
+        ),
+        hasLength(1),
+      );
+    });
+
+    test('EQY: the record itself still states the darwin outcome exactly', () {
+      expect(eqyDifferences(picorv32Eqy, eqyRun(darwin, darwin)), isEmpty);
+      expect(eqyDifferences(picorv32Eqy, eqyRun(linux, linux)), hasLength(2));
+    });
+
+    // The PicoRV32 mutant as the Linux x64 tool build's netlist gave it on
+    // flow-live of 2026-10-28, and as the darwin capture gave it.
+    Map<String, dynamic> mutant(int realBits) => <String, dynamic>{
+      'gls_mutant': <String, dynamic>{
+        'icarus': <String, dynamic>{
+          'rtl': <String, dynamic>{'compiled': true, 'passed': true},
+          'gate': <String, dynamic>{'compiled': true, 'passed': true},
+          'compare': <String, dynamic>{'real_bits': realBits},
+        },
+      },
+    };
+    Map<String, dynamic> recordedMutant() {
+      final want = cases['picorv32'] as Map<String, dynamic>;
+      return <String, dynamic>{
+        'mutant_icarus': want['mutant_icarus'],
+        kDiffersByPlatform: want[kDiffersByPlatform],
+      };
+    }
+
+    test('a live rerun on the Linux netlist agrees with the record', () {
+      expect(glsDifferences(recordedMutant(), mutant(0), live: true), isEmpty);
+      expect(glsDifferences(recordedMutant(), mutant(8), live: true), isEmpty);
+    });
+
+    test('the record itself still states the darwin outcome exactly', () {
+      expect(glsDifferences(recordedMutant(), mutant(8)), isEmpty);
+      expect(glsDifferences(recordedMutant(), mutant(0)), [
+        'mutant_icarus real bits: want above zero, got 0',
+      ]);
+    });
   });
 
   test('the recipe template carries the measured steps', () {
