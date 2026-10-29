@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage: tool/x11_keys/drive.sh <trusted|untrusted> <log> -- <command> [args...]
 #
 # Runs <command> as a trusted or an untrusted client of a private Xvfb that

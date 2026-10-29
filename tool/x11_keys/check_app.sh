@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage: tool/x11_keys/check_app.sh <bundle executable>
 #
 # Checks that a release build of this app keeps running when keys are pressed

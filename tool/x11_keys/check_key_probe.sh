@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Usage: tool/x11_keys/check_key_probe.sh <work-dir>
 #
 # Shows that the runner's keymap guard (linux/runner/x11_keymap_guard.cc) is

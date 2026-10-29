@@ -1,3 +1,6 @@
+// Copyright 2026 Ferrite Engineering LLC
+// SPDX-License-Identifier: Apache-2.0
+
 // The app tool/x11_keys/check_key_probe.sh builds twice, with the Linux
 // runner's keymap guard and without it, to show what a key press does on a
 // trusted and on an untrusted X display. It prints every key and every edit
