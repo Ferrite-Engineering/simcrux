@@ -1,0 +1,16 @@
+{
+  "config": "designs/path_adder/config_stopped.yaml",
+  "verdict": "stopped",
+  "why": "A 30 by 30 um die leaves no room for the power grid straps, so OpenROAD.GeneratePDN fails",
+  "librelane_version": "3.0.17",
+  "pdk": "sky130A",
+  "std_cell_library": "sky130_fd_sc_hd",
+  "exit_code": 2,
+  "final_metrics": false,
+  "last_step": "21-openroad-generatepdn",
+  "steps_without_state_out": ["21-openroad-generatepdn"],
+  "step_ids": {"21-openroad-generatepdn": "OpenROAD.GeneratePDN"},
+  "gated_off_steps": [],
+  "error_log_contains": ["[PDN-0185]"],
+  "metrics": {}
+}

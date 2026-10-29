@@ -1,0 +1,256 @@
+{
+ "final_views": false,
+ "keep_corners": [
+  "nom_t*"
+ ],
+ "kept_bytes": 1370997,
+ "max_file_bytes": 5242880,
+ "removed": [
+  {
+   "action": "placeholder",
+   "bytes": 6820,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/_env_ThreadPoolExecutor-2_2.tcl",
+   "reason": "design view or binary",
+   "sha256": "cee604ff14d0259a61cfa77b50ed2e7f4e25fc21a62e5a5341f2dc01974b4f48"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182166,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "9bec99bca72a208c8c30e22fadca8eadda28132f3c2efde5b2454325039a216b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 158126,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "3d81cbd02ced4a8834cc3a2b193d6e8bd7a9c7a4cc07c84dc48111e3a6993e03"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113027,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/path_adder__nom_ff_n40C_1v95.sdf",
+   "reason": "design view or binary",
+   "sha256": "4bdd3bf7c2c43c1dc1ee520ec68651b3b8dcbd717a4ed54ef48b1e161bd9ac60"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 356204,
+   "path": "12-openroad-staprepnr/nom_ff_n40C_1v95/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "ba6f6af422e60fa4ae9e7f64661b25013c7dbe60f0c25c838296e73d98ee0403"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6820,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/_env_ThreadPoolExecutor-2_1.tcl",
+   "reason": "design view or binary",
+   "sha256": "cee604ff14d0259a61cfa77b50ed2e7f4e25fc21a62e5a5341f2dc01974b4f48"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182166,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "4879c7551f0bcd884bdb567823c2d563ceb80893911db8718b2a478f4d81a067"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 157977,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "72c5ab5b9225b8e097fcb9ab51146bf004d7811961ed40f8b72c8dc79f7f7c94"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113027,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/path_adder__nom_ss_100C_1v60.sdf",
+   "reason": "design view or binary",
+   "sha256": "a9e49a107f0b9b8a6b6f9b712462e8c89e09f95bf34bd1ef5cf9d458fcf20ef7"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 355501,
+   "path": "12-openroad-staprepnr/nom_ss_100C_1v60/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "ea7779e4ea17117fa1aa7db37a6b5c93aa1d6bc3e65b2501cb8859a936beebcd"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6820,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/_env_ThreadPoolExecutor-2_0.tcl",
+   "reason": "design view or binary",
+   "sha256": "cee604ff14d0259a61cfa77b50ed2e7f4e25fc21a62e5a5341f2dc01974b4f48"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 182166,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/max.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "3d273f475ecc5a4d627c09e882a6acf568e325330ef6a6bfbe3e113b1cdb405f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 157977,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/min.rpt",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "d6f4cb5b09e45747708e105f793741ccf00e09d6d7e72e9b8eacd9a076d40a5f"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 113025,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/path_adder__nom_tt_025C_1v80.sdf",
+   "reason": "design view or binary",
+   "sha256": "99086e803826e0419ee7fe9d9b39f59afab3c2d06706523fd86f91143dbd55b4"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 354591,
+   "path": "12-openroad-staprepnr/nom_tt_025C_1v80/sta.log",
+   "reason": "intermediate STA path listing or log",
+   "sha256": "58e6f959c1caefb1e0ec7cb31e8efcb8101e5f6e9dd4466f3425335da62dfaf8"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7882,
+   "path": "13-openroad-floorplan/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "7553d8ba3c06f7e76c005a7571b809d31dca3da7188b52da20d937a350adc038"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 26755,
+   "path": "13-openroad-floorplan/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "644dab45a8ada0f789fa99dbfbaeb3c1e39f06f678c3b3aae96ed7f96fc88950"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 23738,
+   "path": "13-openroad-floorplan/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "0857deb3f1f787eb0bed04fa65db210dbcf74b515b4c9c419cee6af945880852"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1539612,
+   "path": "13-openroad-floorplan/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "97877db919432b09aa58c4d61c57c6bcdcd0f30fa63a074425205d5cda9a4e04"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 39404,
+   "path": "13-openroad-floorplan/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "259c310777ba4c094971fa84212a6ad1d6f0fb0388fa2871115c682ac3b9bd53"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7355,
+   "path": "14-openroad-dumprcvalues/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "9f4ca9115d231ecc43cb797cb178d0482953d1b94627c5254754861fde1a2da0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 26755,
+   "path": "16-odb-setpowerconnections/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "644dab45a8ada0f789fa99dbfbaeb3c1e39f06f678c3b3aae96ed7f96fc88950"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1539612,
+   "path": "16-odb-setpowerconnections/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "97877db919432b09aa58c4d61c57c6bcdcd0f30fa63a074425205d5cda9a4e04"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 6973,
+   "path": "18-openroad-cutrows/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "c4ca2ff9c14654ca5ca28a80e1ff75c530a278d9611b170ea17aa04b6edb3da1"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 26755,
+   "path": "18-openroad-cutrows/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "644dab45a8ada0f789fa99dbfbaeb3c1e39f06f678c3b3aae96ed7f96fc88950"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1539612,
+   "path": "18-openroad-cutrows/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "97877db919432b09aa58c4d61c57c6bcdcd0f30fa63a074425205d5cda9a4e04"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 7501,
+   "path": "19-openroad-tapendcapinsertion/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "7a9b53db9f9145f27a6c4211985db0368866111d570689d8051a72cb91b5f77d"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 27526,
+   "path": "19-openroad-tapendcapinsertion/path_adder.def",
+   "reason": "design view or binary",
+   "sha256": "7dc079063c72cbda1d0aad2bcc7deba970cae798c9ada4f523996c43741fc866"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 24165,
+   "path": "19-openroad-tapendcapinsertion/path_adder.nl.v",
+   "reason": "design view or binary",
+   "sha256": "81d24a6fc25906e55a84e29629dc5b1cab1c8eff0e2e1df0b0ebbead9a3d90d0"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 1541627,
+   "path": "19-openroad-tapendcapinsertion/path_adder.odb",
+   "reason": "design view or binary",
+   "sha256": "992821a71f13a2525a4d3fe9891a94ec5e4e18edc7bcdfb1ff635c8a3f90f18b"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 40247,
+   "path": "19-openroad-tapendcapinsertion/path_adder.pnl.v",
+   "reason": "design view or binary",
+   "sha256": "8b52fa8bd74db8e3719db6ce29dd155032c7bf13f9f86f47c3f5c88431a40138"
+  },
+  {
+   "action": "placeholder",
+   "bytes": 8457,
+   "path": "21-openroad-generatepdn/_env.tcl",
+   "reason": "design view or binary",
+   "sha256": "cfa6bb41a5ddbbd76b691c95ff33f636a987519f5efcb639965607c1028c1f48"
+  },
+  {
+   "action": "dropped",
+   "bytes": 6293499,
+   "path": "tmp/1d2ee7d8eff0462b97c1aeb62d582714.lib",
+   "reason": "run scratch (tmp/)",
+   "sha256": "27d24d87f182dd2ccf026d08ec0fc573ad31a2a0a8a4d1b1f4e342be1666b41c"
+  },
+  {
+   "action": "dropped",
+   "bytes": 124815,
+   "path": "tmp/da444aab3a03484db7677d68007c9a42.bb.v",
+   "reason": "run scratch (tmp/)",
+   "sha256": "380af675c15927c3502aace1dc403b6b8b1344edc3a6a5255fd56fda57cebd2b"
+  },
+  {
+   "action": "dropped",
+   "bytes": 54704,
+   "path": "tmp/da444aab3a03484db7677d68007c9a42.bb.v_yosys.log",
+   "reason": "run scratch (tmp/)",
+   "sha256": "db070593b7e76cae5b5f67a46c9d12a3269f2e951c00ac336367eede67630b6f"
+  }
+ ],
+ "tool": "tool/flow/trim_run_fixture.py"
+}

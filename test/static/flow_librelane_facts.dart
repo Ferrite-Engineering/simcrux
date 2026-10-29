@@ -380,11 +380,12 @@ List<String> caseDifferences(
           !looseSteps.contains(dirName(d)))
         dirName(d),
   ];
-  check(
-    'steps without state_out.json',
-    withoutStateOut,
-    expected['steps_without_state_out'],
-  );
+  // A platform-dependent step is left out of both sides: the capture may
+  // have been made on either platform.
+  check('steps without state_out.json', withoutStateOut, [
+    for (final s in expected['steps_without_state_out'] as List<dynamic>)
+      if (!looseSteps.contains(s)) s,
+  ]);
 
   final flowLog = File('${run.path}/flow.log').readAsStringSync();
   final ids = stepIdsFromFlowLog(flowLog);

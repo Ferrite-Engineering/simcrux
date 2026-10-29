@@ -35,7 +35,7 @@ void main() {
       r'^\| (\d+\.\d+\.\d+) \| Verified \|$',
       multiLine: true,
     ).allMatches(text).map((m) => m.group(1)).toList();
-    expect(listed, <String>['3.0.15', '3.0.16']);
+    expect(listed, <String>['3.0.15', '3.0.16', '3.0.17']);
     for (final raw in listed) {
       expect(
         kLibreLane30Verified.contains(LibreLaneVersion.tryParse(raw)!),
@@ -49,5 +49,6 @@ void main() {
     expect(page, contains('--8<-- "librelane-verified.md"'));
     expect(page, isNot(contains('3.0.15')));
     expect(page, isNot(contains('3.0.16')));
+    expect(page, isNot(contains('3.0.17')));
   });
 }

@@ -313,7 +313,7 @@ class NextpnrRunReader {
 ///
 /// The release comes from `resolved.json`; the reader of its minor line
 /// reads the run and is verified only for the releases its range names
-/// (3.0.15 and 3.0.16 for the 3.0 line). Any other release is read by the
+/// (3.0.15 to 3.0.17 for the 3.0 line). Any other release is read by the
 /// nearest older line's reader, best-effort, with
 /// [FlowReading.unsupported] saying why: what the run shows has not been
 /// checked against the release that wrote it.

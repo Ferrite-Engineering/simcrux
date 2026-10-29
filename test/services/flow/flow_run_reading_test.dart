@@ -269,7 +269,7 @@ void main() {
     );
 
     test('a release outside the verified range is never verified', () async {
-      for (final version in ['3.0.14', '3.0.17', '3.1.0']) {
+      for (final version in ['3.0.14', '3.0.18', '3.1.0']) {
         final run = LibreLaneRunBuilder(
           Directory(p.join(tmp.path, version)).path,
           version: version,

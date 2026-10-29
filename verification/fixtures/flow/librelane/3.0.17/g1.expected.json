@@ -1,0 +1,9 @@
+{
+  "design": "picorv32",
+  "pdk": "sky130A",
+  "corner": "nom_tt_025C_1v80",
+  "min_flip_flops": 500,
+  "endpoints": 100,
+  "rule": ">=90: nearest register; 60-90: per-path fidelity and unmapped share; <60: endpoint names only, FPGA-only mapping",
+  "outcome": ">=90"
+}

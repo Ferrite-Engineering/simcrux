@@ -1,0 +1,16 @@
+* Antenna
+Passed ✅
+
+* LVS
+Failed 𐄂
+Total Errors: 24
+Unmatched Pins: 4
+Unmatched Nets: 5
+Check the report directory of Netgen.LVS.
+
+* DRC
+Failed 𐄂
+KLayout DRC errors: 8
+Magic DRC errors: 51
+Check the report directories of KLayout.DRC and Magic.DRC.
+

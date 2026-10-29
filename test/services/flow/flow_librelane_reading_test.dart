@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // SimCrux reads the captured LibreLane runs (verification/fixtures/flow/
-// librelane/, LibreLane 3.0.15 and 3.0.16 on open PDKs): verdict, ingest,
+// librelane/, LibreLane 3.0.15 to 3.0.17 on open PDKs): verdict, ingest,
 // worst paths, SARIF and the hand-off, each against the case's hand-written
 // case.expected.json and the RTL's mapping.expected.json, never against what
 // a reader produced. LibreLane results are findings, not signoff.
@@ -43,9 +43,10 @@ List<String> _cases() => <String>[
 void main() {
   final mapping = _json(p.join(_root, 'mapping.expected.json'));
 
-  test('the fixture set exists and covers both verified releases', () {
+  test('the fixture set exists and covers every verified release', () {
     expect(Directory(_root).existsSync(), isTrue, reason: '$_root missing');
     final cases = _cases();
+    expect(cases.where((c) => c.startsWith('3.0.17/')), isNotEmpty);
     expect(cases.where((c) => c.startsWith('3.0.16/')), isNotEmpty);
     expect(cases.where((c) => c.startsWith('3.0.15/')), isNotEmpty);
   });

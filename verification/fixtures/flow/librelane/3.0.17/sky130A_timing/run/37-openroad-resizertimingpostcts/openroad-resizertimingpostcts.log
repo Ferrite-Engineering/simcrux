@@ -1,0 +1,176 @@
+Reading timing models for corner max_tt_025C_1v80…
+Reading timing library for the 'max_tt_025C_1v80' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib'…
+Reading timing models for corner min_ss_100C_1v60…
+Reading timing library for the 'min_ss_100C_1v60' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib'…
+Reading timing models for corner nom_tt_025C_1v80…
+Reading timing library for the 'nom_tt_025C_1v80' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Reading timing models for corner max_ff_n40C_1v95…
+Reading timing library for the 'max_ff_n40C_1v95' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib'…
+Reading timing models for corner nom_ff_n40C_1v95…
+Reading timing library for the 'nom_ff_n40C_1v95' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib line 1, library sky130_fd_sc_hd__ff_n40C_1v95 already exists.
+Reading timing models for corner max_ss_100C_1v60…
+Reading timing library for the 'max_ss_100C_1v60' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib line 1, library sky130_fd_sc_hd__ss_100C_1v60 already exists.
+Reading timing models for corner min_tt_025C_1v80…
+Reading timing library for the 'min_tt_025C_1v80' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Reading timing models for corner nom_ss_100C_1v60…
+Reading timing library for the 'nom_ss_100C_1v60' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib line 1, library sky130_fd_sc_hd__ss_100C_1v60 already exists.
+Reading timing models for corner min_ff_n40C_1v95…
+Reading timing library for the 'min_ff_n40C_1v95' corner at '<home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib'…
+[WARNING STA-1140] <home>/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib line 1, library sky130_fd_sc_hd__ff_n40C_1v95 already exists.
+Reading OpenROAD database at '<run>/35-openroad-cts/path_adder.odb'…
+Reading design constraints file at '/nix/store/zj72c6kq0js310140p7bbcxn9cpz1512-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/base.sdc'…
+[INFO] Using clock clk…
+[INFO] Setting output delay to: 0.4
+[INFO] Setting input delay to: 0.4
+[INFO] Setting load to: 0.033442
+[INFO] Setting clock uncertainty to: 0.25
+[INFO] Setting clock transition to: 0.1499999999999999944488848768742172978818416595458984375
+[INFO] Setting timing derate to: 5.0%
++ repair_timing -verbose -setup -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -max_buffer_percent 50.0
+[INFO RSZ-0100] Repair move sequence: UnbufferMove SizeUpMove SwapPinsMove BufferMove CloneMove SplitLoadMove 
+[INFO RSZ-0094] Found 25 endpoints with setup violations.
+[INFO RSZ-0099] Repairing 25 out of 25 (100.00%) violating endpoints...
+   Iter   | Removed | Resized | Inserted | Cloned |  Pin  |   Area   |    WNS   |   TNS      |  Viol  | Worst
+          | Buffers |  Gates  | Buffers  |  Gates | Swaps |          |          |            | Endpts | Endpt
+--------------------------------------------------------------------------------------------------------------
+        0 |       0 |       0 |        0 |      0 |     0 |    +0.0% |   -4.350 |      -68.1 |     25 | _396_/D
+       10 |       0 |       8 |        0 |      0 |     1 |    +1.6% |   -3.843 |      -61.9 |     25 | _396_/D
+       20 |       0 |      12 |        2 |      0 |     5 |    +2.7% |   -3.616 |      -61.1 |     25 | _398_/D
+       30 |       0 |      16 |        6 |      0 |     7 |    +4.1% |   -3.553 |      -62.1 |     25 | _398_/D
+       39 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       40 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       40 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       42 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       46 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       49 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       50 |       0 |      21 |        8 |      0 |     8 |    +5.0% |   -3.264 |      -58.7 |     25 | _398_/D
+       60 |       0 |      26 |       11 |      0 |    10 |    +6.1% |   -3.279 |      -59.4 |     25 | _398_/D
+       62 |       0 |      24 |       10 |      0 |     9 |    +5.6% |   -3.264 |      -59.4 |     25 | _398_/D
+       67 |       0 |      25 |       10 |      0 |     9 |    +5.8% |   -3.264 |      -59.4 |     25 | _398_/D
+       70 |       0 |      25 |       11 |      0 |    10 |    +5.9% |   -3.264 |      -59.5 |     25 | _398_/D
+       80 |       0 |      30 |       13 |      0 |    13 |    +6.8% |   -3.279 |      -59.1 |     25 | _398_/D
+       81 |       0 |      26 |       11 |      0 |    10 |    +6.0% |   -3.264 |      -59.2 |     25 | _398_/D
+       88 |       0 |      26 |       11 |      0 |    10 |    +6.0% |   -3.264 |      -59.2 |     25 | _398_/D
+       90 |       0 |      27 |       11 |      0 |    10 |    +6.1% |   -3.268 |      -59.0 |     25 | _398_/D
+       98 |       0 |      26 |       11 |      0 |    10 |    +6.0% |   -3.264 |      -59.2 |     25 | _398_/D
+      100 |       0 |      27 |       11 |      0 |    10 |    +6.1% |   -3.268 |      -59.0 |     25 | _398_/D
+      106 |       0 |      26 |       11 |      0 |    10 |    +6.0% |   -3.264 |      -59.2 |     25 | _398_/D
+      110 |       0 |      29 |       11 |      0 |    10 |    +6.5% |   -3.268 |      -59.0 |     25 | _398_/D
+      118 |       0 |      28 |       11 |      0 |    10 |    +6.5% |   -3.264 |      -59.2 |     25 | _398_/D
+      120 |       0 |      29 |       11 |      0 |    10 |    +6.5% |   -3.264 |      -59.2 |     25 | _398_/D
+      124 |       0 |      29 |       11 |      0 |    10 |    +6.5% |   -3.264 |      -59.2 |     25 | _398_/D
+      130 |       0 |      33 |       13 |      0 |    10 |    +7.3% |   -3.279 |      -58.8 |     25 | _398_/D
+      135 |       0 |      29 |       11 |      0 |    10 |    +6.5% |   -3.264 |      -59.2 |     25 | _398_/D
+      140 |       0 |      32 |       13 |      0 |    10 |    +7.0% |   -3.279 |      -59.4 |     25 | _398_/D
+      141 |       0 |      29 |       11 |      0 |    10 |    +6.5% |   -3.264 |      -59.2 |     25 | _398_/D
+      150 |       0 |      36 |       11 |      0 |    11 |    +6.5% |   -3.264 |      -58.6 |     25 | _398_/D
+      157 |       0 |      37 |       11 |      0 |    15 |    +6.6% |   -3.264 |      -58.6 |     25 | _398_/D
+      160 |       0 |      39 |       11 |      0 |    15 |    +6.8% |   -3.267 |      -58.6 |     25 | _398_/D
+      170 |       0 |      45 |       14 |      0 |    17 |    +7.8% |   -3.291 |      -59.3 |     25 | _398_/D
+      170 |       0 |      38 |       11 |      0 |    15 |    +6.8% |   -3.264 |      -58.7 |     25 | _398_/D
+      179 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      180 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      189 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      190 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      196 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      200 |       0 |      41 |       12 |      0 |    15 |    +7.3% |   -3.279 |      -59.1 |     25 | _398_/D
+      205 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      210 |       0 |      42 |       12 |      0 |    15 |    +7.3% |   -3.279 |      -59.1 |     25 | _398_/D
+      212 |       0 |      39 |       11 |      0 |    15 |    +6.9% |   -3.264 |      -58.7 |     25 | _398_/D
+      220 |       0 |      43 |       13 |      0 |    16 |    +7.8% |   -3.264 |      -59.2 |     25 | _398_/D
+      230 |       0 |      48 |       18 |      0 |    16 |    +9.3% |   -3.264 |      -61.1 |     25 | _398_/D
+      240 |       0 |      53 |       23 |      0 |    16 |   +10.9% |   -3.265 |      -63.0 |     25 | _398_/D
+      246 |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     25 | _398_/D
+      250 |       0 |      49 |       18 |      0 |    16 |    +9.5% |   -3.287 |      -61.5 |     25 | _398_/D
+      260 |       0 |      54 |       23 |      0 |    16 |   +11.1% |   -3.287 |      -63.5 |     25 | _398_/D
+      265 |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     25 | _398_/D
+      270 |       0 |      50 |       18 |      0 |    16 |    +9.4% |   -3.264 |      -60.8 |     25 | _398_/D
+      280 |       0 |      55 |       23 |      0 |    16 |   +10.9% |   -3.264 |      -62.7 |     25 | _398_/D
+      290 |       0 |      60 |       28 |      0 |    16 |   +12.5% |   -3.264 |      -65.5 |     25 | _398_/D
+      300 |       0 |      64 |       33 |      0 |    17 |   +13.7% |   -3.264 |      -68.1 |     25 | _398_/D
+      302 |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     25 | _398_/D
+     303* |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     304* |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     305* |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     306* |       0 |      47 |       17 |      0 |    16 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     308* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     309* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     310* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     310* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     311* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     312* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     313* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     314* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     315* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     316* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     317* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     318* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     319* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     320* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     320* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     321* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     322* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     323* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     324* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     325* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     326* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     327* |       0 |      47 |       17 |      0 |    17 |    +9.0% |   -3.264 |      -60.7 |     26 | _398_/D
+     330* |       0 |      49 |       17 |      0 |    17 |    +9.1% |   -3.264 |      -60.4 |     26 | _398_/D
+     330* |       0 |      49 |       17 |      0 |    17 |    +9.1% |   -3.264 |      -60.4 |     26 | _398_/D
+     331* |       0 |      49 |       17 |      0 |    17 |    +9.1% |   -3.264 |      -60.4 |     26 | _398_/D
+    final |       0 |      49 |       17 |      0 |    17 |    +9.1% |   -3.264 |      -60.4 |     26 | _398_/D
+--------------------------------------------------------------------------------------------------------------
+[INFO RSZ-0040] Inserted 17 buffers.
+[INFO RSZ-0051] Resized 49 instances: 49 up, 0 up match, 0 down, 0 VT
+[INFO RSZ-0043] Swapped pins on 17 instances.
+[WARNING RSZ-0062] Unable to repair all setup violations.
++ repair_timing -verbose -hold -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -hold_margin 0.1000000000000000055511151231257827021181583404541015625 -max_buffer_percent 50.0
+[INFO RSZ-0046] Found 54 endpoints with hold violations.
+Iteration | Resized | Buffers | Cloned Gates |   Area   |   WNS   |   TNS   | Endpoint
+--------------------------------------------------------------------------------------
+        0 |       0 |       0 |            0 |    +0.0% |  -0.056 |  -1.179 | _341_/D
+       10 |       0 |       3 |            0 |    +2.0% |  -0.049 |  -0.770 | _336_/D
+       20 |       0 |       6 |            0 |    +4.3% |  -0.049 |  -0.444 | _336_/D
+       30 |       0 |       8 |            0 |    +6.6% |  -0.049 |  -0.246 | _336_/D
+       40 |       0 |      18 |            0 |    +9.1% |  -0.049 |  -0.136 | _336_/D
+       50 |       0 |      26 |            0 |   +11.1% |  -0.049 |  -0.116 | _336_/D
+    final |       0 |       0 |            0 |   +11.4% |  -0.049 |  -0.116 | _336_/D
+--------------------------------------------------------------------------------------
+[WARNING RSZ-0064] Unable to repair all hold checks within margin.
++ detailed_placement -max_displacement  500 100 
+Placement Analysis
+---------------------------------
+total displacement        473.7 u
+average displacement        1.0 u
+max displacement           14.9 u
+original HPWL            3777.1 u
+legalized HPWL           4373.9 u
+delta HPWL                   16 %
+
+[INFO DPL-0020] Mirrored 109 instances
+[INFO DPL-0021] HPWL before            4373.9 u
+[INFO DPL-0022] HPWL after             4060.5 u
+[INFO DPL-0023] HPWL delta               -7.2 %
+Setting global connections for newly added cells…
+[INFO] Setting global connections...
+[INFO ODB-0403] 248 connections made, 0 conflicts skipped.
+Updating metrics…
+Cell type report:                       Count       Area
+  Fill cell                                66     247.74
+  Tap cell                                105     131.38
+  Clock buffer                             24     297.79
+  Timing Repair Buffer                     64     603.08
+  Inverter                                  3      11.26
+  Sequential cell                          73    1562.75
+  Multi-Input combinational cell          161    1928.10
+  Total                                   496    4782.09
+Writing OpenROAD database to '<run>/37-openroad-resizertimingpostcts/path_adder.odb'…
+Writing netlist to '<run>/37-openroad-resizertimingpostcts/path_adder.nl.v'…
+Writing powered netlist to '<run>/37-openroad-resizertimingpostcts/path_adder.pnl.v'…
+Writing layout to '<run>/37-openroad-resizertimingpostcts/path_adder.def'…
+Writing timing constraints to '<run>/37-openroad-resizertimingpostcts/path_adder.sdc'…

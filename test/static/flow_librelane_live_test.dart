@@ -13,6 +13,10 @@
 // the mapping gate); unset, every case of the installed version runs.
 // FLOW_LIVE_LIBRELANE_WORK keeps the untrimmed run directories there (the
 // regenerator's --work), for the gate-level job to read.
+// FLOW_LIVE_LIBRELANE_OUT keeps the trimmed captures there (the
+// regenerator's --out, laid out as the fixture tree), for a new release's
+// fixture set to be committed from; unset, they go to a temporary
+// directory that is removed.
 //
 // Facts are compared, not bytes: exit status, which steps wrote no
 // state_out.json, the failing step, the error records, the sign of each
@@ -79,6 +83,7 @@ void main() {
 
   group('LibreLane live', () {
     late Directory out;
+    var keptOut = false;
     late String version;
     final only = (Platform.environment['FLOW_LIVE_LIBRELANE_CASES'] ?? '')
         .split(RegExp(r'\s+'))
@@ -98,7 +103,11 @@ void main() {
           'unverified version until one is added under $_root/$version',
         );
       }
-      out = Directory.systemTemp.createTempSync('flow_librelane_live_');
+      final keepOut = Platform.environment['FLOW_LIVE_LIBRELANE_OUT'] ?? '';
+      keptOut = keepOut.isNotEmpty;
+      out = keptOut
+          ? (Directory(keepOut)..createSync(recursive: true))
+          : Directory.systemTemp.createTempSync('flow_librelane_live_');
       final keep = Platform.environment['FLOW_LIVE_LIBRELANE_WORK'] ?? '';
       final args = [
         'bash',
@@ -118,7 +127,7 @@ void main() {
     });
 
     tearDownAll(() {
-      if (out.existsSync()) out.deleteSync(recursive: true);
+      if (!keptOut && out.existsSync()) out.deleteSync(recursive: true);
     });
 
     test('every committed case of this version was regenerated', () {
@@ -186,11 +195,7 @@ void main() {
             : (share >= 0.6 ? '60-90' : '<60');
         expect(outcome, want['outcome'], reason: 'share $share');
       },
-      skip:
-          (only.isNotEmpty && !only.contains('g1')) ||
-              !File('$_root/3.0.16/g1.expected.json').existsSync()
-          ? 'g1 not selected'
-          : null,
+      skip: only.isNotEmpty && !only.contains('g1') ? 'g1 not selected' : null,
     );
   }, skip: blocker);
 }
