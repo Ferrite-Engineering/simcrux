@@ -15,8 +15,11 @@ import 'package:simcrux/services/remote/cxp/simcrux_cxp_identity.dart';
 ///
 /// [launch] is the CXP settings loaded before `runApp` (desktop only; null
 /// makes the settings load in the background, with the server off until they
-/// have). Spread into `bootstrap()`'s root overrides before the Pro overlay's
-/// `extraOverrides`, so an overlay can still replace any of them.
+/// have). Spread into `bootstrap()`'s root overrides, in the same container as
+/// the Pro overlay's `extraOverrides`. Riverpod refuses to build a container
+/// that overrides one provider twice, so `extraOverrides` must not override
+/// any provider listed here: a caller that needs other launch settings passes
+/// them as `bootstrap(cxpLaunchSettings: ...)`.
 ///
 /// `crossProbeGateProvider` is deliberately not overridden: cross-probing is
 /// free on every tier, sending as well as receiving.

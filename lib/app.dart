@@ -150,6 +150,13 @@ void attachDiagnosticSinks({SevereLogStderrSink? stderrSink}) {
 /// than a default value because the identity declares file types, which are
 /// built and not compile-time constants.
 ///
+/// [cxpLaunchSettings] replaces the CXP settings this launch would load from
+/// storage, for a harness that needs the server on a port of its own. It is a
+/// parameter rather than an entry in [extraOverrides] because the root scope
+/// already overrides `cruxCxpLaunchSettingsProvider` on desktop, and Riverpod
+/// refuses to build a container that overrides one provider twice. The same
+/// holds for every provider [simcruxCxpOverrides] lists.
+///
 /// Returns true when [args] selected a headless flow (`--help`, `--ci`,
 /// an import, `export-dashboard`, or an argument error) that has finished and
 /// set `exitCode`; false once the GUI is running.
@@ -157,6 +164,7 @@ Future<bool> bootstrap({
   List<String> args = const [],
   List<Override> extraOverrides = const [],
   LinuxDesktopApp? linuxDesktopApp,
+  CruxCxpSettings? cxpLaunchSettings,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
   // file_picker's Linux dialogs need a desktop session's DBus portal, which a
@@ -400,15 +408,18 @@ Future<bool> bootstrap({
   //
   // The CXP settings, loaded before the container exists so a launch with CXP
   // off never starts the server or writes a manifest, even briefly. Desktop
-  // only: CXP never runs in a browser.
-  final cxpLaunch = cruxCxpDesktopHost()
-      ? await loadCruxCxpLaunchSettings(kSimcruxCxpBinding)
-      : null;
+  // only: CXP never runs in a browser. A caller's [cxpLaunchSettings] stand
+  // in for the stored ones.
+  final cxpLaunch =
+      cxpLaunchSettings ??
+      (cruxCxpDesktopHost()
+          ? await loadCruxCxpLaunchSettings(kSimcruxCxpBinding)
+          : null);
   final containers = createWorkspaceContainers(
     rootOverrides: <Override>[
       cliArgsProvider.overrideWithValue(parsedArgs),
-      // The shared CXP lifecycle, bound to SimCrux. Spread before
-      // `extraOverrides` so the Pro overlay can still replace any of it.
+      // The shared CXP lifecycle, bound to SimCrux. `extraOverrides` must not
+      // override any provider in it: see [simcruxCxpOverrides].
       ...simcruxCxpOverrides(launch: cxpLaunch),
       // `--no-restore` skips this launch's workspace rehydration without
       // deleting anything: the injected restore gate short-circuits

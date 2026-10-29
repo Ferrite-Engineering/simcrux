@@ -16,6 +16,7 @@
 
 import 'dart:ui' as ui;
 
+import 'package:crux_cxp_ui/crux_cxp_ui.dart' show CruxCxpSettings;
 import 'package:crux_eula/crux_eula.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:crux_workspace/crux_workspace.dart';
@@ -132,10 +133,15 @@ Future<void> seedTelemetryConsentAnswered() async {
 ///
 /// The EULA is seeded as accepted and the telemetry disclosure as answered
 /// first; see [seedEulaAcceptance] and [seedTelemetryConsentAnswered].
+///
+/// [cxpLaunchSettings] goes to `bootstrap`, never into [extraOverrides]: the
+/// root scope already overrides the CXP launch settings, and a second
+/// override of the same provider stops the app from booting.
 Future<void> bootSimcrux(
   WidgetTester tester, {
   List<String> args = const [],
   List<Override> extraOverrides = const [],
+  CruxCxpSettings? cxpLaunchSettings,
   bool clearWorkspace = true,
   Size surfaceSize = const Size(1600, 1000),
 }) async {
@@ -147,7 +153,11 @@ Future<void> bootSimcrux(
   }
   await seedEulaAcceptance();
   await seedTelemetryConsentAnswered();
-  await bootstrap(args: args, extraOverrides: extraOverrides);
+  await bootstrap(
+    args: args,
+    extraOverrides: extraOverrides,
+    cxpLaunchSettings: cxpLaunchSettings,
+  );
   await tester.pump();
   await pumpUntil(
     tester,

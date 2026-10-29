@@ -6,9 +6,14 @@
 // CXP server lifecycle (NetCrux-suite port): the live app's shared
 // `cruxCxpRuntimeProvider` starts a REAL runtime (real TCP socket) when the
 // CXP setting resolves enabled, stops it when the setting flips off, and
-// restarts it when it flips back on. The test overrides only the launch
+// restarts it when it flips back on. The test replaces only the launch
 // settings (port 0, so an OS-picked port) and the discovery directory (a temp
 // one) — the lifecycle, the settings watch, and the socket bind are all real.
+//
+// The launch settings go through `bootSimcrux(cxpLaunchSettings:)`, not
+// `extraOverrides`: the root scope already overrides
+// `cruxCxpLaunchSettingsProvider`, and a second override of it in the same
+// container stops the app from booting at all.
 
 import 'dart:io';
 
@@ -31,15 +36,13 @@ void main() {
       });
       await bootSimcrux(
         tester,
+        // Port 0 → OS-picked free port, so the test never collides with a
+        // real SimCrux (or a prior test run) holding 54325.
+        cxpLaunchSettings: const CruxCxpSettings(enabled: true, port: 0),
         extraOverrides: [
-          // Port 0 → OS-picked free port, so the test never collides with
-          // a real SimCrux (or a prior test run) holding 54325, and a temp
-          // discovery directory, so it never advertises itself to the
+          // A temp discovery directory, so it never advertises itself to the
           // machine's real peers. Everything else — the runtime, the
           // settings watch, the socket — is production code.
-          cruxCxpLaunchSettingsProvider.overrideWithValue(
-            const CruxCxpSettings(enabled: true, port: 0),
-          ),
           cruxCxpManifestDirectoryProvider.overrideWith(
             (_) async => manifests.path,
           ),
