@@ -305,6 +305,17 @@ abstract final class FlowActions {
     return view == null ? null : GlsTriageTarget(result: result, view: view);
   }
 
+  /// What WaveCrux puts on the canvas for a gate-level port dump: every
+  /// signal under the dumped scope. The dump holds only the design's
+  /// top-level ports, so without this the tab opens empty.
+  @visibleForTesting
+  static List<String> glsWaveformSignals(GlsResultView view) {
+    final scope = view.scope;
+    return scope == null || scope.isEmpty
+        ? const <String>[]
+        : <String>['$scope.*'];
+  }
+
   /// Tools > Open Gate-Level Waveform in WaveCrux…: the selected gate-level
   /// result's port dump, handed to WaveCrux. A free cross-probe.
   static Future<void> openGateLevelWaveform(
@@ -326,6 +337,7 @@ abstract final class FlowActions {
     final result = await dispatcher.dispatch(
       waveformPath: target.view.gateVcd,
       displayName: target.result.testId,
+      suggestedSignals: glsWaveformSignals(target.view),
       designId: cxpDesignIdForPath(config.projectFilePath),
       topModule: tab.read(selectedTestProvider)?.spec?.top,
       result: target.result,
@@ -473,9 +485,7 @@ abstract final class FlowActions {
       _toast(context, (l10n) => l10n.flowIngestFailed('$e'), error: true);
       return;
     }
-    final readings = <FlowReading>[
-      for (final item in items) ?item.reading,
-    ];
+    final readings = <FlowReading>[for (final item in items) ?item.reading];
     if (readings.isEmpty) {
       final reason = items.isEmpty ? '' : (items.first.message ?? '');
       if (context == null || !context.mounted) return;
