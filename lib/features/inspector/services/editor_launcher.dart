@@ -66,6 +66,10 @@ import 'package:simcrux/domain/models/app_settings.dart';
 /// request handler refuses a path that is not absolute or lies outside
 /// the directories the user has opened (`CxpPathContainment`, CXP §11)
 /// before it ever reaches this class.
+final RegExp _placeholder = RegExp(
+  r'\{(file|line|column)\}|<(file|line|column)>',
+);
+
 class EditorLauncher {
   /// Creates an [EditorLauncher].
   ///
@@ -126,12 +130,20 @@ class EditorLauncher {
         .where((t) => t.isNotEmpty)
         .toList(growable: false);
     if (tokens.isEmpty) return null;
+    // One pass, so a placeholder inside the substituted path is left alone.
+    // `<file>` is the spelling Settings' help text shows (ARB reserves
+    // braces), `{file}` the one saved templates already use.
+    String value(String name) => switch (name) {
+      'file' => filePath,
+      'line' => line.toString(),
+      _ => column.toString(),
+    };
     final substituted = tokens
         .map(
-          (t) => t
-              .replaceAll('{file}', filePath)
-              .replaceAll('{line}', line.toString())
-              .replaceAll('{column}', column.toString()),
+          (t) => t.replaceAllMapped(
+            _placeholder,
+            (m) => value(m.group(1) ?? m.group(2)!),
+          ),
         )
         .toList(growable: false);
     return (

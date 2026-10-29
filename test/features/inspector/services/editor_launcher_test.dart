@@ -57,6 +57,30 @@ void main() {
       expect(cmd.args, <String>['--goto', '/tmp/foo.sv:12:3']);
     });
 
+    test(
+      'substitutes the <file>, <line>, <column> spelling the help text shows',
+      () {
+        final launcher = EditorLauncher(
+          template: 'code --goto <file>:<line>:<column>',
+        );
+        final cmd = launcher.composeCommand(
+          filePath: '/tmp/foo.sv',
+          line: 12,
+          column: 3,
+        );
+        expect(cmd!.args, <String>['--goto', '/tmp/foo.sv:12:3']);
+      },
+    );
+
+    test('a placeholder inside the substituted path is left as written', () {
+      final launcher = EditorLauncher(template: 'code --goto {file}:{line}');
+      final cmd = launcher.composeCommand(
+        filePath: '/tmp/{line}<column>.sv',
+        line: 7,
+      );
+      expect(cmd!.args, <String>['--goto', '/tmp/{line}<column>.sv:7']);
+    });
+
     test('returns null for empty template', () {
       final launcher = EditorLauncher(template: '   ');
       expect(launcher.composeCommand(filePath: 'x'), isNull);
