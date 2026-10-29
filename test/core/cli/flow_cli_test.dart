@@ -16,8 +16,10 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
+import 'package:simcrux/services/flow/librelane_flow_driver.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
+import '../../services/flow/flow_fakes.dart';
 import '../../services/flow/librelane_run_builder.dart';
 
 /// `simcrux flow`: the exit-code table, one test per code, help first, the
@@ -286,6 +288,57 @@ void main() {
       expect(await cli().run(['run', p.join(tmp.path, 'none.yaml')]), 64);
     });
 
+    test('a LibreLane entry under a path with a space is refused before '
+        'launching: exit 2, the cause on stderr and in the result', () async {
+      final root = Directory(p.join(tmp.path, 'Getting Started', 'proj'))
+        ..createSync(recursive: true);
+      Directory(p.join(root.path, 'librelane')).createSync();
+      File(
+        p.join(root.path, 'librelane', 'config.yaml'),
+      ).writeAsStringSync('DESIGN_NAME: c\n');
+      final project = File(p.join(root.path, 'simcrux.yaml'))
+        ..writeAsStringSync('''
+version: "1"
+flow:
+  entries:
+    - name: counter
+      kind: librelane
+      config: librelane/config.yaml
+      pdk: sky130A
+''');
+      final recorder = FlowSpawnRecorder();
+      final registry = SimulatorDriverRegistry({
+        'librelane': LibreLaneFlowDriver(
+          launcher: recorder.launch,
+          hostEnvironment: const <String, String>{},
+          dockerUser: () => null,
+        ),
+      });
+      final design = p.join(root.resolveSymbolicLinksSync(), 'librelane');
+
+      final code = await cli(registry: registry).run(['run', project.path]);
+
+      expect(code, FlowExitCode.couldNotEvaluate);
+      expect(recorder.spawns, isEmpty);
+      expect(
+        err,
+        contains(
+          allOf(
+            startsWith('simcrux flow run: counter: '),
+            contains('contains a space'),
+            contains('run it from a path without spaces'),
+            contains(design),
+          ),
+        ),
+      );
+      expect(out.first, startsWith('flow/counter: not_run'));
+      expect(
+        out,
+        contains(allOf(contains('contains a space'), contains(design))),
+      );
+      expect(out.last, 'simcrux flow: could_not_evaluate');
+    });
+
     test('--json carries the verdict and the exit label', () async {
       final project = _flowProject(tmp, 'j');
       await cli(
@@ -418,6 +471,21 @@ void main() {
         }
       });
     }
+  });
+
+  // Only launching LibreLane is refused under a path with a space: a run
+  // finished elsewhere (CI, another machine) is read wherever it lies.
+  test('ingest reads a finished LibreLane run under a path with a '
+      'space', () async {
+    final design = Directory(p.join(tmp.path, 'Getting Started', 'counter'))
+      ..createSync(recursive: true);
+    final run = LibreLaneRunBuilder(design.path)
+      ..step('yosys-synthesis')
+      ..finalMetrics(cleanMetrics);
+    expect(await cli().run(['ingest', run.root]), FlowExitCode.met);
+    expect(out.single, contains('librelane'));
+    expect(out.single, contains(': met'));
+    expect(err.where((l) => l.contains('contains a space')), isEmpty);
   });
 
   test('ingest lists every run under a directory of runs', () async {

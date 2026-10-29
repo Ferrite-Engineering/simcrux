@@ -395,6 +395,130 @@ void main() {
     });
   });
 
+  // LibreLane 3.0.16 cannot run from a design directory whose path holds a
+  // space: Yosys splits its blackbox script on it and the Verilator lint
+  // fails on the first PDK cell. Refused before any launcher spawns.
+  group('a design directory LibreLane cannot run from', () {
+    late Directory spaced;
+    late String spacedDesign;
+
+    setUp(() {
+      spaced = Directory(
+        p.join(work.resolveSymbolicLinksSync(), 'Getting Started', 'proj'),
+      )..createSync(recursive: true);
+      spacedDesign = p.join(spaced.path, 'librelane');
+      Directory(spacedDesign).createSync();
+      File(
+        p.join(spacedDesign, 'config.yaml'),
+      ).writeAsStringSync('DESIGN_NAME: c\n');
+    });
+
+    FlowEntry under(String root, {FlowLauncher? launcher}) => FlowEntry(
+      name: 'counter',
+      kind: FlowKind.librelane,
+      config: p.join(root, 'librelane', 'config.yaml'),
+      launcher: launcher,
+      pdk: 'sky130A',
+      projectRoot: root,
+    );
+
+    final launchers = <FlowLauncher, SimulatorBinaryConfig Function()>{
+      FlowLauncher.path: binary,
+      FlowLauncher.nix: () => binary(
+        settings: const FlowToolSettings(launcher: FlowLauncher.nix),
+        customPath: work.path,
+      ),
+      FlowLauncher.docker: () => binary(
+        settings: const FlowToolSettings(
+          launcher: FlowLauncher.docker,
+          dockerImage: 'example/librelane:3.0',
+          pdkRoot: '/pdks',
+        ),
+      ),
+    };
+
+    for (final MapEntry(key: launcher, value: config) in launchers.entries) {
+      test('a configured path with a space is refused under the '
+          '${launcher.name} launcher; nothing spawns', () async {
+        final recorder = FlowSpawnRecorder();
+        final finished = await run(
+          driver(recorder),
+          specFor(under(spaced.path, launcher: launcher)),
+          config: config(),
+        );
+        expect(recorder.spawns, isEmpty);
+        expect(finished.status, TestStatus.fail);
+        expect(finished.metrics[FlowMetricKeys.verdict], 'not_run');
+        expect(finished.metrics[FlowDriverMetricKeys.toolMissing], isNull);
+        expect(finished.failureMessage, contains('contains a space'));
+        expect(finished.failureMessage, contains(spacedDesign));
+        expect(
+          finished.failureMessage,
+          contains('run it from a path without spaces'),
+        );
+        expect(
+          Directory(p.join(spacedDesign, 'runs')).existsSync(),
+          isFalse,
+          reason: 'no run directory is made for a refused run',
+        );
+      });
+    }
+
+    test(
+      'a symlink without a space into a folder with one is refused, '
+      'naming the real path',
+      () async {
+        final link = Link(p.join(work.path, 'proj-link'))
+          ..createSync(spaced.path);
+        final recorder = FlowSpawnRecorder();
+        final finished = await run(
+          driver(recorder),
+          specFor(under(link.path)),
+        );
+        expect(recorder.spawns, isEmpty);
+        expect(finished.metrics[FlowMetricKeys.verdict], 'not_run');
+        expect(finished.failureMessage, contains(spacedDesign));
+        expect(finished.failureMessage, isNot(contains(link.path)));
+      },
+      testOn: '!windows',
+    );
+
+    test('a double quote or a backslash is refused and named by code '
+        'point', () {
+      for (final (name, label) in [
+        ('say"hi', 'U+0022 (")'),
+        if (!Platform.isWindows) (r'back\slash', r'U+005C (\)'),
+      ]) {
+        final root = Directory(p.join(work.resolveSymbolicLinksSync(), name))
+          ..createSync();
+        Directory(p.join(root.path, 'librelane')).createSync();
+        File(
+          p.join(root.path, 'librelane', 'config.yaml'),
+        ).writeAsStringSync('DESIGN_NAME: c\n');
+        final prepared = driver(
+          FlowSpawnRecorder(),
+        ).prepare(under(root.path), binary());
+        expect(prepared.invocation, isNull, reason: name);
+        expect(prepared.problem, contains('the character $label'));
+      }
+    }, testOn: '!windows');
+
+    test('other punctuation and non-ASCII letters still run', () {
+      final root = Directory(
+        p.join(work.resolveSymbolicLinksSync(), "café-#1_(a,b);x'y"),
+      )..createSync();
+      Directory(p.join(root.path, 'librelane')).createSync();
+      File(
+        p.join(root.path, 'librelane', 'config.yaml'),
+      ).writeAsStringSync('DESIGN_NAME: c\n');
+      final prepared = driver(
+        FlowSpawnRecorder(),
+      ).prepare(under(root.path), binary());
+      expect(prepared.problem, isNull);
+      expect(prepared.invocation, isNotNull);
+    }, testOn: '!windows');
+  });
+
   test('XDG_DATA_HOME is set to a per-job directory when absent', () async {
     final recorder = FlowSpawnRecorder(
       onSpawn: librelaneWriting((r) => r.finalMetrics(cleanMetrics)),

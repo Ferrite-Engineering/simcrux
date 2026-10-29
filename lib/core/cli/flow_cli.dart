@@ -33,6 +33,7 @@ import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
 import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
 import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
+import 'package:simcrux/services/flow/librelane_path_check.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
 import 'package:simcrux/services/job_scheduler/gls_scratch.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
@@ -256,6 +257,19 @@ class FlowCli {
     final selected = specs
         .where((s) => wanted.isEmpty || wanted.contains(s.name))
         .toList(growable: false);
+    // Said on stderr up front, so a `--json` job's log names the cause; the
+    // LibreLane driver refuses the entry before launching, and its result
+    // (not run, exit 2) carries the same sentence.
+    for (final spec in selected) {
+      final flow = spec.flow;
+      if (flow == null) continue;
+      final unsupported = LibreLanePathCheck.forEntry(flow);
+      if (unsupported != null) {
+        stderrSink(
+          '$programName flow run: ${spec.name}: ${unsupported.message}',
+        );
+      }
+    }
 
     final scheduler =
         schedulerFactory?.call(config) ??

@@ -16,10 +16,12 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/flow_tool_settings.dart';
+import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/flow/flow_labels.dart';
 import 'package:simcrux/features/flow/gls_labels.dart';
 import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
@@ -40,6 +42,7 @@ import 'package:simcrux/services/flow/gate_level/gls_outcome.dart';
 import 'package:simcrux/services/flow/gate_level/gls_result.dart';
 import 'package:simcrux/services/flow/gate_level/gls_run_info.dart';
 import 'package:simcrux/services/flow/gate_level/gls_runner.dart';
+import 'package:simcrux/services/flow/librelane_path_check.dart';
 import 'package:simcrux/services/job_scheduler/gls_scratch.dart';
 import 'package:simcrux/services/telemetry/flow_telemetry.dart';
 import 'package:simcrux/services/trend_store/trend_store_provider.dart';
@@ -98,12 +101,62 @@ abstract final class FlowActions {
               .where((s) => s.id == FlowRunImporter.specIdFor(design))
               .toList();
     final specs = chosen.isEmpty ? entries : chosen;
+    // An entry LibreLane cannot run from is refused here, said in a toast,
+    // and never submitted; the others still run.
+    final refused = refuseUnsupportedPaths(context, specs);
+    final runnable = <TestSpec>[
+      for (final s in specs)
+        if (!refused.contains(s.id)) s,
+    ];
+    if (runnable.isEmpty) return;
     revealFlowRuns(read);
     unawaited(
       tab
           .read(regressionRunnerProvider.notifier)
-          .submitSpecs(specs, concurrency: specs.length.clamp(1, 4)),
+          .submitSpecs(runnable, concurrency: runnable.length.clamp(1, 4)),
     );
+  }
+
+  /// The LibreLane entries among [specs] whose design directory LibreLane
+  /// cannot run from ([LibreLanePathCheck]: a space, a tab, a line break, a
+  /// double quote or a backslash in its real path), said in one error toast
+  /// that names the first one's path. Returns the refused specs' ids.
+  ///
+  /// Run Flow Entry leaves them out of the run; Run Regression runs the whole
+  /// project, and the LibreLane driver refuses them before launching with
+  /// the same reason in their results.
+  static Set<String> refuseUnsupportedPaths(
+    BuildContext? context,
+    Iterable<TestSpec> specs,
+  ) {
+    final refused = <String, LibreLaneUnsupportedPath>{};
+    for (final spec in specs) {
+      final flow = spec.flow;
+      if (flow == null) continue;
+      final unsupported = LibreLanePathCheck.forEntry(flow);
+      if (unsupported != null) refused[spec.id] = unsupported;
+    }
+    if (refused.isNotEmpty) {
+      final first = refused.values.first;
+      _toast(
+        context,
+        (l10n) => FlowLabels.unsupportedPath(l10n, first),
+        error: true,
+      );
+    }
+    return refused.keys.toSet();
+  }
+
+  /// [refuseUnsupportedPaths] over every flow entry of [config], for Run
+  /// Regression on a project with a `flow:` block.
+  static void refuseUnsupportedFlowPaths(
+    BuildContext? context,
+    RegressionConfig config,
+  ) {
+    refuseUnsupportedPaths(context, <TestSpec>[
+      for (final suite in config.suites)
+        if (suite.name == FlowRunImporter.kFlowSuiteName) ...suite.tests,
+    ]);
   }
 
   /// Tools > Run Gate-Level Simulation: reruns the tests the selected

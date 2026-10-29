@@ -68,6 +68,25 @@ void main() {
     expect(items[2].reading!.run.ref.kind, FlowKind.nextpnr);
   });
 
+  // LibreLane cannot run from a path with a space, so SimCrux refuses to
+  // launch one there; a run finished elsewhere is still read there.
+  test('a LibreLane run under a path with a space is read', () async {
+    final parent = Directory(p.join(tmp.path, 'Getting Started', 'counter'))
+      ..createSync(recursive: true);
+    final run = LibreLaneRunBuilder(parent.path, tag: 'RUN_S')
+      ..step('yosys-synthesis')
+      ..finalMetrics(cleanMetrics);
+    final items = await const FlowRunIngestor().ingest(
+      <String>[run.root],
+      allowedRoots: <String>[p.join(tmp.path, 'Getting Started')],
+    );
+    final reading = items.single.reading;
+    expect(reading, isNotNull, reason: items.single.message);
+    expect(reading!.run.ref.kind, FlowKind.librelane);
+    expect(reading.verdict.wireName, 'met');
+    expect(reading.problem, isNull);
+  });
+
   test('ingest writes nothing inside a run directory', () async {
     final run = LibreLaneRunBuilder(tmp.path)
       ..step('yosys-synthesis')

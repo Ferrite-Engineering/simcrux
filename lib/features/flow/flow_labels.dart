@@ -5,6 +5,7 @@ import 'package:crux_flow/crux_flow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
+import 'package:simcrux/services/flow/librelane_path_check.dart';
 
 /// The words the Flow surfaces use for a run's verdict, its steps, its
 /// metrics and its path mapping. Verdict tokens and metric keys stay as
@@ -40,6 +41,13 @@ abstract final class FlowLabels {
         FlowStepStatus.running => l10n.flowStepRunning,
         FlowStepStatus.notStarted => l10n.flowStepNotStarted,
       };
+
+  /// Why LibreLane cannot run from [refusal]'s design directory, and what to
+  /// do: the localized form of [LibreLaneUnsupportedPath.message].
+  static String unsupportedPath(L10N l10n, LibreLaneUnsupportedPath refusal) =>
+      refusal.isSpace
+      ? l10n.flowLibreLanePathSpace(refusal.path)
+      : l10n.flowLibreLanePathCharacter(refusal.path, refusal.characterLabel);
 
   /// The product name of the flow, never translated.
   static String kind(FlowKind kind) => switch (kind) {

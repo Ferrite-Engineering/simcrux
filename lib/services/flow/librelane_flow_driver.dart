@@ -13,6 +13,7 @@ import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/services/flow/flow_process_driver.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
+import 'package:simcrux/services/flow/librelane_path_check.dart';
 
 /// The command line a LibreLane entry runs, worked out before anything is
 /// spawned.
@@ -73,6 +74,10 @@ typedef LibreLaneRunReading =
 ///   so a cancel stops the named container as well as the client. The PDK
 ///   root is the one a host run would use (see [_dockerPdkRoot]); `--user`
 ///   is passed on Linux (see [hostDockerUser]).
+///
+/// A design directory LibreLane cannot run from (a space, a tab, a line
+/// break, a double quote or a backslash in its real path) is refused before
+/// anything is spawned, under every launcher: see [LibreLanePathCheck].
 ///
 /// **Never `--overwrite`, never `--last-run`.** The tag is
 /// `<tag_prefix>-<UTC timestamp>`, one generated safe segment, and a tag
@@ -269,6 +274,17 @@ class LibreLaneFlowDriver extends FlowProcessDriver {
       return (
         invocation: null,
         problem: 'the configuration file does not exist',
+        toolMissing: null,
+      );
+    }
+    // Refused before any launcher is chosen: the path, nix and docker
+    // launchers all hand LibreLane this directory, and LibreLane cannot run
+    // from it (see LibreLanePathCheck).
+    final unsupported = LibreLanePathCheck.check(design);
+    if (unsupported != null) {
+      return (
+        invocation: null,
+        problem: unsupported.message,
         toolMissing: null,
       );
     }

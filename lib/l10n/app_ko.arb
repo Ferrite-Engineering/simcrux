@@ -2980,6 +2980,27 @@
   "@flowRunNoEntries": {
     "description": "Toast when Run Flow Entry finds no flow: entry. \"flow:\" and \"simcrux.yaml\" are literal and never translated."
   },
+  "flowLibreLanePathSpace": "LibreLane이 이 설계를 실행할 수 없습니다. 설계 디렉터리 경로에 공백이 있으며 LibreLane은 공백이 있는 경로를 지원하지 않습니다. 프로젝트를 옮기거나 공백이 없는 경로에서 실행하세요. 경로: {path}",
+  "@flowLibreLanePathSpace": {
+    "description": "Error toast when Run Flow Entry or Run Regression finds a LibreLane entry whose design directory path contains a space, which LibreLane cannot run from. {path} is the directory with symlinks resolved, shown as is. \"LibreLane\" is a product name and never translated.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "flowLibreLanePathCharacter": "LibreLane이 이 설계를 실행할 수 없습니다. 설계 디렉터리 경로에 {character} 문자가 있으며 LibreLane은 이 문자를 지원하지 않습니다. 프로젝트를 옮기거나 공백, 탭, 줄 바꿈, 큰따옴표, 백슬래시가 없는 경로에서 실행하세요. 경로: {path}",
+  "@flowLibreLanePathCharacter": {
+    "description": "Error toast when Run Flow Entry or Run Regression finds a LibreLane entry whose design directory path contains a tab, a line break, a double quote or a backslash, which LibreLane cannot run from. {path} is the directory with symlinks resolved, shown as is. {character} is the character's code point and, when it prints, the character, such as U+0022 (\"); never translated. \"LibreLane\" is a product name and never translated.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "flowHandoffNoRun": "먼저 플로우 실행 패널에서 실행을 선택하거나 플로우 결과를 선택하세요.",
   "@flowHandoffNoRun": {
     "description": "Toast when a hand-off (Open in KLayout and the others) has no run to open."

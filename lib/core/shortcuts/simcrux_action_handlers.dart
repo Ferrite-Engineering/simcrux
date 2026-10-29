@@ -237,6 +237,11 @@ class SimcruxActionHandlers {
         // `startFromConfigPath` records a load error + AsyncError if the
         // (now edited) YAML no longer parses, so a bad edit surfaces in the
         // tab's error body instead of silently running the stale config.
+        //
+        // A flow entry LibreLane cannot run from is said in a toast here;
+        // the run goes ahead and the LibreLane driver refuses that entry
+        // before launching.
+        FlowActions.refuseUnsupportedFlowPaths(navigatorContext(), config);
         unawaited(
           tabContainer
               .read(regressionRunnerProvider.notifier)
