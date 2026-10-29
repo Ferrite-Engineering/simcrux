@@ -1,0 +1,112 @@
+name: Linux keys (untrusted X client)
+
+# Proves that a key press does not crash the app on an X display that treats
+# it as an untrusted client, as `ssh -X` does when the ssh client keeps
+# OpenSSH's default of untrusted forwarding (macOS among them). Such a client
+# gets no XKEYBOARD extension, and Flutter's GTK embedder then makes GDK read
+# outside its core keymap on the first key press. The runner's keymap guard
+# (linux/runner/x11_keymap_guard.cc) stops that.
+#
+# key-probe builds a stock `flutter create` app with and without the guard
+# and shows, on a private Xvfb with the SECURITY extension, that without it
+# the first key press is a segmentation fault and with it keys, text and a
+# shortcut arrive on both a trusted and an untrusted display
+# (tool/x11_keys/check_key_probe.sh). app builds SimCrux itself and presses
+# keys in it on both displays (tool/x11_keys/check_app.sh).
+#
+# Linux only, on a push that touches the runner, the scripts or this file,
+# plus weekly and on dispatch.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'linux/**'
+      - 'crux-shared'
+      - 'tool/x11_keys/**'
+      - '.github/workflows/linux-untrusted-keys.yml'
+  schedule:
+    # Wednesday 05:50 UTC.
+    - cron: '50 5 * * 3'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  key-probe:
+    name: Key probe / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # Cost guardrail: two small release builds and four short runs.
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # GTK 3.24.41 and 3.24.33.
+        os: [ubuntu-24.04, ubuntu-22.04]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Linux desktop build deps, Xvfb, xauth and xdotool
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev xvfb xauth x11-utils xdotool
+
+      - name: Install Flutter (pinned)
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - name: Keys with and without the guard, trusted and untrusted
+        run: bash tool/x11_keys/check_key_probe.sh "$RUNNER_TEMP/key_probe"
+
+  app:
+    name: SimCrux / Linux, untrusted and trusted
+    runs-on: ubuntu-latest
+    # Cost guardrail: one release build and two short runs.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || github.token }}
+
+      - name: Install Linux desktop build deps, Xvfb, xauth and xdotool
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev xvfb xauth x11-utils xdotool
+
+      - name: Install Flutter (pinned)
+        id: flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ steps.flutter.outputs.pub-cache-path }}
+            .dart_tool/
+            !.dart_tool/build
+          key: pub-untrusted-keys-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-untrusted-keys-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Build Linux (release)
+        run: flutter build linux --release
+
+      - name: Keys on an untrusted and a trusted display
+        run: bash tool/x11_keys/check_app.sh build/linux/x64/release/bundle/simcrux
