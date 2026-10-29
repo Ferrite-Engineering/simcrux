@@ -1,0 +1,1 @@
+ruby /nix/store/zj72c6kq0js310140p7bbcxn9cpz1512-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/klayout/xor.drc --output <run>/62-klayout-xor/xor.xml --top path_adder --threads 4 --ignore 81/14 <run>/57-magic-streamout/path_adder.magic.gds <run>/58-klayout-streamout/path_adder.klayout.gds

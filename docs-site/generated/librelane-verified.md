@@ -5,3 +5,4 @@
 |---|---|
 | 3.0.15 | Verified |
 | 3.0.16 | Verified |
+| 3.0.17 | Verified |

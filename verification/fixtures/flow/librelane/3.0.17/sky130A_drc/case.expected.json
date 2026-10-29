@@ -1,0 +1,42 @@
+{
+  "config": "designs/path_adder/config_drc.yaml",
+  "verdict": "violated",
+  "why": "Detailed routing stops after its first pass (DRT_OPT_ITERS 0) at 70% density and ERROR_ON_TR_DRC is off, so routing violations reach Magic, KLayout and LVS, whose checkers raise deferred errors",
+  "librelane_version": "3.0.17",
+  "pdk": "sky130A",
+  "std_cell_library": "sky130_fd_sc_hd",
+  "exit_code": 2,
+  "final_metrics": true,
+  "last_step": "76-misc-reportmanufacturability",
+  "steps_without_state_out": [
+    "66-checker-magicdrc",
+    "67-checker-klayoutdrc",
+    "71-checker-lvs"
+  ],
+  "step_ids": {
+    "47-checker-trdrc": "Checker.TrDRC",
+    "66-checker-magicdrc": "Checker.MagicDRC",
+    "67-checker-klayoutdrc": "Checker.KLayoutDRC",
+    "71-checker-lvs": "Checker.LVS"
+  },
+  "gated_off_steps": [
+    "Repair Design (Post-Global Routing)",
+    "Heuristic Diode Insertion",
+    "Resizer Timing Optimizations (Post-Global Routing)",
+    "Equivalence Check"
+  ],
+  "error_log_contains": [
+    "Magic DRC errors found. - deferred",
+    "KLayout DRC errors found. - deferred",
+    "LVS errors found. - deferred"
+  ],
+  "metrics": {
+    "timing__setup_vio__count": 0,
+    "route__drc_errors": 48,
+    "magic__drc_error__count": 51,
+    "klayout__drc_error__count": 8,
+    "design__lvs_error__count": 24,
+    "route__antenna_violation__count": 0,
+    "design__instance__count__class:sequential_cell": 73
+  }
+}

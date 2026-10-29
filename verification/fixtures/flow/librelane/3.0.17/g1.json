@@ -1,0 +1,1430 @@
+{
+ "auto_name_map": {
+  "found_in_netlist": 6709,
+  "rebuilt_cells": 6709
+ },
+ "corner": "nom_tt_025C_1v80",
+ "distinct_registers": 1,
+ "endpoints_counted": 100,
+ "endpoints_with_rtl_src_span": 0,
+ "flip_flop_census": {
+  "distinct_registers": 89,
+  "flip_flops": 1597,
+  "in_sidecar": 1597,
+  "mapped": 1579,
+  "unmapped_examples": [
+   "_09979_ []",
+   "_09980_ []",
+   "_09981_ []",
+   "_09982_ []",
+   "_09983_ []",
+   "_11320_ ['mem_la_wdata[0]']",
+   "_11321_ ['mem_la_wdata[1]']",
+   "_11322_ ['mem_la_wdata[2]']",
+   "_11323_ ['mem_la_wdata[3]']",
+   "_11324_ ['mem_la_wdata[4]']"
+  ],
+  "with_rtl_src_span": 553
+ },
+ "mapped_to_rtl_register": 98,
+ "matched_by": {
+  "memory word bit": 98
+ },
+ "outcomes": {
+  "port": 2,
+  "register": 98
+ },
+ "paths_in_report": 1000,
+ "report": "55-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt",
+ "report_sorted_by_slack": false,
+ "rows": [
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10839_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][23]"
+   ],
+   "rank": 1,
+   "register": "cpuregs",
+   "slack": 10.566126,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10845_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][29]"
+   ],
+   "rank": 2,
+   "register": "cpuregs",
+   "slack": 10.580958,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10838_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][22]"
+   ],
+   "rank": 3,
+   "register": "cpuregs",
+   "slack": 10.58254,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10843_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][27]"
+   ],
+   "rank": 4,
+   "register": "cpuregs",
+   "slack": 10.584307,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10711_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][23]"
+   ],
+   "rank": 5,
+   "register": "cpuregs",
+   "slack": 10.63606,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10715_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][27]"
+   ],
+   "rank": 6,
+   "register": "cpuregs",
+   "slack": 10.65255,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10717_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][29]"
+   ],
+   "rank": 7,
+   "register": "cpuregs",
+   "slack": 10.653887,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10710_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][22]"
+   ],
+   "rank": 8,
+   "register": "cpuregs",
+   "slack": 10.654663,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10707_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][19]"
+   ],
+   "rank": 9,
+   "register": "cpuregs",
+   "slack": 10.663939,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10709_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][21]"
+   ],
+   "rank": 10,
+   "register": "cpuregs",
+   "slack": 10.666121,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10674_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][18]"
+   ],
+   "rank": 11,
+   "register": "cpuregs",
+   "slack": 10.754562,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10683_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][27]"
+   ],
+   "rank": 12,
+   "register": "cpuregs",
+   "slack": 10.76721,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10681_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][25]"
+   ],
+   "rank": 13,
+   "register": "cpuregs",
+   "slack": 10.769444,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10678_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][22]"
+   ],
+   "rank": 14,
+   "register": "cpuregs",
+   "slack": 10.773276,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10685_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][29]"
+   ],
+   "rank": 15,
+   "register": "cpuregs",
+   "slack": 10.775898,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10802_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][18]"
+   ],
+   "rank": 16,
+   "register": "cpuregs",
+   "slack": 10.782844,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10799_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][15]"
+   ],
+   "rank": 17,
+   "register": "cpuregs",
+   "slack": 10.78794,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10813_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][29]"
+   ],
+   "rank": 18,
+   "register": "cpuregs",
+   "slack": 10.7981,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10809_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][25]"
+   ],
+   "rank": 19,
+   "register": "cpuregs",
+   "slack": 10.798127,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10811_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][27]"
+   ],
+   "rank": 20,
+   "register": "cpuregs",
+   "slack": 10.804233,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10806_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][22]"
+   ],
+   "rank": 21,
+   "register": "cpuregs",
+   "slack": 10.804355,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10578_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][18]"
+   ],
+   "rank": 22,
+   "register": "cpuregs",
+   "slack": 10.830426,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10834_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][18]"
+   ],
+   "rank": 23,
+   "register": "cpuregs",
+   "slack": 10.830737,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10840_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][24]"
+   ],
+   "rank": 24,
+   "register": "cpuregs",
+   "slack": 10.833335,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10841_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][25]"
+   ],
+   "rank": 25,
+   "register": "cpuregs",
+   "slack": 10.842458,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10589_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][29]"
+   ],
+   "rank": 26,
+   "register": "cpuregs",
+   "slack": 10.845373,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10583_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][23]"
+   ],
+   "rank": 27,
+   "register": "cpuregs",
+   "slack": 10.846191,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10582_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][22]"
+   ],
+   "rank": 28,
+   "register": "cpuregs",
+   "slack": 10.862316,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10587_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][27]"
+   ],
+   "rank": 29,
+   "register": "cpuregs",
+   "slack": 10.863074,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10743_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][23]"
+   ],
+   "rank": 30,
+   "register": "cpuregs",
+   "slack": 10.913787,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10742_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][22]"
+   ],
+   "rank": 31,
+   "register": "cpuregs",
+   "slack": 10.916185,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10747_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][27]"
+   ],
+   "rank": 32,
+   "register": "cpuregs",
+   "slack": 10.918449,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10749_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][29]"
+   ],
+   "rank": 33,
+   "register": "cpuregs",
+   "slack": 10.931432,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10713_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][25]"
+   ],
+   "rank": 34,
+   "register": "cpuregs",
+   "slack": 10.943934,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10712_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][24]"
+   ],
+   "rank": 35,
+   "register": "cpuregs",
+   "slack": 10.94777,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10706_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][18]"
+   ],
+   "rank": 36,
+   "register": "cpuregs",
+   "slack": 10.952525,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10705_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][17]"
+   ],
+   "rank": 37,
+   "register": "cpuregs",
+   "slack": 10.975814,
+   "src": null
+  },
+  {
+   "endpoint": "mem_la_read",
+   "outcome": "port",
+   "rank": 38,
+   "slack": 11.016289
+  },
+  {
+   "endpoint": "mem_la_write",
+   "outcome": "port",
+   "rank": 39,
+   "slack": 11.040983
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10807_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][23]"
+   ],
+   "rank": 40,
+   "register": "cpuregs",
+   "slack": 11.052116,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10319_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][15]"
+   ],
+   "rank": 41,
+   "register": "cpuregs",
+   "slack": 11.065632,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10801_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][17]"
+   ],
+   "rank": 42,
+   "register": "cpuregs",
+   "slack": 11.071534,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10322_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][18]"
+   ],
+   "rank": 43,
+   "register": "cpuregs",
+   "slack": 11.076165,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10333_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][29]"
+   ],
+   "rank": 44,
+   "register": "cpuregs",
+   "slack": 11.076488,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10383_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[19][15]"
+   ],
+   "rank": 45,
+   "register": "cpuregs",
+   "slack": 11.084629,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10386_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[19][18]"
+   ],
+   "rank": 46,
+   "register": "cpuregs",
+   "slack": 11.089906,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10805_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][21]"
+   ],
+   "rank": 47,
+   "register": "cpuregs",
+   "slack": 11.091537,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10803_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[30][19]"
+   ],
+   "rank": 48,
+   "register": "cpuregs",
+   "slack": 11.095215,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10397_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[19][29]"
+   ],
+   "rank": 49,
+   "register": "cpuregs",
+   "slack": 11.096117,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10833_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][17]"
+   ],
+   "rank": 50,
+   "register": "cpuregs",
+   "slack": 11.103682,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10677_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][21]"
+   ],
+   "rank": 51,
+   "register": "cpuregs",
+   "slack": 11.105949,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10835_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][19]"
+   ],
+   "rank": 52,
+   "register": "cpuregs",
+   "slack": 11.106297,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10680_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][24]"
+   ],
+   "rank": 53,
+   "register": "cpuregs",
+   "slack": 11.10652,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10675_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][19]"
+   ],
+   "rank": 54,
+   "register": "cpuregs",
+   "slack": 11.118251,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10585_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][25]"
+   ],
+   "rank": 55,
+   "register": "cpuregs",
+   "slack": 11.120283,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10679_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][23]"
+   ],
+   "rank": 56,
+   "register": "cpuregs",
+   "slack": 11.121107,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10580_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][20]"
+   ],
+   "rank": 57,
+   "register": "cpuregs",
+   "slack": 11.123682,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10837_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[31][21]"
+   ],
+   "rank": 58,
+   "register": "cpuregs",
+   "slack": 11.124889,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10684_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[27][28]"
+   ],
+   "rank": 59,
+   "register": "cpuregs",
+   "slack": 11.1387,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10579_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][19]"
+   ],
+   "rank": 60,
+   "register": "cpuregs",
+   "slack": 11.139472,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10581_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][21]"
+   ],
+   "rank": 61,
+   "register": "cpuregs",
+   "slack": 11.144729,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10584_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[24][24]"
+   ],
+   "rank": 62,
+   "register": "cpuregs",
+   "slack": 11.149638,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10744_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][24]"
+   ],
+   "rank": 63,
+   "register": "cpuregs",
+   "slack": 11.179043,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10738_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][18]"
+   ],
+   "rank": 64,
+   "register": "cpuregs",
+   "slack": 11.179188,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10745_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][25]"
+   ],
+   "rank": 65,
+   "register": "cpuregs",
+   "slack": 11.18341,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10737_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[29][17]"
+   ],
+   "rank": 66,
+   "register": "cpuregs",
+   "slack": 11.212026,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10647_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][23]"
+   ],
+   "rank": 67,
+   "register": "cpuregs",
+   "slack": 11.250344,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10642_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][18]"
+   ],
+   "rank": 68,
+   "register": "cpuregs",
+   "slack": 11.255532,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10651_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][27]"
+   ],
+   "rank": 69,
+   "register": "cpuregs",
+   "slack": 11.265984,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10927_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[5][15]"
+   ],
+   "rank": 70,
+   "register": "cpuregs",
+   "slack": 11.268132,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10646_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][22]"
+   ],
+   "rank": 71,
+   "register": "cpuregs",
+   "slack": 11.274375,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10653_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][29]"
+   ],
+   "rank": 72,
+   "register": "cpuregs",
+   "slack": 11.276905,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10636_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][12]"
+   ],
+   "rank": 73,
+   "register": "cpuregs",
+   "slack": 11.283264,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10941_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[5][29]"
+   ],
+   "rank": 74,
+   "register": "cpuregs",
+   "slack": 11.284637,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10938_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[5][26]"
+   ],
+   "rank": 75,
+   "register": "cpuregs",
+   "slack": 11.287267,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10939_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[5][27]"
+   ],
+   "rank": 76,
+   "register": "cpuregs",
+   "slack": 11.289503,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10630_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][6]"
+   ],
+   "rank": 77,
+   "register": "cpuregs",
+   "slack": 11.289596,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10696_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][8]"
+   ],
+   "rank": 78,
+   "register": "cpuregs",
+   "slack": 11.294858,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10698_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][10]"
+   ],
+   "rank": 79,
+   "register": "cpuregs",
+   "slack": 11.295562,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10613_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[25][21]"
+   ],
+   "rank": 80,
+   "register": "cpuregs",
+   "slack": 11.296308,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10930_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[5][18]"
+   ],
+   "rank": 81,
+   "register": "cpuregs",
+   "slack": 11.297838,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10691_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][3]"
+   ],
+   "rank": 82,
+   "register": "cpuregs",
+   "slack": 11.298167,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10640_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][16]"
+   ],
+   "rank": 83,
+   "register": "cpuregs",
+   "slack": 11.302217,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10614_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[25][22]"
+   ],
+   "rank": 84,
+   "register": "cpuregs",
+   "slack": 11.303119,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10697_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][9]"
+   ],
+   "rank": 85,
+   "register": "cpuregs",
+   "slack": 11.30319,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10619_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[25][27]"
+   ],
+   "rank": 86,
+   "register": "cpuregs",
+   "slack": 11.305475,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10621_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[25][29]"
+   ],
+   "rank": 87,
+   "register": "cpuregs",
+   "slack": 11.306822,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_11056_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[9][16]"
+   ],
+   "rank": 88,
+   "register": "cpuregs",
+   "slack": 11.308247,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10331_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][27]"
+   ],
+   "rank": 89,
+   "register": "cpuregs",
+   "slack": 11.309546,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10615_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[25][23]"
+   ],
+   "rank": 90,
+   "register": "cpuregs",
+   "slack": 11.310022,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10629_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][5]"
+   ],
+   "rank": 91,
+   "register": "cpuregs",
+   "slack": 11.310627,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_11049_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[9][9]"
+   ],
+   "rank": 92,
+   "register": "cpuregs",
+   "slack": 11.315205,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_11046_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[9][6]"
+   ],
+   "rank": 93,
+   "register": "cpuregs",
+   "slack": 11.315949,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10631_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[26][7]"
+   ],
+   "rank": 94,
+   "register": "cpuregs",
+   "slack": 11.316013,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10690_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[28][2]"
+   ],
+   "rank": 95,
+   "register": "cpuregs",
+   "slack": 11.321639,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10326_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][22]"
+   ],
+   "rank": 96,
+   "register": "cpuregs",
+   "slack": 11.321853,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_11047_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[9][7]"
+   ],
+   "rank": 97,
+   "register": "cpuregs",
+   "slack": 11.322273,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10329_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][25]"
+   ],
+   "rank": 98,
+   "register": "cpuregs",
+   "slack": 11.324832,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_11045_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[9][5]"
+   ],
+   "rank": 99,
+   "register": "cpuregs",
+   "slack": 11.326032,
+   "src": null
+  },
+  {
+   "cell_type": "sky130_fd_sc_hd__dfxtp_2",
+   "endpoint": "_10317_",
+   "matched_by": "memory word bit",
+   "outcome": "register",
+   "q_net_src": [],
+   "q_nets": [
+    "cpuregs[17][13]"
+   ],
+   "rank": 100,
+   "register": "cpuregs",
+   "slack": 11.33,
+   "src": null
+  }
+ ],
+ "rtl_register_bits": 1825,
+ "rtl_register_names": 120,
+ "sequential_cells": 1597,
+ "share": 0.98
+}

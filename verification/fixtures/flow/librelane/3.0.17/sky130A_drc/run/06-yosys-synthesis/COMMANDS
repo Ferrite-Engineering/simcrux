@@ -1,0 +1,1 @@
+yosys -y /nix/store/zj72c6kq0js310140p7bbcxn9cpz1512-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/pyosys/synthesize.py -- --config-in <run>/06-yosys-synthesis/config.json --extra-in <run>/06-yosys-synthesis/extra.json --output <run>/06-yosys-synthesis/path_adder.nl.v

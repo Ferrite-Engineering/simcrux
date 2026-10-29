@@ -1,0 +1,38 @@
+Net: net3
+  Pin:   output2/A (sky130_fd_sc_hd__clkdlybuf4s25_1)
+    Layer: mcon
+      Partial area ratio:    0.14
+      Required ratio:    3.00 (Gate area) 
+      Cumulative area ratio:    0.14
+      Required ratio:    0.00 (Cumulative area) 
+
+    Layer: met1
+      Partial area ratio:  171.03
+      Required ratio:    0.00 (Gate area) 
+      Cumulative area ratio:  171.03
+      Required ratio:    0.00 (Cumulative area) 
+      Partial area ratio:  854.77
+      Required ratio:  400.00 (Side area) (VIOLATED)
+      Cumulative area ratio:  854.77
+      Required ratio:    0.00 (Cumulative side area) 
+
+    Layer: via
+      Partial area ratio:    0.11
+      Required ratio:    6.00 (Gate area) 
+      Cumulative area ratio:    0.24
+      Required ratio:    0.00 (Cumulative area) 
+
+    Layer: met2
+      Partial area ratio:  164.82
+      Required ratio:    0.00 (Gate area) 
+      Cumulative area ratio:  335.85
+      Required ratio:    0.00 (Cumulative area) 
+      Partial area ratio:  823.57
+      Required ratio: 2956.40 (Side area) 
+      Cumulative area ratio: 1678.34
+      Required ratio:    0.00 (Cumulative side area) 
+
+
+
+[INFO ANT-0002] Found 1 net violations.
+[INFO ANT-0001] Found 1 pin violations.

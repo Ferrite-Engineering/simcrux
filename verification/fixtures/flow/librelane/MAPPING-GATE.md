@@ -107,5 +107,25 @@ measurements, taken with the same tool and not part of the gate:
   register name only; the declaration line comes from the RTL elaboration.
 - Endpoints that are output ports have no register; the path table shows the
   port name.
-- One design, one PDK, one LibreLane release. The measurement is repeated on
-  the newest LibreLane release before 1.2 ships.
+- One design, one PDK. The measurement is repeated on each new LibreLane
+  release (below).
+
+## Repeated on LibreLane 3.0.17
+
+LibreLane 3.0.17, same design, configuration, PDK and command, run by
+`flow-live.yml` (run `40901974610`, 2026-10-29) on GitHub's `ubuntu-latest`
+(Linux x64) rather than on the darwin arm64 machine of the 3.0.16 run.
+`3.0.17/g1.json` is its output and `3.0.17/g1.expected.json` its outcome.
+
+| Measure | 3.0.16 (darwin arm64) | 3.0.17 (Linux x64) |
+|---|---|---|
+| Sequential cells | 1,597 | 1,597 |
+| Sidecar cells joined to the netlist | 6,704 of 6,704 | 6,709 of 6,709 |
+| Worst 100 endpoints that map to an RTL register | **98** | **98** |
+| Output ports among them | 2 | 2 |
+| Distinct registers among the mapped | 1 (`cpuregs`) | 1 (`cpuregs`) |
+| Flip-flops that map, whatever their slack | 1,579 of 1,597 | 1,579 of 1,597 |
+
+**Outcome on 3.0.17: `>=90`, unchanged.** The two output ports rank 38th and
+39th on 3.0.17 (1st and 2nd on 3.0.16): the slacks move with the tool build,
+the mapping does not.

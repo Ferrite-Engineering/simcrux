@@ -18,9 +18,18 @@ import 'flow_librelane_facts.dart';
 
 const _root = 'verification/fixtures/flow/librelane';
 
-/// Version directory to its cases. The current release line and the one
-/// before it; a new release adds a directory and never edits an old one.
+/// Version directory to its cases: every release the reader is verified
+/// for. A new release adds a directory and never edits an old one.
 const _cases = <String, List<String>>{
+  '3.0.17': [
+    'sky130A_met',
+    'gf180mcuD_met',
+    'ihp-sg13g2_met',
+    'sky130A_stopped',
+    'sky130A_timing',
+    'sky130A_drc',
+    'sky130A_antenna',
+  ],
   '3.0.16': [
     'sky130A_met',
     'gf180mcuD_met',
@@ -83,6 +92,7 @@ void main() {
         }
       }
       _file('$_root/3.0.16/g1.expected.json');
+      _file('$_root/3.0.17/g1.expected.json');
     });
 
     test('every fixture file is under 5 MB', () {
@@ -107,6 +117,7 @@ void main() {
       final text = _file('$_root/PROVENANCE.md').readAsStringSync();
       for (final word in [
         'LibreLane',
+        '3.0.17',
         '3.0.16',
         '3.0.15',
         'ciel',
@@ -236,7 +247,7 @@ void main() {
       }
     });
 
-    test('3.0.15 and 3.0.16 write the same step sequence', () {
+    test('3.0.15, 3.0.16 and 3.0.17 write the same step sequence', () {
       List<String> slugs(String version) => [
         for (final d in stepDirs(
           Directory('$_root/$version/sky130A_met/run'),
@@ -244,6 +255,7 @@ void main() {
           dirName(d),
       ];
       expect(slugs('3.0.15'), slugs('3.0.16'));
+      expect(slugs('3.0.17'), slugs('3.0.16'));
     });
 
     test('every kept STA path listing parses and its arithmetic closes', () {
@@ -283,14 +295,30 @@ void main() {
   });
 
   group('G1 expectation', () {
-    test('records the design, the threshold rule and the outcome', () {
-      final g1 = readJson('$_root/3.0.16/g1.expected.json');
-      expect(g1['design'], 'picorv32');
-      expect(g1['min_flip_flops'], 500);
-      expect(g1['endpoints'], 100);
-      expect(g1['outcome'], isIn(['>=90', '60-90', '<60']));
-      final gate = _file('$_root/MAPPING-GATE.md').readAsStringSync();
-      expect(gate, contains(g1['outcome'] as String));
-    });
+    for (final version in ['3.0.16', '3.0.17']) {
+      test('$version records the design, the threshold rule and the '
+          'outcome', () {
+        final g1 = readJson('$_root/$version/g1.expected.json');
+        expect(g1['design'], 'picorv32');
+        expect(g1['min_flip_flops'], 500);
+        expect(g1['endpoints'], 100);
+        expect(g1['outcome'], isIn(['>=90', '60-90', '<60']));
+        final gate = _file('$_root/MAPPING-GATE.md').readAsStringSync();
+        expect(gate, contains(g1['outcome'] as String));
+        expect(gate, contains('LibreLane $version'));
+        // The committed measurement agrees with its expectation.
+        final got = readJson('$_root/$version/g1.json');
+        expect(got['endpoints_counted'], g1['endpoints']);
+        expect(
+          (got['flip_flop_census'] as Map)['flip_flops'] as int,
+          greaterThanOrEqualTo(g1['min_flip_flops'] as int),
+        );
+        final share = (got['share'] as num).toDouble();
+        final outcome = share >= 0.9
+            ? '>=90'
+            : (share >= 0.6 ? '60-90' : '<60');
+        expect(outcome, g1['outcome'], reason: 'share $share');
+      });
+    }
   });
 }

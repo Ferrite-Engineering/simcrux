@@ -159,8 +159,11 @@ jobs:
   # version hash that LibreLane itself pins (librelane/pdk_hashes.yaml), so a
   # LibreLane bump that moves a PDK misses the cache and fetches the new one;
   # a cache that GitHub evicted is fetched again the same way. The current
-  # release runs every case and the mapping gate; the previous release runs
-  # the sky130A reference case its fixture set holds.
+  # release runs every case and the mapping gate; each older release in the
+  # reader's verified range runs the sky130A reference case. Each leg keeps
+  # its trimmed captures as an artifact, the same files the regenerator
+  # writes under verification/fixtures/flow/librelane/<version>/, which is
+  # how a new release's fixture set is captured.
   librelane:
     name: LibreLane fixtures (${{ matrix.librelane }})
     if: ${{ (inputs.only || 'all') == 'all' }}
@@ -171,10 +174,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - librelane: '3.0.16'
-            commit: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          - librelane: '3.0.17'
+            commit: '64ef80802d3d189b476636d2a6b17888c03304ee'
             cases: ''
             all_pdks: true
+          - librelane: '3.0.16'
+            commit: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+            cases: 'sky130A_met'
+            all_pdks: false
           - librelane: '3.0.15'
             commit: 'd7538eca6b526387ebba3bbcdce0a86aee7cffd7'
             cases: 'sky130A_met'
@@ -282,9 +289,22 @@ jobs:
           FLOW_LIVE_REQUIRED: '1'
           FLOW_LIVE_LIBRELANE_CASES: ${{ matrix.cases }}
           FLOW_LIVE_LIBRELANE_WORK: ${{ runner.temp }}/librelane-work
+          FLOW_LIVE_LIBRELANE_OUT: ${{ runner.temp }}/librelane-captures
         run: |
           set -euo pipefail
           flutter test test/static/flow_librelane_live_test.dart --reporter expanded 2>&1 | tee "${RUNNER_TEMP}/librelane-live.log"
+
+      # The trimmed captures, as the regenerator writes them into the fixture
+      # tree: what a new release's fixture set is committed from. Kept even
+      # when a fact drifted, since that is when they are read.
+      - name: Keep the trimmed captures
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: librelane-captures-${{ matrix.librelane }}
+          retention-days: 7
+          if-no-files-found: error
+          path: ${{ runner.temp }}/librelane-captures/
 
       # The gate-level and SDF jobs read the PicoRV32 runs (plain and
       # clock-gated): their records, text netlists and the nominal SDF only.
@@ -326,14 +346,14 @@ jobs:
   # preinstalled on the runner. sky130 comes from the same cache the LibreLane
   # job fills, fetched with ciel when GitHub evicted it.
   librelane-docker:
-    name: LibreLane docker launcher (3.0.16)
+    name: LibreLane docker launcher (3.0.17)
     if: ${{ contains(fromJSON('["all", "librelane-docker"]'), inputs.only || 'all') }}
     runs-on: ubuntu-latest
     # Docker launcher live: 45 minutes. The image pull and one path_adder run
     # are most of it.
     timeout-minutes: 45
     env:
-      LIBRELANE_IMAGE: 'ghcr.io/librelane/librelane:3.0.16'
+      LIBRELANE_IMAGE: 'ghcr.io/librelane/librelane:3.0.17'
     steps:
       - name: Free disk space for the image and the PDK
         shell: bash
@@ -351,7 +371,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: librelane/librelane
-          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          ref: '64ef80802d3d189b476636d2a6b17888c03304ee'
           path: librelane-src
           persist-credentials: false
 
@@ -424,7 +444,7 @@ jobs:
   # FOSSi binary cache LibreLane's install instructions configure. Timed, then
   # timed again warm, into the job summary.
   nix-cold:
-    name: Cold nix develop (3.0.16)
+    name: Cold nix develop (3.0.17)
     if: ${{ contains(fromJSON('["all", "nix-cold"]'), inputs.only || 'all') }}
     runs-on: ubuntu-latest
     # Cold nix develop: 30 minutes. The substitution is a few.
@@ -442,7 +462,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: librelane/librelane
-          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          ref: '64ef80802d3d189b476636d2a6b17888c03304ee'
           path: librelane-src
           persist-credentials: false
 
@@ -467,7 +487,7 @@ jobs:
           nix develop "${GITHUB_WORKSPACE}/librelane-src" --command librelane --version
           warm=$(( $(date +%s) - start ))
           {
-            echo "### Cold nix develop (LibreLane 3.0.16)"
+            echo "### Cold nix develop (LibreLane 3.0.17)"
             echo ""
             echo "- $(nix --version), $(nproc) CPUs"
             echo "- cold: ${cold} s (store ${before} MB to ${after} MB)"
@@ -496,7 +516,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: librelane/librelane
-          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          ref: '64ef80802d3d189b476636d2a6b17888c03304ee'
           path: librelane-src
           persist-credentials: false
 
@@ -602,7 +622,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: librelane/librelane
-          ref: '01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0'
+          ref: '64ef80802d3d189b476636d2a6b17888c03304ee'
           path: librelane-src
           persist-credentials: false
 

@@ -1,0 +1,56 @@
+
+===========================================================================
+Violator List
+============================================================================
+[hold reg-reg] _408_/Q -> _409_/D : -0.032969
+[hold reg-reg] _400_/Q -> _401_/D : -0.032221
+[hold reg-reg] _432_/Q -> _433_/D : -0.031930
+[hold reg-reg] _404_/Q -> _405_/D : -0.030686
+[hold reg-reg] _412_/Q -> _413_/D : -0.029572
+[hold reg-reg] _428_/Q -> _429_/D : -0.027272
+[hold reg-reg] _424_/Q -> _425_/D : -0.027056
+[hold reg-reg] _395_/Q -> _396_/D : -0.025582
+[hold reg-reg] _418_/Q -> _419_/D : -0.024549
+[hold reg-reg] _436_/Q -> _437_/D : -0.024240
+[hold reg-reg] _394_/Q -> _395_/D : -0.024009
+[hold reg-reg] _409_/Q -> _410_/D : -0.023247
+[hold reg-reg] _399_/Q -> _400_/D : -0.023064
+[hold reg-reg] _423_/Q -> _424_/D : -0.022492
+[hold reg-reg] _401_/Q -> _402_/D : -0.022140
+[hold reg-reg] _407_/Q -> _408_/D : -0.021985
+[hold reg-reg] _405_/Q -> _406_/D : -0.021817
+[hold reg-reg] _416_/Q -> _417_/D : -0.021335
+[hold reg-reg] _413_/Q -> _414_/D : -0.020568
+[hold reg-reg] _415_/Q -> _416_/D : -0.020128
+[hold reg-reg] _431_/Q -> _432_/D : -0.019288
+[hold reg-reg] _433_/Q -> _434_/D : -0.019183
+[hold reg-reg] _410_/Q -> _411_/D : -0.018396
+[hold reg-reg] _429_/Q -> _430_/D : -0.017799
+[hold reg-reg] _419_/Q -> _420_/D : -0.017448
+[hold reg-reg] _425_/Q -> _426_/D : -0.017090
+[hold reg-reg] _439_/Q -> _440_/D : -0.016687
+[hold reg-reg] _440_/Q -> _441_/D : -0.016391
+[hold reg-reg] _403_/Q -> _404_/D : -0.015918
+[hold reg-reg] _397_/Q -> _398_/D : -0.015465
+[hold reg-reg] _421_/Q -> _422_/D : -0.014817
+[hold reg-reg] _427_/Q -> _428_/D : -0.014723
+[hold reg-reg] _414_/Q -> _415_/D : -0.014668
+[hold reg-reg] _434_/Q -> _435_/D : -0.014637
+[hold reg-reg] _398_/Q -> _399_/D : -0.014441
+[hold reg-reg] _406_/Q -> _407_/D : -0.014439
+[hold reg-reg] _435_/Q -> _436_/D : -0.014190
+[hold reg-reg] _438_/Q -> _439_/D : -0.013984
+[hold reg-reg] _402_/Q -> _403_/D : -0.013579
+[hold reg-reg] _430_/Q -> _431_/D : -0.012881
+[hold reg-reg] _437_/Q -> _438_/D : -0.012447
+[hold reg-reg] _426_/Q -> _427_/D : -0.012117
+[hold reg-reg] _422_/Q -> _423_/D : -0.011759
+[hold reg-reg] _420_/Q -> _421_/D : -0.009186
+[hold reg-reg] _411_/Q -> _412_/D : -0.008693
+[hold reg-reg] _396_/Q -> _397_/D : -0.008218
+Writing metric timing__hold_vio__count__corner:nom_typ_1p20V_25C: 46
+Writing metric timing__hold_r2r__ws__corner:nom_typ_1p20V_25C: -0.032969
+Writing metric timing__hold_r2r_vio__count__corner:nom_typ_1p20V_25C: 46
+Writing metric timing__setup_vio__count__corner:nom_typ_1p20V_25C: 0
+Writing metric timing__setup_r2r__ws__corner:nom_typ_1p20V_25C: 7.449079
+Writing metric timing__setup_r2r_vio__count__corner:nom_typ_1p20V_25C: 0

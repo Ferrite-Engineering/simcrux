@@ -1,0 +1,29 @@
+
+===========================================================================
+Violator List
+============================================================================
+[setup reg-reg] _328_/Q -> _396_/D : -1.308705
+[setup reg-reg] _328_/Q -> _399_/D : -1.308019
+[setup reg-reg] _328_/Q -> _398_/D : -1.303125
+[setup reg-reg] _328_/Q -> _397_/D : -1.267401
+[setup reg-reg] _328_/Q -> _395_/D : -1.044824
+[setup reg-reg] _328_/Q -> _394_/D : -0.951623
+[setup reg-reg] _328_/Q -> _392_/D : -0.847336
+[setup reg-reg] _328_/Q -> _393_/D : -0.822691
+[setup reg-reg] _328_/Q -> _390_/D : -0.819289
+[setup reg-out] _386_/Q -> q : -0.760218
+[setup reg-reg] _328_/Q -> _389_/D : -0.674175
+[setup reg-reg] _328_/Q -> _386_/D : -0.662482
+[setup reg-reg] _328_/Q -> _391_/D : -0.654930
+[setup reg-reg] _328_/Q -> _387_/D : -0.653078
+[setup reg-reg] _328_/Q -> _388_/D : -0.617405
+[setup reg-reg] _328_/Q -> _385_/D : -0.581132
+[setup reg-reg] _328_/Q -> _384_/D : -0.279772
+[setup reg-reg] _328_/Q -> _382_/D : -0.203267
+[setup reg-reg] _328_/Q -> _383_/D : -0.184170
+Writing metric timing__hold_vio__count__corner:nom_tt_025C_1v80: 0
+Writing metric timing__hold_r2r__ws__corner:nom_tt_025C_1v80: 0.065638
+Writing metric timing__hold_r2r_vio__count__corner:nom_tt_025C_1v80: 0
+Writing metric timing__setup_vio__count__corner:nom_tt_025C_1v80: 19
+Writing metric timing__setup_r2r__ws__corner:nom_tt_025C_1v80: -1.308705
+Writing metric timing__setup_r2r_vio__count__corner:nom_tt_025C_1v80: 18
