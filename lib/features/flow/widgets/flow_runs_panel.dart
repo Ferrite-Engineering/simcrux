@@ -684,7 +684,7 @@ class _StepsTable extends ConsumerWidget {
 /// One row of the metrics table: a metric (its base and any modifier other
 /// than the corner) and its value per column.
 class _MetricRow {
-  _MetricRow(this.key, this.base);
+  _MetricRow(this.key, this.base, this.modifiers);
 
   /// The METRICS2.1 key without its corner, shown in the tooltip.
   final String key;
@@ -692,8 +692,30 @@ class _MetricRow {
   /// The base metric.
   final String base;
 
+  /// The modifiers other than the corner (nextpnr's `bel:ICESTORM_LC`).
+  final List<MetricModifier> modifiers;
+
   /// Column name (`''` for the design-wide value) to value.
   final Map<String, Object?> values = <String, Object?>{};
+
+  /// The base's label, else the label of the base joined with its
+  /// modifiers' names, the way nextpnr's resource keys are labelled.
+  FlowMetricLabel? label(L10N l10n) =>
+      FlowLabels.metric(l10n, base) ??
+      (modifiers.isEmpty
+          ? null
+          : FlowLabels.metric(
+              l10n,
+              <String>[base, for (final m in modifiers) m.name].join('__'),
+            ));
+
+  /// The Metric cell: the label, with the modifiers' values after it so
+  /// rows that share a label stay apart; null when SimCrux has no label.
+  String? title(L10N l10n) {
+    final text = label(l10n)?.label;
+    if (text == null || modifiers.isEmpty) return text;
+    return '$text, ${modifiers.map((m) => m.value).join(', ')}';
+  }
 }
 
 class _MetricsTable extends StatefulWidget {
@@ -738,7 +760,7 @@ class _MetricsTableState extends State<_MetricsTable>
       final rowKey = MetricKey(parsed.base, others).format();
       final row = rows.putIfAbsent(
         rowKey,
-        () => _MetricRow(rowKey, parsed.base),
+        () => _MetricRow(rowKey, parsed.base, others),
       );
       row.values[corner ?? ''] = value;
       if (corner == null) {
@@ -787,7 +809,7 @@ class _MetricsTableState extends State<_MetricsTable>
     String shown(_MetricRow row, int i) {
       final value = row.values[_columns[i]];
       if (value == null) return '';
-      final unit = FlowLabels.metric(l10n, row.base)?.unit;
+      final unit = row.label(l10n)?.unit;
       final text = FlowLabels.value(value);
       return unit == null ? text : '$text $unit';
     }
@@ -805,7 +827,7 @@ class _MetricsTableState extends State<_MetricsTable>
       rowCount: _rows.length,
       rowLabel: (r) {
         final row = _rows[r];
-        final label = FlowLabels.metric(l10n, row.base);
+        final label = row.label(l10n);
         final spokenUnit = label?.spokenUnit;
         final values = <String>[
           for (var i = 0; i < _columns.length; i++)
@@ -818,13 +840,13 @@ class _MetricsTableState extends State<_MetricsTable>
               ),
         ];
         return l10n.flowMetricRowSpoken(
-          label?.label ?? row.key,
+          row.title(l10n) ?? row.key,
           values.join(', '),
         );
       },
       cellsBuilder: (context, r) {
         final row = _rows[r];
-        final label = FlowLabels.metric(l10n, row.base)?.label;
+        final label = row.title(l10n);
         return <Widget>[
           CruxTableCell(
             text: label ?? row.key,

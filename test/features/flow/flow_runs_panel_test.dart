@@ -14,6 +14,7 @@ import 'package:simcrux/features/flow/widgets/flow_dialogs.dart';
 import 'package:simcrux/features/flow/widgets/flow_runs_panel.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
+import 'package:simcrux/services/flow/flow_run_reading.dart';
 import 'package:simcrux/shared/widgets/simcrux_feature_tier_badge.dart';
 
 import 'flow_panel_harness.dart';
@@ -267,6 +268,48 @@ void main() {
     expect(metrics.label, words.flowMetricsTableLabel);
     expect(metrics.value, contains(words.flowMetricSetupWorstSlack));
     expect(metrics.value, contains(words.flowUnitNanoseconds));
+  });
+
+  testWidgets("nextpnr's resource keys are labelled by modifier name, each "
+      'row named by its BEL type', (tester) async {
+    final reading = nextpnrReading('t3', wns: -1.5, fmax: 40);
+    final run = reading.run;
+    await pumpFlowPanel(
+      tester,
+      index: FlowRunIndex(
+        runs: <FlowRunIndexEntry>[
+          FlowRunIndexEntry(
+            reading: FlowReading(
+              run: FlowRun(
+                ref: run.ref,
+                verdict: run.verdict,
+                metrics: <String, Object?>{
+                  ...run.metrics,
+                  'utilization__used__bel:ICESTORM_LC': 182,
+                  'utilization__used__bel:SB_IO': 31,
+                },
+              ),
+              reader: reading.reader,
+              target: reading.target,
+              wnsNs: reading.wnsNs,
+              fmaxMhz: reading.fmaxMhz,
+            ),
+            origin: FlowRunOrigin.project,
+          ),
+        ],
+      ),
+    );
+    final words = l10n(tester);
+    await tester.tap(find.text(words.flowMetricsTableLabel));
+    await tester.pumpAndSettle();
+    final lc = '${words.flowMetricBelsUsed}, ICESTORM_LC';
+    expect(find.text(lc), findsOneWidget);
+    expect(find.text('${words.flowMetricBelsUsed}, SB_IO'), findsOneWidget);
+    expect(find.text('utilization__used__bel:ICESTORM_LC'), findsNothing);
+    final cell = tester.widget<CruxTableCell>(
+      find.widgetWithText(CruxTableCell, lc),
+    );
+    expect(cell.tooltip, 'utilization__used__bel:ICESTORM_LC');
   });
 
   testWidgets('a LibreLane run says its paths are not read yet', (
