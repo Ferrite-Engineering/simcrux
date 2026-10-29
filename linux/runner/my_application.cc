@@ -142,6 +142,7 @@ MyApplication* my_application_new() {
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
   g_set_prgname(APPLICATION_ID);
+  crux_prefer_x11_when_only_display_is_set();
   crux_skip_accessibility_bridge_without_session_bus("SimCrux");
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
