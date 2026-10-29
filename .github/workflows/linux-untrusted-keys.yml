@@ -92,10 +92,10 @@ jobs:
       - name: Cache pub dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            ${{ steps.flutter.outputs.pub-cache-path }}
-            .dart_tool/
-            !.dart_tool/build
+          # The pub cache only. A restored .dart_tool/ says the native assets
+          # are built while build/ is empty, and the release build then fails
+          # at install: "file INSTALL cannot find build/native_assets/linux".
+          path: ${{ steps.flutter.outputs.pub-cache-path }}
           key: pub-untrusted-keys-${{ hashFiles('pubspec.lock') }}
           restore-keys: pub-untrusted-keys-
 
