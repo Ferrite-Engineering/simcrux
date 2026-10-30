@@ -145,7 +145,7 @@ packages:
       path: "crux-shared/packages/crux_cxp"
       relative: true
     source: path
-    version: "0.12.0"
+    version: "0.13.0"
   crux_cxp_ui:
     dependency: "direct main"
     description:
@@ -401,6 +401,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.15"
+  edacrux_cxp:
+    dependency: transitive
+    description:
+      path: "crux-shared/packages/edacrux_cxp"
+      relative: true
+    source: path
+    version: "0.1.0"
   fake_async:
     dependency: "direct dev"
     description:
