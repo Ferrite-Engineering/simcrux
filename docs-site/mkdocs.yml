@@ -74,6 +74,7 @@ nav:
       - Pass/fail detection: pass-fail-detection.md
       - The results dashboard: results-dashboard.md
       - Waveforms & debug: waveforms-and-debug.md
+      - ROHD + EDACrux, from 1.2: rohd-and-edacrux.md
       - Dart tests and ROHD: rohd.md
   - Formal & implementation flow:
       - Formal verification, from 1.2: formal.md

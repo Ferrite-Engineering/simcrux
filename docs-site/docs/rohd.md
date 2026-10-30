@@ -5,6 +5,9 @@ SimCrux runs and reads the tests of a Dart project, which is how a
 a regression run next to your Verilog, VHDL and cocotb tests. It works with any
 `package:test` suite; the ROHD-VF details below apply when ROHD-VF is in use.
 
+This is from SimCrux 1.2. For the whole path from ROHD to SimCrux, see
+[ROHD + EDACrux](rohd-and-edacrux.md).
+
 This feature is labelled **ROHD 0.7 or later (source tracing)** because the
 source locations that Go to Source opens come from Dart's own stack traces and
 test declarations, and the companion features for generated SystemVerilog and
