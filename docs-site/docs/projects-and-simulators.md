@@ -67,7 +67,7 @@ suites:
 | `project_id:` | top level | Optional. The project's identity across machines, 1 to 64 letters, digits, `.`, `_` or `-`. The shared team database pools runs under it, so two checkouts of one repository and the CI job that pushes with `push-results --project <id>` share one history; a project that declares none keeps its history local. See [Team database](team-database.md#project-identity). |
 | `name:` | test | Required. The test name; the test id is `<suite>/<name>`. |
 | `top:` | test | Required. The top-level module or entity to elaborate and run. |
-| `simulator:` | defaults, suite, test | Required at one of the three levels: `icarus`, `verilator`, `ghdl`, `cocotb`, `riscv_arch` or `riscv_formal`, and from 1.2 `sby` or `eqy` (see [Formal verification](formal.md#config)). There is no built-in default, so a test that inherits none does not load. |
+| `simulator:` | defaults, suite, test | Required at one of the three levels: `icarus`, `verilator`, `ghdl`, `cocotb`, `dart_test`, `riscv_arch` or `riscv_formal`, and from 1.2 `sby` or `eqy` (see [Formal verification](formal.md#config)). There is no built-in default, so a test that inherits none does not load. |
 | `sources:` | suite, test | HDL (and testbench) files, relative to the project file. `.f` filelists are expanded. |
 | `include_dirs:` | suite, test | Include / library search directories. |
 | `defines:` | suite, test | Preprocessor defines, `KEY: 'value'`. |
@@ -350,6 +350,7 @@ only the Verilator driver takes extra flags (below).
 | Verilator | `verilator` | `verilator --cc --exe --build … [--timing] -Wall -Wno-fatal [args] sim_main.cpp <sources>` → `./obj_dir/V<top>` | SimCrux generates `sim_main.cpp`. Warnings are printed and captured but never fail the build. |
 | GHDL | `ghdl` | analyse → elaborate → run, always with `--std=08 --ieee=synopsys` | `include_dirs:` become `-P<dir>` library search paths. Writes the waveform itself. |
 | Cocotb | `cocotb` | `make` in the test's working directory, with `SIM`, `TOPLEVEL` and `TOPLEVEL_LANG` | Copies the test's `sources:` (list your `Makefile` and Python module there too) into the working directory. |
+| Dart test (ROHD) | `dart_test` | `dart test --file-reporter json:<path>` in the package, or a `dart test` JSON report read as it is | See [Dart tests and ROHD](rohd.md). |
 | RISC-V architectural tests | `riscv_arch` | Your core's command per test, then a signature comparison | See [RISC-V](#riscv). |
 | riscv-formal | `riscv_formal` | One SymbiYosys `sby` job per bounded proof | See [RISC-V](#riscv). |
 | SymbiYosys | `sby` | `sby -f -d <work dir>/<task> --live jsonl …` per task | From 1.2. See [Formal verification](formal.md). |

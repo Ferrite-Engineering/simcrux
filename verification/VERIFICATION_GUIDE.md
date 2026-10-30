@@ -6583,6 +6583,46 @@ unchanged at Open Core with the beta period over.
 
 ---
 
+## 28. Dart tests and ROHD (ROHD 0.7 or later, source tracing)
+
+### 28.1 What it covers
+
+The `dart_test` driver runs `dart test` for a Dart project, or reads a `dart test`
+JSON report, and shows each case in the inspector with Go to Source. A ROHD-VF
+failure is classified as a failure, ROHD-VF log lines are split into severity,
+simulated time and logger, and objection warnings are surfaced.
+
+### 28.2 Setup
+
+A project with a `simcrux.yaml` test using `simulator: dart_test` and a Dart test
+file under `sources:`; or a `dart test --reporter json` file under `sources:`. The
+committed fixture is `fixtures/rohd/dart-test.json` (see its README for the pinned
+ROHD commits and the regenerator).
+
+### 28.3 Expected behaviour
+
+- Run mode launches `dart test --reporter expanded --file-reporter json:<run folder>/dart-test.json <files>` in the package folder; the console output is the row's log. `[Coverage: UNIT]` (`dart_test_driver_test.dart`)
+- A report with a failing case fails the row even when the exit code is 0; with no report the exit code decides. `[Coverage: UNIT]` (`dart_test_driver_test.dart`)
+- A JSON report under `sources:` is read without running anything; a file that is not a report, or is missing, gives Unknown with a message and never throws. `[Coverage: UNIT]` (`dart_test_driver_test.dart`)
+- The real ROHD fixture parses to four cases; the ROHD-VF `result: error` with the `Test._checkAll` frame is a failure; a plain exception stays an error; a truncated stream marks the run unfinished. `[Coverage: UNIT]` (`dart_test_report_test.dart`)
+- `[SEVERE] @ <time> | <logger>: <message>` lines are split; other lines stay whole; objection warnings are counted. `[Coverage: UNIT]` (`dart_test_report_test.dart`, `dart_test_metrics_test.dart`)
+- The inspector's Dart tests section lists failing cases first, shows the objection and unfinished notes, and Go to Source opens the editor at the failing frame (else the declaration). `[Coverage: UNIT]` (`inspector_dart_tests_test.dart`); `[Coverage: MANUAL]` open a failing case's Go to Source with VS Code configured and confirm the cursor lands on the failing line.
+- Strings render in en, zh_CN, zh, ja and ko. `[Coverage: UNIT]` (`inspector_dart_tests_test.dart`, `l10n_house_style_guard_test.dart`)
+
+### 28.4 Edge cases
+
+Malformed lines, events of unknown type and fields of the wrong type in the stream are skipped; a test file that does not load is an error case; a successful hidden loading step is not a case. `[Coverage: UNIT]` (`dart_test_report_test.dart`)
+
+### 28.5 Tier-gate scenarios
+
+None. The driver is open core and never gated.
+
+### 28.6 Automation Assessment
+
+Fully automated except the editor hand-off, which needs a real editor.
+
+---
+
 ## 9+. Subsequent features
 
 Add a new top-level section in the same commit set that ships the feature.

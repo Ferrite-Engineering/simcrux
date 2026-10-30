@@ -1,0 +1,25 @@
+name: rohd_fixture
+publish_to: none
+environment:
+  sdk: ^3.6.0
+dependencies:
+  rohd:
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: 2d84f73abfb1ba95c64d218e9b13a12e8416249c
+  rohd_vf:
+    git:
+      url: https://github.com/intel/rohd-vf.git
+      ref: dd830d3b83438dfa5a06b0f0d8841eca16e97046
+  logging: ^1.0.0
+  test: any
+dependency_overrides:
+  rohd:
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: 2d84f73abfb1ba95c64d218e9b13a12e8416249c
+  rohd_hierarchy:
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: 2d84f73abfb1ba95c64d218e9b13a12e8416249c
+      path: packages/rohd_hierarchy

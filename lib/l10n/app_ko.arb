@@ -2736,6 +2736,94 @@
   "@inspectorSectionFormal": {
     "description": "Section header in the inspector for the explanation of a formal row: why it did not run, or why its result depends on state before the trace began."
   },
+  "inspectorSectionDartTests": "Dart 테스트",
+  "@inspectorSectionDartTests": {
+    "description": "Section header in the inspector for the cases of a Dart test run (a ROHD or ROHD-VF testbench run with dart test)."
+  },
+  "inspectorDartTestsSummary": "테스트: {tests}개. 실패: {failing}개. 건너뜀: {skipped}개.",
+  "@inspectorDartTestsSummary": {
+    "description": "One-sentence summary of a Dart test run in the inspector: how many cases ran, failed or errored, and were skipped.",
+    "placeholders": {
+      "tests": {
+        "type": "int"
+      },
+      "failing": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsObjections": "ROHD-VF 오브젝션 경고: {count}건. 시뮬레이션이 끝날 때까지 해제되지 않은 오브젝션이 있습니다.",
+  "@inspectorDartTestsObjections": {
+    "description": "Note in the inspector when ROHD-VF warned that the simulation ended before every objection was dropped. {count} is how many warnings the run printed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsIncomplete": "테스트 실행이 끝나지 않아 목록에 누락된 케이스가 있을 수 있습니다.",
+  "@inspectorDartTestsIncomplete": {
+    "description": "Note in the inspector when the dart test run ended before it reported its final event, so cases may be missing from the list."
+  },
+  "inspectorDartTestsDuration": "{ms} ms",
+  "@inspectorDartTestsDuration": {
+    "description": "Wall-clock duration of one Dart test case in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsLogEntry": "{severity} 시각 {time}, {logger}: {message}",
+  "@inspectorDartTestsLogEntry": {
+    "description": "One ROHD-VF log line of a failing Dart test case. {severity} is the level such as SEVERE, {time} the simulated time it was logged at, {logger} the component that logged it, {message} the text.",
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      },
+      "time": {
+        "type": "int"
+      },
+      "logger": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorDartTestsGoToSource": "소스로 이동",
+  "@inspectorDartTestsGoToSource": {
+    "description": "Button on a Dart test case row that opens the Dart source file at the failing line in the configured editor."
+  },
+  "inspectorDartTestsGoToSourceTooltip": "편집기에서 {location} 열기",
+  "@inspectorDartTestsGoToSourceTooltip": {
+    "description": "Tooltip of the Go to Source button on a Dart test case. {location} is the file name and line, for example adder_test.dart:42.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorDartTestsStatusPass": "통과",
+  "@inspectorDartTestsStatusPass": {
+    "description": "Status word for a Dart test case that passed."
+  },
+  "inspectorDartTestsStatusFail": "실패",
+  "@inspectorDartTestsStatusFail": {
+    "description": "Status word for a Dart test case whose check failed, including a ROHD-VF test that logged a severe message."
+  },
+  "inspectorDartTestsStatusError": "오류",
+  "@inspectorDartTestsStatusError": {
+    "description": "Status word for a Dart test case that threw an unexpected exception or never finished."
+  },
+  "inspectorDartTestsStatusSkip": "건너뜀",
+  "@inspectorDartTestsStatusSkip": {
+    "description": "Status word for a Dart test case that was skipped."
+  },
   "importFormalTitle": "정형 검증 프로젝트 가져오기",
   "@importFormalTitle": {
     "description": "Title of the Import Formal Project dialog."

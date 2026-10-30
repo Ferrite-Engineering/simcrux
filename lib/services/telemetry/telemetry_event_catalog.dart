@@ -600,6 +600,7 @@ const List<String> kSimcruxSimulatorTokens = <String>[
   'verilator',
   'ghdl',
   'cocotb',
+  'dart_test',
   'riscv_arch',
   'riscv_formal',
   'sby',

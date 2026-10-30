@@ -10,6 +10,7 @@ fixtures/
 ├── orchestration/       # scheduler/reaper scenarios replayed through a fake process runner
 │   ├── <scenario>/generated/   # simcrux.yaml + behaviors.json + expected_results.ndjson
 │   └── helpers/README.md       # how the corpus is regenerated and what each file holds
+├── rohd/                # real `dart test` JSON from ROHD and ROHD-VF tests, pinned ROHD commits; see its README.md
 ├── riscv_formal/        # pre-captured SymbiYosys outputs for `riscv: { mode: demo }` (see its README.md)
 ├── formal/              # sby, EQY and SVA-frontend corpus with hand-written expectations; see its PROVENANCE.md
 │   ├── sby/<case>/      # RTL + .sby + <case>.expected.json; captured/ holds logs, status stream, status.sqlite, VCDs
@@ -31,6 +32,7 @@ Each corpus has a regenerator under `../../tool/`:
 | `golden_compare/` | `dart run tool/generate_golden_compare_fixtures.dart` |
 | `orchestration/` | `dart run tool/generate_orchestration_fixtures.dart` (also writes `test/fixtures/orchestration/`) |
 | `riscv_formal/` | `dart run tool/generate_riscv_formal_fixtures.dart` |
+| `rohd/` | `verification/fixtures/rohd/generator/generate.sh <empty work dir> verification/fixtures/rohd dart-test.json` (needs network; pinned ROHD commits) |
 | `formal/` | `tool/regenerate_formal_fixtures.sh --suite <newest oss-cad-suite> --suite <previous> --suite <one before>` (captures only; it never writes or touches a `*.expected.*` file) |
 | `flow/nextpnr/` | `tool/flow/regen_nextpnr_fixtures.sh --suite <oss-cad-suite dir>` (captures only; the expectation JSON files beside the captures are hand-written) |
 | `flow/fusesoc/` | `tool/flow/regen_fusesoc_fixture.sh --suite <oss-cad-suite dir> --yosys-dir <dir>` (needs network) |

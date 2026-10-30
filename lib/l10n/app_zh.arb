@@ -2736,6 +2736,94 @@
   "@inspectorSectionFormal": {
     "description": "Section header in the inspector for the explanation of a formal row: why it did not run, or why its result depends on state before the trace began."
   },
+  "inspectorSectionDartTests": "Dart 测试",
+  "@inspectorSectionDartTests": {
+    "description": "Section header in the inspector for the cases of a Dart test run (a ROHD or ROHD-VF testbench run with dart test)."
+  },
+  "inspectorDartTestsSummary": "测试数：{tests}。失败：{failing}。跳过：{skipped}。",
+  "@inspectorDartTestsSummary": {
+    "description": "One-sentence summary of a Dart test run in the inspector: how many cases ran, failed or errored, and were skipped.",
+    "placeholders": {
+      "tests": {
+        "type": "int"
+      },
+      "failing": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsObjections": "ROHD-VF 异议警告：{count} 条。有组件提出的异议在仿真结束前一直未被撤销。",
+  "@inspectorDartTestsObjections": {
+    "description": "Note in the inspector when ROHD-VF warned that the simulation ended before every objection was dropped. {count} is how many warnings the run printed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsIncomplete": "测试运行未完成，列表中可能缺少用例。",
+  "@inspectorDartTestsIncomplete": {
+    "description": "Note in the inspector when the dart test run ended before it reported its final event, so cases may be missing from the list."
+  },
+  "inspectorDartTestsDuration": "{ms} ms",
+  "@inspectorDartTestsDuration": {
+    "description": "Wall-clock duration of one Dart test case in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectorDartTestsLogEntry": "{severity}，时间 {time}，{logger}：{message}",
+  "@inspectorDartTestsLogEntry": {
+    "description": "One ROHD-VF log line of a failing Dart test case. {severity} is the level such as SEVERE, {time} the simulated time it was logged at, {logger} the component that logged it, {message} the text.",
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      },
+      "time": {
+        "type": "int"
+      },
+      "logger": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorDartTestsGoToSource": "转到源代码",
+  "@inspectorDartTestsGoToSource": {
+    "description": "Button on a Dart test case row that opens the Dart source file at the failing line in the configured editor."
+  },
+  "inspectorDartTestsGoToSourceTooltip": "在编辑器中打开 {location}",
+  "@inspectorDartTestsGoToSourceTooltip": {
+    "description": "Tooltip of the Go to Source button on a Dart test case. {location} is the file name and line, for example adder_test.dart:42.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectorDartTestsStatusPass": "通过",
+  "@inspectorDartTestsStatusPass": {
+    "description": "Status word for a Dart test case that passed."
+  },
+  "inspectorDartTestsStatusFail": "失败",
+  "@inspectorDartTestsStatusFail": {
+    "description": "Status word for a Dart test case whose check failed, including a ROHD-VF test that logged a severe message."
+  },
+  "inspectorDartTestsStatusError": "错误",
+  "@inspectorDartTestsStatusError": {
+    "description": "Status word for a Dart test case that threw an unexpected exception or never finished."
+  },
+  "inspectorDartTestsStatusSkip": "已跳过",
+  "@inspectorDartTestsStatusSkip": {
+    "description": "Status word for a Dart test case that was skipped."
+  },
   "importFormalTitle": "导入形式验证项目",
   "@importFormalTitle": {
     "description": "Title of the Import Formal Project dialog."

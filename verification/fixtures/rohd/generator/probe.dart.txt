@@ -1,0 +1,61 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_fixture/design.dart';
+
+Future<void> main(List<String> args) async {
+  final outDir = args.isEmpty ? 'out' : args.first;
+  final traceOn = !args.contains('--no-trace');
+  Directory(outDir).createSync(recursive: true);
+  final root = Directory.current.path;
+
+  if (traceOn) {
+    SourceTracer.activate();
+  }
+
+  final clk = SimpleClockGenerator(10).clk;
+  final pkt = Pkt(name: 'pkt_src');
+  final k = Logic(name: 'k', width: 8);
+  final top = Top(clk, pkt, k);
+  await top.build();
+
+  // 1. SystemVerilog, single file, plus FLC sidecar
+  final sv = SystemVerilogService(top, register: false);
+  File('$outDir/top.sv').writeAsStringSync(sv.output);
+  if (traceOn) {
+    final trace =
+        TraceService(top, svService: sv, packageRoot: root, register: false);
+    stdout.writeln('hasTraces=${trace.hasTraces}');
+    trace.write(outDir);
+    // also the per-module variant
+    final svPer = SystemVerilogService(top, multiFile: true, register: false)
+      ..writeFiles('$outDir/per_module');
+    TraceService(top,
+            svService: svPer,
+            packageRoot: root,
+            register: false,
+            svOutputMode: SvOutputMode.perModule)
+        .write('$outDir/per_module');
+    File('$outDir/traces.txt').writeAsStringSync(
+        SourceTracer.hierarchyReport(top, packageRoot: root));
+  }
+
+  // 3. Netlist JSON (with and without trace)
+  final netlist = NetlistService(top,
+      configuration: NetlistSynthesizerConfiguration(trace: traceOn),
+      packageRoot: root,
+      register: false);
+  File('$outDir/top.netlist.json').writeAsStringSync(
+      const JsonEncoder.withIndent('  ').convert(jsonDecode(netlist.json)));
+
+  // 2. VCD
+  top.dumpWaves(outputPath: '$outDir/top.vcd');
+  pkt.data.inject(3);
+  pkt.valid.inject(1);
+  k.inject(4);
+  Simulator.setMaxSimTime(60);
+  Simulator.registerAction(25, () => pkt.valid.put(0));
+  await Simulator.run();
+  stdout.writeln('done: out=${top.out.value}');
+}

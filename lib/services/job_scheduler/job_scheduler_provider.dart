@@ -19,6 +19,7 @@ import 'package:simcrux/services/job_scheduler/simulator_budget_provider.dart';
 import 'package:simcrux/services/job_scheduler/waveform_archive_provider.dart';
 import 'package:simcrux/services/retry_policy/retry_policy_provider.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
+import 'package:simcrux/services/simulator/dart_test_driver.dart';
 import 'package:simcrux/services/simulator/demo_simulator_driver.dart';
 import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/ghdl_driver.dart';
@@ -75,6 +76,8 @@ final Provider<SimulatorDriverRegistry> simulatorDriverRegistryProvider =
           'verilator': VerilatorDriver(reaper: reaper),
           'ghdl': GhdlDriver(reaper: reaper),
           'cocotb': CocotbDriver(reaper: reaper),
+          // A Dart project's tests: ROHD and ROHD-VF testbenches. Never gated.
+          DartTestDriver.kId: DartTestDriver(reaper: reaper),
           // RISC-V compatibility. Registered unconditionally and **never**
           // tier-gated: the compatibility verdict is open core, forever.
           // Note this also means `simulatorVersionsProvider` will probe the

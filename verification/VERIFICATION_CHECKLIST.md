@@ -1335,6 +1335,13 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] `flow gls` takes an edition's extension: its options, a licence check before any project or run work, the options it prepares, a scheduler between the pairs and the simulators, its own report and exit code; without its flag nothing changes — `[Coverage: UNIT]` (`flow_cli_gls_extension_test.dart`)
 - [ ] `flow.sdf.annotated` is catalogued (result full, partial or failed; interconnect true or false), listed as recorded only by the Pro build — `[Coverage: UNIT]` (`telemetry_catalog_conformance_test.dart`)
 
+### Dart tests and ROHD (guide §28)
+
+- [ ] `simulator: dart_test` runs `dart test` with a JSON file reporter in the package and keeps the console output as the log; a failing report fails the row even at exit code 0 — `[Coverage: UNIT]` (`dart_test_driver_test.dart`)
+- [ ] A `dart test` JSON report under `sources:` is read without running anything; a file that is not a report is Unknown with a message — `[Coverage: UNIT]` (`dart_test_driver_test.dart`)
+- [ ] A ROHD-VF `Test failed.` shows as Failed, its SEVERE log lines are split into severity, time and logger, and objection warnings are counted — `[Coverage: UNIT]` (`dart_test_report_test.dart`, `inspector_dart_tests_test.dart`)
+- [ ] Go to Source on a failing case opens the Dart file at the failing line — `[Coverage: UNIT]` (`inspector_dart_tests_test.dart`), `[Coverage: MANUAL]` (guide §28.3)
+
 ---
 
 ## Subsequent features

@@ -1,0 +1,33 @@
+{"protocolVersion":"0.1.1","runnerVersion":"1.33.0","pid":43331,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"test/probe_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading test/probe_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":6,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":1174}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":null,"column":null,"url":null},"type":"group","time":1176}
+{"test":{"id":3,"name":"plain rohd adder passes","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":63,"column":3,"url":"file:///work/rohd_fixture/test/probe_test.dart"},"type":"testStart","time":1176}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1203}
+{"test":{"id":4,"name":"plain rohd adder fails","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":71,"column":3,"url":"file:///work/rohd_fixture/test/probe_test.dart"},"type":"testStart","time":1204}
+{"testID":4,"error":"Expected: <8>\n  Actual: <7>\n","stackTrace":"package:matcher            expect\ntest/probe_test.dart 76:5  main.<fn>\n","isFailure":true,"type":"error","time":1213}
+{"testID":4,"result":"failure","skipped":false,"hidden":false,"type":"testDone","time":1213}
+{"test":{"id":5,"name":"rohd-vf passes","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":79,"column":3,"url":"file:///work/rohd_fixture/test/probe_test.dart"},"type":"testStart","time":1214}
+{"testID":5,"messageType":"print","message":"[WARNING] @ 0 | add_test: Simulator has no registered events.","type":"print","time":1221}
+{"testID":5,"messageType":"print","message":"[FINEST] @ 0 | add_test: Waiting for objections to finish...","type":"print","time":1221}
+{"testID":5,"messageType":"print","message":"[INFO] @ 0 | add_test: ok: 87 + 58","type":"print","time":1229}
+{"testID":5,"messageType":"print","message":"[INFO] @ 0 | add_test: ok: 4 + 85","type":"print","time":1230}
+{"testID":5,"messageType":"print","message":"[INFO] @ 0 | add_test: ok: 77 + 4","type":"print","time":1230}
+{"testID":5,"messageType":"print","message":"[WARNING] @ 0 | add_test: Simulation has ended before all objections were dropped!","type":"print","time":1230}
+{"testID":5,"messageType":"print","message":"[FINEST] @ 0 | add_test: Running end of test checks.","type":"print","time":1230}
+{"testID":5,"messageType":"print","message":"[FINEST] @ 0 | add_test: Simulation ended, test complete.","type":"print","time":1232}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1232}
+{"test":{"id":6,"name":"rohd-vf fails","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":85,"column":3,"url":"file:///work/rohd_fixture/test/probe_test.dart"},"type":"testStart","time":1233}
+{"testID":6,"messageType":"print","message":"[WARNING] @ 0 | add_test: Simulator has no registered events.","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[FINEST] @ 0 | add_test: Waiting for objections to finish...","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[SEVERE] @ 0 | add_test: mismatch: 20 + 37 = 57","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"Test failure detected, but continuing to run to end.","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[SEVERE] @ 0 | add_test: mismatch: 78 + 49 = 127","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[SEVERE] @ 0 | add_test: mismatch: 6 + 58 = 64","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[WARNING] @ 0 | add_test: Simulation has ended before all objections were dropped!","type":"print","time":1235}
+{"testID":6,"messageType":"print","message":"[FINEST] @ 0 | add_test: Running end of test checks.","type":"print","time":1235}
+{"testID":6,"error":"Exception: Test failed.","stackTrace":"package:rohd_vf/src/test.dart 171:7  Test._checkAll\npackage:rohd_vf/src/test.dart 216:5  Test.start\n===== asynchronous gap ===========================\ntest/probe_test.dart 87:5            main.<fn>\n","isFailure":false,"type":"error","time":1239}
+{"testID":6,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":1240}
+{"success":false,"type":"done","time":1245}

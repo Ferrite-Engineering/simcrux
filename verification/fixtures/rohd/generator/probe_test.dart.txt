@@ -1,0 +1,89 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:logging/logging.dart';
+import 'package:rohd/rohd.dart';
+import 'package:rohd_vf/rohd_vf.dart';
+import 'package:test/test.dart';
+
+import 'package:rohd_fixture/design.dart';
+
+class AddItem extends Trackable {
+  final int a;
+  final int b;
+  AddItem(this.a, this.b);
+  @override
+  String? trackerString(TrackerField field) => field.title == 'a' ? '$a' : '$b';
+}
+
+class AddTest extends Test {
+  final bool broken;
+  AddTest(this.broken, {super.randomSeed}) : super('add_test');
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    final obj = phase.raiseObjection('stim');
+    final a = Logic(width: 8);
+    final b = Logic(width: 8);
+    final dut = Adder(a, b);
+    await dut.build();
+    Directory('tmp_vf').createSync(recursive: true);
+    final tracker = Tracker<AddItem>(
+        'adds',
+        [
+          const TrackerField('a', columnWidth: 4),
+          const TrackerField('b', columnWidth: 4),
+        ],
+        outputFolder: 'tmp_vf');
+    final r = Test.random!;
+    for (var i = 0; i < 3; i++) {
+      final x = r.nextInt(100);
+      final y = r.nextInt(100);
+      a.put(x);
+      b.put(y);
+      tracker.record(AddItem(x, y));
+      final expected = broken ? x + y + 1 : x + y;
+      if (dut.sum.value.toInt() != (expected & 0xff)) {
+        logger.severe('mismatch: $x + $y = ${dut.sum.value.toInt()}');
+      } else {
+        logger.info('ok: $x + $y');
+      }
+    }
+    await tracker.terminate();
+    obj.drop();
+  }
+}
+
+void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
+  test('plain rohd adder passes', () async {
+    final a = Logic(width: 8)..put(3);
+    final b = Logic(width: 8)..put(4);
+    final dut = Adder(a, b);
+    await dut.build();
+    expect(dut.sum.value.toInt(), 7);
+  });
+
+  test('plain rohd adder fails', () async {
+    final a = Logic(width: 8)..put(3);
+    final b = Logic(width: 8)..put(4);
+    final dut = Adder(a, b);
+    await dut.build();
+    expect(dut.sum.value.toInt(), 8);
+  });
+
+  test('rohd-vf passes', () async {
+    Logger.root.level = Level.ALL;
+    Simulator.setMaxSimTime(100);
+    await AddTest(false, randomSeed: 42).start();
+  });
+
+  test('rohd-vf fails', () async {
+    Simulator.setMaxSimTime(100);
+    await AddTest(true, randomSeed: 7).start();
+  });
+}

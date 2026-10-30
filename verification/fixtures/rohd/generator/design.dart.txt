@@ -1,0 +1,66 @@
+import 'package:rohd/rohd.dart';
+
+class Pkt extends LogicStructure {
+  final Logic data;
+  final Logic valid;
+
+  factory Pkt({String name = 'pkt'}) => Pkt._(
+        Logic(name: 'data', width: 8),
+        Logic(name: 'valid'),
+        name: name,
+      );
+
+  Pkt._(this.data, this.valid, {required super.name}) : super([data, valid]);
+
+  @override
+  Pkt clone({String? name}) => Pkt(name: name ?? this.name);
+}
+
+class Adder extends Module {
+  Logic get sum => output('sum');
+  Adder(Logic a, Logic b) : super(name: 'adder') {
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
+    final s = addOutput('sum', width: a.width);
+    final partial = Logic(name: 'partial', width: a.width);
+    partial <= a + b;
+    s <= partial;
+  }
+}
+
+class Reg extends Module {
+  Logic get q => output('q');
+  Reg(Logic clk, Logic d) : super(name: 'reg') {
+    clk = addInput('clk', clk);
+    d = addInput('d', d, width: d.width);
+    final q = addOutput('q', width: d.width);
+    q <= flop(clk, d);
+  }
+}
+
+class Top extends Module {
+  Logic get out => output('out');
+  Top(Logic clk, Pkt inPkt, Logic k) : super(name: 'top') {
+    clk = addInput('clk', clk);
+    final pktIn = Pkt(name: 'pkt_in');
+    pktIn <= inPkt;
+    final pktPort = addInput('pkt', pktIn, width: pktIn.width);
+    k = addInput('k', k, width: 8);
+    final out = addOutput('out', width: 8);
+
+    final inner = Pkt(name: 'inner_pkt');
+    inner <= pktPort;
+    final data = Logic(name: 'data_slice', width: 8);
+    data <= inner.data;
+    final valid = Logic(name: 'valid_bit');
+    valid <= inner.valid;
+
+    final adder = Adder(data, k);
+    final gated = Logic(name: 'gated', width: 8);
+    Combinational([
+      If(valid, then: [gated < adder.sum], orElse: [gated < 0]),
+    ]);
+    final reg = Reg(clk, gated);
+    out <= reg.q;
+  }
+}

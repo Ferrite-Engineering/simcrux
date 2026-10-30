@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_actions.dart';
+import 'package:simcrux/features/inspector/widgets/inspector_dart_tests.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_details.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_formal_notes.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_gls_notes.dart';
@@ -46,6 +47,7 @@ class InspectorPane extends ConsumerWidget {
           const SizedBox(height: 16),
           InspectorDetails(selection: selection),
           InspectorFormalNotes(selection: selection),
+          InspectorDartTests(selection: selection),
           InspectorGlsNotes(selection: selection),
           const SizedBox(height: 16),
           InspectorLogPreview(selection: selection),

@@ -35,6 +35,7 @@ import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
+import 'package:simcrux/services/simulator/dart_test_driver.dart';
 import 'package:simcrux/services/simulator/eqy_driver.dart';
 import 'package:simcrux/services/simulator/ghdl_driver.dart';
 import 'package:simcrux/services/simulator/icarus_driver.dart';
@@ -158,6 +159,7 @@ class SimcruxCli {
       'verilator': VerilatorDriver(reaper: reaper),
       'ghdl': GhdlDriver(reaper: reaper),
       'cocotb': CocotbDriver(reaper: reaper),
+      DartTestDriver.kId: DartTestDriver(reaper: reaper),
       RiscvArchDriver.kId: RiscvArchDriver(reaper: reaper),
       RiscvFormalDriver.kId: RiscvFormalDriver(reaper: reaper),
       SbyDriver.kId: SbyDriver(reaper: reaper),
