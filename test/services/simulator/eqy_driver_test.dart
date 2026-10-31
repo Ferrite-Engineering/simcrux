@@ -86,7 +86,14 @@ class _FakeGhdl implements ProcessRunner {
 
   final int exitCode;
   final String stderr;
-  final List<({String executable, List<String> args, String? stdoutFile})>
+  final List<
+    ({
+      String executable,
+      List<String> args,
+      String? stdoutFile,
+      Duration? timeout,
+    })
+  >
   calls = [];
 
   @override
@@ -104,6 +111,7 @@ class _FakeGhdl implements ProcessRunner {
       executable: executable,
       args: arguments,
       stdoutFile: stdoutFilePath,
+      timeout: timeout,
     ));
     if (exitCode == 0 && stdoutFilePath != null) {
       File(stdoutFilePath).writeAsStringSync('module alu(); endmodule\n');
@@ -306,6 +314,37 @@ void main() {
     });
   });
 
+  group('the VHDL lowering budget', () {
+    const mb = 1024 * 1024;
+
+    test('a small source gets the ten-minute floor', () {
+      expect(EqyDriver.vhdlLowerTimeoutFor(0), EqyDriver.kVhdlLowerTimeout);
+      expect(
+        EqyDriver.vhdlLowerTimeoutFor(64 * mb),
+        EqyDriver.kVhdlLowerTimeout,
+        reason: '64 MB is 256 s at 256 KB/s, under the floor',
+      );
+    });
+
+    test('scales linearly with source size past the floor', () {
+      final budget = EqyDriver.vhdlLowerTimeoutFor(300 * mb);
+      expect(budget, const Duration(seconds: 1200));
+      expect(
+        EqyDriver.vhdlLowerTimeoutFor(600 * mb),
+        budget * 2,
+        reason: 'twice the source, twice the budget',
+      );
+    });
+
+    test('a source beyond the ceiling gets the ceiling', () {
+      expect(
+        EqyDriver.vhdlLowerTimeoutFor(50 * 1024 * mb),
+        EqyDriver.kVhdlLowerCeiling,
+      );
+      expect(EqyDriver.kVhdlLowerCeiling, const Duration(hours: 12));
+    });
+  });
+
   group('VHDL gold, lowered by a standalone ghdl --synth', () {
     late File vhdlEqy;
     setUp(() {
@@ -354,8 +393,33 @@ void main() {
         expect(rewritten, isNot(contains('ghdl')));
         expect(rewritten, contains('read_verilog gate.v'));
         expect(result.metrics['formal.eqy.vhdl_lowered'], '1');
+        expect(
+          call.timeout,
+          EqyDriver.kVhdlLowerTimeout,
+          reason: 'a small design keeps the ten-minute limit',
+        );
       },
     );
+
+    test('the time allowed grows with the size of the VHDL', () async {
+      // 160 MB at 256 KB/s is 640 s, past the ten-minute floor. A sparse
+      // file: its length is what counts, nothing reads it here.
+      final vhd = File(p.join(project, 'rtl', 'alu.vhd'))
+        ..createSync(recursive: true);
+      vhd.openSync(mode: FileMode.write)
+        ..truncateSync(160 * 1024 * 1024)
+        ..closeSync();
+      final ghdl = _FakeGhdl();
+      await finished(
+        EqyDriver(
+          launcher: _Recorder(run: 'alu_pass2').launch,
+          lowerer: (exe) =>
+              YosysRunner(processRunner: ghdl, ghdlExecutable: exe),
+        ),
+        request(FormalConfig(eqyFile: vhdlEqy.path)),
+      );
+      expect(ghdl.calls.single.timeout, const Duration(seconds: 640));
+    });
 
     test('a ghdl that fails refuses the run before eqy is spawned', () async {
       final recorder = _Recorder(run: 'alu_pass2');

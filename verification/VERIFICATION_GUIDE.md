@@ -5376,7 +5376,7 @@ partition's log 2 MiB). Cancel and timeout kill the whole tree (`eqy`,
 <files> -e <unit>` line in `[gold]` or `[gate]` is lowered before the spawn
 with a standalone `ghdl --synth [--std=NN] --out=verilog <files> -e <unit>`
 (`crux_yosys`'s `YosysRunner.lowerVhdl`, files relative to the `.eqy`
-file, 10-minute budget, cancelled with the test), into
+file, cancelled with the test), into
 `<work dir>/<file name>_vhdl/<section>_<n>.v`, a generated directory beside
 the one `eqy -f` clears. `eqy` then reads a copy of the `.eqy` file in that
 directory, identical but for each lowered line, now `read_verilog
@@ -5387,6 +5387,14 @@ absolute `eqy`, else the first on PATH (with the platform's engine
 directories). A `ghdl` line in `[script]`, with any option but `--std=`,
 without `-e <unit>`, or holding more than one command refuses the run before
 spawn, and so does a `ghdl` that fails, naming its first diagnostics.
+
+Each lowering has a time limit that grows with the size of the VHDL files it
+reads (`EqyDriver.vhdlLowerTimeoutFor`): 256 KB of source per second, never
+less than ten minutes (so a small design keeps the limit it always had) and
+never more than twelve hours. A lowering that runs out of time refuses the
+run before spawn and names the limit in minutes. `eqy_driver_test.dart`
+checks the floor, the linear scaling, the ceiling, the ten minutes a small
+source is given and the 640 s a 160 MB source is given.
 
 **The Verdict column and the inspector.** A full proof reads "Proved
 equivalent, all N partitions"; any other failing EQY row reads "Not proved

@@ -284,7 +284,10 @@ of the one test, not a test of its own.
   `ghdl --synth --out=verilog` before EQY runs, into a generated directory beside
   the work directory. It never loads the GHDL Yosys plugin. A `ghdl` line it
   cannot lower (an option other than `--std=`, no `-e <unit>`, or more than one
-  command) refuses the run before it starts.
+  command) refuses the run before it starts. From SimCrux 1.2 the time allowed
+  for that step grows with the size of the VHDL files: ten minutes at least,
+  then about four minutes for every 64 MB of source, up to twelve hours. Before
+  1.2 it was ten minutes whatever the size.
 
 ## Cross-probe {#cross-probe}
 

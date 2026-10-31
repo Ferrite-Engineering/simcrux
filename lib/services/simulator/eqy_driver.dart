@@ -167,8 +167,44 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
   /// that did not pass.
   static const String kMetricWorkDir = 'formal.eqy.work_dir';
 
-  /// The budget for one `ghdl --synth` lowering.
+  /// The least time one `ghdl --synth` lowering is given: all a small design
+  /// gets. A larger one gets more, see [vhdlLowerTimeoutFor].
   static const Duration kVhdlLowerTimeout = Duration(minutes: 10);
+
+  /// The most time one `ghdl --synth` lowering is given, a sanity bound
+  /// that a source of about 11 GB would reach.
+  static const Duration kVhdlLowerCeiling = Duration(hours: 12);
+
+  /// The throughput of VHDL source the lowering budget is computed from,
+  /// the rate NetCrux allows Yosys: well below what `ghdl --synth` reaches,
+  /// so a design that is merely large is never stopped.
+  static const int kVhdlLowerBytesPerSecond = 256 * 1024;
+
+  /// The budget for lowering [sourceBytes] bytes of VHDL: the source size at
+  /// [kVhdlLowerBytesPerSecond], at least [kVhdlLowerTimeout] and at most
+  /// [kVhdlLowerCeiling].
+  static Duration vhdlLowerTimeoutFor(int sourceBytes) {
+    final scaled = Duration(
+      milliseconds: (sourceBytes / kVhdlLowerBytesPerSecond * 1000).round(),
+    );
+    if (scaled < kVhdlLowerTimeout) return kVhdlLowerTimeout;
+    if (scaled > kVhdlLowerCeiling) return kVhdlLowerCeiling;
+    return scaled;
+  }
+
+  /// The total size of [paths]; a file that cannot be read counts as empty,
+  /// and `ghdl` reports it.
+  static Future<int> _sourceBytes(Iterable<String> paths) async {
+    var total = 0;
+    for (final path in paths) {
+      try {
+        total += await File(path).length();
+      } on FileSystemException {
+        // Missing or unreadable: ghdl says so in its own words.
+      }
+    }
+    return total;
+  }
 
   @override
   void cancel(String testId) {
@@ -785,19 +821,21 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
       final replacements = <int, String>{};
       for (final read in job.vhdlReads) {
         final out = p.join(dir, '${read.section}_${read.ordinal}.v');
+        final files = <String>[
+          for (final file in read.files)
+            p.normalize(p.isAbsolute(file) ? file : p.join(base, file)),
+        ];
+        final budget = vhdlLowerTimeoutFor(await _sourceBytes(files));
         final result = await runner.lowerVhdl(
           YosysRunRequest(
             sources: <YosysSourceFile>[
-              for (final file in read.files)
-                YosysSourceFile.vhdl(
-                  p.normalize(p.isAbsolute(file) ? file : p.join(base, file)),
-                ),
+              for (final file in files) YosysSourceFile.vhdl(file),
             ],
             vhdlTopUnit: read.unit,
             vhdlStandard: read.standard,
           ),
           outputPath: out,
-          timeout: kVhdlLowerTimeout,
+          timeout: budget,
           cancelSignal: cancel.future,
           // The engine PATH a Finder-launched app lacks, as eqy itself gets.
           environment: environment,
@@ -810,7 +848,7 @@ class EqyDriver extends ProcessBackedSimulatorDriver {
                       'put the directory holding `ghdl` on PATH'
                 : _firstLines(stderr),
           VhdlLowerTimeout() =>
-            'it did not finish within ${kVhdlLowerTimeout.inMinutes} minutes',
+            'it did not finish within ${budget.inMinutes} minutes',
           VhdlLowerCancelled() => 'the run was cancelled',
         };
         if (why != null) {
