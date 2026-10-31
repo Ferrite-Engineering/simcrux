@@ -55,6 +55,20 @@ void main() {
     );
   });
 
+  test('bootstrap repairs Linux key events once the binding is up', () {
+    // Over XQuartz X forwarding the engine reads Backspace, Escape, Return and
+    // Tab as printable keys; without this call they do nothing in a text field.
+    final app = _code(_read('lib/app.dart'));
+    final binding = app.indexOf('WidgetsFlutterBinding.ensureInitialized();');
+    final repair = app.indexOf('installLinuxKeyEventRepair();');
+    expect(repair, isNonNegative, reason: 'bootstrap never installs it');
+    expect(
+      repair,
+      greaterThan(binding),
+      reason: 'the repair is installed before the binding exists',
+    );
+  });
+
   test('links and reveals go through cruxOpenUrl and cruxRevealFile', () {
     final findings = <String>[];
     for (final file in Directory('lib').listSync(recursive: true)) {
