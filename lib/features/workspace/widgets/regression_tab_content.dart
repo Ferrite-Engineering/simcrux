@@ -18,6 +18,7 @@ import 'package:simcrux/features/statistics/widgets/simcrux_stats_strip.dart';
 import 'package:simcrux/features/watcher/providers/auto_reload_notifier.dart';
 import 'package:simcrux/features/watcher/widgets/auto_reload_snackbar_host.dart';
 import 'package:simcrux/features/workspace/domain/simcrux_tab_payload.dart';
+import 'package:simcrux/features/workspace/services/after_frame_if_mounted.dart';
 import 'package:simcrux/features/workspace/widgets/regression_status_bar.dart';
 import 'package:simcrux/features/workspace/widgets/simcrux_docks.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -143,14 +144,18 @@ class _RegressionTabContentState extends ConsumerState<RegressionTabContent> {
     ref.listen<LicenseTier>(licenseTierProvider, (previous, next) {
       if (previous == null || previous == next) return;
       final path = widget.tab.payload.configPath;
-      if (path.isEmpty || ref.read(activeConfigProvider) == null) return;
-      final runState = ref.read(regressionRunnerProvider);
-      if (runState is! AsyncData || runState.value != null) return;
+      if (path.isEmpty) return;
       // Deferred until the tier update has finished propagating: inside the
       // listener the loader has not yet been invalidated, so a synchronous
-      // reload read the Open Core loader again and changed nothing.
-      scheduleMicrotask(() {
-        if (!mounted) return;
+      // reload read the Open Core loader again and changed nothing. It is
+      // also deferred past the frame because the tier is app-wide while the
+      // providers read here are the tab's: a tab closed meanwhile has had its
+      // container disposed before this widget leaves the tree, and the reads
+      // must not happen then.
+      runAfterFrameIfMounted(context, () {
+        if (ref.read(activeConfigProvider) == null) return;
+        final runState = ref.read(regressionRunnerProvider);
+        if (runState is! AsyncData || runState.value != null) return;
         unawaited(
           ref
               .read(regressionRunnerProvider.notifier)

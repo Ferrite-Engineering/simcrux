@@ -8,6 +8,7 @@ import 'package:simcrux/features/dashboard/models/dashboard_filter.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/workspace/services/after_frame_if_mounted.dart';
 
 /// Compact "what changed vs. last run" strip suitable for the
 /// dashboard's bottom or top region. Shows four counters: new
@@ -30,13 +31,21 @@ class RunDeltaStrip extends ConsumerWidget {
     final active = ref.watch(dashboardFilterProvider).deltaBucket;
     // A counter that has emptied is no longer drawn, so the narrowing it set
     // would have no control left to switch it off. Drop it with the counter.
+    //
+    // The delta provider is app-wide and the filter is the tab's, so this
+    // listener can be notified after the tab's container is disposed and
+    // before this widget leaves the tree. The write waits for the frame to
+    // end, and is dropped if the strip went with its tab.
     ref.listen(runDeltaProvider, (_, next) {
-      final delta = next.value;
-      final bucket = ref.read(dashboardFilterProvider).deltaBucket;
-      if (delta == null || bucket == null || delta.idsOf(bucket).isNotEmpty) {
-        return;
-      }
-      _setFilter(ref, (f) => f.copyWith(clearDeltaBucket: true));
+      if (next.value == null) return;
+      runAfterFrameIfMounted(context, () {
+        // The delta as it stands then, not as it was when notified.
+        final delta = ref.read(runDeltaProvider).value;
+        final bucket = ref.read(dashboardFilterProvider).deltaBucket;
+        if (delta == null || bucket == null) return;
+        if (delta.idsOf(bucket).isNotEmpty) return;
+        _setFilter(ref, (f) => f.copyWith(clearDeltaBucket: true));
+      });
     });
     void toggle(RunDeltaBucket bucket, RunDelta delta) {
       final on = ref.read(dashboardFilterProvider).deltaBucket != bucket;

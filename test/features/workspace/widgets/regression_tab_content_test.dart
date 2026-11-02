@@ -283,6 +283,96 @@ suites:
       await tester.pumpWidget(const SizedBox.shrink());
       tabContainer.dispose();
     });
+
+    testWidgets('a tier change in the frame a tab closes throws nothing', (
+      tester,
+    ) async {
+      // Closing a tab disposes its container at once, but its widgets leave
+      // the tree only on the next frame. The tier is app-wide, so a change
+      // landing in that frame reaches the tab's listener, which must not
+      // read the tab's providers through the disposed container.
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      const yaml = """
+version: '1'
+defaults:
+  simulator: icarus
+suites:
+  cdc:
+    tests:
+      - name: capture
+        top: tb
+        sources: [tb.v]
+""";
+      final tabId = crux.TabId.generate();
+      final tab = crux.WorkspaceTab<SimcruxTabPayload>(
+        id: tabId,
+        displayName: 'simcrux.yaml',
+        paneId: crux.PaneId.generate(),
+        payload: SimcruxTabPayload(configPath: '/kit/simcrux.yaml'),
+      );
+      final root = ProviderContainer(
+        retry: (_, _) => null,
+        overrides: [
+          licenseTierProvider.overrideWith((ref) => ref.watch(_tier)),
+          configLoaderProvider.overrideWith(
+            (ref) => ConfigLoader(
+              readFile: (_) async => yaml,
+              licenseTier: ref.watch(licenseTierProvider),
+            ),
+          ),
+        ],
+      );
+      addTearDown(root.dispose);
+      final tabContainer = ProviderContainer(
+        parent: root,
+        overrides: simcruxTabOverrides(tabId),
+      );
+      final tabOpen = ValueNotifier<bool>(true);
+      addTearDown(tabOpen.dispose);
+
+      await tester.binding.setSurfaceSize(const Size(900, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: root,
+          child: MaterialApp(
+            localizationsDelegates: const [
+              L10N.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: L10N.supportedLocales,
+            home: ValueListenableBuilder<bool>(
+              valueListenable: tabOpen,
+              builder: (_, open, _) => open
+                  ? UncontrolledProviderScope(
+                      container: tabContainer,
+                      child: RegressionTabContent(tab: tab),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+        ),
+      );
+      for (
+        var i = 0;
+        i < 5 && tabContainer.read(activeConfigProvider) == null;
+        i++
+      ) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(tabContainer.read(activeConfigProvider), isNotNull);
+
+      tabContainer.dispose();
+      tabOpen.value = false;
+      root.read(_tier.notifier).tier = LicenseTier.pro;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(RegressionTabContent), findsNothing);
+    });
   });
 }
 
