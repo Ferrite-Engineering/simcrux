@@ -1343,6 +1343,10 @@ flutter build windows --release --dart-define=TELEMETRY_DEV=true   # or: build l
 - [ ] A ROHD-VF `Test failed.` shows as Failed, its SEVERE log lines are split into severity, time and logger, and objection warnings are counted — `[Coverage: UNIT]` (`dart_test_report_test.dart`, `inspector_dart_tests_test.dart`)
 - [ ] Go to Source on a failing case opens the Dart file at the failing line — `[Coverage: UNIT]` (`inspector_dart_tests_test.dart`), `[Coverage: MANUAL]` (guide §28.3)
 
+### Linux over a remote display (from 1.2)
+
+- [ ] Bootstrap installs the GTK file picker and the Linux key-event repair once the binding is up, and the runner serves the GTK file-dialog channel; the X11 keymap guard forwards to GDK, so typing over `ssh -X` from a client with untrusted X forwarding does not end the app: `[Coverage: STATIC]` (`test/static/remote_display_guard_test.dart`, `test/static/x11_keymap_guard_test.dart`) + `[Coverage: MANUAL]` (from a Mac with XQuartz over `ssh -X`: Backspace, Escape, Return and Tab work in Search Tests and a Settings text field, and typing does not end the app)
+
 ---
 
 ## Subsequent features
