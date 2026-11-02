@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
+import 'package:simcrux/features/inspector/widgets/inspector_action_label.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
@@ -54,7 +55,7 @@ List<Widget> flowHandoffButtons(
           );
         },
         icon: Icon(icon),
-        label: Text(label),
+        label: InspectorActionLabel(label),
       );
   return switch (flowKind) {
     FlowKind.librelane => <Widget>[

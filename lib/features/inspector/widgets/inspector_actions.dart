@@ -19,6 +19,7 @@ import 'package:simcrux/features/inspector/dialogs/log_viewer_dialog.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
 import 'package:simcrux/features/inspector/widgets/flow_handoff_buttons.dart';
+import 'package:simcrux/features/inspector/widgets/inspector_action_label.dart';
 import 'package:simcrux/features/remote/providers/notify_selection_emitter.dart';
 import 'package:simcrux/features/remote/services/cross_probe_selection.dart';
 import 'package:simcrux/features/remote/services/cross_probe_to_product.dart';
@@ -55,31 +56,31 @@ class InspectorActions extends ConsumerWidget {
         OutlinedButton.icon(
           onPressed: () => LogViewerDialog.show(context, selection),
           icon: const Icon(Icons.article_outlined),
-          label: Text(l10n.inspectorActionOpenFullLog),
+          label: InspectorActionLabel(l10n.inspectorActionOpenFullLog),
         ),
         OutlinedButton.icon(
           onPressed: () => _rerun(ref, context, forceWaveform: false),
           icon: const Icon(Icons.refresh),
-          label: Text(l10n.inspectorActionRerun),
+          label: InspectorActionLabel(l10n.inspectorActionRerun),
         ),
         OutlinedButton.icon(
           onPressed: () => _rerun(ref, context, forceWaveform: true),
           icon: const Icon(Icons.replay_circle_filled_outlined),
-          label: Text(l10n.inspectorActionRerunWithWaveform),
+          label: InspectorActionLabel(l10n.inspectorActionRerunWithWaveform),
         ),
         OutlinedButton.icon(
           onPressed: selection.spec == null
               ? null
               : () => _openSource(ref, context),
           icon: const Icon(Icons.code),
-          label: Text(l10n.inspectorActionOpenSource),
+          label: InspectorActionLabel(l10n.inspectorActionOpenSource),
         ),
         Tooltip(
           message: l10n.inspectorActionDebugInWavecruxTooltip,
           child: OutlinedButton.icon(
             onPressed: () => _debugInWaveCrux(ref, context),
             icon: const Icon(Icons.show_chart),
-            label: Text(l10n.inspectorActionDebugInWavecrux),
+            label: InspectorActionLabel(l10n.inspectorActionDebugInWavecrux),
           ),
         ),
         // One hand-off per failing EQY partition, each with its own trace
@@ -92,7 +93,7 @@ class InspectorActions extends ConsumerWidget {
             onPressed: () =>
                 _debugInWaveCrux(ref, context, partition: partition),
             icon: const Icon(Icons.show_chart),
-            label: Text(
+            label: InspectorActionLabel(
               l10n.inspectorActionDebugPartitionInWavecrux(partition.name),
             ),
           ),
@@ -115,7 +116,7 @@ class InspectorActions extends ConsumerWidget {
                   ),
                 ),
                 icon: const Icon(Icons.account_tree_outlined),
-                label: Text(l10n.inspectorActionShowInNetcrux),
+                label: InspectorActionLabel(l10n.inspectorActionShowInNetcrux),
               ),
             ),
           ),
@@ -131,7 +132,9 @@ class InspectorActions extends ConsumerWidget {
               const SimcruxActionIntent(SimcruxAction.openGateLevelWaveform),
             ),
             icon: const Icon(Icons.show_chart),
-            label: Text(l10n.inspectorActionOpenGateLevelWaveform),
+            label: InspectorActionLabel(
+              l10n.inspectorActionOpenGateLevelWaveform,
+            ),
           ),
       ],
     );

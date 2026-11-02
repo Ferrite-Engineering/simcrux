@@ -5,6 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:simcrux/features/inspector/providers/selected_test_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
+/// Width of the label column when a value sits beside its label.
+const double kInspectorDetailsLabelWidth = 110;
+
+/// The least width a value column should have beside the label column.
+const double kInspectorDetailsMinValueWidth = 140;
+
+/// Below this panel width a row stacks its value under its label.
+const double kInspectorDetailsStackBelow =
+    kInspectorDetailsLabelWidth + kInspectorDetailsMinValueWidth;
+
 /// Key-value details section in the inspector — suite, simulator,
 /// runtime, exit code, working directory, waveform path.
 class InspectorDetails extends StatelessWidget {
@@ -54,44 +64,56 @@ class InspectorDetails extends StatelessWidget {
         ),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          l10n.inspectorSectionDetails,
-          style: theme.textTheme.titleSmall,
-        ),
-        const SizedBox(height: 4),
-        ...rows.map(
-          (row) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 110,
-                  child: Text(
-                    row.label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: SelectableText(
-                    row.value,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: row.monospace ? 'monospace' : null,
-                    ),
-                  ),
-                ),
-              ],
+    final labelStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // A panel too narrow to give the value a readable column beside the
+        // label stacks the value under its key instead of squeezing it.
+        final stacked = constraints.maxWidth < kInspectorDetailsStackBelow;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.inspectorSectionDetails,
+              style: theme.textTheme.titleSmall,
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 4),
+            for (final row in rows)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: stacked
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(row.label, style: labelStyle),
+                          _value(theme, row),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: kInspectorDetailsLabelWidth,
+                            child: Text(row.label, style: labelStyle),
+                          ),
+                          Expanded(child: _value(theme, row)),
+                        ],
+                      ),
+              ),
+          ],
+        );
+      },
     );
   }
+
+  Widget _value(ThemeData theme, _DetailRow row) => SelectableText(
+    row.value,
+    style: theme.textTheme.bodySmall?.copyWith(
+      fontFamily: row.monospace ? 'monospace' : null,
+    ),
+  );
 
   String _formatDuration(Duration d) {
     if (d.inMilliseconds < 1000) return '${d.inMilliseconds} ms';

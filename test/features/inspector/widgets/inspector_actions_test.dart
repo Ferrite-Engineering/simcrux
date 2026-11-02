@@ -95,7 +95,15 @@ Future<void> _pump(
   SelectedTest selection, {
   List<Override> overrides = const [],
   Locale locale = const Locale('en'),
+  double? width,
 }) async {
+  Widget actions = InspectorActions(selection: selection);
+  if (width != null) {
+    actions = Align(
+      alignment: Alignment.topLeft,
+      child: SizedBox(width: width, child: actions),
+    );
+  }
   await tester.pumpWidget(
     ProviderScope(
       overrides: [...answeredTelemetryOverrides(), ...overrides],
@@ -108,7 +116,7 @@ Future<void> _pump(
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: L10N.supportedLocales,
-        home: Scaffold(body: InspectorActions(selection: selection)),
+        home: Scaffold(body: actions),
       ),
     ),
   );
@@ -225,6 +233,44 @@ void main() {
       expect(find.text(l10n.inspectorActionOpenSource), findsOneWidget);
       expect(
         find.text(l10n.inspectorActionDebugInWavecrux),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('in a narrow panel every label stays on one line, and a cut '
+        'label has its full text as a tooltip', (tester) async {
+      final selection = _selection(spec: _spec());
+      await _pump(tester, selection, width: 800);
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      final labels = <String>[
+        l10n.inspectorActionOpenFullLog,
+        l10n.inspectorActionRerun,
+        l10n.inspectorActionRerunWithWaveform,
+        l10n.inspectorActionOpenSource,
+        l10n.inspectorActionDebugInWavecrux,
+      ];
+      final oneLine = <String, double>{
+        for (final label in labels)
+          label: tester.getSize(find.text(label)).height,
+      };
+      final tooltipsWhenWide = find.byType(Tooltip).evaluate().length;
+
+      await _pump(tester, selection, width: 150);
+      expect(tester.takeException(), isNull);
+      for (final label in labels) {
+        expect(
+          tester.getSize(find.text(label)).height,
+          oneLine[label],
+          reason: '$label wrapped',
+        );
+      }
+      expect(
+        find.byType(Tooltip).evaluate().length,
+        greaterThan(tooltipsWhenWide),
+        reason: 'a cut label carries its full text',
+      );
+      expect(
+        find.byTooltip(l10n.inspectorActionRerunWithWaveform),
         findsOneWidget,
       );
     });
