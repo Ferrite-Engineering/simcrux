@@ -440,7 +440,7 @@ jobs:
       - name: Upload launch smoke screenshots (Linux)
         if: ${{ always() && matrix.target == 'linux' }}
         timeout-minutes: 5
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: simcrux-linux-launch-smoke
           path: ${{ runner.temp }}/linux-smoke
@@ -448,7 +448,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: simcrux-${{ matrix.target }}
           path: build/${{ matrix.target }}/
@@ -502,7 +502,7 @@ jobs:
         run: flutter build web --release
 
       - name: Upload web artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: simcrux-web
           path: build/web/
@@ -556,7 +556,7 @@ jobs:
       - name: SBOM (CycloneDX)
         run: python3 crux-shared/tool/supply-chain.py --sbom build/sbom.json
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sbom-simcrux
           path: build/sbom.json
