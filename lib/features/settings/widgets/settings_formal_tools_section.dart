@@ -10,6 +10,8 @@ import 'package:simcrux/core/help_urls.dart';
 import 'package:simcrux/domain/enums/riscv_host_platform.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
 import 'package:simcrux/domain/models/formal_toolchain_report.dart';
+import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
+import 'package:simcrux/features/settings/providers/binary_path_drafts_provider.dart';
 import 'package:simcrux/features/settings/widgets/settings_engine_rows.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/formal/formal_toolchain_probe.dart';
@@ -84,8 +86,30 @@ class _FormalToolchainCheckState extends ConsumerState<FormalToolchainCheck> {
 
   Future<void> _check() async {
     final probe = ref.read(formalToolchainProbeProvider);
-    final overrides = widget.settings.simulatorBinaryOverrides;
+    final notifier = ref.read(appSettingsProvider.notifier);
+    final draftsNotifier = ref.read(binaryPathDraftsProvider.notifier);
+    // The check runs against what the fields show: a path pasted and not yet
+    // confirmed with Enter or a focus change is saved here and used.
+    final drafts = ref.read(binaryPathDraftsProvider);
+    // Paths saved a moment ago (a field that just lost focus) may not have
+    // reached the settings this widget was built with.
+    final overrides = <String, String>{
+      ...widget.settings.simulatorBinaryOverrides,
+      ...?ref.read(appSettingsProvider).value?.simulatorBinaryOverrides,
+    };
+    for (final MapEntry(:key, :value) in drafts.entries) {
+      final path = value.trim();
+      if (path.isEmpty) {
+        overrides.remove(key);
+      } else {
+        overrides[key] = path;
+      }
+    }
     setState(() => _running = true);
+    for (final MapEntry(:key, :value) in drafts.entries) {
+      await notifier.setSimulatorBinaryOverride(key, value);
+      draftsNotifier.clear(key, ifValue: value);
+    }
     final report = await probe.probe(
       sbyPath: overrides['sby'],
       eqyPath: overrides['eqy'],

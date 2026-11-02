@@ -24,6 +24,11 @@ import 'package:simcrux/services/formal/formal_toolchain_probe.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues(<String, Object>{}));
 
+  late ProviderContainer container;
+
+  Map<String, String> savedPaths() =>
+      container.read(appSettingsProvider).requireValue.simulatorBinaryOverrides;
+
   Future<List<String?>> pump(
     WidgetTester tester, {
     required Map<String, FormalProbeRun> answers,
@@ -37,7 +42,7 @@ void main() {
       runner: (binary, args) async => answers['$binary ${args.join(' ')}'],
       platform: platform,
     );
-    final container = ProviderContainer(
+    container = ProviderContainer(
       overrides: [formalToolchainProbeProvider.overrideWithValue(probe)],
     );
     addTearDown(container.dispose);
@@ -120,6 +125,70 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('formalToolsCheck')));
     await tester.pumpAndSettle();
     expect(paths, ['/opt/oss-cad-suite/bin/sby']);
+  });
+
+  group('a binary path is saved without pressing Enter', () {
+    const pasted = '/opt/oss-cad-suite/bin/sby';
+    Finder sbyField() => find.byType(TextField).first;
+
+    testWidgets('Check formal tools uses and saves the path on screen', (
+      tester,
+    ) async {
+      final paths = await pump(tester, answers: const {});
+      await tester.enterText(sbyField(), pasted);
+      await tester.tap(find.byKey(const ValueKey('formalToolsCheck')));
+      await tester.pumpAndSettle();
+      expect(paths, [pasted]);
+      expect(savedPaths()['sby'], pasted);
+    });
+
+    testWidgets('leaving the field saves it', (tester) async {
+      await pump(tester, answers: const {});
+      await tester.enterText(sbyField(), '  $pasted ');
+      expect(savedPaths(), isEmpty);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      expect(savedPaths()['sby'], pasted);
+    });
+
+    testWidgets('closing Settings saves it', (tester) async {
+      await pump(tester, answers: const {});
+      await tester.enterText(sbyField(), pasted);
+      expect(savedPaths(), isEmpty);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      expect(savedPaths()['sby'], pasted);
+    });
+
+    testWidgets('Enter still saves it, and clearing the field removes the '
+        'override', (tester) async {
+      await pump(
+        tester,
+        answers: const {},
+        settings: const AppSettings(simulatorBinaryOverrides: {'sby': '/old'}),
+      );
+      await container
+          .read(appSettingsProvider.notifier)
+          .setSimulatorBinaryOverride('sby', '/old');
+      await tester.enterText(sbyField(), pasted);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(savedPaths()['sby'], pasted);
+      await tester.enterText(sbyField(), '');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(savedPaths(), isNot(contains('sby')));
+    });
+
+    testWidgets('two paths pasted before the check both land', (tester) async {
+      final paths = await pump(tester, answers: const {});
+      await tester.enterText(find.byType(TextField).at(0), pasted);
+      await tester.enterText(find.byType(TextField).at(1), '/opt/bin/eqy');
+      await tester.tap(find.byKey(const ValueKey('formalToolsCheck')));
+      await tester.pumpAndSettle();
+      expect(paths, [pasted]);
+      expect(savedPaths(), {'sby': pasted, 'eqy': '/opt/bin/eqy'});
+    });
   });
 
   testWidgets('with every tool found there is no advice', (tester) async {

@@ -241,6 +241,25 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     await ref.read(settingsServiceProvider).save(updated);
   }
 
+  /// Sets or clears one engine's binary path override, leaving the others as
+  /// they are now.
+  ///
+  /// A blank [path] removes the override. Reads the live state rather than a
+  /// widget's copy of it, so two paths saved back to back both land.
+  Future<void> setSimulatorBinaryOverride(String engineId, String path) async {
+    final current = state.value;
+    if (current == null) return;
+    final trimmed = path.trim();
+    final next = Map<String, String>.from(current.simulatorBinaryOverrides);
+    if (trimmed.isEmpty) {
+      if (next.remove(engineId) == null) return;
+    } else {
+      if (next[engineId] == trimmed) return;
+      next[engineId] = trimmed;
+    }
+    await updateSimulatorBinaryOverrides(next);
+  }
+
   /// Replaces Settings > Engines > Implementation flow's values (launcher,
   /// Docker image, PDK root, KLayout, OpenROAD and FuseSoC paths).
   Future<void> updateFlowTools(FlowToolSettings flowTools) async {
