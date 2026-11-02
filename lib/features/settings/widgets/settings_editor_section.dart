@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/domain/models/app_settings.dart';
@@ -79,21 +80,23 @@ class _SettingsEditorSectionState extends ConsumerState<SettingsEditorSection> {
           ],
         ),
         const SizedBox(height: 8),
-        TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            isDense: true,
-            labelText: l10n.settingsEditorCommandLabel,
-            helperText: l10n.settingsEditorCommandHelp,
-            helperMaxLines: 3,
+        // A row, not a floating label: the desktop theme never floats a
+        // label, so a labelText would vanish once the field holds the
+        // template.
+        CruxFormRow(
+          label: l10n.settingsEditorCommandLabel,
+          help: l10n.settingsEditorCommandHelp,
+          child: TextField(
+            controller: _controller,
+            decoration: const InputDecoration(isDense: true),
+            onSubmitted: (value) {
+              unawaited(
+                ref
+                    .read(appSettingsProvider.notifier)
+                    .updateEditorCommandTemplate(value),
+              );
+            },
           ),
-          onSubmitted: (value) {
-            unawaited(
-              ref
-                  .read(appSettingsProvider.notifier)
-                  .updateEditorCommandTemplate(value),
-            );
-          },
         ),
         const SizedBox(height: 4),
         Text(

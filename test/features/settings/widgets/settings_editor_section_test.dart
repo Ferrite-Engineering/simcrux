@@ -101,6 +101,33 @@ void main() {
       );
     });
 
+    testWidgets(
+      'the command label stays visible while the field holds a value',
+      (
+        tester,
+      ) async {
+        final semantics = tester.ensureSemantics();
+        await tester.pumpWidget(await _wrap());
+        await tester.pump();
+
+        final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+        // The default template fills the field, and the label is a row label,
+        // not a floating one that disappears with the hint.
+        expect(
+          tester.widget<TextField>(find.byType(TextField)).controller?.text,
+          isNotEmpty,
+        );
+        expect(find.text(l10n.settingsEditorCommandLabel), findsOneWidget);
+        expect(find.text(l10n.settingsEditorCommandHelp), findsOneWidget);
+        // One accessible name: the label, carried by the field's row.
+        expect(
+          find.bySemanticsLabel(RegExp(l10n.settingsEditorCommandLabel)),
+          findsOneWidget,
+        );
+        semantics.dispose();
+      },
+    );
+
     testWidgets('locale sweep renders without exceptions', (tester) async {
       for (final locale in const [
         Locale('en'),
