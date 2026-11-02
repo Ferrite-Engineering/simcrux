@@ -9,12 +9,12 @@ heatmap that shows whether a failure is one bad seed or a systematic edge.
 |---|---|
 | **Goal** | Sweep a test over many seeds, isolate the failing seeds, and reproduce one deterministically. |
 | **Time** | About 10 minutes |
-| **Tier** | <span class="tier tier-pro">Pro</span> — seed sweeps are a Pro feature. |
+| **Tier** | <span class="tier tier-pro">Pro</span>: seed sweeps are a Pro feature. |
 | **You will use** | `seeds:` in [simcrux.yaml](trends-and-flaky.md#sweeps), [test-name filtering](results-dashboard.md#search), Re-run with seed N, and the [Seed Failure Heatmap](trends-and-flaky.md#sweeps). |
 
 ## Before you start {#before}
 
-Your testbench must consume the seed SimCrux passes it — the `+seed=N` plusarg
+Your testbench must consume the seed SimCrux passes it: the `+seed=N` plusarg
 for Icarus, `+verilator+seed+N` for Verilator, or `RANDOM_SEED` for cocotb. A
 test that ignores its seed will report identical results across the sweep. GHDL
 records the seed but does not pass it to the testbench.
@@ -22,7 +22,7 @@ records the seed but does not pass it to the testbench.
 ## Steps {#steps}
 
 1. **Add a seed range to the test.** Add `seeds:` to the test in
-   `simcrux.yaml` — a list, with the range in quotes:
+   `simcrux.yaml`: a list, with the range in quotes:
 
     ```yaml
     tests:
@@ -40,8 +40,8 @@ records the seed but does not pass it to the testbench.
    each appears as its own row.
 
 3. **Find the failing seeds.** Click the **Failures** preset. To see which seeds
-   failed, type `+seed=` into **Filter by test name…** — the seed is part of each
-   test id — or open the heatmap in the next step.
+   failed, type `+seed=` into **Filter by test name…**, the seed is part of each
+   test id, or open the heatmap in the next step.
 
 4. **Read the Seed Failure Heatmap.** Click **Show Seed Failure Heatmap…** on the
    toolbar (or **Tools → Show Seed Failure Heatmap**) and pick the run and the
@@ -51,7 +51,7 @@ records the seed but does not pass it to the testbench.
 
 5. **Reproduce one seed deterministically.** Right-click a failing instance →
    **Re-run with seed N** to run exactly that seed again. Then click
-   **Debug in WaveCrux** on the result to trace it — a fully reproducible failure
+   **Debug in WaveCrux** on the result to trace it: a fully reproducible failure
    to debug against.
 
 !!! tip "Keep the sweep cheap"
@@ -59,8 +59,7 @@ records the seed but does not pass it to the testbench.
     **Re-run with waveform** on the one seed you are chasing.
 
 !!! tip "Sweeps in CI"
-    `simcrux --ci` expands the sweep at the tier of the license you give it —
-    `--license-file`, `SIMCRUX_LICENSE_FILE` or your policy file. See
+    `simcrux --ci` expands the sweep at the tier of the license you give it: `--license-file`, `SIMCRUX_LICENSE_FILE` or your policy file. See
     [License tier in CI](cli.md#license-in-ci).
 
 !!! note "Sweeps are Pro"

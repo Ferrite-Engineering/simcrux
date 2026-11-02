@@ -13,7 +13,7 @@ failure's log and waveform.
 
 ## Before you start {#before}
 
-You need at least one simulator on your `PATH` — Icarus is the quickest to get
+You need at least one simulator on your `PATH`: Icarus is the quickest to get
 going (see [Supported simulators](getting-started.md#simulators)). This recipe
 uses Icarus; swap the `simulator:` value for another. To see the waveform step,
 have WaveCrux installed too.
@@ -50,7 +50,7 @@ have WaveCrux installed too.
 2. **Open the project.** Click **Open Config…** on the start screen (or
    **File → Open Config…**, ++cmd+o++ / ++ctrl+o++) and pick the `simcrux.yaml`.
    The test appears in the **Tests** panel. If the file does not load, the tab
-   shows the error with its line number — fix it before running.
+   shows the error with its line number: fix it before running.
 
 3. **Run the regression.** Press ++f5++. The result appears in the table when
    the test finishes, and the status bar at the bottom tracks the totals.
@@ -64,13 +64,13 @@ have WaveCrux installed too.
    to the line your `fail_string` matched.
 
 6. **Debug it in WaveCrux.** With `capture: on_failure`, the failing test kept
-   its dump — the Details panel shows its **Waveform** path. Start WaveCrux, then
+   its dump: the Details panel shows its **Waveform** path. Start WaveCrux, then
    click **Debug in WaveCrux** to open the dump there. (No dump? Click
    **Re-run with waveform** first, and check the testbench dumps.)
 
 !!! tip "Keep the config short early"
     As the suite grows, lift shared settings into `defaults:`, shared sources
-    onto the suite, and split per-block configs with `includes:` — see
+    onto the suite, and split per-block configs with `includes:`: see
     [Defaults & inheritance](projects-and-simulators.md#inheritance).
 
 ## Where to go next {#next}

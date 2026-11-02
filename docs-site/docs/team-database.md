@@ -14,7 +14,7 @@ distributed execution are on [Administration](administration.md).
 ## Local first, shared as well {#hybrid}
 
 SimCrux keeps a local SQLite history of every run, and that stays on regardless
-of tier — it is the write path that cannot fail, so an engineer on a plane or
+of tier: it is the write path that cannot fail, so an engineer on a plane or
 behind a server that is down keeps working exactly as before. Enterprise adds a
 second destination: a **PostgreSQL database you own and host**. When one is
 configured, each run finished in the desktop app is also written to it.
@@ -28,7 +28,7 @@ checkouts sit at different paths, and the CI job that pushes with
 Team Database** says so.
 
 The database holds results and history only. `simcrux.yaml`, sessions and
-workspace metadata are not synced — those stay in git.
+workspace metadata are not synced: those stay in git.
 
 ## Project identity {#project-identity}
 
@@ -62,11 +62,11 @@ third through `SIMCRUX_TEAM_DB_TLS`.
 | Setting | `SIMCRUX_TEAM_DB_TLS` | What it means |
 |---|---|---|
 | **Encrypt and verify the certificate** | `verify-full` | **The default, and the only value that resists an active attacker.** Encrypted, with the server's certificate verified against the platform's trust store. |
-| **Encrypt without verifying the certificate** | `encrypted-only` | Encrypted, certificate *not* verified. For an internal CA not yet in the platform trust store. It is a real weakening — anyone able to reroute the connection can read and change every query — so it is an explicit choice, and **never a silent fallback** when verification fails. |
+| **Encrypt without verifying the certificate** | `encrypted-only` | Encrypted, certificate *not* verified. For an internal CA not yet in the platform trust store. It is a real weakening, anyone able to reroute the connection can read and change every query, so it is an explicit choice, and **never a silent fallback** when verification fails. |
 | *(not offered in Settings)* | `disabled` | **Loopback only**, and refused for any other host. It exists for a throwaway container on `127.0.0.1`. |
 
 !!! note "A support answer worth having ready"
-    Certificate verification uses the operating system's trust store — Keychain
+    Certificate verification uses the operating system's trust store: Keychain
     on macOS, the certificate store on Windows, the system bundle on Linux.
     **The same server and the same build can verify on one machine and fail on
     another** when your internal CA is installed in some of your images and not
@@ -76,12 +76,12 @@ third through `SIMCRUX_TEAM_DB_TLS`.
 
 ### Where the credential lives {#credentials}
 
-- **In the app** — your platform keychain: Keychain on macOS, Credential Manager
+- **In the app**: your platform keychain: Keychain on macOS, Credential Manager
   on Windows, a secret service such as gnome-keyring on Linux. **Never a project
   file**, because a credential in `simcrux.yaml` is a credential in your git
   history, on every fork, forever. A Linux machine with no keyring cannot store
   the password, and Settings says so.
-- **In CI** — `SIMCRUX_TEAM_DB_URL`
+- **In CI**: `SIMCRUX_TEAM_DB_URL`
   (`postgres://user:password@host:port/database`), which carries the role and its
   password together. `SIMCRUX_TEAM_DB_TLS` overrides the TLS mode.
 
@@ -91,8 +91,8 @@ every screenshot of a failed build.
 
 ### Creating the tables {#provisioning}
 
-**Connecting creates nothing.** Creating the tables — or bringing an older schema
-up to date — is a separate, explicit **Initialize database** action, so typing a
+**Connecting creates nothing.** Creating the tables, or bringing an older schema
+up to date, is a separate, explicit **Initialize database** action, so typing a
 hostname into a settings panel can never write DDL into a database somebody else
 owns.
 
@@ -112,8 +112,8 @@ no schema at all                    refuse, and name the initialize action
 
 **A database ahead of the client is not an error.** Migrations are
 additive-only, so a newer schema is this schema plus columns and tables an older
-build never names — every statement it issues still resolves. The *epoch* is the
-escape hatch that keeps that honest: if additive-only ever has to break, the
+build never names: every statement it issues still resolves. The *epoch* is the
+escape hatch that keeps that true: if additive-only ever has to break, the
 epoch bumps and every client refuses in both directions rather than issuing
 statements against a shape it does not understand.
 
@@ -139,7 +139,7 @@ simcrux-pro push-results --project soc-top results.ndjson
 | `--audit-log <path>` | Append a `results.pushed` event to this JSONL file. |
 
 **It is idempotent.** A retried step does not double-write and does not fail
-either — a re-run that reported failure because the work was already done is a
+either: a re-run that reported failure because the work was already done is a
 pipeline that goes red for succeeding.
 
 Its exit codes distinguish "the schema needs an administrator" from "the
@@ -195,9 +195,9 @@ resolve attribution with the suite's ordinary precedence:
 `runner`, `jenkins` or `root` on every job in the fleet, so the machine-derived
 default is exactly wrong in the one place the shared database is most read.
 
-Attribution may resolve to nothing. **An unattributed run is honest; a
+Attribution may resolve to nothing. **An unattributed run is accurate; a
 fabricated attribution is a name in a dashboard next to a failure that person
-never saw.** It is a string, not an identity — there is no user-management
+never saw.** It is a string, not an identity: there is no user-management
 subsystem, no SSO, and nothing authorises against it.
 
 ## Retention never touches this database {#retention-note}
@@ -216,7 +216,7 @@ else depends on it. See [Administration](administration.md#retention).
 | Org-wide policy & audit log | Shipping | License, telemetry decision, update constraints and the audit path in a signed file you keep in Git. [Policy file reference](https://edacrux.app/policy-reference). |
 | Distributed execution | Shipping for `--ci` | One templated backend, so SLURM, LSF, Grid Engine and AWS Batch are configurations rather than integrations. `--ci` runs only; runs started in the app stay local. [Administration](administration.md#distributed). |
 | Org-wide dashboards & trend rollup | Not built; from 1.2 the formal and flow rollup ships | Regression health rolled up across projects and teams. From 1.2, formal verdicts and implementation-flow metrics across projects, in the Team Database settings card. [Above.](#org-rollup) |
-| Self-hosted results dashboard | Not built — [contact us](mailto:support@ferriteengineering.com?subject=EDACrux%20Enterprise%20%E2%80%94%20Self-hosted%20results%20dashboard) | An always-on web view over your team database, deployed by you against the PostgreSQL you already run. We would build it against a real environment rather than blind. |
+| Self-hosted results dashboard | Not built: [contact us](mailto:support@ferriteengineering.com?subject=EDACrux%20Enterprise%3A%20Self-hosted%20results%20dashboard) | An always-on web view over your team database, deployed by you against the PostgreSQL you already run. We would build it against a real environment rather than blind. |
 | Vendor simulators | Not built | No vendor-simulator driver plugin is available. |
 
 Licensing, offline activation and seats are covered at

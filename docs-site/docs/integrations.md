@@ -8,7 +8,7 @@ workspaces.
 
 ## Cross-probe (CXP) {#cxp}
 
-CXP — the Cross-Tool eXchange Protocol — is the suite's localhost link between
+CXP, the Cross-Tool eXchange Protocol, is the suite's localhost link between
 WaveCrux, NetCrux, LintCrux and SimCrux. Its specification is public at
 [edacrux.app/cxp](https://edacrux.app/cxp). Cross-probing is free on every
 tier: receiving, **Debug in WaveCrux**, and from 1.1 sending as well (1.0
@@ -16,7 +16,7 @@ required Pro to send).
 
 ![Two EDACrux apps running side by side with their Cross-Probe panels open: NetCrux showing a schematic with its peer list, and WaveCrux showing waveform lanes with the same connected peers and a live cross-probe event.](img/CrossProbe.png)
 
-*Two suite apps discovering each other over CXP — each Cross-Probe panel lists
+*Two suite apps discovering each other over CXP, each Cross-Probe panel lists
 the connected peers, and inbound selections appear in the activity feed.*
 
 | | |
@@ -30,14 +30,14 @@ the connected peers, and inbound selections appear in the activity feed.*
 
 Configure it in **Settings → CXP Cross-Probe**:
 
-- **Enable CXP server** — on by default.
-- **CXP port** — default `54325`; must be 1–65535.
-- **Request attention on cross-probe** — on by default. Bounces the Dock icon
+- **Enable CXP server**, on by default.
+- **CXP port**: default `54325`; must be 1–65535.
+- **Request attention on cross-probe**, on by default. Bounces the Dock icon
   (or flashes the taskbar) when a peer's request is acted on; never steals
   focus.
-- **Broadcast selection automatically** — on by default. Announces each test or
+- **Broadcast selection automatically**, on by default. Announces each test or
   source selection to connected peers as you make it. When off, only explicit
-  sends — **Debug in WaveCrux** and the panel's per-peer send — are shared.
+  sends, **Debug in WaveCrux** and the panel's per-peer send, are shared.
 
 Changing the enable switch or the port restarts the server. Disabling it removes
 SimCrux's discovery manifest. The section's **CXP Status** row shows whether the
@@ -72,12 +72,12 @@ Panel**, the **Cross-Probe Panel** toolbar button, or
 ++cmd+shift+x++ / ++ctrl+shift+x++. It shows:
 
 - "Cross-probe server is offline." when the CXP server is not running.
-- **Connected peers** — every other tool's manifest, with a send button per peer
+- **Connected peers**: every other tool's manifest, with a send button per peer
   that sends the selected test as a highlight request. A refusal, or an
   acknowledgement that carries a reason, is shown as a notice.
-- **Unreachable peers** — peers whose manifest exists but whose socket could not
+- **Unreachable peers**: peers whose manifest exists but whose socket could not
   be opened.
-- **Recent activity** — a rolling log of the last 50 events, inbound and
+- **Recent activity**: a rolling log of the last 50 events, inbound and
   outbound, with direction, kind, peer and a one-line summary. **Clear** empties
   it.
 
@@ -120,8 +120,8 @@ waveform workflow is on [Waveforms & debug](waveforms-and-debug.md).
 2. In the Details panel, press **Debug in WaveCrux**.
 
 SimCrux checks that the test has a waveform and that the file is still on disk,
-then finds the WaveCrux peer — it must both advertise `product_name: wavecrux`
-in its manifest **and** be connected — and sends two messages:
+then finds the WaveCrux peer, it must both advertise `product_name: wavecrux`
+in its manifest **and** be connected, and sends two messages:
 
 1. A `notify_selection` whose element is the waveform path, carrying
    `simcrux.suggested_signals` (and, when known, the shared-workspace
@@ -140,8 +140,8 @@ You get one of these notices:
 | "Sent to WaveCrux, but it never confirmed it acted on the request." | No acknowledgement arrived within 5 seconds. |
 | "WaveCrux is not connected. …" | No WaveCrux instance was discovered and connected. |
 | "Cross-probe is disabled. …" | Turn **Enable CXP server** on in **Settings → CXP Cross-Probe**. |
-| "This test did not capture a waveform. …" | The selected test has no dump — check the [capture policy](waveforms-and-debug.md#policy). |
-| "This test's waveform is no longer on disk — …" | A dump was recorded but has since been cleaned up. Re-run the test to regenerate it. |
+| "This test did not capture a waveform. …" | The selected test has no dump: check the [capture policy](waveforms-and-debug.md#policy). |
+| "This test's waveform is no longer on disk: …" | A dump was recorded but has since been cleaned up. Re-run the test to regenerate it. |
 
 !!! tip "Make sure a waveform exists"
     SimCrux asks the simulator for a dump under the default
@@ -153,8 +153,7 @@ You get one of these notices:
 ### How a waveform travels over CXP v1 {#cxp-waveform}
 
 CXP v1 has no `request_open_waveform` message kind. SimCrux models the waveform
-as an `ElementId` of kind `source` whose path ends in a waveform extension —
-`.vcd`, `.fst`, `.ghw` or `.wavecrux`. The receiver disambiguates on the
+as an `ElementId` of kind `source` whose path ends in a waveform extension: `.vcd`, `.fst`, `.ghw` or `.wavecrux`. The receiver disambiguates on the
 extension. Worth knowing if you are writing a peer.
 
 ### What SimCrux sends {#cxp-sends}
@@ -183,9 +182,9 @@ and `request_open_artifact`. Anything else is ignored without throwing.
 | --- | --- | --- |
 | `test` | Verified against the active tab's loaded config, then selected in the dashboard | `honored: true`, or `false` with a reason when the id is unknown |
 | `source` | Recorded as the explicit source selection | `honored: true` |
-| `signal`, `net`, `port`, `instance`, `scope` | The leaf name is applied as the dashboard's test-name filter — so highlighting `top.cpu.alu` filters the dashboard to tests whose id contains `alu`. From 1.2, a `signal` that names its design with `crux.design_id` filters differently; see [Formal and flow](#cxp-formal-flow) | `honored: true` |
-| `breakpoint` | Refused — "breakpoint editor not yet implemented in this build" | `honored: false` |
-| `marker`, `rule` | Refused — SimCrux does not own those element kinds | `honored: false` |
+| `signal`, `net`, `port`, `instance`, `scope` | The leaf name is applied as the dashboard's test-name filter, so highlighting `top.cpu.alu` filters the dashboard to tests whose id contains `alu`. From 1.2, a `signal` that names its design with `crux.design_id` filters differently; see [Formal and flow](#cxp-formal-flow) | `honored: true` |
+| `breakpoint` | Refused: "breakpoint editor not yet implemented in this build" | `honored: false` |
+| `marker`, `rule` | Refused: SimCrux does not own those element kinds | `honored: false` |
 | anything else | Refused, forward-compatibly | `honored: false` |
 
 When a `request_highlight` cannot be honoured as above but carries
@@ -257,15 +256,15 @@ Pro lets one window hold several projects at once and remembers them.
 **File → Switch Project…** (++cmd+p++ / ++ctrl+p++) jumps between open and
 recently closed projects, and **Search → Search Across Projects…**
 (++cmd+shift+f++ / ++ctrl+shift+f++) searches test names, failure messages and
-file paths across every open project — useful when a shared IP block is tested
+file paths across every open project: useful when a shared IP block is tested
 from several repositories. **Pin Project Tab** keeps a project open through
 **Close All Projects**, and **Reopen Recent Project** brings back the last one
 you closed; the recents list keeps the last 10. Each project keeps its own
 filters, sort, selection and trend history.
 
 These actions rest on Pro's persistent project registry and carry a PRO badge in
-open core, where choosing one says it requires SimCrux Pro. The plain **File → Close All Tabs** — close every open tab, no
-pinning, no registry — is open core.
+open core, where choosing one says it requires SimCrux Pro. The plain **File → Close All Tabs** (close every open tab, no
+pinning, no registry) is open core.
 
 ## Sessions & workspaces on disk {#sessions}
 
@@ -276,7 +275,7 @@ the next launch; `--no-restore` skips that once, and `--reset` clears it (see
 | File | Status today |
 |---|---|
 | `.simcrux-workspace` | A multi-tab workspace document. **Open Workspace…** on the start screen and `--workspace <path>` load one. SimCrux has no command to save a workspace to a file of your choosing. |
-| `.simcrux-session` | A single tab's state. **Open Session…** accepts the file, but session restore is not implemented — SimCrux does not yet read filters, selection or layout from it, and has no command to create one. |
+| `.simcrux-session` | A single tab's state. **Open Session…** accepts the file, but session restore is not implemented: SimCrux does not yet read filters, selection or layout from it, and has no command to create one. |
 
 Local run history lives in the trend database described on
 [Trends, flaky tests & seeds](trends-and-flaky.md#history).

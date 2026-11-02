@@ -1,8 +1,8 @@
 # Waveforms & debug
 
 When a test fails, the next thing you want is the waveform. SimCrux manages
-waveform capture as part of the run — which tests dump, in what format, and
-where — and hands a failing test's dump to WaveCrux in one click, with a
+waveform capture as part of the run (which tests dump, in what format, and
+where) and hands a failing test's dump to WaveCrux in one click, with a
 suggested set of signals.
 
 ## Capture policy {#policy}
@@ -20,7 +20,7 @@ defaults:
 | `capture:` | Behaviour today |
 |---|---|
 | `on_failure` (default) | The simulator is asked for a dump on every run. A failing test keeps its dump. |
-| `always` | The simulator is asked for a dump on every run, and every test keeps its dump — passing tests included. |
+| `always` | The simulator is asked for a dump on every run, and every test keeps its dump: passing tests included. |
 | `on_demand` | No dump is requested. Use **Re-run with waveform** when you need one. |
 | `never` | No dump is requested. |
 
@@ -28,8 +28,8 @@ A simulator cannot know it will fail before it runs, so `on_failure` dumps
 every run and keeps the dump only where it matters:
 
 - A **failing** test keeps its dump in its retained working directory.
-  Retained directories are pruned automatically — the 50 most recent, 2 GiB at
-  most — in the desktop app and under `simcrux --ci` alike, and an empty
+  Retained directories are pruned automatically (the 50 most recent, 2 GiB at
+  most) in the desktop app and under `simcrux --ci` alike, and an empty
   `.simcrux-keep` file pins a directory you want to survive pruning.
 - A **passing** test's dump is moved, in the desktop app, into a small archive
   (the 25 most recent, 512 MiB at most) so **Debug in WaveCrux** can still open
@@ -57,7 +57,7 @@ SimCrux does not convert between formats.
 
 SimCrux records the dump path on each result and shows it in the Details
 panel's **Waveform** field, next to the **Working dir**. You never have to
-remember which build directory a given test wrote into — the result knows.
+remember which build directory a given test wrote into: the result knows.
 
 ## Debug in WaveCrux {#debug}
 
@@ -66,7 +66,7 @@ that file to [WaveCrux](https://wavecrux.app), the suite's waveform viewer, over
 the cross-probe (CXP) link, with a suggested signal list (the test's top module,
 `<top>.*`, unless it has a curated list). WaveCrux must be running on the same
 machine, and CXP enabled in both apps (**Settings → CXP Cross-Probe**, on by
-default). SimCrux then reports what WaveCrux did — for example "Sent to WaveCrux
+default). SimCrux then reports what WaveCrux did, for example "Sent to WaveCrux
 (…)", "WaveCrux is not connected", or "This test did not capture a waveform". The
 full list of notices, and how the hand-off works, is on
 [Cross-probe & the suite](integrations.md#deep-link).
@@ -103,8 +103,7 @@ own capture policy.
 
 ## Open testbench source {#source}
 
-**Open testbench source** opens the test's testbench in your editor at line 1 —
-the source whose file name matches the `top` module (or `<top>_tb`), otherwise
+**Open testbench source** opens the test's testbench in your editor at line 1: the source whose file name matches the `top` module (or `<top>_tb`), otherwise
 the first source. Configure the editor in **Settings → Editors**: pick
 **VS Code**, **Sublime Text**, **Vim** or **Emacs**, or write a **Custom**
 command using the `{file}`, `{line}` and `{column}` placeholders.

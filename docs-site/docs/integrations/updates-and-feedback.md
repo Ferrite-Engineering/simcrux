@@ -26,7 +26,7 @@ app content:
 
 **Turning it off.** `Settings → General → Automatically check for
 updates` (on by default). It gates the launch check, the daily check and
-the on-resume check — but never the manual one.
+the on-resume check, but never the manual one.
 
 **Checking by hand.** `Help → Check for Updates` (on macOS, in the
 SimCrux application menu), the command palette, or the **Check for
@@ -50,7 +50,7 @@ SimCrux better**, shows a **Send anonymous usage statistics** switch above
 on, except where the machine's regional settings place it in the EEA, the
 UK, Switzerland or South Korea, where it starts off. Change your answer at
 any time in `Settings → Privacy`, which also shows the random
-**Installation ID** — the only identifier attached to what is sent — with
+**Installation ID**, the only identifier attached to what is sent, with
 a **Copy** button. Send it to
 [privacy@ferriteengineering.com](mailto:privacy@ferriteengineering.com) to
 have that installation's data deleted. The ID appears only after usage
@@ -78,8 +78,7 @@ standalone `simcrux` CLI binary never sends anything.
 
 ## Reporting issues
 
-The fastest way to get something fixed is the built-in issue reporter —
-`Help → Submit Issue…`, the command palette, or the About box.
+The fastest way to get something fixed is the built-in issue reporter: `Help → Submit Issue…`, the command palette, or the About box.
 
 1. **Give the issue a short title.**
 2. **Choose what to attach.** SimCrux assembles the diagnostic context as
@@ -100,22 +99,20 @@ The fastest way to get something fixed is the built-in issue reporter —
    clipboard.
 
 Opening the reporter probes each built-in driver for its version, so the
-dialog may take a moment on first open. That probe is deliberately lazy —
-it never runs at startup.
+dialog may take a moment on first open. That probe is lazy: it never runs at startup.
 
 ### Privacy posture
 
 Every field is a count, a fixed enumeration value, a simulator id, or a
 scrubbed version string. The report never contains:
 
-- the project file path — often the employer or project name;
-- suite names, test names or `top` module names — those are your
+- the project file path: often the employer or project name;
+- suite names, test names or `top` module names: those are your
   identifiers;
 - stdout/stderr/waveform paths, or failure messages;
 - the *values* of your simulator binary overrides or recent-project
-  paths — only how many there are;
-- the Tab Diagnostics report ("Copy tab diagnostics report"), which is
-  deliberately excluded because it opens with an absolute config path.
+  paths, only how many there are;
+- the Tab Diagnostics report ("Copy tab diagnostics report"), which is excluded because it opens with an absolute config path.
 
 Detected version banners are scrubbed: any whitespace-delimited token
 containing `/`, `\` or a Windows drive prefix is replaced with

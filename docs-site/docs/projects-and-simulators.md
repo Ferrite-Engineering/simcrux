@@ -1,10 +1,8 @@
 # Projects & simulators
 
 A SimCrux project is a `simcrux.yaml` file describing your test suites and the
-simulators that run them. This page is the reference for the config schema —
-suites, tests, inheritance, includes, filelists, `<design>.crux-project`
-manifests —
-and for the simulator drivers and how each is configured.
+simulators that run them. This page is the reference for the config schema (suites, tests, inheritance, includes, filelists, `<design>.crux-project`
+manifests) and for the simulator drivers and how each is configured.
 
 ## The simcrux.yaml schema {#schema}
 
@@ -85,11 +83,11 @@ suites:
 
 `parameters:` values make up the test id (`axi/burst+BURST_LEN=16`) but are
 **not** passed to Icarus, Verilator or GHDL. The cocotb driver reads a few
-reserved keys from it — see [Cocotb versions and options](#cocotb).
+reserved keys from it: see [Cocotb versions and options](#cocotb).
 
 !!! note "`bundled` does not bundle anything yet"
     SimCrux ships no simulator binaries. `source: bundled` and `source: system`
-    behave identically today — both resolve the bare executable name
+    behave identically today, both resolve the bare executable name
     (`iverilog`, `vvp`, `verilator`, `ghdl`, `make`) against your `PATH`.
     `bundled` is a reserved value. Use `source: custom` with `path:` when you
     need an explicit location.
@@ -131,7 +129,7 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
       names the file and line.
     - Headless, pass `--allow-project-tooling`.
 
-    Nothing else in the file is gated — `source:`, the rest of `options:`,
+    Nothing else in the file is gated: `source:`, the rest of `options:`,
     `sources:`, detectors, sweeps and the rest load normally. **Settings →
     Simulators → Binary path** is unaffected too: that value is yours, not
     the file's. The advisories above are shown even when you have turned off
@@ -151,20 +149,20 @@ reserved keys from it — see [Cocotb versions and options](#cocotb).
     The desktop app's **Settings → Engines → Binary path** override is
     applied to runs started from the app as a `source: custom` binary, unless
     the project's `simulators:` entry for that simulator names its own binary
-    (`source: custom` with a `path`) — then the project file wins. An entry that
+    (`source: custom` with a `path`), then the project file wins. An entry that
     only sets `options:` keeps them and still takes the Settings path.
     `simcrux --ci` reads only the project file, so the equivalent of the
     Settings switch there is `--allow-project-tooling`.
 
 ## Opening a design with `<design>.crux-project` {#crux-project}
 
-A design usually spans more than one EDACrux product — the dump in WaveCrux,
+A design usually spans more than one EDACrux product: the dump in WaveCrux,
 the RTL in NetCrux, the lint project in LintCrux, the regression suite in
 SimCrux. Without help that is four file-open rituals, each with its own recents
 list and its own chance of picking a stale file.
 
 A design manifest at the root of your design replaces all four. It is a small
-YAML file named after the design — `uart_tx.crux-project` — that you write once
+YAML file named after the design, `uart_tx.crux-project`, that you write once
 and check in alongside the RTL:
 
 ```yaml
@@ -184,11 +182,11 @@ artifacts:
 ```
 
 Open it in any of the four products and that product opens the part it owns.
-SimCrux opens the `simulation` artifact — the `simcrux.yaml` the manifest
+SimCrux opens the `simulation` artifact: the `simcrux.yaml` the manifest
 points at. Every path is relative to the manifest's own directory, so the file
 travels with the repository. In SimCrux, open a manifest with **Open Config…**
-on the start screen or **File → Open Config…** — both dialogs list
-`.crux-project` files beside `.yaml` and `.yml` — or name it on the command
+on the start screen or **File → Open Config…**, both dialogs list
+`.crux-project` files beside `.yaml` and `.yml`, or name it on the command
 line: `simcrux uart_tx/uart_tx.crux-project`. On the command line the design
 directory works too (`simcrux uart_tx/`), as long as it holds exactly one
 manifest; with more than one, SimCrux opens nothing and names them. `simcrux
@@ -205,7 +203,7 @@ artifact: an implementation flow is configured in `simcrux.yaml`.
 
 All four products also derive the same design identity from it, so
 cross-probing between them works exactly as it does when you open each file by
-hand — the manifest is a shortcut, not a different mode.
+hand: the manifest is a shortcut, not a different mode.
 
 !!! note
     **Everything except `version` is optional.** A manifest with no
@@ -216,17 +214,17 @@ hand — the manifest is a shortcut, not a different mode.
 
 !!! note "The old `.crux-project` file name"
     A manifest named just `.crux-project`, with nothing before the dot, still
-    opens, and SimCrux tells you what to rename it to — the design directory's
+    opens, and SimCrux tells you what to rename it to: the design directory's
     name plus `.crux-project`. File pickers and Finder hide files whose names
     start with a dot, and a later release stops reading the old name.
 
-A design manifest holds no view state and no personal settings — it says what
+A design manifest holds no view state and no personal settings: it says what
 the design *is*, not how you last looked at it.
 
 ## Defaults & inheritance {#inheritance}
 
 Settings cascade from the project's `defaults:`, to the suite, to the individual
-test — the test wins last. `sources:`, `include_dirs:` and `resources:` are
+test: the test wins last. `sources:`, `include_dirs:` and `resources:` are
 appended to the suite's lists, so a suite can declare shared RTL once and each
 test adds only its own testbench. `defines:` and `riscv:` merge key by key with
 the test's value winning. From 1.2 `formal:` merges the same way. Every other key
@@ -260,7 +258,7 @@ including file's `defaults.simulator`, `pass_fail`, `waveform`, `timeout` and
 
 ## Filelists and FuseSoC import {#filelists}
 
-**`.f` filelists** — any `sources:` entry ending in `.f` is expanded when the
+**`.f` filelists**: any `sources:` entry ending in `.f` is expanded when the
 project loads, so you reuse the source manifest your other tools consume:
 
 ```text
@@ -279,7 +277,7 @@ The expander understands one path per line, `#` and `//` comment lines,
 directories and defines are merged into the test's `include_dirs:` and
 `defines:`. Globs are not expanded, here or in `sources:`.
 
-**FuseSoC `.core` import** — **File → Import FuseSoC .core File…**
+**FuseSoC `.core` import**: **File → Import FuseSoC .core File…**
 (++cmd+i++ / ++ctrl+i++) or `simcrux --import-fusesoc <file>` reads a CAPI2
 `.core` file and writes a `<name>.simcrux.yaml` next to it with the sources, top
 module and simulator filled in. From there you edit it like any other config.
@@ -331,7 +329,7 @@ far, and the language mismatches above. Each message names the file and line.
 The project does not load until they are fixed.
 
 Validation does not check that source files exist (apart from `.f` filelists,
-which must be readable) or that a simulator binary is installed — those surface
+which must be readable) or that a simulator binary is installed: those surface
 when the test runs, as a compile failure or an `unknown` result. Unrecognized
 keys are ignored rather than rejected.
 
@@ -392,8 +390,8 @@ matters because `cocotb-config` often lives in a virtualenv SimCrux cannot see.
 Cocotb 2.1 requires **Python 3.9 or newer** and no longer publishes 32-bit
 builds.
 
-Results come from the `results.xml` cocotb writes beside each run — an xUnit
-report it has produced since 1.x — in preference to the end-of-run summary
+Results come from the `results.xml` cocotb writes beside each run, an xUnit
+report it has produced since 1.x, in preference to the end-of-run summary
 table, which changes between releases. A run that produces no report falls back
 to the table, and then to `make`'s exit code. Per-testcase status and simulated
 time are recorded as `cocotb.*` metrics on the result. The report's outcomes are
@@ -433,8 +431,8 @@ simulators:
       preview: xfail_in_results
 ```
 
-`max_failures` must be a positive integer. Any other value — in
-`simulators.cocotb.options` or a cocotb test's `parameters:` — stops the project
+`max_failures` must be a positive integer. Any other value, in
+`simulators.cocotb.options` or a cocotb test's `parameters:`, stops the project
 from loading, with the file and line.
 
 With `preview: xfail_in_results`, cocotb reports `@cocotb.xfail` tests as
@@ -585,8 +583,8 @@ its paths shown as unmapped and a note that it holds no synthesised netlist.
 
 Pro adds custom driver plugins: an external program, speaking a documented
 subprocess protocol, that teaches SimCrux a simulator id it does not ship.
-Manage them in **Settings → Custom Driver Plugins** — also opened by
-**Tools → Manage Driver Plugins…** — which asks for a one-time safety
+Manage them in **Settings → Custom Driver Plugins**, also opened by
+**Tools → Manage Driver Plugins…**, which asks for a one-time safety
 acknowledgment before SimCrux scans the plugin directory or starts any plugin.
 **Tools → Reload Driver Plugins** re-scans the directory after a change. A
 built-in driver always wins over a plugin with the same simulator id.

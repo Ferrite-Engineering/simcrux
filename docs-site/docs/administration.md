@@ -2,8 +2,7 @@
 
 Result retention from a signed policy file, the audit events SimCrux records,
 distributed execution on your own cluster scheduler, and what each of SimCrux's
-policy keys does. This page is for the person deploying SimCrux across a fleet —
-the rest of these docs are for the engineer running regressions.
+policy keys does. This page is for the person deploying SimCrux across a fleet: the rest of these docs are for the engineer running regressions.
 
 !!! note "The file itself is documented once, for the whole suite"
     One `.crux-policy.json` configures all four EDACrux products. Where it goes
@@ -109,7 +108,7 @@ regression finished in the app.
 ```
 
 `maxAgeDays`, `maxDataPoints` and `maxWaveformRuns` are all optional; write the
-ones you mean. The bare form without the `value` wrapper works too — the key is
+ones you mean. The bare form without the `value` wrapper works too: the key is
 object-valued, and both spellings are accepted.
 
 Precedence, highest first:
@@ -123,8 +122,7 @@ Precedence, highest first:
 
 **An unlocked policy sitting *below* the engineer's setting is the level that
 surprises people.** It is a default for installations nobody has touched, not a
-nudge that overrides a deliberate choice. An administrator who means it locks it
-— and when it is locked, the Settings control is disabled rather than accepting
+nudge that overrides a choice made on purpose. An administrator who means it locks it, and when it is locked, the Settings control is disabled rather than accepting
 an edit and discarding it.
 
 **The precedence is decided before the sweep, not layered on top of it**, and
@@ -142,7 +140,7 @@ Settings** rather than silently doing nothing.
 
 !!! note "The purge audit event records which policy did the deleting"
     `retention.purged` fires when a sweep deletes under your policy, and it
-    carries the **source** of the thresholds it applied — whether they came from
+    carries the **source** of the thresholds it applied, whether they came from
     the organization policy file or from the engineer's own Settings. A
     retention report built on it can therefore distinguish a fleet-wide rule
     from a local one, which is the question an auditor actually asks.
@@ -175,7 +173,7 @@ instead of running it locally.
       directories are never pruned.
     - **A backend that fails to parse, or a license that does not include it,
       falls back to local execution.** The reason is logged, not shown on the
-      command line — check the CI log if a nightly run is unexpectedly slow.
+      command line: check the CI log if a nightly run is unexpectedly slow.
 
 **One templated backend, not four integrations.** That is the design decision
 the whole feature rests on. SLURM, LSF, Grid Engine and AWS Batch are
@@ -203,19 +201,19 @@ Each run gets `<workRoot>/<runId>/`, and each test a directory under it named
 after its id, with every character other than a letter, a digit, `.`, `_`, `+`
 or `-` replaced by `_`. A passing test's directory is removed once its log has
 been read. A failing test's is kept, and at the end of every run SimCrux prunes
-the kept directories across all runs to the 50 most recent, 2 GiB at most — the
+the kept directories across all runs to the 50 most recent, 2 GiB at most: the
 same budget `--ci` applies to a local run.
 
 **Pruning only touches what SimCrux made.** A run directory is considered only
 when it holds the `.simcrux-run` marker SimCrux writes into it, and never while
-it holds `.simcrux-run-in-flight`, which stays for as long as the run does — on
+it holds `.simcrux-run-in-flight`, which stays for as long as the run does, on
 whichever machine started it. A run whose process was killed keeps that marker
 and is left alone; delete the marker to let it be pruned. An empty
 `.simcrux-keep` file in a run or test directory pins it.
 
 ### The substitution vocabulary {#dist-vars}
 
-**Closed, deliberately.** An open vocabulary would make every template a small
+**Closed.** An open vocabulary would make every template a small
 programming language, and a typo'd variable would submit a job with an empty
 argument rather than being refused. Every unknown placeholder is an error when
 the backend is parsed.
@@ -227,7 +225,7 @@ the backend is parsed.
 | `{command}` | The test command (`testCommand`, expanded). | submit |
 | `{workDir}` | The per-test working directory under `workRoot`. | submit, log path |
 | `{logPath}` | The log path, from `logPathPattern`. | submit |
-| `{jobId}` | The scheduler's own job id. **Only in the status and cancel commands** — it does not exist until the submit has returned. | status, cancel |
+| `{jobId}` | The scheduler's own job id. **Only in the status and cancel commands**: it does not exist until the submit has returned. | status, cancel |
 
 **The submit template is a list of arguments rather than a string**, and
 `{command}` is why: a scheduler wrapper takes it as one argv element
@@ -235,7 +233,7 @@ the backend is parsed.
 would make quoting that element your problem. Write a literal brace as `{{` or
 `}}`.
 
-### Worked example — SLURM {#dist-slurm}
+### Worked example: SLURM {#dist-slurm}
 
 ```json
 "distributedExecutionBackend": {
@@ -260,12 +258,12 @@ would make quoting that element your problem. Write a literal brace as `{{` or
 }
 ```
 
-`workRoot` and `testCommand` describe **your site**, not the scheduler — replace
+`workRoot` and `testCommand` describe **your site**, not the scheduler: replace
 both. `jobIdPattern` tolerates both `sbatch --parsable`'s bare id and the default
 "Submitted batch job 12345" form, because a site with a submit wrapper often
 loses the flag.
 
-### Worked example — LSF {#dist-lsf}
+### Worked example: LSF {#dist-lsf}
 
 ```json
 "distributedExecutionBackend": {
@@ -289,7 +287,7 @@ loses the flag.
 }
 ```
 
-The same fields, different words. That is the whole point of the shape: **Grid
+The same fields, different words. That is what the shape is for: **Grid
 Engine and AWS Batch are the same exercise**, and so is whatever your site
 actually runs. A state listed in both `succeededStates` and `failedStates` is a
 configuration error and is refused rather than resolved by precedence.
@@ -306,13 +304,13 @@ and failure behaviour are in [the audit log reference](https://edacrux.app/audit
 | `regression.finished` | A run in the app ends. Recorded once per run. | `runId`, `outcome`, `tests`, `failed`, `simulator` |
 | `baseline.set` | An engineer pinned a run as the comparison baseline. | `project_id`, `run_id` |
 | `baseline.cleared` | An engineer removed the pinned baseline. | `project_id` |
-| `results.pushed` | `simcrux-pro push-results --audit-log <path>` wrote a run to the shared team database — the moment verification data leaves the machine that produced it. | `run_id`, `project_id`, `results`, `failed`, `database`, `submitter` |
+| `results.pushed` | `simcrux-pro push-results --audit-log <path>` wrote a run to the shared team database: the moment verification data leaves the machine that produced it. | `run_id`, `project_id`, `results`, `failed`, `database`, `submitter` |
 | `distributed.job.submitted` | A `--ci` run submitted a test to the distributed backend. | `runId`, `testId`, `backend` |
 | `retention.purged` | A retention sweep deleted trend rows or waveform dumps. [Above.](#retention) | `deleted`, `policySource` |
 | `formal.policy.applied` | From 1.2: your formal policy refused a proof result. [Below.](#formal-policy) | `testId`, `tool`, `rules` |
 | `flow.thresholds.evaluated` | From 1.2: your flow thresholds were checked against a run, whatever the outcome. [Below.](#flow-thresholds) | `subject`, `decision`, `thresholds`, `failed` |
 
-Things about these that are deliberate and worth knowing before you write
+Things about these worth knowing before you write
 queries against them:
 
 - **The regression events come from runs started in the app.** A `--ci` run
@@ -325,8 +323,8 @@ queries against them:
 - **Start and finish share a run id**, so a night of runs reconciles. The finish
   event does not depend on usage-statistics consent: an audit trail must not
   inherit that gate.
-- **Events carry the target, never the credential or a file path** — an audit
-  log is precisely the file somebody attaches to a support ticket.
+- **Events carry the target, never the credential or a file path**: an audit
+  log is the file somebody attaches to a support ticket.
 
 ## The CI failure ceiling {#ci-ceiling}
 
@@ -419,17 +417,17 @@ is.
 
 | Code | Meaning | Retry? |
 |---|---|---|
-| `0` | Written — *or already present*. Both are success: a retried step must not go red for work that was already done. | — |
+| `0` | Written: *or already present*. Both are success: a retried step must not go red for work that was already done. | – |
 | `2` | Not configured or not licensed: no usable connection details in the environment, a licence file that could not be read, or no Enterprise licence. The message on stderr says which. | no |
 | `3` | The archive is missing, unreadable, or describes no run. | no |
-| `4` | The database is reachable and its schema cannot serve this build — unprovisioned, an incompatible epoch, or another product's. **An administrator has to act.** | **never** |
+| `4` | The database is reachable and its schema cannot serve this build: unprovisioned, an incompatible epoch, or another product's. **An administrator has to act.** | **never** |
 | `5` | The database could not be reached, or the write failed. Network weather, a restart, a firewall. | **yes** |
 | `64` | Bad command line (`EX_USAGE`): an unknown option, a missing or malformed `--project` (it must be the project's `project_id`: 1 to 64 letters, digits, `.`, `_` or `-`), archive or runner id (`--origin` / `SIMCRUX_ORIGIN_ID`), or no command at all. A human fixes the pipeline definition. | no |
 
 A pipeline that cannot tell `4` from `5` either retries a misconfiguration
 forever or fails a build over a thirty-second blip. A usage error is `64`, far
 from the outcome codes, so a typo in the job can never read as one of them.
-Anything else — `130` when the job is cancelled, for instance — is unexpected:
+Anything else (`130` when the job is cancelled, for instance) is unexpected:
 report the code rather than folding it into a catch-all branch.
 
 **Credentials come from the environment, never from a flag.** There is no

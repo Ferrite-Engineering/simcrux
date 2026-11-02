@@ -1,6 +1,6 @@
 # Importing FuseSoC `.core` Files
 
-SimCrux reads — but never writes — [FuseSoC CAPI2 `.core` files][capi2]
+SimCrux reads, but never writes,[FuseSoC CAPI2 `.core` files][capi2]
 as a one-way migration aid. Point the importer at a `.core`; get back a
 `<name>.simcrux.yaml` next to it. Edit the result by hand if needed.
 The native YAML stays the canonical project format.
@@ -15,7 +15,7 @@ produces `serv.simcrux.yaml`. The stem comes from the `name` field of
 `vendor:library:name:version`, falling back to the `.core` file's own
 basename.
 
-This matters because multi-core directories are the norm — SERV ships
+This matters because multi-core directories are the norm: SERV ships
 `serv.core`, `servant.core`, `servile.core` and `serving.core` side by
 side. Re-importing the *same* core overwrites its own output, which is
 what you want; importing a sibling leaves it alone.
@@ -30,7 +30,7 @@ Three equivalent entry points:
 - **CLI:** `simcrux --import-fusesoc path/to/my_design.core`. Writes
   the result next to the source, prints the output path and each warning
   on stdout, exits without launching the UI.
-- **Keyboard:** `Ctrl+I` / `Cmd+I` — a global binding, available anywhere in the app.
+- **Keyboard:** `Ctrl+I` / `Cmd+I`: a global binding, available anywhere in the app.
 
 ## What translates cleanly
 
@@ -57,10 +57,10 @@ Three equivalent entry points:
 SimCrux runs testbenches, so a CAPI2 target translates to a suite only
 when it describes a simulation. Three kinds of target are dropped:
 
-- **Packaging targets** — no `toplevel:`. Skipped silently.
-- **Non-`sim` flows** — `flow: synth`, `flow: lint`, `flow: vivado`,
+- **Packaging targets**: no `toplevel:`. Skipped silently.
+- **Non-`sim` flows**: `flow: synth`, `flow: lint`, `flow: vivado`,
   `flow: icestorm`, and so on.
-- **Synthesis / place-and-route backends** — `default_tool:` naming
+- **Synthesis / place-and-route backends**: `default_tool:` naming
   `vivado`, `ise`, `quartus`, `icestorm`, `trellis`, `diamond`,
   `libero`, `openlane`, `nextpnr`, `yosys`, and friends.
 
@@ -73,7 +73,7 @@ import yields the two simulation suites, not forty-two suites of which
 forty could never pass.
 
 Simulators SimCrux can't drive yet (`modelsim`, `questa`, `xsim`, `vcs`)
-are a different case — they still import, falling back to `icarus` with
+are a different case: they still import, falling back to `icarus` with
 an `unsupported_tool` warning. Substituting one Verilog simulator for
 another is lossy but coherent; running a bitstream flow under a
 simulator is not.
@@ -96,7 +96,7 @@ target's `filesets` and `parameters`, and `toplevel`:
 
 | Flag | Value at import time |
 |---|---|
-| `is_toplevel` | true — importing a core means running *it* |
+| `is_toplevel` | true: importing a core means running *it* |
 | `target_<name>` | true for the target being translated |
 | `tool_<id>` | true for the tool the target resolved to |
 | anything else | unset, matching FuseSoC without `--flag=+name` |
@@ -107,8 +107,7 @@ This is not cosmetic: a `sources:` entry reading
 `?` and a space in it, and both Icarus and Verilator fail on the first
 one they touch.
 
-A conditional may hold several whitespace-separated values —
-`tool_icarus? (a.v b.v)` contributes both files when it matches.
+A conditional may hold several whitespace-separated values: `tool_icarus? (a.v b.v)` contributes both files when it matches.
 
 Dropping on an unset *user* flag raises `conditional_flag_unset` naming
 the flag, so `--flag=+mdu` territory is greppable. A `tool_*` mismatch
@@ -123,20 +122,20 @@ comment at the top of the synthesized `simcrux.yaml`.
 
 | Code                       | When it fires                                                                     |
 |----------------------------|-----------------------------------------------------------------------------------|
-| `unsupported_vpi`          | `vpi:` block present — VPI hooks aren't part of SimCrux's surface                  |
-| `unsupported_generator`    | `generators:` block present — FuseSoC's preprocessor isn't run                     |
+| `unsupported_vpi`          | `vpi:` block present: VPI hooks aren't part of SimCrux's surface                  |
+| `unsupported_generator`    | `generators:` block present: FuseSoC's preprocessor isn't run                     |
 | `unsupported_scripts`      | `scripts:` block (pre/post run hooks)                                              |
 | `unsupported_tool`         | `default_tool:` references a *simulator* SimCrux can't run on Open Core (`modelsim`, `questa`, `xsim`, `vcs`, …). Falls back to `icarus`. |
-| `non_simulation_target`    | The target is a synthesis, lint or place-and-route flow — dropped, not imported. See above. |
+| `non_simulation_target`    | The target is a synthesis, lint or place-and-route flow: dropped, not imported. See above. |
 | `conditional_flag_unset`   | Entries gated on a user-defined flag (`mdu? (…)`) were dropped because the importer has no `--flag=+mdu` to act on. One per flag per target. |
-| `unresolved_toplevel`      | Every `toplevel:` candidate was suppressed by its condition — the target is skipped. |
-| `complex_parameter`        | A parameter declares `datatype: file` / `file_list` — skipped entirely             |
-| `unknown_parameter`        | A target references a parameter not declared at the project level — treated as `defines:` |
-| `plusarg_parameter`        | A parameter has `paramtype: plusarg` or `cmdlinearg` — emitted under `parameters:` for manual review |
-| `non_hdl_file_type`        | A fileset entry has a non-HDL `file_type` (`xdc`, `tclSource`, …) — kept in `sources:` but flagged |
-| `include_file_demotion`    | A file is marked `is_include_file: true` — emitted under `sources:`, not `include_dirs:` |
-| `unknown_fileset`          | A target or `depend:` references a fileset that isn't defined in this file — skipped |
-| `invalid_filesets` / `invalid_fileset` / `invalid_files` / `invalid_file_entry` / `invalid_target` | Structural error in the relevant block — skipped |
+| `unresolved_toplevel`      | Every `toplevel:` candidate was suppressed by its condition: the target is skipped. |
+| `complex_parameter`        | A parameter declares `datatype: file` / `file_list`: skipped entirely             |
+| `unknown_parameter`        | A target references a parameter not declared at the project level: treated as `defines:` |
+| `plusarg_parameter`        | A parameter has `paramtype: plusarg` or `cmdlinearg`: emitted under `parameters:` for manual review |
+| `non_hdl_file_type`        | A fileset entry has a non-HDL `file_type` (`xdc`, `tclSource`, …): kept in `sources:` but flagged |
+| `include_file_demotion`    | A file is marked `is_include_file: true`: emitted under `sources:`, not `include_dirs:` |
+| `unknown_fileset`          | A target or `depend:` references a fileset that isn't defined in this file: skipped |
+| `invalid_filesets` / `invalid_fileset` / `invalid_files` / `invalid_file_entry` / `invalid_target` | Structural error in the relevant block: skipped |
 
 ## What the importer refuses
 
@@ -147,7 +146,7 @@ and nothing is written (the CLI exits `2`):
   `#` comment must be `CAPI=2:`.
 - **Unparseable YAML**, or a document whose root is not a map.
 - **Missing `targets:` block**, or one that is not a map.
-- **No simulation target** — every target is packaging-only (no
+- **No simulation target**: every target is packaging-only (no
   `toplevel:`), a non-`sim` flow, or a synthesis / place-and-route
   backend.
 

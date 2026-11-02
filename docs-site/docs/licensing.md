@@ -24,7 +24,7 @@ paid screens only analyse what the free row already shows.
 Open Core is free and open source: the whole runner in the first row of the
 table, with no account, no key and no time limit. The Pro, Enterprise and EDU
 rows ask for a license. Where a badged feature is the thing being asked
-for, the app says so rather than quietly doing less — a sweep that is not
+for, the app says so rather than quietly doing less: a sweep that is not
 expanded is named in a warning banner, and a CI regression gate that resolves
 below Pro fails the run instead of passing it.
 

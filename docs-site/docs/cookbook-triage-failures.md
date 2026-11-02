@@ -1,7 +1,7 @@
 # Triage failures & open the waveform
 
 A run finished red. This recipe walks from a dashboard full of failures to the
-signal that broke a real test — filtering to failures, separating flaky from
+signal that broke a real test: filtering to failures, separating flaky from
 real, and dropping into WaveCrux with the waveform loaded.
 
 | | |
@@ -18,9 +18,9 @@ real, and dropping into WaveCrux with the waveform loaded.
    column header to see whether the damage is concentrated in one area.
 
 2. **Tell flaky from real.** Select a failure and look at **Recent runs** in the
-   Details panel — the last 10 results. A test that has been flipping green and
+   Details panel: the last 10 results. A test that has been flipping green and
    red is likely flaky; one that was solid green until this run is a real
-   regression — chase it first. With <span class="tier tier-pro">Pro</span>,
+   regression: chase it first. With <span class="tier tier-pro">Pro</span>,
    right-click the row → **Show Trend Chart** for its full history, and look for
    a **FLAKY** chip on the row.
 
@@ -31,7 +31,7 @@ real, and dropping into WaveCrux with the waveform loaded.
    `capture: on_failure`).
 
 4. **Read the failing log.** Click **Open full log** and search for the assertion
-   or error that marked the test failed. Note the simulation time it fired — you
+   or error that marked the test failed. Note the simulation time it fired: you
    will navigate to it in the waveform.
 
 5. **Open it in WaveCrux.** With WaveCrux running, click **Debug in WaveCrux**.
@@ -44,7 +44,7 @@ real, and dropping into WaveCrux with the waveform loaded.
 
 !!! tip "Re-run only what failed"
     After a fix, **Re-run failures only** <span class="tier tier-pro">Pro</span> on
-    the toolbar re-runs just the failing set instead of the whole project — the
+    the toolbar re-runs just the failing set instead of the whole project: the
     fastest confirm loop.
 
 ## Where to go next {#next}

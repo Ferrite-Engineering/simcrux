@@ -4,7 +4,7 @@ A simulation Makefile usually encodes five things: the source list, the
 build flags, the list of tests, how to tell a pass from a fail, and how
 to run several at once. SimCrux takes over all five, declaratively.
 
-Read [what every migration has in common](index.md) first — especially
+Read [what every migration has in common](index.md) first: especially
 the "no discovery" and "what SimCrux does not have" sections.
 
 ## Concept map
@@ -23,7 +23,7 @@ the "no discovery" and "what SimCrux does not have" sections.
 | `timeout 300 ...` | `timeout: 300s` |
 | `.NOTPARALLEL` on a license-limited tool | `resources: [ <lock-name> ]` |
 | `include common.mk` | `includes:` |
-| A `-f` filelist you already generate | keep it — put the `.f` in `sources:` |
+| A `-f` filelist you already generate | keep it: put the `.f` in `sources:` |
 | `RANDOM_SEED=$(SEED)` | `seed:` / `seeds:` |
 | `make wave` | `waveform: { capture: always }` |
 
@@ -133,13 +133,13 @@ becomes
 ```
 
 which expands into five tests with ids `alu/random+seed=1` … `+seed=5`.
-The effective seed is injected per simulator — `+seed=N` for Icarus,
+The effective seed is injected per simulator: `+seed=N` for Icarus,
 `+verilator+seed+N` for Verilator, `RANDOM_SEED` in the environment for
 cocotb. GHDL is report-only: the seed is recorded but not injected.
 
 Sweeps are a SimCrux Pro feature: an open-core build runs a `seeds:` list once and shows an
 [advisory](../trends-and-flaky.md#sweeps) that says so.
-`seed: N` — one pinned seed — works everywhere, in every tier.
+`seed: N`, one pinned seed, works everywhere, in every tier.
 
 ### "My rule sweeps a parameter"
 
@@ -173,7 +173,7 @@ and test-level `resources:` are merged.
 ### "My recipe has a timeout wrapper"
 
 `timeout: 90s` (or `90`, or `1m`). SimCrux sends SIGTERM, waits 5
-seconds, then SIGKILL, and reaps the whole process tree — including
+seconds, then SIGKILL, and reaps the whole process tree, including
 cocotb's grandchildren, which is the failure mode a `timeout(1)` wrapper
 usually gets wrong.
 
@@ -212,5 +212,5 @@ pass_fail:
    `includes:`.
 4. Point CI at `--ci --export junit=report.xml --fail-threshold 1` and
    retire the Makefile targets you have replaced.
-5. Keep the Makefile for anything SimCrux cannot express yet — the two
+5. Keep the Makefile for anything SimCrux cannot express yet: the two
    can coexist indefinitely.

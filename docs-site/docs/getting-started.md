@@ -9,8 +9,7 @@ first regression end to end.
 
 ## Platforms {#platforms}
 
-SimCrux is desktop-first. It runs natively on Linux, macOS and Windows —
-wherever your simulators run.
+SimCrux is desktop-first. It runs natively on Linux, macOS and Windows: wherever your simulators run.
 
 | Platform | Versions | How you get it |
 |---|---|---|
@@ -35,11 +34,11 @@ flutter run -d macos    # or -d linux, -d windows
 ```
 
 The headless `simcrux` command-line binary used in CI is built separately with
-`tool/build_cli.sh` — see [Command line & CI](cli.md).
+`tool/build_cli.sh`: see [Command line & CI](cli.md).
 
 ## Supported simulators {#simulators}
 
-**SimCrux does not bundle simulators** — it drives the ones on your machine. It
+**SimCrux does not bundle simulators**: it drives the ones on your machine. It
 resolves `iverilog`, `vvp`, `verilator`, `ghdl` and `make` by name against your
 `PATH`. On macOS it also searches `/opt/homebrew/bin` and `/usr/local/bin`, so a
 Homebrew install is found even when the app is launched from Finder or the
@@ -48,7 +47,7 @@ Dock. A test selects its simulator with the `simulator:` key.
 | Simulator | `simulator:` | What SimCrux runs | Notes |
 |---|---|---|---|
 | Icarus Verilog | `icarus` | `iverilog` + `vvp` | With a custom path, both are taken from that directory. |
-| Verilator | `verilator` | `verilator` (and the C++ toolchain it builds with) | Warnings never fail the build; add flags with `options.args` — see [Verilator flags](projects-and-simulators.md#verilator). |
+| Verilator | `verilator` | `verilator` (and the C++ toolchain it builds with) | Warnings never fail the build; add flags with `options.args`: see [Verilator flags](projects-and-simulators.md#verilator). |
 | GHDL | `ghdl` | `ghdl` | Any backend your GHDL build uses (mcode, LLVM or GCC). |
 | Cocotb | `cocotb` | `make` in the test's working directory, with your cocotb testbench `Makefile` | Tested against cocotb 1.9 through 2.1. Cocotb 2.1 requires Python 3.9 or newer and no longer ships 32-bit builds. Cocotb wraps Icarus, Verilator or GHDL underneath. |
 
@@ -170,8 +169,8 @@ endmodule
    **Total**, **Passed**, **Failed** and **Running**, plus **Skipped**,
    **Timed out** and **Error** when any occur.
 4. **Open a result.** Click a row to show the test in the **Details** panel on
-   the right. Click **Open full log** for the searchable Log Viewer, or — for a
-   test that captured a waveform — **Debug in WaveCrux**.
+   the right. Click **Open full log** for the searchable Log Viewer, or, for a
+   test that captured a waveform,**Debug in WaveCrux**.
 
 Alternatively, run headlessly from the command line:
 
@@ -192,7 +191,7 @@ echo "exit code: $?"   # 0 = all passed, non-zero otherwise
 
 SimCrux checks a release manifest on launch, once a day while it is running,
 and when you switch back to the app. When a newer version is out, a strip
-appears above the app content — **View Changes** opens the changelog,
+appears above the app content: **View Changes** opens the changelog,
 **Update Now** opens the download page in your browser, and **✕** dismisses it
 for this session. There is no in-app download and no self-update: SimCrux tells
 you, you decide.
@@ -210,10 +209,10 @@ your operating system. Details are on
 The fastest path to a fix is the built-in issue
 reporter: **Help → Submit Issue…**, the command palette
 (++cmd+shift+p++ / ++ctrl+shift+p++), or the **Submit Issue…** button in the
-About box. SimCrux assembles a diagnostic context for you — app version and
+About box. SimCrux assembles a diagnostic context for you (app version and
 build, platform and OS, locale, counts describing the open project and run, and
-a recent diagnostic log — with a live preview of exactly what will be included.
-File paths, test names and log contents are deliberately left out. See
+a recent diagnostic log) with a live preview of exactly what will be included.
+File paths, test names and log contents are left out. See
 [Reporting issues](integrations/updates-and-feedback.md#reporting-issues).
 
 !!! note "Next steps"

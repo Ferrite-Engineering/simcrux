@@ -1,8 +1,7 @@
 # Command line & CI
 
 SimCrux runs regressions without a window. Besides the desktop app's own
-command line, it builds as a **standalone binary with no GUI in it at all** —
-the thing you put in a CI runner or an Edalize flow, on an image that has no
+command line, it builds as a **standalone binary with no GUI in it at all**: the thing you put in a CI runner or an Edalize flow, on an image that has no
 display server and no reason to have one. This page is the full argument
 surface, the exit codes, and the subcommands. Ready-made pipeline jobs are on
 [CI recipes](ci.md).
@@ -37,13 +36,13 @@ want depends on whether a display exists:
 
 !!! tip "It refuses to pretend"
     An invocation of the standalone binary that selects none of the headless
-    flows — a bare project path, or no arguments at all — prints the usage block
+    flows (a bare project path, or no arguments at all) prints the usage block
     and exits `2` rather than reporting a run that never happened. And the
     standalone binary **never transmits telemetry**, under any setting.
 
 When the desktop app's own executable runs `--ci` or `export-dashboard`, it
 records anonymous usage counters only if usage statistics were turned on in that
-app — it never asks, and a machine where the app has never been opened sends
+app: it never asks, and a machine where the app has never been opened sends
 nothing (see
 [Updates, usage statistics & issue reporting](integrations/updates-and-feedback.md#usage-statistics)).
 
@@ -56,7 +55,7 @@ nothing (see
 | `--export <fmt>=<path>` | Write the run to `<path>`, creating its directory if needed. May be given more than once. Formats: `junit`, `json`, `csv`, `html`; any other format is a usage error (exit `2`) before anything runs. The summary line is printed first, on stdout; each `wrote <fmt> → <path>` confirmation goes to stderr. A target that cannot be written is reported on stderr, the others are still written, and the run exits `2`. |
 | `--json` | Print the totals as one JSON document on stdout, and nothing else there: export confirmations, warnings and errors go to stderr, so `--json \| jq .totals` parses whatever other flags are given. Implies `--ci`. |
 | `--filter <pattern>` / `-f` | Literal substring match against the test id (`suite/test`); non-matching tests are skipped. Not a glob. **`--ci` only**; ignored in the GUI. |
-| `--max-parallel <n>` / `-j` | Concurrency for the run. Must be a positive integer; defaults to `4`. **`--ci` only** — the GUI always uses 4. |
+| `--max-parallel <n>` / `-j` | Concurrency for the run. Must be a positive integer; defaults to `4`. **`--ci` only**: the GUI always uses 4. |
 | `--fail-threshold <n>` | In `--ci` mode, exit `1` when the number of failed, timed-out or `unknown` tests is `>= n`. Defaults to `1`, or to the organization's [failure ceiling](administration.md#ci-ceiling) where one is set; a value typed here always wins. |
 | `--fail-on-vacuous` | In `--ci` mode, also count tests classified `vacuous` (the testbench completed without exercising its checks) toward `--fail-threshold`. |
 | `--keep-failures <n>` | From 1.2. In `--ci` mode, how many failing tests' [work folders](#work-folders) to keep across runs. Defaults to `50`; a non-negative integer. The run's own failure folders are never removed and count toward `n`, so its results never point at a deleted counterexample; earlier runs' folders are removed oldest first, and each removal is listed on stderr. |
@@ -65,9 +64,9 @@ nothing (see
 | `--license-file <path>` | In `--ci` mode, the SimCrux license file to run under. See [License tier in CI](#license-in-ci). |
 | `--fail-on-regression` <span class="tier tier-pro">Pro</span> | Exit `1` when a test that passed in `--baseline` now fails. Exit `2`, with an `error: regression gate:` line on stderr, when the `--baseline` file is missing, unreadable or holds no results, or when the run's license does not include the gate (see [License tier in CI](#license-in-ci)). Only the desktop app's executable, and from 1.2 `simcrux-pro`, run the gate, with `--ci` and a Pro, EDU or Enterprise license. The standalone `simcrux` binary and open-source builds refuse it: exit `2` and an `error: regression gate:` line naming the desktop executable. Without `--baseline` it warns and leaves the exit code unchanged. See [Baseline comparison](baselines-ci-exports.md#baseline). |
 | `--import-fusesoc <core>` | Convert a FuseSoC `.core` file to `<name>.simcrux.yaml` next to it, print the output path and any warnings on stdout, and exit `0` (or `2` on failure). See [Importing FuseSoC files](fusesoc-import.md). |
-| `--session <path>` | Opens one extra tab whose config path is the given path. No session document is parsed — this is not a session restore. |
+| `--session <path>` | Opens one extra tab whose config path is the given path. No session document is parsed: this is not a session restore. |
 | `--workspace <path>` | Load a saved workspace before opening positional projects. GUI only. |
-| `--no-restore` | GUI only: launch without reopening the previous session's tabs. Nothing is deleted — try this first if the app hangs on startup. |
+| `--no-restore` | GUI only: launch without reopening the previous session's tabs. Nothing is deleted: try this first if the app hangs on startup. |
 | `--reset` | GUI only: delete the saved workspace and per-tab session state, then launch empty. Settings and recent files are kept. |
 | `--reset-telemetry-consent` | Testing aid: forget this installation's usage-statistics answer so the first-launch question appears again. The desktop app acts on it at startup whatever else is on the command line, `--ci` included; the standalone `simcrux` binary accepts it and does nothing. |
 | `--reset-eula` | Testing aid: forget this installation's acceptance of the license agreement so it is presented again at launch. The desktop app acts on it at startup whatever else is on the command line, `--ci` included; the standalone `simcrux` binary accepts it and does nothing. Given together with `--reset-telemetry-consent`, the agreement appears first, then the usage-statistics question. |
@@ -75,7 +74,7 @@ nothing (see
 | `--version` | Print `simcrux <version>` and exit `0`, before anything else runs. |
 
 An unrecognized argument prints the error and the usage block on stderr and
-exits `2` from either executable — the desktop app does not open a window for
+exits `2` from either executable: the desktop app does not open a window for
 it. A headless invocation of the desktop app (`--ci`, `--help`, the imports,
 `export-dashboard`) exits as soon as it finishes.
 
@@ -120,14 +119,14 @@ executable) looks for one in this order and uses the first it finds:
 1. `--license-file <path>`
 2. the file named by the `SIMCRUX_LICENSE_FILE` environment variable
 3. the `license` key of your organization's
-   [policy file](https://edacrux.app/policy-reference) — an inline key or a
+   [policy file](https://edacrux.app/policy-reference): an inline key or a
    file path
 
 The license is checked offline, exactly as the app checks it, with no network
 call. The run prints one `simcrux: license: …` line on stderr saying which tier
 it runs at and where the license came from. That tier decides what the
-project loads with — Pro, EDU and Enterprise expand `seeds:` and `parameters:`
-sweeps, Open Core does not — and whether `--fail-on-regression` runs: an Open
+project loads with (Pro, EDU and Enterprise expand `seeds:` and `parameters:`
+sweeps, Open Core does not) and whether `--fail-on-regression` runs: an Open
 Core run that asks for it prints `error: regression gate: …` naming the tier it
 resolved and exits `2` rather than passing a gate it did not evaluate. With no license anywhere, the run is Open Core and
 prints nothing.
@@ -138,8 +137,8 @@ prints nothing.
 - A license that is not valid for SimCrux, or has expired past its grace
   period, runs as Open Core and says why. An expired license keeps its tier
   during the grace period.
-- A **machine file** — it starts `-----BEGIN MACHINE FILE-----`, and it is what
-  offline activation issues — works only on the machine it was issued for.
+- A **machine file** (it starts `-----BEGIN MACHINE FILE-----`, and it is what
+  offline activation issues) works only on the machine it was issued for.
   Anywhere else the run is Open Core and the license line says
   `wrongMachine`. A license key or a license file names no machine and works
   on any agent.
@@ -190,9 +189,9 @@ have [their own table](flow-ci.md#exit-codes) and exit `64` for a bad command
 line, where everything above keeps `2`. The standalone `simcrux` binary never
 exits `3`.
 
-A test ends `unknown` when SimCrux could not decide its outcome — for example
+A test ends `unknown` when SimCrux could not decide its outcome (for example
 when its simulator binary could not be started, or no driver is registered for
-its simulator id — so it always counts against the threshold.
+its simulator id) so it always counts against the threshold.
 
 ## Examples {#examples}
 
@@ -228,7 +227,7 @@ executable needs a display; see
 ## Subcommands {#subcommands}
 
 A subcommand word must come **first**, and everything after it belongs to that
-subcommand — the flags above are not available alongside one. Each accepts its
+subcommand: the flags above are not available alongside one. Each accepts its
 own `--help`.
 
 | Subcommand | What it does |
@@ -246,14 +245,14 @@ own `--help`.
 
 !!! note "There is no `run` subcommand"
     The project path is a positional argument, not something you run a verb
-    against — `simcrux simcrux.yaml --ci`, not `simcrux run --ci`. A word that is
+    against: `simcrux simcrux.yaml --ci`, not `simcrux run --ci`. A word that is
     not one of the subcommands above is treated as a config path.
 
 ### `simcrux export-dashboard <out-dir>` {#export-dashboard}
 
 Writes a self-contained dashboard bundle into `<out-dir>`:
 
-- `simcrux-results.json` — copied verbatim from `--results <path>` if that file
+- `simcrux-results.json`: copied verbatim from `--results <path>` if that file
   is already the consolidated form, or synthesized from a streaming
   `results.ndjson` otherwise.
 - The contents of `--web-bundle <dir>` (typically `build/web/` from
@@ -262,7 +261,7 @@ Writes a self-contained dashboard bundle into `<out-dir>`:
 
 | Flag | Description |
 |---|---|
-| `--results <path>` | Source results file: a consolidated `simcrux-results.json` or a streaming `results.ndjson`. Defaults to `results.ndjson` in the current directory — `--ci` writes it next to `simcrux.yaml`, so pass `--results` when you run from elsewhere. A crash-truncated NDJSON file is repaired in place first. |
+| `--results <path>` | Source results file: a consolidated `simcrux-results.json` or a streaming `results.ndjson`. Defaults to `results.ndjson` in the current directory: `--ci` writes it next to `simcrux.yaml`, so pass `--results` when you run from elsewhere. A crash-truncated NDJSON file is repaired in place first. |
 | `--web-bundle <dir>` | Pre-built Flutter web bundle. When provided its contents are copied alongside the JSON. |
 
 ```bash
@@ -283,18 +282,18 @@ See [The web dashboard](web-mode.md) for what the viewer shows and
 
 Enumerates a [`riscv-arch-test`][arch-test] checkout into **one SimCrux test per
 architectural test** and writes an inspectable `simcrux.yaml` you own. Nothing
-is compiled, elaborated or run — the importer reads the directory layout and the
+is compiled, elaborated or run: the importer reads the directory layout and the
 `.S` file names and exits.
 
 SimCrux enumerates up front because one test declaration yields exactly one
 result row. RISCOF emits *N* results per invocation, so the mismatch has to be
-resolved before the scheduler — and resolving it in a file you can read, diff
+resolved before the scheduler, and resolving it in a file you can read, diff
 and commit beats hiding it inside a driver where a mis-scanned directory is
 invisible.
 
 | Flag | Description |
 |---|---|
-| `--out <path>` / `-o` | Where to write the generated project file. Defaults to `./simcrux.yaml` — never inside the scanned checkout. |
+| `--out <path>` / `-o` | Where to write the generated project file. Defaults to `./simcrux.yaml`: never inside the scanned checkout. |
 | `--mode <normal\|demo>` | `normal` (default) enumerates a real checkout; `demo` enumerates a corpus of pre-captured signature pairs and emits `mode: demo`, which spawns nothing. |
 | `--extensions <I,M,C>` | Comma-separated extension directories to import. Case-insensitive. Default: everything found. |
 | `--target-command <cmd>` | **Required** for a config that loads in `--mode normal`: the command that runs *your* core for one architectural test. Quoted as one string and split the way a shell splits it. Use the `{elf}` and `{signature}` placeholders. The emitted file therefore carries a `command:`, so opening it needs **Settings → Engines → Let project files choose simulator binaries and environment** (**Simulators** before 1.2), and running it headless needs `--allow-project-tooling`. The importer prints a reminder. |
@@ -318,9 +317,8 @@ simcrux ./simcrux.yaml --ci --export junit=arch-test.xml
 ```
 
 `--target-command` is the one input the importer cannot derive from a checkout,
-and the loader requires it in `mode: normal`. Omit it and you still get a file —
-with a `missing_target_command` warning in its header comment and a loader error
-naming the key — because a config that looks fine and cannot run is worse than
+and the loader requires it in `mode: normal`. Omit it and you still get a file (with a `missing_target_command` warning in its header comment and a loader error
+naming the key) because a config that looks fine and cannot run is worse than
 one that says what is missing.
 
 ### `simcrux import-riscv-formal <checks-path>` {#import-riscv-formal}
@@ -348,7 +346,7 @@ simcrux ./simcrux.yaml --ci
 ```
 
 A `.sby` that declares a `[tasks]` section becomes **one test per task**, with a
-`multi_task_sby` warning saying so — one `sby` invocation over several tasks
+`multi_task_sby` warning saying so: one `sby` invocation over several tasks
 prints several `DONE (…)` lines, which would collapse into a single result row.
 
 The keys the written file uses, the metrics each row records and what a check
@@ -364,7 +362,7 @@ The same two importers are on the File menu:
 
 Each asks for the source **directory**, then for where to save the generated
 `simcrux.yaml`, then opens it as a new tab. Neither the app nor the CLI writes
-into the checkout you scanned — that is somebody else's git repository. The app
+into the checkout you scanned: that is somebody else's git repository. The app
 runs the importers with no options, so a `riscv-arch-test` import saved this way
 carries the `missing_target_command` warning until you add
 `riscv.target.command` by hand.
@@ -426,7 +424,7 @@ simcrux cores/servant/servant.simcrux.yaml --ci --export junit=report.xml
 ```
 
 LintCrux's half of the same integration consumes the fully resolved EDAM that
-FuseSoC generates — see
+FuseSoC generates: see
 [the LintCrux documentation](https://docs.lintcrux.app/projects-and-engines).
 
 !!! note "Related"

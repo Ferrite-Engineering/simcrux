@@ -1,7 +1,7 @@
 # Welcome to SimCrux
 
 SimCrux is a simulation regression manager and results dashboard for the
-open-source HDL simulators — Icarus Verilog, Verilator, GHDL and Cocotb. It
+open-source HDL simulators: Icarus Verilog, Verilator, GHDL and Cocotb. It
 replaces the Makefile-plus-shell-plus-`grep` regression rig with one
 declarative `simcrux.yaml`, a parallel orchestrator that isolates and times
 out tests properly, and an interactive results table you click into instead
@@ -18,7 +18,7 @@ detectors, and the keyboard you will actually use.
     [Cookbook](cookbook.md) walks complete workflows step by step.
 
 **SimCrux does not ship any simulator.** Install the ones you want to drive
-and put them on your `PATH` — see
+and put them on your `PATH`: see
 [Installation & first regression](getting-started.md#simulators).
 
 ## Three steps: Run. Track. Debug. {#simulators}
@@ -64,55 +64,55 @@ feature requires a paid tier, you will see a badge next to its name:
 
 **Getting started**
 
-- [Installation & first regression](getting-started.md) — platforms, pointing
+- [Installation & first regression](getting-started.md): platforms, pointing
   SimCrux at your simulators, a minimal config, your first run.
-- [The interface](interface.md) — the toolbar, the results table, the heatmap,
+- [The interface](interface.md): the toolbar, the results table, the heatmap,
   the Details panel, the Log Viewer, the command palette, tabs and diagnostics.
-- [Appearance & themes](appearance-and-themes.md) — the six built-in color
+- [Appearance & themes](appearance-and-themes.md): the six built-in color
   presets, color overrides, and `.crux-theme.json` theme packs.
-- [Keyboard & mouse reference](keyboard-mouse.md) — every default shortcut, the
+- [Keyboard & mouse reference](keyboard-mouse.md): every default shortcut, the
   actions that ship unbound, and rebinding.
-- [Tiers & licensing](licensing.md) — what each tier unlocks, and
+- [Tiers & licensing](licensing.md): what each tier unlocks, and
   entering a license key.
 
 **Running regressions**
 
-- [Projects & simulators](projects-and-simulators.md) — the `simcrux.yaml`
+- [Projects & simulators](projects-and-simulators.md): the `simcrux.yaml`
   schema, inheritance, `includes:`, `.f` filelists, `<design>.crux-project`
   manifests, and the
   simulator drivers.
-- [Running tests](running-tests.md) — run, cancel and re-run; concurrency;
+- [Running tests](running-tests.md): run, cancel and re-run; concurrency;
   timeouts; resource locks; the live log; file watching.
-- [Pass/fail detection](pass-fail-detection.md) — exit code, string and regex
+- [Pass/fail detection](pass-fail-detection.md): exit code, string and regex
   matchers, composite rules, the UVM and Cocotb detectors, golden compare, and
   the reusable detector library.
-- [The results dashboard](results-dashboard.md) — the table, sorting, filter
+- [The results dashboard](results-dashboard.md): the table, sorting, filter
   chips, test-name filtering, presets, the status bar, the heatmap and the
   Details panel.
-- [Waveforms & debug](waveforms-and-debug.md) — capture policy, *Debug in
+- [Waveforms & debug](waveforms-and-debug.md): capture policy, *Debug in
   WaveCrux*, re-run with waveform, and opening testbench source.
 
 **Track & ship**
 
-- [Trends, flaky tests & seeds](trends-and-flaky.md) — trend charts, calendar
+- [Trends, flaky tests & seeds](trends-and-flaky.md): trend charts, calendar
   heatmaps, regression alerts, flaky-test detection, and seed sweeps.
   <span class="tier tier-pro">Pro</span>
-- [Baselines, CI & exports](baselines-ci-exports.md) — baseline comparison,
+- [Baselines, CI & exports](baselines-ci-exports.md): baseline comparison,
   JUnit / JSON / CSV / HTML exports, `--ci`, and PR annotations.
-- [Command line & CI](cli.md) — the full flag surface, exit codes and
+- [Command line & CI](cli.md): the full flag surface, exit codes and
   subcommands, including the standalone headless binary.
 - [CI recipes](ci.md), [Publishing the results dashboard](ci-integration.md)
-  and [The web dashboard](web-mode.md) — GitHub Actions, GitLab and Jenkins,
+  and [The web dashboard](web-mode.md): GitHub Actions, GitLab and Jenkins,
   and the read-only web viewer.
-- [Team results database](team-database.md) — the shared PostgreSQL results
+- [Team results database](team-database.md): the shared PostgreSQL results
   store. <span class="tier tier-enterprise">Enterprise</span>
-- [Cross-probe & the suite](integrations.md) — the CXP link to WaveCrux, NetCrux
+- [Cross-probe & the suite](integrations.md): the CXP link to WaveCrux, NetCrux
   and LintCrux, editor integration, and multi-project workspaces.
 
-**Administration** — [Org-wide configuration](administration.md) for the person
+**Administration**: [Org-wide configuration](administration.md) for the person
 deploying SimCrux across a fleet. <span class="tier tier-enterprise">Enterprise</span>
 
-**Cookbook** — [task-driven recipes](cookbook.md): run your first regression,
+**Cookbook**: [task-driven recipes](cookbook.md): run your first regression,
 triage failures into the waveform, hunt down flaky tests, run a seed sweep.
 
 ## Conventions used in this guide {#conventions}

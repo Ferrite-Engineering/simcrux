@@ -7,7 +7,7 @@ with.
 
 ## The table {#table}
 
-The table is virtualized — only the rows in view are drawn, so a 10,000-row
+The table is virtualized, only the rows in view are drawn, so a 10,000-row
 regression scrolls as smoothly as a 50-row one. Each row is one finished test,
 or one expanded instance of a seed or parameter sweep; rows appear as tests
 finish. Columns:
@@ -23,7 +23,7 @@ finish. Columns:
 | Started | When the test started, as `HH:MM:SS`. |
 
 With <span class="tier tier-pro">Pro</span>, a chip at the right end of the row
-marks tests classified **FLAKY**, **HIGHLY FLAKY** or **BROKEN** — see
+marks tests classified **FLAKY**, **HIGHLY FLAKY** or **BROKEN**: see
 [Flaky-test detection](trends-and-flaky.md#flaky).
 
 From 1.1, drag the divider at the right edge of a column header to widen that
@@ -40,14 +40,14 @@ together, or by **Started** to read the run in execution order.
 ## Filtering {#filtering}
 
 The filter area above the table narrows what is shown without changing the
-underlying results — or what the next run executes:
+underlying results, or what the next run executes:
 
-- **Presets** — **Failures** (fail, timeout and unknown) and **Passing** (pass
+- **Presets**: **Failures** (fail, timeout and unknown) and **Passing** (pass
   and vacuous) apply a status filter in one click.
-- **Filter by test name…** — see [Test-name search](#search).
-- **Status** chips — one chip per status; select several to show any of them.
-- **Suite** chips — restrict to one or more suites.
-- **Simulator** chips — restrict to one or more simulators.
+- **Filter by test name…**: see [Test-name search](#search).
+- **Status** chips: one chip per status; select several to show any of them.
+- **Suite** chips: restrict to one or more suites.
+- **Simulator** chips: restrict to one or more simulators.
 
 **Clear filters** resets everything at once. When the chips outgrow half the
 pane, the filter area scrolls so the table keeps the rest.
@@ -57,8 +57,8 @@ pane, the filter area scrolls so the table keeps the rest.
 Two ways to find a test:
 
 - **Filter by test name…** above the table narrows the rows to test ids
-  containing the text, ignoring case. It is a plain substring match — no globs
-  or regular expressions — and it combines with the chips, so you can look at
+  containing the text, ignoring case. It is a plain substring match, no globs
+  or regular expressions, and it combines with the chips, so you can look at
   "failed Verilator tests in the `dma` suite whose id contains `burst`". A run
   of a seed sweep is also found by the seed its row shows: `seed 21` or just
   `21` finds `cdc_capture_sweep · seed 21`, and `seed_21` and `seed=21` work too.
@@ -70,7 +70,7 @@ Two ways to find a test:
 
 ## Presets {#presets}
 
-The two built-in presets — **Failures** and **Passing** — sit above the filter
+The two built-in presets, **Failures** and **Passing**, sit above the filter
 field; the one matching the current filter is highlighted. You cannot save your
 own presets yet.
 
@@ -85,8 +85,7 @@ they are non-zero. A busy indicator shows while the regression runs.
 
 Switch the control above the table from **Table** to **Heatmap** for a grid
 where each cell is a test, colored by status. For a few-thousand-test regression
-it shows the *shape* of the result — a red block in one suite, a run of timeouts
-— that a scrolling table hides. The heatmap shows the same filtered set as the
+it shows the *shape* of the result (a red block in one suite, a run of timeouts) that a scrolling table hides. The heatmap shows the same filtered set as the
 table. Hover a cell for the test and its status; click it to select the test.
 Cell colors follow the active color theme.
 
@@ -110,7 +109,7 @@ the panel opens when you first select a test (see [the interface](interface.md))
 
 ## Keyboard navigation {#keyboard}
 
-Each results row is one ++tab++ stop — its check box. With a row focused,
+Each results row is one ++tab++ stop: its check box. With a row focused,
 ++enter++ opens the test in the Details panel (what a click on the row does) and
 ++space++ toggles the check box. The table does not move its selection with the
 arrow keys. You can also select a test in the **Tests** panel (++tab++ to a

@@ -1,8 +1,7 @@
 # Migration guides
 
 SimCrux replaces the *orchestration* layer around your simulators, not
-the simulators themselves. Whatever runs your tests today —
-a Makefile, VUnit, FuseSoC — the RTL and the testbenches are unchanged.
+the simulators themselves. Whatever runs your tests today (a Makefile, VUnit, FuseSoC) the RTL and the testbenches are unchanged.
 What moves is the description of *which* tests exist, *how* they are
 built, and *what counts as a pass*.
 
@@ -10,7 +9,7 @@ built, and *what counts as a pass*.
 | --- | --- |
 | Hand-written Makefiles | [Migrating from Makefiles](from-makefiles.md) |
 | VUnit | [Migrating from VUnit](from-vunit.md) |
-| FuseSoC | [Importing FuseSoC files](../fusesoc-import.md) — automated |
+| FuseSoC | [Importing FuseSoC files](../fusesoc-import.md): automated |
 
 ## What every migration has in common
 
@@ -22,9 +21,9 @@ SimCrux does **not** scan directories for testbenches, does not expand
 globs in `sources:`, and does not infer tests from filenames. Every test
 is declared explicitly in `simcrux.yaml`. If your current flow relies on
 "anything matching `tb_*.sv` is a test", you will be writing that list
-out — once — by hand or with a script.
+out, once, by hand or with a script.
 
-This is a deliberate trade: an explicit list is diffable, reviewable, and
+This is a trade: an explicit list is diffable, reviewable, and
 cannot silently stop running a test because a file got renamed.
 
 ### Three levels of inheritance
@@ -76,8 +75,8 @@ Be clear-eyed about these before you plan the move:
   filter on that.
 - **Raw flags for Verilator only.** You get `include_dirs`, `defines` and
   per-simulator `env` (environment variables). SimCrux builds each command
-  line itself — Icarus always gets `-g2012`, GHDL always
-  `--std=08 --ieee=synopsys` — and only Verilator takes extra flags, through
+  line itself (Icarus always gets `-g2012`, GHDL always
+  `--std=08 --ieee=synopsys`) and only Verilator takes extra flags, through
   `simulators.verilator.options.args`. Otherwise `simulators.<id>.options` is
   read only by the cocotb driver.
 - **Parameters are not passed to the simulator.** `parameters:` forms the

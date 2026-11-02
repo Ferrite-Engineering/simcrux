@@ -2,8 +2,8 @@
 
 This is the complete default binding set for SimCrux. Shortcuts are written
 macOS first; the platform modifier is ++cmd++ on macOS and ++ctrl++ on Linux and
-Windows. Every action listed here is also reachable from the menu bar and — when
-it can run — the command palette (++cmd+shift+p++ / ++ctrl+shift+p++), and every
+Windows. Every action listed here is also reachable from the menu bar and, when
+it can run, the command palette (++cmd+shift+p++ / ++ctrl+shift+p++), and every
 binding can be changed in **Settings → Keyboard Shortcuts**.
 
 ## File {#file}
@@ -14,7 +14,7 @@ binding can be changed in **Settings → Keyboard Shortcuts**.
 | ++cmd+i++ / ++ctrl+i++ | Import FuseSoC .core File… |
 | ++cmd+w++ / ++ctrl+w++ | Close Tab |
 | ++cmd+shift+w++ / ++ctrl+shift+w++ | Close Project |
-| ++cmd+q++ / ++ctrl+q++ | Quit SimCrux — **Exit** on Linux and Windows |
+| ++cmd+q++ / ++ctrl+q++ | Quit SimCrux: **Exit** on Linux and Windows |
 
 ## View {#view}
 
@@ -144,16 +144,15 @@ These keys are fixed and not remappable.
 | Right-click (or long-press) a results-table row | Open the row menu: **Send selection to WaveCrux / NetCrux / LintCrux** under **Cross-probe to peer…** (every tier from 1.1; Pro in 1.0), then <span class="tier tier-pro">Pro</span> **Re-run with seed N** (rows with a recorded seed), **Re-run all in this parameter group** (rows from a sweep) and **Show Trend Chart**. A build from the open-source repository alone has no row menu; use the Cross-Probe panel's send button there. From SimCrux 1.2 the first entry is a single **Cross-probe to** item that lists the running EDACrux apps in a second menu, and every build, the open-source one included, has it. |
 | Drag a tab onto another pane | Move the tab to that pane. |
 | Hover a tab | Show a tooltip with the tab's full file path. |
-| Right-click a tab | Open the tab menu — the file path, **Reveal in Finder / Explorer / Files**, and the close actions. |
+| Right-click a tab | Open the tab menu: the file path, **Reveal in Finder / Explorer / Files**, and the close actions. |
 
 ## Customizing shortcuts {#customizing}
 
 **Settings → Keyboard Shortcuts** is the full editor for the binding set. A
-**Preset** chooser at the top loads a complete key map in one step —
-**SimCrux (Default)** ships today — and reads **Custom** once you change any
+**Preset** chooser at the top loads a complete key map in one step (**SimCrux (Default)** ships today) and reads **Custom** once you change any
 binding. Press the pencil (**Change shortcut**) to capture new keys,
 **Remove shortcut** to unbind an action, **Reset to default** for one action, or
 **Reset all** for everything. Conflicts are flagged as you assign: a shared key
 shows which other actions use it and which one wins. **Export…** and **Import…**
-save and load the customized bindings as a `.crux-keymap.json` file — the way to
+save and load the customized bindings as a `.crux-keymap.json` file: the way to
 carry a binding set across machines or share it with a team.

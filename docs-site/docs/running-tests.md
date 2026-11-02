@@ -21,7 +21,7 @@ out when none is.
 **Run Regression always runs the whole project.** The dashboard filters change
 what the table shows, not what a run executes; to run a subset from the command
 line, use `--filter` with [`--ci`](cli.md#arguments).
-**Re-run with waveform** is the workhorse for the failure-to-waveform loop — see
+**Re-run with waveform** is the workhorse for the failure-to-waveform loop: see
 [Waveforms & debug](waveforms-and-debug.md).
 
 **Re-run** and **Re-run with waveform** in the Details panel run only the
@@ -30,8 +30,7 @@ result, and the next **Run Regression** runs the whole project again.
 
 !!! tip "Config is re-read on every Run"
     Each ++f5++ re-parses `simcrux.yaml` from disk before running, so an edit you
-    made since opening the tab — a changed `timeout:`, an added or removed test —
-    takes effect on the next run with no app relaunch. If the edited YAML no
+    made since opening the tab (a changed `timeout:`, an added or removed test) takes effect on the next run with no app relaunch. If the edited YAML no
     longer loads, the error appears in the tab instead of the run silently
     proceeding on the stale config.
 
@@ -40,7 +39,7 @@ Run the regression when a config is opened** (off by default).
 
 ## Parallel execution & concurrency {#parallel}
 
-SimCrux runs tests concurrently with proper output isolation — each test gets
+SimCrux runs tests concurrently with proper output isolation, each test gets
 its own working directory, and its `stdout`/`stderr` are captured separately,
 so parallel logs never interleave. A run started from the app uses 4 parallel
 slots, and every run in the app draws those slots from one shared budget,
@@ -56,17 +55,17 @@ the command line in `--ci` mode:
 simcrux simcrux.yaml --ci --max-parallel 8
 ```
 
-A simulator's process tree is terminated as a whole — including cocotb's
-`make → python → simulator` grandchildren — so cancelling or timing out a test
+A simulator's process tree is terminated as a whole, including cocotb's
+`make → python → simulator` grandchildren, so cancelling or timing out a test
 does not leave orphans behind.
 
 ## Per-test timeouts {#timeouts}
 
 Give a test a wall-clock budget with `timeout:` at the `defaults:`, suite or
-test level — a bare number of seconds, or a number with `ms`, `s`, `m` or `h`.
+test level: a bare number of seconds, or a number with `ms`, `s`, `m` or `h`.
 A test with no timeout anywhere gets 300 seconds. When the budget expires,
 SimCrux sends `SIGTERM`, waits 5 seconds, then `SIGKILL`, and marks the test
-**timeout** — distinct from a fail. A runaway test cannot stall the rest of the
+**timeout**: distinct from a fail. A runaway test cannot stall the rest of the
 suite.
 
 ```yaml
@@ -82,7 +81,7 @@ like the other defaults; an included file's own `defaults.timeout` wins.
 
 ## Resource locks {#locks}
 
-Some tests cannot run at the same time — they bind the same TCP port, touch a
+Some tests cannot run at the same time: they bind the same TCP port, touch a
 shared file, or hold a floating simulator license. Name a lock with
 `resources:` and SimCrux never runs two tests holding the same name
 concurrently, while still parallelizing everything else. Suite-level and
@@ -100,14 +99,14 @@ tests:
 
 ## Results & the live log {#streaming}
 
-Results appear in the dashboard as each test finishes — you do not wait for the
+Results appear in the dashboard as each test finishes: you do not wait for the
 whole run to see the first failures. Select a test and the **Log** panel
 (++cmd+3++ / ++ctrl+3++) shows its captured output, updating live while the test
 is still running. The status bar's **Running** count and a busy indicator show
 the run in progress.
 
 `simcrux --ci` additionally streams one JSON line per finished test to
-`results.ndjson` — see [Streaming results](baselines-ci-exports.md#streaming-results).
+`results.ndjson`: see [Streaming results](baselines-ci-exports.md#streaming-results).
 
 ## File watching & auto-reload {#watching}
 

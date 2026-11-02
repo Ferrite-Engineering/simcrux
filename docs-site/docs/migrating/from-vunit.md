@@ -16,19 +16,19 @@ Read [what every migration has in common](index.md) first.
 
 | VUnit | SimCrux |
 | --- | --- |
-| `run.py` | `simcrux.yaml` (declarative — there is no scripting hook) |
+| `run.py` | `simcrux.yaml` (declarative: there is no scripting hook) |
 | `vu.add_library("lib")` | No library concept. Sources are a flat list per test. |
-| `lib.add_source_files("rtl/*.vhd")` | `sources:` — **no glob expansion**; list the files, or point at a `.f` filelist |
+| `lib.add_source_files("rtl/*.vhd")` | `sources:`: **no glob expansion**; list the files, or point at a `.f` filelist |
 | `vunit_proc`/`run("test name")` discovery | Not available. Every test is an explicit `tests[]` entry. |
 | A testbench entity | `top:` |
 | `tb.add_config(name=…, generics=…)` | `parameters:` (see the caveat below) |
-| `lib.set_generic(...)` | `parameters:` — id/sweep only today |
+| `lib.set_generic(...)` | `parameters:`: id/sweep only today |
 | `lib.add_compile_option("ghdl.a_flags", …)` | No equivalent. GHDL always runs with `--std=08 --ieee=synopsys` and takes no extra flags |
 | `--num-threads N` | `--max-parallel N` / `-j N` (CI mode) |
 | `--xunit-xml out.xml` | `--export junit=out.xml` |
 | `vu.set_sim_option("disable_ieee_warnings", …)` | No equivalent |
-| VUnit's `check`/`log` pass criteria | `pass_fail:` — `exit_code`, `string_match`, `regex`, `uvm_report`, `composite`, `use` |
-| Seeds via `--seed` | `seed:` / `seeds:` — but GHDL only records the seed; it does not reach a VHDL testbench |
+| VUnit's `check`/`log` pass criteria | `pass_fail:`: `exit_code`, `string_match`, `regex`, `uvm_report`, `composite`, `use` |
+| Seeds via `--seed` | `seed:` / `seeds:`, but GHDL only records the seed; it does not reach a VHDL testbench |
 | `--gui` | **Debug in WaveCrux** on a test with a captured waveform |
 | `vu.main()` exit code | `--ci` + `--fail-threshold` |
 
@@ -52,7 +52,7 @@ with an explicit `name` and `top`.
 
 For a one-off conversion, generate the YAML with a script that greps your
 testbenches for `run("...")` and emits the list, then commit the result
-and maintain it by hand. The explicitness is the point — the file is
+and maintain it by hand. The explicitness is the point: the file is
 reviewable and a renamed testbench fails loudly instead of silently
 dropping coverage.
 
@@ -61,7 +61,7 @@ dropping coverage.
 SimCrux has no library concept. VHDL compiled into `lib` is, to SimCrux,
 just a list of `sources:` analysed by GHDL, in order, into its default
 `work` library inside the test's working directory. Where VUnit's library
-partitioning was doing real work — `work` vs a vendor library — analyse
+partitioning was doing real work, `work` vs a vendor library, analyse
 the vendor library yourself once and list its directory under
 `include_dirs:`, which SimCrux passes to GHDL as `-P<dir>` library search
 paths; otherwise keep the ordering explicit in `sources:`.
@@ -89,8 +89,8 @@ becomes
     WIDTH: ['8', '16', '32']
 ```
 
-which produces `alu_suite/alu+WIDTH=8`, `+WIDTH=16`, `+WIDTH=32` — three
-distinct, separately-reported tests — but the value does not reach GHDL.
+which produces `alu_suite/alu+WIDTH=8`, `+WIDTH=16`, `+WIDTH=32` (three
+distinct, separately-reported tests) but the value does not reach GHDL.
 Until that lands, either bake the widths into three separate testbench
 entities, or drive them through a mechanism the simulator does see. Note
 too that a parameter sweep is a SimCrux Pro feature: an open-core build runs the test once
@@ -168,7 +168,7 @@ testbench already prints:
 | shares a house policy across projects | `use` referencing a named detector from `Settings → Detectors` |
 
 `regex` runs multi-line by default, so `^` and `$` match line boundaries.
-It uses Dart (JavaScript-style) syntax with no `(?i)` prefix — write case
+It uses Dart (JavaScript-style) syntax with no `(?i)` prefix: write case
 variants as character classes. Catastrophic patterns are abandoned after
 one second rather than hanging the run.
 
@@ -178,10 +178,10 @@ one second rather than hanging the run.
   without a separate viewer.
 - Waveform capture policy as configuration (`always` / `on_failure` /
   `on_demand` / `never`). In the desktop app, retained failure directories
-  are pruned automatically — the 50 most recent, 2 GiB at most — and a
+  are pruned automatically (the 50 most recent, 2 GiB at most) and a
   `.simcrux-keep` marker file pins a directory you want to survive pruning.
 - Named resource locks for license-limited tools.
-- Cross-probe into WaveCrux straight from a failing test — see
+- Cross-probe into WaveCrux straight from a failing test: see
   [Cross-probe & the suite](../integrations.md#deep-link).
 - Mixed-language validation at config-load time: a test whose sources a
   simulator cannot handle fails to load with a clear message instead of
@@ -192,6 +192,5 @@ one second rather than hanging the run.
 - Test discovery.
 - Libraries as a first-class concept.
 - Generics actually reaching the simulator (today).
-- Arbitrary Python in the run flow. `simcrux.yaml` is data, not code —
-  if `run.py` computes its test matrix, generate the YAML from the same
+- Arbitrary Python in the run flow. `simcrux.yaml` is data, not code, if `run.py` computes its test matrix, generate the YAML from the same
   script and commit the output.

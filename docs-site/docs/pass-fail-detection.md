@@ -1,6 +1,6 @@
 # Pass/fail detection
 
-Every team has its own convention for "did this test pass?" — an exit code, a
+Every team has its own convention for "did this test pass?": an exit code, a
 magic string, a UVM report summary, an xUnit report. SimCrux supports all of
 them as configurable detectors, set per project, suite or test with
 `pass_fail:`, or reused from a shared library.
@@ -30,8 +30,8 @@ defaults:
 ```
 
 **How a verdict is reached.** When a detector finds a signal of its own, its
-verdict stands. When it finds none — only a `fail_string` was configured and it
-never appeared, or the log has no UVM summary — the test takes the driver's
+verdict stands. When it finds none (only a `fail_string` was configured and it
+never appeared, or the log has no UVM summary) the test takes the driver's
 verdict, which for Icarus, Verilator and GHDL is the simulator's exit code.
 
 ### `exit_code` {#exit-code}
@@ -76,12 +76,12 @@ pass_fail:
 
 Multi-line mode is on, so `^` / `$` match line boundaries. The precedence is the
 same as `string_match`. Patterns use Dart (JavaScript-style) syntax, which has
-**no** PCRE `(?i)` prefix — use a scoped `(?i:error)` group or a character class
+**no** PCRE `(?i)` prefix: use a scoped `(?i:error)` group or a character class
 (`[Ee][Rr][Rr]`) to match case variants. Only the last 1 MiB of the log is
 scanned, and a pattern that runs longer than one second is abandoned rather than
 hanging the run.
 
-A pattern that does not compile — such as one starting with `(?i)` — stops the
+A pattern that does not compile, such as one starting with `(?i)`, stops the
 project from loading, with the file, line and field of the bad pattern. The same
 check applies to a [library detector](#library) when a project that uses it
 loads.
@@ -129,7 +129,7 @@ shared policy lives in one place. Cycles are detected at load time.
 ## Composite rules {#composite}
 
 Combine detectors with boolean **AND** / **OR** for the cases a single rule
-cannot express — for example, "passes only if it exits 0 *and* prints `PASS`".
+cannot express, for example, "passes only if it exits 0 *and* prints `PASS`".
 
 ```yaml
 pass_fail:
@@ -150,15 +150,15 @@ Viewer to find the line a clause matched.
 Every run resolves to one status. Beyond **pass** and **fail**, SimCrux
 distinguishes:
 
-- **timeout** — the run was killed by its [timeout](running-tests.md#timeouts).
+- **timeout**: the run was killed by its [timeout](running-tests.md#timeouts).
   It counts as a failure in CI but is shown separately from an assertion
   failure.
-- **unknown** — SimCrux could not decide: the simulator binary could not be
+- **unknown**: SimCrux could not decide: the simulator binary could not be
   started, no driver is registered for the simulator id, or neither the detector
   nor the driver produced a verdict. Always counted as a failure in CI.
-- **cancelled** — the test was running when you cancelled the regression.
-- **skipped** — reported by a driver that skips a test.
-- **vacuous** and **cover** — for results that completed without exercising
+- **cancelled**: the test was running when you cancelled the regression.
+- **skipped**: reported by a driver that skips a test.
+- **vacuous** and **cover**, for results that completed without exercising
   their checks, or that record a coverage hit. No built-in detector or driver
   produces them today; `--fail-on-vacuous` counts vacuous results when a driver
   reports them.
@@ -187,10 +187,10 @@ The importer for a job file writes a `string_match` on the tool's pass line
 
 ## UVM & cocotb results {#parsers}
 
-- **UVM report** — `uvm_report` reads the report summary block and fails the
+- **UVM report**: `uvm_report` reads the report summary block and fails the
   test on `UVM_FATAL` or `UVM_ERROR` counts at or above their thresholds, the way
   a UVM flow expects, rather than relying on a hand-rolled string.
-- **Cocotb** — the cocotb driver reads the `results.xml` cocotb writes beside
+- **Cocotb**: the cocotb driver reads the `results.xml` cocotb writes beside
   every run, falling back to cocotb's end-of-run summary table when a run
   produces no report, and records each cocotb testcase's status and simulated
   time on the result. It works with cocotb 1.9 through 2.1. See
@@ -204,15 +204,15 @@ metric) and the run is a **fail**. A clean report with a non-zero `make` exit is
 still a fail.
 
 `type: cocotb` classifies from the end-of-run summary line, **not** from
-`results.xml` — a detector is handed stdout, stderr, the exit code and the
+`results.xml`: a detector is handed stdout, stderr, the exit code and the
 runtime, not the working directory, so it does not open files.
 
 | Situation | Verdict |
 |---|---|
 | `FAIL` greater than zero | fail |
-| `PASS + SKIP + XFAIL` short of `TESTS` | fail — a case ended in a state the summary has no word for |
+| `PASS + SKIP + XFAIL` short of `TESTS` | fail: a case ended in a state the summary has no word for |
 | `TESTS=0` | fail, unless `allow_no_tests: true` |
-| No summary line at all | no verdict — a composite or the exit code decides |
+| No summary line at all | no verdict: a composite or the exit code decides |
 | Otherwise | pass |
 
 XFAIL counts as an expected outcome, so enabling `COCOTB_PREVIEW` does not change
@@ -249,8 +249,8 @@ Define them once in **Settings → Detectors** and reference them by name with
 !!! note "`use` under `--ci`"
     The library lives in the desktop app's settings, so `type: use` resolves
     only in runs started from the app. `simcrux --ci` and the standalone
-    `simcrux` binary never read those settings — a CI result must not depend on
-    one person's app — so they reject the project with an "unknown reusable
+    `simcrux` binary never read those settings, a CI result must not depend on
+    one person's app, so they reject the project with an "unknown reusable
     detector" error and exit `2`. Spell the detector out in `simcrux.yaml` for
     anything CI runs.
 

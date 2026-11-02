@@ -1,7 +1,7 @@
 site_name: SimCrux Documentation
 site_url: https://docs.simcrux.app/
 site_description: >-
-  The SimCrux user guide — installing, writing simcrux.yaml, running parallel
+  The SimCrux user guide: installing, writing simcrux.yaml, running parallel
   regressions, pass/fail detection, the results dashboard, waveform debug,
   trends and flaky tests, CI, and the team database.
 copyright: Copyright &copy; 2026 Ferrite Engineering LLC

@@ -1,8 +1,7 @@
 # The web dashboard
 
 SimCrux ships a **read-only Flutter Web build** of its dashboard. The
-exported bundle is a static directory you can serve from any HTTP host
-— GitHub Pages, S3, Netlify, an internal nginx — and it requires no
+exported bundle is a static directory you can serve from any HTTP host (GitHub Pages, S3, Netlify, an internal nginx) and it requires no
 SimCrux server. A hosted copy of the viewer runs at
 [app.simcrux.app](https://app.simcrux.app/).
 
@@ -17,10 +16,10 @@ work, or store any state.
 
 What you get on the web:
 
-- The results list — one row per test with status, id, suite, simulator
+- The results list: one row per test with status, id, suite, simulator
   and runtime; status filter chips (`pass`, `fail`, `timeout`, `skipped`,
   `unknown`) and a free-text query against test id / suite / simulator.
-- The inspector dialog — click any row for status, runtime, suite,
+- The inspector dialog: click any row for status, runtime, suite,
   simulator, exit code, failure message, and metrics.
 - A status-bar summary line with total / passed / failed / timed out /
   skipped counts.
@@ -29,7 +28,7 @@ What you get on the web:
   is read in the browser and never uploaded.
 - Deep-linkable URLs via the `?results=<url>` query parameter (see
   below).
-- The full localization set — `en`, `zh_CN`, `zh`, `ja`, `ko`. The
+- The full localization set: `en`, `zh_CN`, `zh`, `ja`, `ko`. The
   browser's language preference picks the locale automatically.
 
 What the web build **does not** have (these are desktop-only and the
@@ -54,7 +53,7 @@ the served `index.html`:
 | File | Produced by | Notes |
 |---|---|---|
 | `simcrux-results.json` | `simcrux export-dashboard <out-dir>` (or your own consolidation script) | The canonical static-site shape. Single JSON object containing the run envelope + per-test list. |
-| `results.ndjson` | `simcrux --ci`, which always writes it next to `simcrux.yaml` | The streaming variant — one JSON object per line. The web build decodes this directly when `simcrux-results.json` is missing or a 404. A file cut off mid-run still loads. |
+| `results.ndjson` | `simcrux --ci`, which always writes it next to `simcrux.yaml` | The streaming variant: one JSON object per line. The web build decodes this directly when `simcrux-results.json` is missing or a 404. A file cut off mid-run still loads. |
 
 The auto-detection order is:
 
@@ -69,7 +68,7 @@ loaded.
 
 The web dashboard reads the URL on first paint:
 
-- `?results=https://ci.example.com/runs/42/results.ndjson` — fetch a
+- `?results=https://ci.example.com/runs/42/results.ndjson`: fetch a
   remote document instead of the bundled one. Useful for hosting one
   copy of the dashboard and pointing it at per-PR or per-run artifacts.
   When the document is on a different origin from the dashboard, its

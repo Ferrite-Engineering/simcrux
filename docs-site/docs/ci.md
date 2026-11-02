@@ -7,7 +7,7 @@ and exports and baselines on [Baselines, CI & exports](baselines-ci-exports.md).
 ## Getting `simcrux` onto the runner
 
 A CI node needs the headless `simcrux` binary and the simulators your
-tests use. Build the binary from a SimCrux checkout — it is a single
+tests use. Build the binary from a SimCrux checkout: it is a single
 executable with no Flutter engine or display-server dependency:
 
 ```bash
@@ -109,7 +109,7 @@ search. It works offline, has zero external dependencies, and can
 be published as a CI artifact directly. The same file is suitable
 for static hosting (GitHub Pages, S3, etc.) when you want a
 shareable URL per run. It shows the config path as it was passed on the
-command line and each failing test's failure message — check both before
+command line and each failing test's failure message: check both before
 publishing somewhere public.
 
 For the full read-only web dashboard instead of a single file, see

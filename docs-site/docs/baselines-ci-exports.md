@@ -13,11 +13,11 @@ A regression's absolute pass count matters less than *what changed*. The
 the **Baseline:** chip that appears on the toolbar once a baseline is set. On
 that screen, **Set baseline** makes the current run the baseline (typically
 after a good run) and **Clear baseline** drops it. The baseline is rebuilt from the
-project's persistent trend history, so the comparison survives a relaunch — as
+project's persistent trend history, so the comparison survives a relaunch, as
 long as retention has not pruned that run.
 
 The comparison table lists every test with its **Baseline** and **Current**
-status, the **Δ Runtime**, and a **Change** chip — **NEW FAILURE**,
+status, the **Δ Runtime**, and a **Change** chip: **NEW FAILURE**,
 **NEW PASS**, **SLOWER**, **FASTER** (a runtime change of 20 % or more),
 **ADDED**, **REMOVED** or **UNCHANGED**. Filter chips narrow the view to
 **Regressions** (new failures and slower tests), **Improvements** (new passes
@@ -89,7 +89,7 @@ whatever the table is currently filtered to. Exporting is open core.
 | JUnit XML | `junit` | Every CI system's test-report format. Failed and timed-out tests are `<failure>` elements; `unknown` and cancelled tests are `<error>` elements. |
 | JSON | `json` | Programmatic consumption; the full structured result set. |
 | CSV | `csv` | Spreadsheets and ad-hoc analysis. |
-| HTML | `html` | A single self-contained page with sortable columns, status filters and search — archive it or attach it to a build. |
+| HTML | `html` | A single self-contained page with sortable columns, status filters and search: archive it or attach it to a build. |
 
 In the app, **Export Results…** asks for the format, then a location, suggesting
 `<run id>.<extension>` as the file name.
@@ -118,13 +118,13 @@ design (`--json | jq .totals`); the per-test detail is in the export file.
 ## CI integration {#ci}
 
 Run a regression headless with `simcrux simcrux.yaml --ci`. The process exit
-code reflects the outcome — `0` when failures stay below `--fail-threshold`
+code reflects the outcome: `0` when failures stay below `--fail-threshold`
 (default `1`, so any failure fails the build), `1` when they reach it, `2` when
 SimCrux could not run at all. CI mode writes nothing but the
 [streaming results](#streaming-results) unless you ask for `--export` targets.
 
 For runner images without a display server, SimCrux also builds as a
-**standalone headless binary** — a plain executable with no window and no GUI
+**standalone headless binary**: a plain executable with no window and no GUI
 runtime, built from the open-source tree with `tool/build_cli.sh`. It supports
 `--ci` with every export target, the FuseSoC and RISC-V importers, and
 `export-dashboard`. An invocation that would open a window in the desktop app
@@ -149,13 +149,13 @@ simcrux simcrux.yaml --ci --fail-on-vacuous
 
 A CI run has no license stored by the app: give it one with
 `--license-file <path>` or `SIMCRUX_LICENSE_FILE`, or deploy one in your policy
-file, so Pro sweeps expand at your tier — see
+file, so Pro sweeps expand at your tier: see
 [License tier in CI](cli.md#license-in-ci). `type: use` detectors from the app's
 library are not available to `--ci`; a project that uses one fails to load.
 
 `--export` creates an export's directory when it does not exist. The summary
-line is printed before any export is written, so an export that fails — reported
-on stderr, with exit `2` — never costs the run its verdict or the other
+line is printed before any export is written, so an export that fails (reported
+on stderr, with exit `2`) never costs the run its verdict or the other
 exports.
 
 Project load advisories, such as a sweep your tier did not expand, are printed
@@ -163,9 +163,9 @@ on stderr as `warning: <file>:<line>:<col>: <message>` before the run starts.
 
 ### CLI flags {#cli-flags}
 
-The full flag surface — `--filter`, `--max-parallel`, `--json`, `--export`,
+The full flag surface (`--filter`, `--max-parallel`, `--json`, `--export`,
 `--fail-threshold`, `--fail-on-vacuous`, `--baseline`, `--fail-on-regression`,
-`--import-fusesoc` and the rest — with exit codes and subcommands is on
+`--import-fusesoc` and the rest) with exit codes and subcommands is on
 [Command line & CI](cli.md#arguments). Ready-made GitHub Actions, GitLab and
 Jenkins jobs are on [CI recipes](ci.md).
 
@@ -221,7 +221,7 @@ never posted).
    SimCrux runs the regression, writes `results.ndjson` and the two exports, and
    sets the exit code.
 3. **Publish the reports.** Hand `results/report.xml` to your CI's test-report
-   step and archive `results/index.html` as a build artifact — or build a full
+   step and archive `results/index.html` as a build artifact, or build a full
    [web dashboard](ci-integration.md) from `results.ndjson`.
 4. **Gate on regressions** <span class="tier tier-pro">Pro</span>. Keep a
    known-good `results.ndjson` and add `--baseline <file> --fail-on-regression`,

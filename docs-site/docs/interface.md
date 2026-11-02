@@ -1,8 +1,8 @@
 # The interface
 
 SimCrux is built around one screen: a results dashboard you run regressions
-into and click your way around. This tour names every region — the toolbar,
-the results table, the heatmap, the Details panel, the Log Viewer — and the menu
+into and click your way around. This tour names every region (the toolbar,
+the results table, the heatmap, the Details panel, the Log Viewer) and the menu
 bar, command palette, settings and diagnostics that sit behind them.
 
 ## Workspace, tabs, and split panes {#workspace}
@@ -36,30 +36,30 @@ Details, and ++cmd+shift+arrow-up++ / ++ctrl+shift+arrow-up++ grows the Log pane
 ## The toolbar {#toolbar}
 
 The toolbar runs full width across the top of the tab, directly under the tab
-bar — the same layout as the other EDACrux apps. Buttons that do not apply
+bar: the same layout as the other EDACrux apps. Buttons that do not apply
 right now are greyed out; the overflow menu at the end holds every menu command.
 
 | Button | Shortcut | Action |
 |---|---|---|
 | Open Config… | ++cmd+o++ / ++ctrl+o++ | Open a `simcrux.yaml` in a new tab. |
 | Close Project | ++cmd+shift+w++ / ++ctrl+shift+w++ | Close the active tab. |
-| Search… | ++cmd+f++ / ++ctrl+f++ | Open **Search Tests** — search by test, suite or simulator; ++enter++ selects the hit. |
+| Search… | ++cmd+f++ / ++ctrl+f++ | Open **Search Tests**: search by test, suite or simulator; ++enter++ selects the hit. |
 | Cross-Probe Panel | ++cmd+shift+x++ / ++ctrl+shift+x++ | Show or hide the Cross-Probe panel. The badge counts connected peers. |
 | Settings… | ++cmd+comma++ / ++ctrl+comma++ | Open Settings. |
 | Import FuseSoC .core File… | ++cmd+i++ / ++ctrl+i++ | Convert a FuseSoC `.core` file and open the result. |
 | Run Regression / Cancel Regression | ++f5++ / ++esc++ | One button that shows the run state: it runs when idle and cancels while a regression is running. |
 | Re-run Selected Test | ++cmd+shift+r++ / ++ctrl+shift+r++ | Re-run only the selected test. |
-| Re-run failures only <span class="tier tier-pro">Pro</span> | — | Re-run every failing test from the latest run. |
-| Show Seed Failure Heatmap… <span class="tier tier-pro">Pro</span> | — | Open the per-seed pass/fail grid. |
-| Compare to baseline <span class="tier tier-pro">Pro</span> | — | Open the **Regression Comparison** screen. |
-| Compatibility / Formal proofs <span class="tier tier-pro">Pro</span> | — | RISC-V analysis screens; each appears only when the run holds rows of its kind. |
+| Re-run failures only <span class="tier tier-pro">Pro</span> | – | Re-run every failing test from the latest run. |
+| Show Seed Failure Heatmap… <span class="tier tier-pro">Pro</span> | – | Open the per-seed pass/fail grid. |
+| Compare to baseline <span class="tier tier-pro">Pro</span> | – | Open the **Regression Comparison** screen. |
+| Compatibility / Formal proofs <span class="tier tier-pro">Pro</span> | – | RISC-V analysis screens; each appears only when the run holds rows of its kind. |
 
 When a baseline is set, a **Baseline:** chip <span class="tier tier-pro">Pro</span>
 follows the buttons.
 
 ## The results dashboard {#dashboard}
 
-The results table is virtualized — it draws only the rows in view, so a
+The results table is virtualized: it draws only the rows in view, so a
 10,000-row regression scrolls as smoothly as a 50-row one. Each row is one test
 (one expanded instance for a sweep). Columns: **Status**, **Suite**, **Test**,
 **Simulator**, **Duration** and **Started**, with a check box on the left of
@@ -73,7 +73,7 @@ executes. The full reference is on
 [The results dashboard](results-dashboard.md).
 
 The **status bar** runs across the bottom of the window: the open file's name on
-the left, then the run totals — **Total**, **Passed**, **Failed**,
+the left, then the run totals: **Total**, **Passed**, **Failed**,
 **Running**, and **Skipped**, **Timed out** and **Error** when any occur. The
 totals always cover the whole run, ignoring filters.
 
@@ -81,25 +81,25 @@ totals always cover the whole run, ignoring filters.
 
 Switch the segmented control above the table from **Table** to **Heatmap** for
 a grid where each cell is one test, colored by status. It makes the shape of a
-regression obvious at a glance — a cluster of red in one suite, a run of
-timeouts — where a 5,000-row table would not. Hover a cell for the test name
+regression obvious at a glance (a cluster of red in one suite, a run of
+timeouts) where a 5,000-row table would not. Hover a cell for the test name
 and status; click it to select the test.
 
 ## The Details panel {#inspector}
 
 The **Details** panel docks on the right and reflects the selected test:
 
-- **Actions** — **Open full log**, **Re-run**, **Re-run with waveform**,
+- **Actions**: **Open full log**, **Re-run**, **Re-run with waveform**,
   **Open testbench source** (in your editor) and **Debug in WaveCrux**.
-- **Details** — **Suite**, **Simulator**, **Duration**, **Exit code**,
+- **Details**: **Suite**, **Simulator**, **Duration**, **Exit code**,
   **Started**, **Working dir** and, when one was captured, **Waveform**.
-- **Recent log** — the last 50 lines of output (change the count with
+- **Recent log**: the last 50 lines of output (change the count with
   **Settings → General → Log preview lines**).
-- **Recent runs** — a sparkline of the test's last 10 results from the local
+- **Recent runs**: a sparkline of the test's last 10 results from the local
   SQLite history. <span class="tier tier-pro">Pro</span> adds full trend charts;
   see [Trends, flaky tests & seeds](trends-and-flaky.md).
 
-**Re-run** and **Re-run with waveform** run only the selected test — the same
+**Re-run** and **Re-run with waveform** run only the selected test: the same
 as **Re-run Selected Test** (++cmd+shift+r++ / ++ctrl+shift+r++), with
 **Re-run with waveform** forcing `capture: always`.
 
@@ -129,7 +129,7 @@ Settings and Exit sit at the bottom of the File menu. Actions that need a paid
 tier carry a tier suffix in the menu.
 
 Every command is also in the **command palette**
-(++cmd+shift+p++ / ++ctrl+shift+p++) — type to find it, and see its shortcut and
+(++cmd+shift+p++ / ++ctrl+shift+p++): type to find it, and see its shortcut and
 any tier badge inline. The palette lists only commands that can run right now.
 
 ## Settings {#settings}
@@ -144,19 +144,19 @@ Open Settings with ++cmd+comma++ / ++ctrl+comma++. The sections:
 | Simulators | A **Binary path** per simulator id; **Simulator processes at once, across all tabs** (the shared budget every run draws from, default 4); **Let project files choose simulator binaries and environment**. |
 | Editors | The **Editor command** for *Open testbench source*, with VS Code, Sublime Text, Vim, Emacs and Custom presets. |
 | CXP Cross-Probe | **Enable CXP server**, **CXP port** (default `54325`), **Request attention on cross-probe**, **Broadcast selection automatically**, and the CXP status. |
-| Detectors | The reusable pass/fail detector library — add, edit, delete. |
+| Detectors | The reusable pass/fail detector library: add, edit, delete. |
 | Keyboard Shortcuts | View and rebind every shortcut. |
 
 The SimCrux download adds **License**, and the paid-tier sections **Flaky Test
-Detection**, **Test Execution — Parameterization**, **Custom Driver Plugins**,
+Detection**, **Test Execution: Parameterization**, **Custom Driver Plugins**,
 **PR Annotations**, **Trend Retention** <span class="tier tier-pro">Pro</span> and
 **Team Database** <span class="tier tier-enterprise">Enterprise</span>.
 
 ## Diagnostics {#diagnostics}
 
 **Tools → App Diagnostics…** (++cmd+shift+m++ / ++ctrl+shift+m++) shows a
-plain-text report — the same session state the issue reporter attaches (counts,
-simulator ids and versions, run state; never a path or design name) — plus the
+plain-text report: the same session state the issue reporter attaches (counts,
+simulator ids and versions, run state; never a path or design name), plus the
 trend store's size and schema history and a check of the RISC-V toolchain. Its
 copy button is **Copy Full Diagnostics Report**. If the local trend database was damaged, this is where SimCrux offers
 to rebuild it.
@@ -171,7 +171,7 @@ In release builds **Tab Diagnostics…** is greyed out until you turn on
 **Settings → General → Enable diagnostics**.
 
 The **Cross-Probe** panel lists connected suite peers and recent cross-probe
-activity — see [Cross-probe & the suite](integrations.md#peers). The
+activity: see [Cross-probe & the suite](integrations.md#peers). The
 **About SimCrux** box shows the version, build and platform, and offers **Visit
 Website**, **Documentation**, **Submit Issue…**, **Check for Updates**,
 **Privacy Policy**, **Terms of Service** and **Copy Version Info**.

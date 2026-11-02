@@ -19,7 +19,7 @@ order they appear in Settings.
 | Oscilloscope | Dark |
 | OLED XR | Dark |
 
-Only one light preset ships — **Crux Light**. The other five are dark.
+Only one light preset ships: **Crux Light**. The other five are dark.
 
 ## Light and dark {#light-dark}
 
@@ -50,10 +50,10 @@ directory inside SimCrux's application-support folder.
 
 !!! note "Localization"
     The **Presets**, **Color overrides** and **Theme packs** controls are not yet
-    localized — they render in English whatever app language you have selected.
+    localized: they render in English whatever app language you have selected.
 
 ## What SimCrux does not have {#not-included}
 
 Appearance covers color and the **Language** picker (English, 中文, 日本語,
-한국어) — nothing else. SimCrux has no accent-color picker, no UI density
+한국어): nothing else. SimCrux has no accent-color picker, no UI density
 setting, and no font-size setting.

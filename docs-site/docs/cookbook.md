@@ -1,8 +1,7 @@
 # Cookbook
 
 The rest of these docs explain what each feature *is*. The Cookbook shows you
-how to put them together to get something done. Each recipe is a complete task —
-start with a project, end with an answer — written as numbered steps you can
+how to put them together to get something done. Each recipe is a complete task (start with a project, end with an answer) written as numbered steps you can
 follow at the keyboard. They are short on purpose: a recipe is a worked example,
 not a manual.
 
@@ -23,14 +22,14 @@ not a manual.
 
 ## How each recipe is laid out {#how-recipes-work}
 
-Every recipe opens with a short summary — the goal, a rough time, the tier you
-need, and the features it exercises — followed by numbered steps. Keyboard
+Every recipe opens with a short summary (the goal, a rough time, the tier you
+need, and the features it exercises) followed by numbered steps. Keyboard
 shortcuts are written macOS first (++cmd++), with the ++ctrl++ equivalent for
 Linux and Windows. Where a step leans on a feature covered in depth elsewhere, it
 links straight to that page so you can go deeper without leaving the workflow.
 
 !!! note "More on the way"
     This is the opening set of recipes. If there is a regression workflow you
-    keep repeating and would like written up — a nightly full-regression pass, a
-    bring-up checklist, a CI migration — tell us at
+    keep repeating and would like written up (a nightly full-regression pass, a
+    bring-up checklist, a CI migration) tell us at
     [support@ferriteengineering.com](mailto:support@ferriteengineering.com).

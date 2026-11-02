@@ -1,18 +1,18 @@
 # Publishing the results dashboard
 
 Beyond the single-file HTML report covered in [CI recipes](ci.md), SimCrux's web
-build lets you publish the full read-only [web dashboard](web-mode.md) — as a
+build lets you publish the full read-only [web dashboard](web-mode.md), as a
 long-lived site, or as a CI artifact per run or per pull request. Either way the
 result is a static directory you can host anywhere; there is no server
 component, no build-time configuration and nothing to keep running.
 
 ## What you need {#required-artefacts}
 
-1. **Results** — a `simcrux-results.json` (the consolidated form) or
+1. **Results**: a `simcrux-results.json` (the consolidated form) or
    `results.ndjson` (the streaming form). `--ci` always writes the latter next
    to `simcrux.yaml`; the `simcrux export-dashboard` subcommand wraps either
    format into the consolidated shape and copies the web bundle alongside.
-2. **The web bundle** — the `build/web/` directory that
+2. **The web bundle**: the `build/web/` directory that
    `flutter build web --target lib/main_web.dart --release` produces in a
    SimCrux source checkout. It does not depend on your results, so build it once
    per SimCrux version and cache it.
@@ -162,7 +162,7 @@ The dashboard lives at `https://<group>.gitlab.io/<project>/`.
 `--ci` appends each finished test to `results.ndjson` as it goes. If your CI can
 serve the job's working directory while the run is in progress, point a hosted
 copy of the web viewer at that file with `?results=<url>` and reload the page to
-see new rows — the viewer reads the document once per page load and does not
+see new rows: the viewer reads the document once per page load and does not
 poll. Serve the file with `Cache-Control: no-cache` so a reload fetches the new
 rows, and allow cross-origin requests when the viewer is hosted on a different
 origin.
@@ -170,5 +170,5 @@ origin.
 ## The hosted viewer {#hosted}
 
 A hosted copy of the viewer runs at [app.simcrux.app](https://app.simcrux.app/).
-Open a local results file in it with **Open results file…** — the file is read
+Open a local results file in it with **Open results file…**: the file is read
 in your browser and never uploaded.
