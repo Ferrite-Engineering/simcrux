@@ -60,6 +60,94 @@ void main() {
     });
   });
 
+  group('debugSignalHintFor', () {
+    // The SymbiYosys importer names each test after its task
+    // (`top: prove_bug`); the trace is rooted at the design the job script
+    // elaborated.
+    const header = r'''
+$var integer 32 ! smt_step $end
+$var event 1 " smt_clock $end
+$scope module handshake_slang $end
+$var wire 1 # ack $end
+$upscope $end
+$enddefinitions $end
+''';
+
+    TestResult row(Map<String, String> metrics) => TestResult(
+      testId: 'ack_handshake/prove_bug',
+      runId: 'r',
+      status: TestStatus.fail,
+      startedAt: DateTime.utc(2026, 11),
+      finishedAt: DateTime.utc(2026, 11),
+      waveformPath: waveformFile.path,
+      metrics: metrics,
+    );
+
+    test('a SymbiYosys row whose task name differs from its top module '
+        'suggests the design scope, not the task', () async {
+      waveformFile.writeAsStringSync(header);
+      final hint = await debugSignalHintFor(
+        result: row(<String, String>{
+          'formal.tool': 'sby',
+          'formal.verdict': 'FAIL',
+        }),
+        waveformPath: waveformFile.path,
+        specTop: 'prove_bug',
+      );
+      expect(hint.signals, <String>['handshake_slang.*']);
+      expect(hint.topModule, 'handshake_slang');
+    });
+
+    test('an EQY row suggests every scope the miter trace holds', () async {
+      waveformFile.writeAsStringSync(
+        '\$scope module gold \$end\n\$upscope \$end\n'
+        '\$scope module gate \$end\n\$upscope \$end\n'
+        '\$enddefinitions \$end\n',
+      );
+      final hint = await debugSignalHintFor(
+        result: row(<String, String>{
+          'formal.tool': 'eqy',
+          'formal.verdict': 'FAIL',
+        }),
+        waveformPath: waveformFile.path,
+        specTop: 'alu_eqy',
+      );
+      expect(hint.signals, <String>['gold.*', 'gate.*']);
+    });
+
+    test('a riscv-formal row reads its trace too', () async {
+      waveformFile.writeAsStringSync(header);
+      final hint = await debugSignalHintFor(
+        result: row(<String, String>{'riscv.formal.verdict': 'FAIL'}),
+        waveformPath: waveformFile.path,
+        specTop: 'insn_add_ch0',
+      );
+      expect(hint.signals, <String>['handshake_slang.*']);
+    });
+
+    test('a formal row whose trace cannot be read suggests nothing, never '
+        'the task name', () async {
+      final hint = await debugSignalHintFor(
+        result: row(<String, String>{'formal.verdict': 'FAIL'}),
+        waveformPath: p.join(waveformFile.parent.path, 'absent.vcd'),
+        specTop: 'prove_bug',
+      );
+      expect(hint.signals, isEmpty);
+      expect(hint.topModule, isNull);
+    });
+
+    test('a simulation row keeps its testbench top', () async {
+      waveformFile.writeAsStringSync(header);
+      final hint = await debugSignalHintFor(
+        result: row(const <String, String>{}),
+        waveformPath: waveformFile.path,
+        specTop: 'tb_alu',
+      );
+      expect(hint.signals, <String>['tb_alu.*']);
+      expect(hint.topModule, 'tb_alu');
+    });
+  });
+
   group('DebugInWaveCruxDispatcher — no waveform path', () {
     test('returns noWaveform when waveformPath is null', () async {
       final container = ProviderContainer(

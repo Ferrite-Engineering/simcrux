@@ -154,7 +154,14 @@ class InspectorActions extends ConsumerWidget {
     final waveformPath = partition == null
         ? selection.result.waveformPath
         : eqyPartitionTracePath(selection.result, partition);
-    final topModule = selection.spec?.top;
+    // A formal row's `top:` is its task or check name, not the design the
+    // trace is rooted at, so the scope hint is read from the trace itself.
+    final hint = await debugSignalHintFor(
+      result: selection.result,
+      waveformPath: waveformPath,
+      specTop: selection.spec?.top,
+    );
+    if (!context.mounted) return;
     final designId = _designId(ref);
     final dispatcher = ref.read(debugInWaveCruxDispatcherProvider);
     // Awaited: the dispatcher waits for WaveCrux's acknowledgement, which is
@@ -163,9 +170,9 @@ class InspectorActions extends ConsumerWidget {
     final result = await dispatcher.dispatch(
       waveformPath: waveformPath,
       displayName: selection.testId,
-      suggestedSignals: deriveSuggestedSignalsFromTopModule(topModule),
+      suggestedSignals: hint.signals,
       designId: designId,
-      topModule: topModule,
+      topModule: hint.topModule,
       // The CXP stream coordinate: lets a failing bounded proof hand WaveCrux the step the
       // assertion fired at, not just the trace file. Inert for every other
       // kind of row.

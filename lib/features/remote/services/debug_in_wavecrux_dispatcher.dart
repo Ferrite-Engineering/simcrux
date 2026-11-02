@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/features/remote/services/cxp_workspace_link.dart';
+import 'package:simcrux/services/formal/vcd_top_scopes.dart';
 import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 import 'package:simcrux/services/telemetry/formal_telemetry.dart';
 
@@ -446,4 +447,50 @@ List<String> deriveSuggestedSignalsFromTopModule(String? topModule) {
   // A receiver that interprets the list as glob patterns picks up
   // every signal under the top module's scope. Inert otherwise.
   return <String>['$topModule.*'];
+}
+
+/// The scope hint a "Debug in WaveCrux" hand-off of [result] carries.
+///
+/// A simulation row names its testbench in `top:`, which is the scope its dump
+/// is rooted at, so [specTop] is the hint. A formal row (`sby`, `eqy`,
+/// riscv-formal) cannot: the importers name each test after its task or check
+/// (`top: prove_bug`) while the trace is rooted at the design the job script
+/// elaborated (`handshake_slang`). For those rows the hint comes from the
+/// trace itself, the named scopes at the top of its header, and a trace that
+/// cannot be read yields no hint rather than the test's name, which matches
+/// nothing in it.
+///
+/// [DebugSignalHint.topModule] is the first of those scopes, for the shared
+/// workspace record's resolver hint.
+Future<DebugSignalHint> debugSignalHintFor({
+  required TestResult result,
+  required String? waveformPath,
+  required String? specTop,
+}) async {
+  if (FormalResultSummary.fromMetrics(result.metrics) == null) {
+    return DebugSignalHint(
+      signals: deriveSuggestedSignalsFromTopModule(specTop),
+      topModule: specTop,
+    );
+  }
+  final scopes = waveformPath == null || waveformPath.isEmpty
+      ? const <String>[]
+      : await vcdTopLevelScopes(waveformPath);
+  return DebugSignalHint(
+    signals: <String>[for (final scope in scopes) '$scope.*'],
+    topModule: scopes.firstOrNull,
+  );
+}
+
+/// What [debugSignalHintFor] found: the globs to suggest and the top module
+/// they stand for.
+class DebugSignalHint {
+  /// Creates a hint.
+  const DebugSignalHint({required this.signals, required this.topModule});
+
+  /// The `<scope>.*` globs to send as suggested signals; empty for none.
+  final List<String> signals;
+
+  /// The design's top module, when known.
+  final String? topModule;
 }

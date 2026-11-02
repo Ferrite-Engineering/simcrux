@@ -14,6 +14,7 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/enums/waveform_capture_policy.dart';
 import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
+import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/suite.dart';
@@ -26,6 +27,7 @@ import 'package:simcrux/features/inspector/providers/selected_test_provider.dart
 import 'package:simcrux/features/inspector/services/editor_launcher.dart';
 import 'package:simcrux/features/inspector/services/editor_launcher_provider.dart';
 import 'package:simcrux/features/inspector/widgets/inspector_actions.dart';
+import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 import '../../../support/answered_telemetry.dart';
@@ -306,6 +308,67 @@ void main() {
       },
     );
 
+    testWidgets('Debug in WaveCrux on a SymbiYosys row suggests the design '
+        'scope of the trace, not the task name', (tester) async {
+      final dir = Directory.systemTemp.createTempSync('simcrux_dbg_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final trace = File('${dir.path}/trace.vcd')
+        ..writeAsStringSync(
+          '\$var event 1 " smt_clock \$end\n'
+          '\$scope module handshake_slang \$end\n'
+          '\$var wire 1 # ack \$end\n'
+          '\$upscope \$end\n'
+          '\$enddefinitions \$end\n',
+        );
+      final dispatcher = _RecordingDispatcher();
+      // The importer's `top:` for the task `prove_bug`.
+      final spec = TestSpec(
+        id: 'ack_handshake/prove_bug',
+        name: 'prove_bug',
+        suiteName: 'ack_handshake',
+        simulatorId: 'sby',
+        top: 'prove_bug',
+      );
+      final selection = SelectedTest(
+        row: DashboardRow(
+          result: TestResult(
+            testId: 'ack_handshake/prove_bug',
+            runId: 'r1',
+            status: TestStatus.fail,
+            startedAt: DateTime.utc(2026, 11),
+            finishedAt: DateTime.utc(2026, 11),
+            waveformPath: trace.path,
+            metrics: const <String, String>{
+              'formal.tool': 'sby',
+              'formal.verdict': 'FAIL',
+            },
+          ),
+          suiteName: 'ack_handshake',
+          simulatorId: 'sby',
+          testName: 'prove_bug',
+        ),
+        spec: spec,
+      );
+      await _pump(
+        tester,
+        selection,
+        overrides: [
+          debugInWaveCruxDispatcherProvider.overrideWith(dispatcher.bind),
+        ],
+      );
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      // The trace header is read from disk, which fake async never completes.
+      await tester.runAsync(() async {
+        await tester.tap(find.text(l10n.inspectorActionDebugInWavecrux));
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
+      await tester.pump();
+      expect(dispatcher.suggestedSignals, <String>['handshake_slang.*']);
+      expect(dispatcher.topModule, 'handshake_slang');
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('Re-run submits only the selected test, not every suite', (
       tester,
     ) async {
@@ -383,6 +446,42 @@ void main() {
       }
     });
   });
+}
+
+/// Records what the inspector hands the dispatcher instead of opening a
+/// socket to a peer.
+class _RecordingDispatcher {
+  List<String>? suggestedSignals;
+  String? topModule;
+
+  DebugInWaveCruxDispatcher bind(Ref ref) =>
+      _BoundDispatcher(ref: ref, owner: this);
+}
+
+class _BoundDispatcher extends DebugInWaveCruxDispatcher {
+  _BoundDispatcher({required super.ref, required this.owner});
+
+  final _RecordingDispatcher owner;
+
+  @override
+  Future<DebugInWaveCruxResult> dispatch({
+    required String? waveformPath,
+    String? displayName,
+    List<String> suggestedSignals = const <String>[],
+    String? designId,
+    String? topModule,
+    TestResult? result,
+    FormalPartitionRow? partition,
+    Duration ackTimeout = const Duration(seconds: 5),
+  }) async {
+    owner
+      ..suggestedSignals = suggestedSignals
+      ..topModule = topModule;
+    return DebugInWaveCruxResult(
+      outcome: DebugInWaveCruxOutcome.dispatched,
+      waveformPath: waveformPath,
+    );
+  }
 }
 
 /// [ActiveConfigNotifier] stub that materializes with a fixed config
