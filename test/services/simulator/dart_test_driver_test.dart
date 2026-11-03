@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
@@ -146,9 +147,10 @@ void main() {
         '--reporter',
         'expanded',
         '--file-reporter',
-        'json:${wd.path}/dart-test.json',
+        'json:${p.join(wd.path, 'dart-test.json')}',
       ]);
-      expect(call.args.last, 'test/adder_test.dart');
+      // Relative to the package, in the host's own separator.
+      expect(call.args.last, p.join('test', 'adder_test.dart'));
       // The console output is kept.
       expect(
         events.whereType<TestLogLine>().map((e) => e.line),
@@ -174,9 +176,10 @@ void main() {
         expect(finished.metrics[DartTestDriver.kMetricProcessExitCode], '0');
         expect(finished.failureMessage, contains('plain rohd adder fails'));
         expect(finished.failureMessage, contains('and 1 more'));
+        // The separators are the host's business, not what is under test.
         expect(
-          finished.metrics['dart.case.1.source_file'],
-          '${pkg.path}/test/probe_test.dart',
+          p.normalize(finished.metrics['dart.case.1.source_file']!),
+          p.normalize(p.join(pkg.path, 'test', 'probe_test.dart')),
         );
       },
     );

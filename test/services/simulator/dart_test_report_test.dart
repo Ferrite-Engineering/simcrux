@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:simcrux/services/simulator/dart_test_report.dart';
 
 /// Real `dart test --file-reporter json` output over a ROHD 0.7-or-later
@@ -116,28 +117,24 @@ void main() {
     });
 
     test('skips lines that are not JSON objects and unknown event types', () {
-      final report = parseDartTestReport(
-        '''
+      final report = parseDartTestReport('''
 garbage {{{
 {"type":"futureEvent","x":1}
 {"test":{"id":1,"name":"a","metadata":{}},"type":"testStart","time":1}
 {"testID":1,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":5}
 {"success":true,"type":"done","time":6}
-''',
-      )!;
+''')!;
       expect(report.cases.single.outcome, DartTestOutcome.pass);
       expect(report.cases.single.durationMs, 4);
     });
 
     test('tolerates fields of the wrong type', () {
-      final report = parseDartTestReport(
-        '''
+      final report = parseDartTestReport('''
 {"test":{"id":"1","name":5},"type":"testStart","time":"x"}
 {"test":{"id":2,"name":"ok","line":"7","url":3,"metadata":[]},"type":"testStart","time":1}
 {"testID":2,"error":7,"stackTrace":[],"type":"error","time":2}
 {"testID":2,"result":"success","skipped":"no","type":"testDone","time":3}
-''',
-      )!;
+''')!;
       expect(report.cases.single.name, 'ok');
       expect(report.cases.single.declared, isNull);
       expect(report.cases.single.outcome, DartTestOutcome.pass);
@@ -165,37 +162,31 @@ garbage {{{
     });
 
     test('a skipped case is a skip, with its reason', () {
-      final report = parseDartTestReport(
-        '''
+      final report = parseDartTestReport('''
 {"test":{"id":1,"name":"later","metadata":{"skip":true,"skipReason":"todo"}},"type":"testStart","time":1}
 {"testID":1,"result":"success","skipped":true,"hidden":false,"type":"testDone","time":2}
 {"success":true,"type":"done","time":3}
-''',
-      )!;
+''')!;
       expect(report.cases.single.outcome, DartTestOutcome.skip);
       expect(report.cases.single.skipReason, 'todo');
     });
 
     test('a test file that does not load is an error, not hidden', () {
-      final report = parseDartTestReport(
-        '''
+      final report = parseDartTestReport('''
 {"test":{"id":1,"name":"loading test/x_test.dart","metadata":{}},"type":"testStart","time":1}
 {"testID":1,"error":"Failed to load","stackTrace":"","isFailure":false,"type":"error","time":2}
 {"testID":1,"result":"error","skipped":false,"hidden":true,"type":"testDone","time":3}
 {"success":false,"type":"done","time":4}
-''',
-      )!;
+''')!;
       expect(report.cases.single.outcome, DartTestOutcome.error);
     });
 
     test('a hidden successful loading step is not a case', () {
-      final report = parseDartTestReport(
-        '''
+      final report = parseDartTestReport('''
 {"test":{"id":1,"name":"loading test/x_test.dart","metadata":{}},"type":"testStart","time":1}
 {"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":3}
 {"success":true,"type":"done","time":4}
-''',
-      )!;
+''')!;
       expect(report.cases, isEmpty);
       expect(report.complete, isTrue);
     });
@@ -203,24 +194,35 @@ garbage {{{
 
   group('resolveDartSourcePath', () {
     test('resolves file URIs, relative paths and the own package', () {
+      // The root is the host's own form of /work/p (\work\p on Windows), and
+      // the expectations are built with package:path; separators are the
+      // host's business, so the comparison is separator-blind.
+      final root = p.fromUri('file:///work/p');
+      final testFile = p.normalize(p.join(root, 'test', 'a_test.dart'));
       expect(
-        resolveDartSourcePath(
-          'file:///work/p/test/a_test.dart',
-          packageRoot: '/work/p',
+        p.normalize(
+          resolveDartSourcePath(
+            'file:///work/p/test/a_test.dart',
+            packageRoot: root,
+          )!,
         ),
-        '/work/p/test/a_test.dart',
+        testFile,
       );
       expect(
-        resolveDartSourcePath('test/a_test.dart', packageRoot: '/work/p'),
-        '/work/p/test/a_test.dart',
+        p.normalize(
+          resolveDartSourcePath('test/a_test.dart', packageRoot: root)!,
+        ),
+        testFile,
       );
       expect(
-        resolveDartSourcePath(
-          'package:mine/src/x.dart',
-          packageRoot: '/work/p',
-          packageName: 'mine',
+        p.normalize(
+          resolveDartSourcePath(
+            'package:mine/src/x.dart',
+            packageRoot: root,
+            packageName: 'mine',
+          )!,
         ),
-        '/work/p/lib/src/x.dart',
+        p.normalize(p.join(root, 'lib', 'src', 'x.dart')),
       );
     });
 

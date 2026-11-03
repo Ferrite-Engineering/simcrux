@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:simcrux/services/simulator/dart_test_metrics.dart';
 import 'package:simcrux/services/simulator/dart_test_report.dart';
 
@@ -39,14 +40,15 @@ void main() {
     });
 
     test('resolves declaration and failing frame to files', () {
-      expect(
-        metrics['dart.case.1.file'],
-        '/work/rohd_fixture/test/probe_test.dart',
-      );
+      // The declaration arrives as a file URI and the failing frame as a path
+      // relative to the package; both come back as the host's file path, so
+      // the expectation is built the host's way and compared separator-blind.
+      final probe = p.fromUri('file:///work/rohd_fixture/test/probe_test.dart');
+      expect(p.normalize(metrics['dart.case.1.file']!), p.normalize(probe));
       expect(metrics['dart.case.1.line'], '71');
       expect(
-        metrics['dart.case.1.source_file'],
-        '/work/rohd_fixture/test/probe_test.dart',
+        p.normalize(metrics['dart.case.1.source_file']!),
+        p.normalize(probe),
       );
       expect(metrics['dart.case.1.source_line'], '76');
     });
@@ -95,15 +97,15 @@ void main() {
       expect(vf.failing, isTrue);
       expect(vf.rohdVf, isTrue);
       expect(vf.message, 'Exception: Test failed.');
-      expect(
-        vf.logs.where((l) => l.severity == 'SEVERE'),
-        hasLength(3),
-      );
+      expect(vf.logs.where((l) => l.severity == 'SEVERE'), hasLength(3));
     });
 
     test('Go to Source prefers the failing frame over the declaration', () {
       final failing = view.rows[1];
-      expect(failing.goToFile, endsWith('/test/probe_test.dart'));
+      expect(
+        p.normalize(failing.goToFile!),
+        endsWith(p.join('test', 'probe_test.dart')),
+      );
       expect(failing.goToLine, 76);
       final passing = view.rows[0];
       expect(passing.goToLine, 63);
