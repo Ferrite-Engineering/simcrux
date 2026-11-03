@@ -472,16 +472,21 @@ class _DashboardResultRow extends ConsumerWidget {
   }) async {
     final entries = builder(context, ref, row, anchor);
     if (entries.isEmpty) return;
+    // The menu shows on the root navigator, so [anchor] (a global position) is
+    // converted against the root overlay. Each file tab has a navigator of its
+    // own whose overlay starts below the toolbar and tab bar, and the menu
+    // would open that far below the pointer.
     final overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox?;
-    final overlaySize = overlay?.size ?? const Size(800, 600);
+        Overlay.of(context, rootOverlay: true).context.findRenderObject()
+            as RenderBox?;
+    if (overlay == null) return;
+    final local = overlay.globalToLocal(anchor);
     await showMenu<void>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        anchor.dx,
-        anchor.dy,
-        overlaySize.width - anchor.dx,
-        overlaySize.height - anchor.dy,
+      useRootNavigator: true,
+      position: RelativeRect.fromRect(
+        Rect.fromPoints(local, local),
+        Offset.zero & overlay.size,
       ),
       items: entries,
     );
