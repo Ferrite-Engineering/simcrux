@@ -1,5 +1,7 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
+//
+// LOCALE_SWEEP_EXEMPT: asserts where a menu opens, not what its labels say.
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
