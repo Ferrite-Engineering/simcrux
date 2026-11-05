@@ -310,15 +310,24 @@ abstract final class FlowActions {
     final netlist = gls.netlist;
     final entryName = entry.name;
 
-    final read0 = await background(
-      () => GlsRunInfo.read(
+    final GlsRunInfoResult read0;
+    try {
+      read0 = await _readRunInfo(
+        background,
         runRoot: root,
         netlist: netlist,
         pdkRootFallback: pdkRoot.isEmpty ? env['PDK_ROOT'] : pdkRoot,
         home: env['HOME'] ?? env['USERPROFILE'],
         flowRunId: flowRunId,
-      ),
-    );
+      );
+    } on Object catch (e) {
+      // Said, never thrown into the zone: the action is unawaited, so an
+      // error here would otherwise leave the click doing nothing at all.
+      if (context != null && context.mounted) {
+        _toast(context, (l10n) => l10n.flowGlsCannotRun('$e'), error: true);
+      }
+      return null;
+    }
     final info = read0.info;
     if (info == null) {
       final reason = read0.problem ?? GlsNotRunReason.runUnreadable;
@@ -349,6 +358,30 @@ abstract final class FlowActions {
       runner: runner,
     );
   }
+
+  /// Reads the run for a gate-level simulation on [background].
+  ///
+  /// A function of its own so the closure handed to the isolate captures
+  /// these values and nothing else. Built inside [_prepareGateLevel], it
+  /// shared that function's context with the request's scheduler closure,
+  /// which holds the tab's `RegressionRunner`; `Isolate.run` refused the
+  /// message as unsendable and the action did nothing.
+  static Future<GlsRunInfoResult> _readRunInfo(
+    FlowBackgroundRunner background, {
+    required String runRoot,
+    required String netlist,
+    required String? pdkRootFallback,
+    required String? home,
+    required String? flowRunId,
+  }) => background(
+    () => GlsRunInfo.read(
+      runRoot: runRoot,
+      netlist: netlist,
+      pdkRootFallback: pdkRootFallback,
+      home: home,
+      flowRunId: flowRunId,
+    ),
+  );
 
   /// The gate-level result selected in the results table, or null.
   static GlsTriageTarget? glsTriageTarget(ProviderContainer? tab) {
