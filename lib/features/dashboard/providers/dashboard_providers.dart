@@ -9,11 +9,13 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/models/dashboard_row.dart';
 import 'package:simcrux/domain/models/formal_result_summary.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
+import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_filter.dart';
 import 'package:simcrux/features/dashboard/models/dashboard_sort.dart';
 import 'package:simcrux/features/inspector/providers/run_delta_provider.dart';
+import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
@@ -470,7 +472,8 @@ List<DashboardRow> _filterAndSortWithSpecs({
     final row = DashboardRow(
       result: result,
       suiteName: spec?.suiteName ?? _suitePartOf(result.testId),
-      simulatorId: spec?.simulatorId ?? 'unknown',
+      simulatorId:
+          spec?.simulatorId ?? _recordedSimulatorOf(result) ?? 'unknown',
       testName: spec?.name ?? _namePartOf(result.testId),
       seed: spec?.sweepSeed,
     );
@@ -495,6 +498,14 @@ Map<String, TestSpec> _buildSpecsById(RegressionConfig? config) {
     }
   }
   return out;
+}
+
+/// The simulator a result names itself, for a row whose test is not one of
+/// the project's: a gate-level rerun (`gls/...`) records the simulator both
+/// of its runs used, which the table would otherwise show as unknown.
+String? _recordedSimulatorOf(TestResult result) {
+  final recorded = result.metrics[GlsMetricKeys.simulator];
+  return recorded == null || recorded.isEmpty ? null : recorded;
 }
 
 String _suitePartOf(String testId) {
