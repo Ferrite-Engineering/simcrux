@@ -400,7 +400,9 @@ void main() {
   });
 
   testWidgets('a run with no steps says so right under the section buttons, '
-      'not centred below a short dock\'s edge (simcrux#55)', (tester) async {
+      'not centred below the edge of a short dock (simcrux#55)', (
+    tester,
+  ) async {
     await pumpFlowPanel(tester);
     final words = l10n(tester);
     await tester.tap(find.text('t2'));
