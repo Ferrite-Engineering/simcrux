@@ -399,6 +399,19 @@ void main() {
     expect(find.text(words.flowOpenRunLog), findsOneWidget);
   });
 
+  testWidgets('a run with no steps says so right under the section buttons, '
+      'not centred below a short dock\'s edge (simcrux#55)', (tester) async {
+    await pumpFlowPanel(tester);
+    final words = l10n(tester);
+    await tester.tap(find.text('t2'));
+    await tester.pumpAndSettle();
+    final buttons = tester.getRect(find.text(words.flowStepsTableLabel).first);
+    final note = tester.getRect(find.text(words.flowStepsNone));
+    final log = tester.getRect(find.text(words.flowOpenRunLog));
+    expect(note.top - buttons.bottom, lessThan(32));
+    expect(log.top - buttons.bottom, lessThan(32));
+  });
+
   for (final size in const <Size>[
     Size(800, 160),
     Size(380, 500),

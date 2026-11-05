@@ -3495,6 +3495,23 @@
       }
     }
   },
+  "flowReaderLibreLane": "Read by the LibreLane {line} reader",
+  "@flowReaderLibreLane": {
+    "description": "Which reader read a LibreLane run. {line} is the LibreLane release line the reader is for, such as 3.0. LibreLane is a product name, never translated.",
+    "placeholders": {
+      "line": {
+        "type": "String"
+      }
+    }
+  },
+  "flowReaderNextpnrReport": "Read by the nextpnr report reader",
+  "@flowReaderNextpnrReport": {
+    "description": "Which reader read an nextpnr run: the one that reads the --report JSON. nextpnr is a product name, never translated."
+  },
+  "flowReaderNextpnrLog": "Read by the nextpnr log reader",
+  "@flowReaderNextpnrLog": {
+    "description": "Which reader read an nextpnr run: the one that reads the log, for a run without a report. nextpnr is a product name, never translated."
+  },
   "flowDeltaSame": "Same as the previous run",
   "@flowDeltaSame": {
     "description": "Last-run delta chip when nothing changed."

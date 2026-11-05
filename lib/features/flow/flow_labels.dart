@@ -4,6 +4,7 @@
 import 'package:crux_flow/crux_flow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
+import 'package:simcrux/services/flow/flow_metric_keys.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
 import 'package:simcrux/services/flow/librelane_path_check.dart';
 
@@ -12,6 +13,22 @@ import 'package:simcrux/services/flow/librelane_path_check.dart';
 /// the tools write them in the CLI and exports; these are the localized
 /// labels the GUI shows beside them.
 abstract final class FlowLabels {
+  /// Which reader read [reading], in words: the LibreLane reader with the
+  /// release line it is for, or the nextpnr report or log reader. The ids
+  /// (`librelane_run`, `nextpnr_report`) stay in the CLI and exports; a
+  /// reader with no name here is shown by its id and version, as before.
+  static String reader(L10N l10n, FlowReading reading) {
+    switch (reading.reader) {
+      case FlowReaderIds.librelane:
+        return l10n.flowReaderLibreLane(reading.run.ref.readerVersion);
+      case FlowReaderIds.nextpnrReport:
+        return l10n.flowReaderNextpnrReport;
+      case FlowReaderIds.nextpnrLog:
+        return l10n.flowReaderNextpnrLog;
+    }
+    return l10n.flowReaderLine(reading.reader, reading.run.ref.readerVersion);
+  }
+
   /// The verdict of [reading] in words, with the step a stopped run stopped
   /// at.
   static String verdict(L10N l10n, FlowReading reading) {

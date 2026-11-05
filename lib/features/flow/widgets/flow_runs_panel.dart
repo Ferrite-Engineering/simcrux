@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:crux_a11y/crux_a11y.dart' show CruxRegionHint;
 import 'package:crux_flow/crux_flow.dart';
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_license/crux_license.dart' show LicenseTier;
@@ -319,6 +320,17 @@ class _RunDetail extends ConsumerStatefulWidget {
 class _RunDetailState extends ConsumerState<_RunDetail> {
   _Section _section = _Section.steps;
 
+  /// The detail's scroll position. Its bar stays shown while there is more
+  /// below: macOS hides an idle scroll bar, and a short dock otherwise gives
+  /// no sign that the section's content is under its edge (simcrux#55).
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -346,59 +358,64 @@ class _RunDetailState extends ConsumerState<_RunDetail> {
           kCruxTableRowHeight * 6,
           box.maxHeight - 132,
         );
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!reading.run.ref.verified) const _ReaderBanner(),
-              _Summary(entry: widget.entry, previous: widget.previous),
-              if (widget.problems.isNotEmpty)
-                Tooltip(
-                  message: widget.problems.join('\n'),
-                  child: Text(
-                    l10n.flowRunsProblems(widget.problems.length),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+        return Scrollbar(
+          controller: _scroll,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: _scroll,
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!reading.run.ref.verified) const _ReaderBanner(),
+                _Summary(entry: widget.entry, previous: widget.previous),
+                if (widget.problems.isNotEmpty)
+                  Tooltip(
+                    message: widget.problems.join('\n'),
+                    child: Text(
+                      l10n.flowRunsProblems(widget.problems.length),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
+                const SizedBox(height: 8),
+                // Scrolls sideways in a dock narrower than its three labels
+                // (the right dock, a long translation) rather than overflowing.
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: CruxSegmentedControl<_Section>(
+                    dense: true,
+                    semanticLabel: l10n.flowSectionsLabel,
+                    selected: _section,
+                    onChanged: (s) => setState(() => _section = s),
+                    segments: [
+                      CruxSegment(
+                        value: _Section.steps,
+                        label: l10n.flowStepsTableLabel,
+                      ),
+                      CruxSegment(
+                        value: _Section.metrics,
+                        label: l10n.flowMetricsTableLabel,
+                      ),
+                      CruxSegment(
+                        value: _Section.paths,
+                        label: l10n.flowPathsTableLabel,
+                      ),
+                    ],
+                  ),
                 ),
-              const SizedBox(height: 8),
-              // Scrolls sideways in a dock narrower than its three labels
-              // (the right dock, a long translation) rather than overflowing.
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: CruxSegmentedControl<_Section>(
-                  dense: true,
-                  semanticLabel: l10n.flowSectionsLabel,
-                  selected: _section,
-                  onChanged: (s) => setState(() => _section = s),
-                  segments: [
-                    CruxSegment(
-                      value: _Section.steps,
-                      label: l10n.flowStepsTableLabel,
-                    ),
-                    CruxSegment(
-                      value: _Section.metrics,
-                      label: l10n.flowMetricsTableLabel,
-                    ),
-                    CruxSegment(
-                      value: _Section.paths,
-                      label: l10n.flowPathsTableLabel,
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: tableHeight,
+                  child: switch (_section) {
+                    _Section.steps => _StepsTable(reading: reading),
+                    _Section.metrics => _MetricsTable(reading: reading),
+                    _Section.paths => _PathsTable(entry: widget.entry),
+                  },
                 ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: tableHeight,
-                child: switch (_section) {
-                  _Section.steps => _StepsTable(reading: reading),
-                  _Section.metrics => _MetricsTable(reading: reading),
-                  _Section.paths => _PathsTable(entry: widget.entry),
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -491,7 +508,7 @@ class _Summary extends ConsumerWidget {
           ),
         ),
         Text(
-          l10n.flowReaderLine(reading.reader, ref0.readerVersion),
+          FlowLabels.reader(l10n, reading),
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -611,12 +628,33 @@ class _StepsTable extends ConsumerWidget {
     final l10n = L10N.of(context);
     final steps = reading.run.steps;
     if (steps.isEmpty) {
-      return CruxPanelEmptyState(
-        message: l10n.flowStepsNone,
-        action: OutlinedButton(
-          onPressed: () =>
-              unawaited(FlowStepDetailDialog.show(context, run: reading.run)),
-          child: Text(l10n.flowOpenRunLog),
+      // At the top, right under the section buttons: centred in the table's
+      // height it sat below a default-height dock's edge, where nothing
+      // said it was there (simcrux#55).
+      return CruxRegionHint(
+        hint: l10n.flowStepsNone,
+        child: Align(
+          alignment: AlignmentDirectional.topStart,
+          child: Wrap(
+            key: const ValueKey('flowStepsNone'),
+            spacing: 12,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                l10n.flowStepsNone,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () => unawaited(
+                  FlowStepDetailDialog.show(context, run: reading.run),
+                ),
+                child: Text(l10n.flowOpenRunLog),
+              ),
+            ],
+          ),
         ),
       );
     }
