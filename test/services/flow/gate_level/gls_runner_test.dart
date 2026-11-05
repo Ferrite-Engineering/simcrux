@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -554,12 +555,14 @@ endmodule
     Future<List<TestResult>> exec(
       ({_FakeInner inner, GlsRunInfo info, GlsPlanSet set}) s, {
       GlsOptions options = const GlsOptions(),
+      GlsBackgroundRunner? background,
     }) async {
       final scheduler = GlsScheduler(
         inner: s.inner,
         plans: s.set.plans,
         info: s.info,
         options: options,
+        background: background ?? glsRunDirect,
       );
       final results = <TestResult>[];
       await for (final e in scheduler.submit(
@@ -598,6 +601,20 @@ endmodule
       expect(s.inner.submitted.first.id, 'gls-rtl/mac/plain');
       expect(s.inner.submitted.last.id, 'gls/mac/plain');
     });
+
+    test(
+      'the dumps are compared on a real isolate, as the app compares '
+      'them: a test that passed at gate level is not a build that failed',
+      () async {
+        final s = await macSetup(rtl: 'rtl_x', gate: 'gate_x');
+        final result = (await exec(
+          s,
+          background: <T>(task) => Isolate.run(task),
+        )).single;
+        expect(GlsResultView.of(result)!.outcome, GlsOutcome.xOnly);
+        expect(result.status, TestStatus.pass);
+      },
+    );
 
     test('a delay-annotated run records its delays as sdf, and the gate '
         'spec it hands the scheduler carries the annotation', () async {

@@ -954,15 +954,14 @@ class GlsScheduler implements JobScheduler {
     final names = plan.ports.toSet();
     final vcdLimits = limits;
     try {
-      comparison = await background(
-        () => GlsTraceComparator.compareFiles(
-          rtlPath: rtlVcd,
-          gatePath: gateVcd,
-          scope: scope,
-          ports: names,
-          clock: clock,
-          limits: vcdLimits,
-        ),
+      comparison = await _compareOn(
+        background,
+        rtlPath: rtlVcd,
+        gatePath: gateVcd,
+        scope: scope,
+        ports: names,
+        clock: clock,
+        limits: vcdLimits,
       );
     } on GlsVcdException catch (e) {
       compareProblem = e.problem == GlsVcdProblem.tooLarge
@@ -1021,6 +1020,33 @@ class GlsScheduler implements JobScheduler {
 
   static bool _passed(TestResult r) =>
       r.status == TestStatus.pass || r.status == TestStatus.vacuous;
+
+  /// Compares the two port dumps on [background].
+  ///
+  /// Static, so the closure handed to the isolate captures these plain
+  /// values only. Built inside the instance method that runs a test, it
+  /// carried that method's context, and with it this scheduler and the
+  /// one it wraps; `Isolate.run` refused the message as unsendable, and a
+  /// test that passed at gate level was reported as a gate build that
+  /// failed.
+  static Future<GlsComparison> _compareOn(
+    GlsBackgroundRunner background, {
+    required String rtlPath,
+    required String gatePath,
+    required String scope,
+    required Set<String> ports,
+    required String clock,
+    required GlsVcdLimits limits,
+  }) => background(
+    () => GlsTraceComparator.compareFiles(
+      rtlPath: rtlPath,
+      gatePath: gatePath,
+      scope: scope,
+      ports: ports,
+      clock: clock,
+      limits: limits,
+    ),
+  );
 
   static bool _compileFailed(TestResult r) {
     final message = r.failureMessage ?? '';
