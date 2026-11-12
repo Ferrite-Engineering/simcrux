@@ -239,8 +239,8 @@ jobs:
         if: runner.os == 'Linux'
         env:
           TEST_REPORT: build/test-results.json
-          # Re-measured 2026-11-12 (AF-12, audit S07): run 42450527957, Linux,
-          # 5063 ran; the floor is that less 0.5%.
+          # Re-measured 2026-11-12 from run 42450527957 (Linux, commit
+          # bd525b62): 5063 ran; the floor is that less 0.5%.
           MIN_TESTS: '5037'
           MAX_SKIPPED: '4'
         run: |
