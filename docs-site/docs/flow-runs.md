@@ -114,7 +114,7 @@ names are rooted at the entry's `top` when it names one.
 Every send below is free in every tier.
 
 - Move onto a path and press ++cmd+shift+enter++ / ++ctrl+shift+enter++
-  (**Cross-probe Selection**) while Flow Runs is shown, or right-click the row
+  (**Cross-Probe Selection**) while Flow Runs is shown, or right-click the row
   (++shift+f10++ or the Menu key on the current row) and choose **Cross-probe to**.
   The target gets the one thing its kind uses: the mapped endpoint register as a
   signal for [WaveCrux](https://docs.wavecrux.app/automation-and-collaboration#cxp) and

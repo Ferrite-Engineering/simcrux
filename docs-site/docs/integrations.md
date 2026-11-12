@@ -90,7 +90,7 @@ From SimCrux 1.2 the panel is the one the other EDACrux apps share. Its headings
 read **Connected peers** and **Recent events**, the log keeps the last 200
 events, and the toolbar badge counts the peers that are connected now.
 
-### Cross-probe to, and Cross-probe Selection {#cross-probe-to}
+### Cross-probe to, and Cross-Probe Selection {#cross-probe-to}
 
 From SimCrux 1.2 right-clicking a results row gives one **Cross-probe to** item
 in place of the 1.1 entries above. It opens a second menu, where the first one
@@ -103,7 +103,7 @@ item is greyed and reads **Cross-probe to (no peers running)**; hover it to see
 what to start. It is free on every tier, and a build from the open-source
 repository alone has it too.
 
-**View → Cross-probe Selection…**, or ++cmd+shift+enter++ /
+**View → Cross-Probe Selection…**, or ++cmd+shift+enter++ /
 ++ctrl+shift+enter++, does the same for the selected test without the mouse.
 With one app running it sends at once. With several it opens the same list at
 the selection. With nothing selected, the server off, or no app running, a toast

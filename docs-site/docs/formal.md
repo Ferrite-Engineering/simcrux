@@ -294,7 +294,7 @@ of the one test, not a test of its own.
 Every send and receive below is free in every tier.
 
 - **A counterexample lands on its step.** **Debug in WaveCrux**, the row menu's
-  **Cross-probe to** and **Cross-probe Selection** (++cmd+shift+enter++ /
+  **Cross-probe to** and **Cross-Probe Selection** (++cmd+shift+enter++ /
   ++ctrl+shift+enter++) send the trace together with the step the solver
   reported, counting the trace's initial state as step 0. From WaveCrux 1.2 the
   cursor lands there. The step is left out, never guessed, when no property

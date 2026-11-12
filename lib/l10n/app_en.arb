@@ -409,7 +409,7 @@
   "@actionOpenCrossProbePanel": {
     "description": "Command palette / menu label that shows or hides the CXP cross-probe panel listing connected peers and recent cross-probe events."
   },
-  "actionCrossProbeSelection": "Cross-probe Selection…",
+  "actionCrossProbeSelection": "Cross-Probe Selection…",
   "@actionCrossProbeSelection": {
     "description": "Command palette / menu label that sends the selected test to a peer product (Cmd/Ctrl+Shift+Enter). Matches the shared cross-probe wording."
   },
@@ -2085,7 +2085,7 @@
   "@settingsAutoRunOnOpenLabel": {
     "description": "Settings → General toggle controlling whether opening a regression config immediately starts the run. Off by default."
   },
-  "settingsAutoRunOnOpenDescription": "Off by default. Opening a config loads it and arms the tab; the run waits for Run Regression, so opening a file never starts hundreds of tests or checks out simulator licences on its own.",
+  "settingsAutoRunOnOpenDescription": "Off by default. Opening a config loads it and arms the tab; the run waits for Run Regression, so opening a file never starts hundreds of tests or checks out simulator licenses on its own.",
   "@settingsAutoRunOnOpenDescription": {
     "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
   },
