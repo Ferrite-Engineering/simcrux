@@ -3962,5 +3962,201 @@
   "glsNoteRtlTest": "テスト {test} を再実行します。",
   "glsNoteClock": "{clock} の立ち上がりエッジで比較し、エッジの直前にサンプリングしました。",
   "glsNoteFirstDifference": "最初の相違は {time} ps です。",
-  "inspectorActionOpenGateLevelWaveform": "ゲートレベル波形を WaveCrux で開く"
+  "inspectorActionOpenGateLevelWaveform": "ゲートレベル波形を WaveCrux で開く",
+  "appearanceSectionSubtitle": "プリセットを選択し、個別の色を編集するか、テーマパックを管理します。",
+  "@appearanceSectionSubtitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearancePresetSectionHeading": "プリセット",
+  "@appearancePresetSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceTokenOverridesSectionHeading": "色のオーバーライド",
+  "@appearanceTokenOverridesSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceThemePackBrowserSectionHeading": "テーマパック",
+  "@appearanceThemePackBrowserSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivePresetIndicatorLabel": "アクティブなプリセット",
+  "@appearanceActivePresetIndicatorLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePresetTooltip": "プリセットを有効化",
+  "@appearanceActivatePresetTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoPresetsAvailableMessage": "利用可能なプリセットがありません。",
+  "@appearanceNoPresetsAvailableMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelDark": "ダークテーマ",
+  "@appearanceBrightnessLabelDark": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelLight": "ライトテーマ",
+  "@appearanceBrightnessLabelLight": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEditTokenColorTooltip": "色を編集",
+  "@appearanceEditTokenColorTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceResetTokenToDefaultTooltip": "デフォルトに戻す",
+  "@appearanceResetTokenToDefaultTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEmptyTokenCategoryMessage": "このカテゴリにはトークンがありません。",
+  "@appearanceEmptyTokenCategoryMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceCollapseCategoryLabel": "{category} を折りたたむ",
+  "@appearanceCollapseCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExpandCategoryLabel": "{category} を展開",
+  "@appearanceExpandCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceColorPickerDialogTitle": "色を選択",
+  "@appearanceColorPickerDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHexLabel": "16進数",
+  "@appearanceColorPickerHexLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerRgbLabel": "RGB",
+  "@appearanceColorPickerRgbLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHsvLabel": "HSV",
+  "@appearanceColorPickerHsvLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHueLabel": "色相",
+  "@appearanceColorPickerHueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerSaturationLabel": "彩度",
+  "@appearanceColorPickerSaturationLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerValueLabel": "明度",
+  "@appearanceColorPickerValueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerPreviewLabel": "選択した色のプレビュー",
+  "@appearanceColorPickerPreviewLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerOkLabel": "OK",
+  "@appearanceColorPickerOkLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerCancelLabel": "キャンセル",
+  "@appearanceColorPickerCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerInvalidHex": "無効な色：{input}",
+  "@appearanceColorPickerInvalidHex": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportThemePackButtonLabel": "テーマパックをインポート…",
+  "@appearanceImportThemePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceExportCurrentThemeButtonLabel": "現在のテーマをエクスポート…",
+  "@appearanceExportCurrentThemeButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceInstalledPacksHeading": "インストール済みのパック",
+  "@appearanceInstalledPacksHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoInstalledPacksMessage": "インストール済みのテーマパックはありません。",
+  "@appearanceNoInstalledPacksMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePackButtonLabel": "有効化",
+  "@appearanceActivatePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceUninstallPackButtonLabel": "アンインストール",
+  "@appearanceUninstallPackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogTitle": "テーマパックをアンインストールしますか？",
+  "@appearanceConfirmUninstallDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogBody": "テーマパック「{packId}」を削除しますか？この操作は取り消せません。",
+  "@appearanceConfirmUninstallDialogBody": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceConfirmUninstallCancelLabel": "キャンセル",
+  "@appearanceConfirmUninstallCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallConfirmLabel": "アンインストール",
+  "@appearanceConfirmUninstallConfirmLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceImportFailedMessage": "テーマパックをインポートできませんでした：{reason}",
+  "@appearanceImportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportSucceededMessage": "テーマパック「{packId}」をインストールしました。",
+  "@appearanceImportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportSucceededMessage": "テーマを {destinationPath} にエクスポートしました。",
+  "@appearanceExportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "destinationPath": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportFailedMessage": "テーマをエクスポートできませんでした：{reason}",
+  "@appearanceExportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  }
 }

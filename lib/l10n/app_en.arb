@@ -4510,5 +4510,201 @@
   "inspectorActionOpenGateLevelWaveform": "Open gate-level waveform in WaveCrux",
   "@inspectorActionOpenGateLevelWaveform": {
     "description": "Inspector button on a gate-level result: the design's top-level ports at gate level, in WaveCrux. A free cross-probe."
+  },
+  "appearanceSectionSubtitle": "Pick a preset, edit individual colors, or manage theme packs.",
+  "@appearanceSectionSubtitle": {
+    "description": "Subtitle shown beneath the Settings → Appearance section heading; forwarded to crux_theme's ThemeAppearanceSection composer"
+  },
+  "appearancePresetSectionHeading": "Presets",
+  "@appearancePresetSectionHeading": {
+    "description": "Heading above the preset grid in Settings → Appearance"
+  },
+  "appearanceTokenOverridesSectionHeading": "Color overrides",
+  "@appearanceTokenOverridesSectionHeading": {
+    "description": "Heading above the per-token color override block in Settings → Appearance"
+  },
+  "appearanceThemePackBrowserSectionHeading": "Theme packs",
+  "@appearanceThemePackBrowserSectionHeading": {
+    "description": "Heading above the theme-pack browser block in Settings → Appearance"
+  },
+  "appearanceActivePresetIndicatorLabel": "Active preset",
+  "@appearanceActivePresetIndicatorLabel": {
+    "description": "Accessibility label rendered on the active preset card in the preset picker"
+  },
+  "appearanceActivatePresetTooltip": "Activate preset",
+  "@appearanceActivatePresetTooltip": {
+    "description": "Tooltip shown when hovering an inactive preset card in the preset picker"
+  },
+  "appearanceNoPresetsAvailableMessage": "No presets available.",
+  "@appearanceNoPresetsAvailableMessage": {
+    "description": "Empty-state message rendered when the preset list is empty"
+  },
+  "appearanceBrightnessLabelDark": "Dark theme",
+  "@appearanceBrightnessLabelDark": {
+    "description": "Accessibility label for the brightness icon on dark theme presets"
+  },
+  "appearanceBrightnessLabelLight": "Light theme",
+  "@appearanceBrightnessLabelLight": {
+    "description": "Accessibility label for the brightness icon on light theme presets"
+  },
+  "appearanceEditTokenColorTooltip": "Edit color",
+  "@appearanceEditTokenColorTooltip": {
+    "description": "Tooltip rendered over the per-token color swatch that opens the picker"
+  },
+  "appearanceResetTokenToDefaultTooltip": "Reset to default",
+  "@appearanceResetTokenToDefaultTooltip": {
+    "description": "Tooltip on the reset-to-default button when a token override is active"
+  },
+  "appearanceEmptyTokenCategoryMessage": "No tokens in this category.",
+  "@appearanceEmptyTokenCategoryMessage": {
+    "description": "Empty-state message rendered when a registered token category contains no tokens"
+  },
+  "appearanceCollapseCategoryLabel": "Collapse {category}",
+  "@appearanceCollapseCategoryLabel": {
+    "description": "Accessibility label for the collapse chevron on a TokenCategorySection",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExpandCategoryLabel": "Expand {category}",
+  "@appearanceExpandCategoryLabel": {
+    "description": "Accessibility label for the expand chevron on a TokenCategorySection",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceColorPickerDialogTitle": "Choose color",
+  "@appearanceColorPickerDialogTitle": {
+    "description": "Title rendered at the top of the modal color picker dialog used by Settings → Appearance"
+  },
+  "appearanceColorPickerHexLabel": "Hex",
+  "@appearanceColorPickerHexLabel": {
+    "description": "Label rendered next to the hex input field in the color picker dialog"
+  },
+  "appearanceColorPickerRgbLabel": "RGB",
+  "@appearanceColorPickerRgbLabel": {
+    "description": "Label rendered above the RGB readout row in the color picker dialog"
+  },
+  "appearanceColorPickerHsvLabel": "HSV",
+  "@appearanceColorPickerHsvLabel": {
+    "description": "Label rendered above the HSV slider group in the color picker dialog"
+  },
+  "appearanceColorPickerHueLabel": "Hue",
+  "@appearanceColorPickerHueLabel": {
+    "description": "Label rendered next to the hue slider in the color picker dialog"
+  },
+  "appearanceColorPickerSaturationLabel": "Saturation",
+  "@appearanceColorPickerSaturationLabel": {
+    "description": "Label rendered next to the saturation slider in the color picker dialog"
+  },
+  "appearanceColorPickerValueLabel": "Value",
+  "@appearanceColorPickerValueLabel": {
+    "description": "Label rendered next to the value (brightness) slider in the color picker dialog"
+  },
+  "appearanceColorPickerPreviewLabel": "Selected color preview",
+  "@appearanceColorPickerPreviewLabel": {
+    "description": "Accessibility label for the live preview swatch in the color picker dialog"
+  },
+  "appearanceColorPickerOkLabel": "OK",
+  "@appearanceColorPickerOkLabel": {
+    "description": "Accept action label in the color picker dialog"
+  },
+  "appearanceColorPickerCancelLabel": "Cancel",
+  "@appearanceColorPickerCancelLabel": {
+    "description": "Cancel action label in the color picker dialog"
+  },
+  "appearanceColorPickerInvalidHex": "Invalid color: {input}",
+  "@appearanceColorPickerInvalidHex": {
+    "description": "Error message shown when the user types an invalid hex string in the color picker dialog",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportThemePackButtonLabel": "Import theme pack…",
+  "@appearanceImportThemePackButtonLabel": {
+    "description": "Label of the Import button that opens a file picker to import a .crux-theme.json pack"
+  },
+  "appearanceExportCurrentThemeButtonLabel": "Export current theme…",
+  "@appearanceExportCurrentThemeButtonLabel": {
+    "description": "Label of the Export button that writes the active theme to a .crux-theme.json file"
+  },
+  "appearanceInstalledPacksHeading": "Installed packs",
+  "@appearanceInstalledPacksHeading": {
+    "description": "Heading rendered above the list of user-installed theme packs in the theme pack browser"
+  },
+  "appearanceNoInstalledPacksMessage": "No theme packs installed.",
+  "@appearanceNoInstalledPacksMessage": {
+    "description": "Empty-state message rendered when no user theme packs are installed"
+  },
+  "appearanceActivatePackButtonLabel": "Activate",
+  "@appearanceActivatePackButtonLabel": {
+    "description": "Action label shown next to each installed pack row that activates the pack"
+  },
+  "appearanceUninstallPackButtonLabel": "Uninstall",
+  "@appearanceUninstallPackButtonLabel": {
+    "description": "Action label shown next to each installed pack row that uninstalls the pack"
+  },
+  "appearanceConfirmUninstallDialogTitle": "Uninstall theme pack?",
+  "@appearanceConfirmUninstallDialogTitle": {
+    "description": "Title of the confirmation dialog shown before uninstalling a theme pack"
+  },
+  "appearanceConfirmUninstallDialogBody": "Remove the theme pack \"{packId}\"? This cannot be undone.",
+  "@appearanceConfirmUninstallDialogBody": {
+    "description": "Body of the uninstall confirmation dialog; packId is the pack's identifier",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceConfirmUninstallCancelLabel": "Cancel",
+  "@appearanceConfirmUninstallCancelLabel": {
+    "description": "Cancel action on the uninstall confirmation dialog"
+  },
+  "appearanceConfirmUninstallConfirmLabel": "Uninstall",
+  "@appearanceConfirmUninstallConfirmLabel": {
+    "description": "Destructive confirm action on the uninstall confirmation dialog"
+  },
+  "appearanceImportFailedMessage": "Failed to import theme pack: {reason}",
+  "@appearanceImportFailedMessage": {
+    "description": "Snackbar shown when importing a theme pack fails",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportSucceededMessage": "Installed theme pack \"{packId}\".",
+  "@appearanceImportSucceededMessage": {
+    "description": "Snackbar shown after a theme pack is successfully imported",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportSucceededMessage": "Exported theme to {destinationPath}.",
+  "@appearanceExportSucceededMessage": {
+    "description": "Snackbar shown after the active theme is successfully exported to a file",
+    "placeholders": {
+      "destinationPath": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportFailedMessage": "Failed to export theme: {reason}",
+  "@appearanceExportFailedMessage": {
+    "description": "Snackbar shown when exporting the active theme fails",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
   }
 }

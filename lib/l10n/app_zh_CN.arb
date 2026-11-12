@@ -3962,5 +3962,201 @@
   "glsNoteRtlTest": "重新运行测试 {test}。",
   "glsNoteClock": "在 {clock} 的上升沿比较，在边沿之前采样。",
   "glsNoteFirstDifference": "第一处差异在 {time} ps。",
-  "inspectorActionOpenGateLevelWaveform": "在 WaveCrux 中打开门级波形"
+  "inspectorActionOpenGateLevelWaveform": "在 WaveCrux 中打开门级波形",
+  "appearanceSectionSubtitle": "选择预设、编辑单个颜色或管理主题包。",
+  "@appearanceSectionSubtitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearancePresetSectionHeading": "预设",
+  "@appearancePresetSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceTokenOverridesSectionHeading": "颜色覆盖",
+  "@appearanceTokenOverridesSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceThemePackBrowserSectionHeading": "主题包",
+  "@appearanceThemePackBrowserSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivePresetIndicatorLabel": "当前预设",
+  "@appearanceActivePresetIndicatorLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePresetTooltip": "激活预设",
+  "@appearanceActivatePresetTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoPresetsAvailableMessage": "无可用预设。",
+  "@appearanceNoPresetsAvailableMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelDark": "深色主题",
+  "@appearanceBrightnessLabelDark": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelLight": "浅色主题",
+  "@appearanceBrightnessLabelLight": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEditTokenColorTooltip": "编辑颜色",
+  "@appearanceEditTokenColorTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceResetTokenToDefaultTooltip": "重置为默认值",
+  "@appearanceResetTokenToDefaultTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEmptyTokenCategoryMessage": "此分类中没有令牌。",
+  "@appearanceEmptyTokenCategoryMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceCollapseCategoryLabel": "折叠 {category}",
+  "@appearanceCollapseCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExpandCategoryLabel": "展开 {category}",
+  "@appearanceExpandCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceColorPickerDialogTitle": "选择颜色",
+  "@appearanceColorPickerDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHexLabel": "十六进制",
+  "@appearanceColorPickerHexLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerRgbLabel": "RGB",
+  "@appearanceColorPickerRgbLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHsvLabel": "HSV",
+  "@appearanceColorPickerHsvLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHueLabel": "色相",
+  "@appearanceColorPickerHueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerSaturationLabel": "饱和度",
+  "@appearanceColorPickerSaturationLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerValueLabel": "明度",
+  "@appearanceColorPickerValueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerPreviewLabel": "所选颜色预览",
+  "@appearanceColorPickerPreviewLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerOkLabel": "确定",
+  "@appearanceColorPickerOkLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerCancelLabel": "取消",
+  "@appearanceColorPickerCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerInvalidHex": "无效颜色：{input}",
+  "@appearanceColorPickerInvalidHex": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportThemePackButtonLabel": "导入主题包…",
+  "@appearanceImportThemePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceExportCurrentThemeButtonLabel": "导出当前主题…",
+  "@appearanceExportCurrentThemeButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceInstalledPacksHeading": "已安装的主题包",
+  "@appearanceInstalledPacksHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoInstalledPacksMessage": "未安装任何主题包。",
+  "@appearanceNoInstalledPacksMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePackButtonLabel": "激活",
+  "@appearanceActivatePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceUninstallPackButtonLabel": "卸载",
+  "@appearanceUninstallPackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogTitle": "卸载主题包？",
+  "@appearanceConfirmUninstallDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogBody": "确定要删除主题包\"{packId}\"吗？此操作无法撤销。",
+  "@appearanceConfirmUninstallDialogBody": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceConfirmUninstallCancelLabel": "取消",
+  "@appearanceConfirmUninstallCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallConfirmLabel": "卸载",
+  "@appearanceConfirmUninstallConfirmLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceImportFailedMessage": "无法导入主题包：{reason}",
+  "@appearanceImportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportSucceededMessage": "已安装主题包\"{packId}\"。",
+  "@appearanceImportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportSucceededMessage": "主题已导出到 {destinationPath}。",
+  "@appearanceExportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "destinationPath": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportFailedMessage": "无法导出主题：{reason}",
+  "@appearanceExportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  }
 }

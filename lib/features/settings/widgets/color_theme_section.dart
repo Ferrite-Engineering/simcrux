@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simcrux/core/help_urls.dart';
+import 'package:simcrux/core/theme/simcrux_theme_appearance_strings.dart';
 import 'package:simcrux/core/theme/theme_pack_directory.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
@@ -93,7 +94,7 @@ class _ColorThemeSectionState extends ConsumerState<ColorThemeSection> {
       return const SizedBox(height: 24);
     }
     final theme = Theme.of(context);
-    const strings = ThemeAppearanceStringsEn();
+    final strings = SimCruxThemeAppearanceStrings(L10N.of(context));
     final categories = ThemeRegistry.instance.registeredCategories;
 
     // Composed from the individual `crux_theme` widgets rather than the
@@ -127,12 +128,15 @@ class _ColorThemeSectionState extends ConsumerState<ColorThemeSection> {
             ],
           ),
           const SizedBox(height: 8),
-          PresetPicker(presets: builtinPresets().values.toList()),
+          PresetPicker(
+            presets: builtinPresets().values.toList(),
+            strings: strings,
+          ),
           const SizedBox(height: 20),
           _SubsectionLabel(strings.tokenOverridesSectionHeading),
           const SizedBox(height: 8),
           for (final category in categories)
-            TokenCategorySection(category: category),
+            TokenCategorySection(category: category, strings: strings),
           const SizedBox(height: 20),
           _SubsectionLabel(strings.themePackBrowserSectionHeading),
           const SizedBox(height: 8),
@@ -142,6 +146,7 @@ class _ColorThemeSectionState extends ConsumerState<ColorThemeSection> {
                 widget.pickPackDocument ?? _defaultPickPackDocument,
             savePackDocument:
                 widget.savePackDocument ?? _defaultSavePackDocument,
+            strings: strings,
           ),
         ],
       ),

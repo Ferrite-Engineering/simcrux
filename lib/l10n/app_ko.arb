@@ -3962,5 +3962,201 @@
   "glsNoteRtlTest": "테스트 {test}을(를) 다시 실행합니다.",
   "glsNoteClock": "{clock}의 상승 에지에서 비교했으며, 에지 직전에 샘플링했습니다.",
   "glsNoteFirstDifference": "첫 번째 차이는 {time} ps입니다.",
-  "inspectorActionOpenGateLevelWaveform": "WaveCrux에서 게이트 레벨 파형 열기"
+  "inspectorActionOpenGateLevelWaveform": "WaveCrux에서 게이트 레벨 파형 열기",
+  "appearanceSectionSubtitle": "프리셋을 선택하거나 개별 색상을 편집하고 테마 팩을 관리합니다.",
+  "@appearanceSectionSubtitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearancePresetSectionHeading": "프리셋",
+  "@appearancePresetSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceTokenOverridesSectionHeading": "색상 재정의",
+  "@appearanceTokenOverridesSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceThemePackBrowserSectionHeading": "테마 팩",
+  "@appearanceThemePackBrowserSectionHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivePresetIndicatorLabel": "활성 프리셋",
+  "@appearanceActivePresetIndicatorLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePresetTooltip": "프리셋 활성화",
+  "@appearanceActivatePresetTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoPresetsAvailableMessage": "사용 가능한 프리셋이 없습니다.",
+  "@appearanceNoPresetsAvailableMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelDark": "다크 테마",
+  "@appearanceBrightnessLabelDark": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceBrightnessLabelLight": "라이트 테마",
+  "@appearanceBrightnessLabelLight": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEditTokenColorTooltip": "색상 편집",
+  "@appearanceEditTokenColorTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceResetTokenToDefaultTooltip": "기본값으로 초기화",
+  "@appearanceResetTokenToDefaultTooltip": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceEmptyTokenCategoryMessage": "이 카테고리에는 토큰이 없습니다.",
+  "@appearanceEmptyTokenCategoryMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceCollapseCategoryLabel": "{category} 접기",
+  "@appearanceCollapseCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExpandCategoryLabel": "{category} 펼치기",
+  "@appearanceExpandCategoryLabel": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceColorPickerDialogTitle": "색상 선택",
+  "@appearanceColorPickerDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHexLabel": "16진수",
+  "@appearanceColorPickerHexLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerRgbLabel": "RGB",
+  "@appearanceColorPickerRgbLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHsvLabel": "HSV",
+  "@appearanceColorPickerHsvLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerHueLabel": "색조",
+  "@appearanceColorPickerHueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerSaturationLabel": "채도",
+  "@appearanceColorPickerSaturationLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerValueLabel": "명도",
+  "@appearanceColorPickerValueLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerPreviewLabel": "선택한 색상 미리보기",
+  "@appearanceColorPickerPreviewLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerOkLabel": "확인",
+  "@appearanceColorPickerOkLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerCancelLabel": "취소",
+  "@appearanceColorPickerCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceColorPickerInvalidHex": "잘못된 색상: {input}",
+  "@appearanceColorPickerInvalidHex": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportThemePackButtonLabel": "테마 팩 가져오기…",
+  "@appearanceImportThemePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceExportCurrentThemeButtonLabel": "현재 테마 내보내기…",
+  "@appearanceExportCurrentThemeButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceInstalledPacksHeading": "설치된 팩",
+  "@appearanceInstalledPacksHeading": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceNoInstalledPacksMessage": "설치된 테마 팩이 없습니다.",
+  "@appearanceNoInstalledPacksMessage": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceActivatePackButtonLabel": "활성화",
+  "@appearanceActivatePackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceUninstallPackButtonLabel": "제거",
+  "@appearanceUninstallPackButtonLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogTitle": "테마 팩을 제거하시겠습니까?",
+  "@appearanceConfirmUninstallDialogTitle": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallDialogBody": "테마 팩 \"{packId}\"을(를) 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+  "@appearanceConfirmUninstallDialogBody": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceConfirmUninstallCancelLabel": "취소",
+  "@appearanceConfirmUninstallCancelLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceConfirmUninstallConfirmLabel": "제거",
+  "@appearanceConfirmUninstallConfirmLabel": {
+    "description": "See app_en.arb for description"
+  },
+  "appearanceImportFailedMessage": "테마 팩을 가져올 수 없습니다: {reason}",
+  "@appearanceImportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceImportSucceededMessage": "테마 팩 \"{packId}\"을(를) 설치했습니다.",
+  "@appearanceImportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "packId": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportSucceededMessage": "테마를 {destinationPath}(으)로 내보냈습니다.",
+  "@appearanceExportSucceededMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "destinationPath": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceExportFailedMessage": "테마를 내보낼 수 없습니다: {reason}",
+  "@appearanceExportFailedMessage": {
+    "description": "See app_en.arb for description",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  }
 }
