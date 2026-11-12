@@ -42,6 +42,7 @@ class LogViewerDialog extends ConsumerStatefulWidget {
     return showCruxDialog<void>(
       context: context,
       navigator: ActiveTab.navigatorFor(context),
+      barrierDismissible: false,
       builder: (_) => LogViewerDialog(selection: selection),
     );
   }
