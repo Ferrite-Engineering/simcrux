@@ -2,17 +2,25 @@
 # passed, so nobody has to merge them by hand. A pull request with a failed
 # check stays open and this job fails, which sends the failure notice. One with
 # no checks at all is also left for a person: nothing has tested it.
+#
+# A merge made with GITHUB_TOKEN starts no push workflow, so the merged tip
+# would have no ci.yml run. workflow_dispatch is the one event that token may
+# start, so the job dispatches ci.yml on main after every merge (this needs
+# `actions: write`). A static test pins that step.
 name: Dependabot merge
 
 on:
-  schedule:
-    # Dependabot opens its pull request on Monday; CI has settled by these.
-    - cron: "17 18 * * 1"
-    - cron: "17 6 * * 2,3"
+  # Paused until EDACrux 1.2 is cut, so no scheduled merge moves main under the
+  # release. Restore both cron lines afterwards and delete the "schedule is
+  # paused" test that pins this.
+  # schedule:
+  #   # Dependabot opens its pull request on Monday; CI has settled by these.
+  #   - cron: "17 18 * * 1"
+  #   - cron: "17 6 * * 2,3"
   workflow_dispatch:
 
 permissions:
-  actions: read
+  actions: write
   checks: read
   contents: write
   pull-requests: write
@@ -49,6 +57,11 @@ jobs:
               echo "#$n still has $pending check(s) running; a later run merges it"
             elif gh pr merge "$n" --squash --delete-branch || gh pr merge "$n" --merge --delete-branch; then
               echo "#$n merged"
+              # The merge started no CI run of its own; start one on the new tip.
+              if ! gh workflow run ci.yml --ref main; then
+                echo "::error::#$n merged but ci.yml could not be dispatched; run it by hand"
+                failed=1
+              fi
             else
               echo "::error::#$n could not be merged"
               failed=1
