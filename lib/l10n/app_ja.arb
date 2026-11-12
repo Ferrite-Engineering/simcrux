@@ -2040,6 +2040,8 @@
   "@settingsAutoRunOnOpenDescription": {
     "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
   },
+  "settingsRestoreTabsOnLaunchLabel": "起動時にタブを復元",
+  "settingsRestoreTabsOnLaunchDescription": "SimCrux を前回終了したときに開いていたタブを再度開きます。オフにすると、SimCrux は空のワークスペースで起動します。保存されたセッションはディスク上に残るため、再度オンにすれば復元されます。",
   "actionSubmitIssue": "問題を報告…",
   "@actionSubmitIssue": {
     "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."

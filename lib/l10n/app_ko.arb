@@ -2040,6 +2040,8 @@
   "@settingsAutoRunOnOpenDescription": {
     "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
   },
+  "settingsRestoreTabsOnLaunchLabel": "시작 시 탭 복원",
+  "settingsRestoreTabsOnLaunchDescription": "SimCrux를 마지막으로 종료했을 때 열려 있던 탭을 다시 엽니다. 끄면 SimCrux가 빈 작업 공간으로 시작합니다. 저장된 세션은 디스크에 그대로 유지되므로 다시 켜면 복원됩니다.",
   "actionSubmitIssue": "문제 보고…",
   "@actionSubmitIssue": {
     "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."

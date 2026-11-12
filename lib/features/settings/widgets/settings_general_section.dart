@@ -73,6 +73,24 @@ class SettingsGeneralSection extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
+        // On by default. Off starts with an empty workspace; the saved
+        // `workspace.json` stays on disk (`shouldRestoreOnLaunch`).
+        _TileAligned(
+          child: CruxFormRow.toggle(
+            key: const Key('settings.restoreTabsOnLaunch'),
+            label: l10n.settingsRestoreTabsOnLaunchLabel,
+            help: l10n.settingsRestoreTabsOnLaunchDescription,
+            value: settings.restoreTabsOnLaunch,
+            onChanged: (enabled) {
+              unawaited(
+                ref
+                    .read(appSettingsProvider.notifier)
+                    .updateRestoreTabsOnLaunch(enabled: enabled),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
         // Off by default, by design: opening a config must not launch
         // the whole regression. See `AppSettings.autoRunOnOpen`.
         _TileAligned(

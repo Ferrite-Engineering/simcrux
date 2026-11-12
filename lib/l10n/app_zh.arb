@@ -2040,6 +2040,8 @@
   "@settingsAutoRunOnOpenDescription": {
     "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
   },
+  "settingsRestoreTabsOnLaunchLabel": "启动时恢复标签页",
+  "settingsRestoreTabsOnLaunchDescription": "重新打开 SimCrux 上次退出时处于打开状态的标签页。关闭后，SimCrux 将以空工作区启动；已保存的会话仍保留在磁盘上，因此重新开启此项即可恢复。",
   "actionSubmitIssue": "提交问题…",
   "@actionSubmitIssue": {
     "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."

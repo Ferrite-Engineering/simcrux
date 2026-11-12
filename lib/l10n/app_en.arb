@@ -2089,6 +2089,14 @@
   "@settingsAutoRunOnOpenDescription": {
     "description": "Explanatory text under the Settings → General auto-run-on-open toggle, stating that opening a config only arms the tab."
   },
+  "settingsRestoreTabsOnLaunchLabel": "Restore tabs on launch",
+  "@settingsRestoreTabsOnLaunchLabel": {
+    "description": "Settings → General toggle controlling whether the tabs that were open at last quit are reopened at launch. On by default."
+  },
+  "settingsRestoreTabsOnLaunchDescription": "Reopen the tabs that were open when SimCrux last quit. When off, SimCrux starts with an empty workspace; the saved session is kept on disk, so turning this back on restores it.",
+  "@settingsRestoreTabsOnLaunchDescription": {
+    "description": "Explanatory text under the Settings → General restore-tabs-on-launch toggle."
+  },
   "actionSubmitIssue": "Submit Issue…",
   "@actionSubmitIssue": {
     "description": "Help-menu / command-palette / About-box action that opens the beta issue reporter."
