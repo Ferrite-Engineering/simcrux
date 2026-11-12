@@ -2227,6 +2227,7 @@
       }
     }
   },
+  "accessibilityStatusBarRegion": "상태 표시줄",
   "accessibilityToolbarRegion": "도구 모음",
   "toolbarOverflowActions": "동작",
   "toolbarToggleCrossProbe": "크로스프로브 패널",

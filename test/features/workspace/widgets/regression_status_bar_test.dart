@@ -74,6 +74,43 @@ void main() {
       expect(find.text('Running: 1'), findsOneWidget);
     });
 
+    group('the region name', () {
+      // A screen reader announces the bar as a named region, in the app's
+      // language, like WaveCrux's.
+      const names = <String, String>{
+        'en': 'Status bar',
+        'ja': 'ステータスバー',
+        'ko': '상태 표시줄',
+        'zh': '状态栏',
+      };
+      for (final entry in names.entries) {
+        testWidgets('the bar is named "${entry.value}" in ${entry.key}', (
+          tester,
+        ) async {
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            _harness(
+              const RegressionStatusBar(configPath: '/work/soc/simcrux.yaml'),
+              locale: Locale(entry.key),
+            ),
+          );
+          await tester.pump();
+          expect(find.bySemanticsLabel(entry.value), findsOneWidget);
+          handle.dispose();
+        });
+      }
+
+      testWidgets('the idle bar carries the name too', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _harness(const Builder(builder: RegressionStatusBar.idle)),
+        );
+        await tester.pump();
+        expect(find.bySemanticsLabel('Status bar'), findsOneWidget);
+        handle.dispose();
+      });
+    });
+
     group('the zero-suppressed counts', () {
       testWidgets('omits skipped / timeout / error when all are zero', (
         tester,

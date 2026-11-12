@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async' show unawaited;
+
 import 'package:crux_ide_layout/crux_ide_layout.dart';
 import 'package:crux_table/crux_table.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,12 @@ const double _kStatusIconSize = 16;
 /// columns kept shrinking with the pane until the headers were single
 /// letters and the sort arrow, being a fixed 18 px, overflowed its cell.
 const double _kMinTableWidth = 780;
+
+/// Whether [key] (with [shiftPressed]) is the platform's keyboard request for
+/// a context menu: Shift+F10 or the Menu key.
+bool isContextMenuKey(LogicalKeyboardKey key, {required bool shiftPressed}) =>
+    (key == LogicalKeyboardKey.f10 && shiftPressed) ||
+    key == LogicalKeyboardKey.contextMenu;
 
 /// The dashboard's centerpiece results table.
 ///
@@ -276,148 +284,175 @@ class _DashboardResultRow extends ConsumerWidget {
     // "There is no Device Class system"), so isTouchLayout is false and the
     // wrapper's platform fallback still enables long-press for a touch
     // browser reporting an iOS/Android TargetPlatform.
-    return PlatformContextMenu(
-      onContextMenu: (globalPosition) => _maybeShowRowMenu(
-        context,
-        ref,
-        contextMenuBuilder,
-        anchor: globalPosition,
-      ),
-      child: InkWell(
-        onTap: () =>
-            ref.read(selectedTestIdProvider.notifier).select(row.testId),
-        excludeFromSemantics: true,
-        canRequestFocus: false,
-        child: Container(
-          color: bg,
-          child: Row(
-            children: [
-              SizedBox(
-                width: _kCheckboxColumnWidth,
-                // Enter is claimed here, below the framework's
-                // `Enter → ActivateIntent`, so it opens the row instead of
-                // toggling; Space still reaches the check box.
-                child: Shortcuts(
-                  shortcuts: const <ShortcutActivator, Intent>{
-                    SingleActivator(LogicalKeyboardKey.enter):
-                        _InspectRowIntent(),
-                    SingleActivator(LogicalKeyboardKey.numpadEnter):
-                        _InspectRowIntent(),
-                  },
-                  child: Actions(
-                    actions: <Type, Action<Intent>>{
-                      _InspectRowIntent: CallbackAction<_InspectRowIntent>(
-                        onInvoke: (_) {
-                          ref
-                              .read(selectedTestIdProvider.notifier)
-                              .select(row.testId);
-                          return null;
-                        },
-                      ),
+    //
+    // Shift+F10 and the Menu key, with focus anywhere in the row (its check
+    // box is the one focus stop), open the same menu under the focused
+    // control: the keyboard route to what right-click reaches.
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      includeSemantics: false,
+      onKeyEvent: (_, event) {
+        if (event is! KeyDownEvent ||
+            !isContextMenuKey(
+              event.logicalKey,
+              shiftPressed: HardwareKeyboard.instance.isShiftPressed,
+            )) {
+          return KeyEventResult.ignored;
+        }
+        final focused = FocusManager.instance.primaryFocus?.rect;
+        final box = context.findRenderObject() as RenderBox?;
+        final anchor =
+            focused?.bottomLeft ??
+            (box == null ? Offset.zero : box.localToGlobal(Offset.zero));
+        unawaited(
+          _maybeShowRowMenu(context, ref, contextMenuBuilder, anchor: anchor),
+        );
+        return KeyEventResult.handled;
+      },
+      child: PlatformContextMenu(
+        onContextMenu: (globalPosition) => _maybeShowRowMenu(
+          context,
+          ref,
+          contextMenuBuilder,
+          anchor: globalPosition,
+        ),
+        child: InkWell(
+          onTap: () =>
+              ref.read(selectedTestIdProvider.notifier).select(row.testId),
+          excludeFromSemantics: true,
+          canRequestFocus: false,
+          child: Container(
+            color: bg,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: _kCheckboxColumnWidth,
+                  // Enter is claimed here, below the framework's
+                  // `Enter → ActivateIntent`, so it opens the row instead of
+                  // toggling; Space still reaches the check box.
+                  child: Shortcuts(
+                    shortcuts: const <ShortcutActivator, Intent>{
+                      SingleActivator(LogicalKeyboardKey.enter):
+                          _InspectRowIntent(),
+                      SingleActivator(LogicalKeyboardKey.numpadEnter):
+                          _InspectRowIntent(),
                     },
-                    child: Checkbox(
-                      value: selected,
-                      visualDensity: VisualDensity.compact,
-                      semanticLabel: spoken,
-                      onChanged: (_) => ref
-                          .read(dashboardSelectionProvider.notifier)
-                          .toggle(row.testId),
+                    child: Actions(
+                      actions: <Type, Action<Intent>>{
+                        _InspectRowIntent: CallbackAction<_InspectRowIntent>(
+                          onInvoke: (_) {
+                            ref
+                                .read(selectedTestIdProvider.notifier)
+                                .select(row.testId);
+                            return null;
+                          },
+                        ),
+                      },
+                      child: Checkbox(
+                        value: selected,
+                        visualDensity: VisualDensity.compact,
+                        semanticLabel: spoken,
+                        onChanged: (_) => ref
+                            .read(dashboardSelectionProvider.notifier)
+                            .toggle(row.testId),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                // Widths follow the header's, from the shared layout. Each
-                // cell's own content is excluded from semantics (the check
-                // box speaks for the row); the annotation is not, so its
-                // tooltip stays readable.
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: layout.flexOf(DashboardSortColumn.status),
-                      child: Center(
-                        child: ExcludeSemantics(
-                          child: DashboardStatusIcon(
-                            status: row.result.status,
-                            size: _kStatusIconSize,
-                            formal: statusFormal,
-                            gls: gls,
+                Expanded(
+                  // Widths follow the header's, from the shared layout. Each
+                  // cell's own content is excluded from semantics (the check
+                  // box speaks for the row); the annotation is not, so its
+                  // tooltip stays readable.
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: layout.flexOf(DashboardSortColumn.status),
+                        child: Center(
+                          child: ExcludeSemantics(
+                            child: DashboardStatusIcon(
+                              status: row.result.status,
+                              size: _kStatusIconSize,
+                              formal: statusFormal,
+                              gls: gls,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    // Blank for a simulation row. The words carry the
-                    // verdict; the hue only repeats it, and Inconclusive is
-                    // never error red.
-                    // The pre-trace marker rides the verdict: a glyph here,
-                    // the words in the tooltip and in the row's spoken
-                    // label, so the shape is never the only channel.
-                    CruxTableCell(
-                      text: verdictText,
-                      tooltip: gls?.outcome == GlsOutcome.xOnly
-                          ? '$verdictText. '
-                                '${L10N.of(context).glsOutcomeXOnlyTooltip}'
-                          : pretraceMarker == null
-                          ? null
-                          : '$verdictText. $pretraceMarker',
-                      flex: layout.flexOf(DashboardSortColumn.verdict),
-                      style: gls != null
-                          ? theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  gls.outcome == GlsOutcome.xOnly ||
-                                      gls.outcome == GlsOutcome.notRun
-                                  ? theme.colorScheme.onSurfaceVariant
-                                  : null,
-                            )
-                          : summary == null
-                          ? null
-                          : theme.textTheme.bodySmall?.copyWith(
-                              color: _verdictTextColor(theme, summary),
-                            ),
-                      annotation: pretraceMarker == null
-                          ? null
-                          : ExcludeSemantics(
-                              child: Tooltip(
-                                message: pretraceMarker,
-                                child: Icon(
-                                  Icons.history_toggle_off,
-                                  key: const ValueKey('formalPretraceMarker'),
-                                  size: 14,
-                                  color: theme.colorScheme.onSurfaceVariant,
+                      // Blank for a simulation row. The words carry the
+                      // verdict; the hue only repeats it, and Inconclusive is
+                      // never error red.
+                      // The pre-trace marker rides the verdict: a glyph here,
+                      // the words in the tooltip and in the row's spoken
+                      // label, so the shape is never the only channel.
+                      CruxTableCell(
+                        text: verdictText,
+                        tooltip: gls?.outcome == GlsOutcome.xOnly
+                            ? '$verdictText. '
+                                  '${L10N.of(context).glsOutcomeXOnlyTooltip}'
+                            : pretraceMarker == null
+                            ? null
+                            : '$verdictText. $pretraceMarker',
+                        flex: layout.flexOf(DashboardSortColumn.verdict),
+                        style: gls != null
+                            ? theme.textTheme.bodySmall?.copyWith(
+                                color:
+                                    gls.outcome == GlsOutcome.xOnly ||
+                                        gls.outcome == GlsOutcome.notRun
+                                    ? theme.colorScheme.onSurfaceVariant
+                                    : null,
+                              )
+                            : summary == null
+                            ? null
+                            : theme.textTheme.bodySmall?.copyWith(
+                                color: _verdictTextColor(theme, summary),
+                              ),
+                        annotation: pretraceMarker == null
+                            ? null
+                            : ExcludeSemantics(
+                                child: Tooltip(
+                                  message: pretraceMarker,
+                                  child: Icon(
+                                    Icons.history_toggle_off,
+                                    key: const ValueKey('formalPretraceMarker'),
+                                    size: 14,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
-                            ),
-                    ),
-                    // crux_table's text cell: the full value as a hover-only
-                    // tooltip (a long-press trigger would claim the row's
-                    // context-menu gesture on touch hosts), and the Pro
-                    // annotation after the name, scaling down before it
-                    // overflows a cell dragged narrow.
-                    CruxTableCell(
-                      text: row.suiteName,
-                      flex: layout.flexOf(DashboardSortColumn.suite),
-                    ),
-                    CruxTableCell(
-                      text: displayName,
-                      flex: layout.flexOf(DashboardSortColumn.testName),
-                      annotation: trailing,
-                    ),
-                    CruxTableCell(
-                      text: row.simulatorId,
-                      flex: layout.flexOf(DashboardSortColumn.simulator),
-                    ),
-                    CruxTableCell(
-                      text: _formatDuration(row.result.runtime),
-                      flex: layout.flexOf(DashboardSortColumn.duration),
-                    ),
-                    CruxTableCell(
-                      text: _formatTimestamp(row.result.startedAt),
-                      flex: layout.flexOf(DashboardSortColumn.startedAt),
-                    ),
-                  ],
+                      ),
+                      // crux_table's text cell: the full value as a hover-only
+                      // tooltip (a long-press trigger would claim the row's
+                      // context-menu gesture on touch hosts), and the Pro
+                      // annotation after the name, scaling down before it
+                      // overflows a cell dragged narrow.
+                      CruxTableCell(
+                        text: row.suiteName,
+                        flex: layout.flexOf(DashboardSortColumn.suite),
+                      ),
+                      CruxTableCell(
+                        text: displayName,
+                        flex: layout.flexOf(DashboardSortColumn.testName),
+                        annotation: trailing,
+                      ),
+                      CruxTableCell(
+                        text: row.simulatorId,
+                        flex: layout.flexOf(DashboardSortColumn.simulator),
+                      ),
+                      CruxTableCell(
+                        text: _formatDuration(row.result.runtime),
+                        flex: layout.flexOf(DashboardSortColumn.duration),
+                      ),
+                      CruxTableCell(
+                        text: _formatTimestamp(row.result.startedAt),
+                        flex: layout.flexOf(DashboardSortColumn.startedAt),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

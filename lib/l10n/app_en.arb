@@ -2309,6 +2309,10 @@
       }
     }
   },
+  "accessibilityStatusBarRegion": "Status bar",
+  "@accessibilityStatusBarRegion": {
+    "description": "Semantic region label for the status bar at the bottom of the window, used by screen readers"
+  },
   "accessibilityToolbarRegion": "Toolbar",
   "@accessibilityToolbarRegion": {
     "description": "Screen-reader label for the application toolbar region"

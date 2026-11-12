@@ -2227,6 +2227,7 @@
       }
     }
   },
+  "accessibilityStatusBarRegion": "ステータスバー",
   "accessibilityToolbarRegion": "ツールバー",
   "toolbarOverflowActions": "アクション",
   "toolbarToggleCrossProbe": "クロスプローブパネル",

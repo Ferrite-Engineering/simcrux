@@ -50,6 +50,7 @@ class RegressionStatusBar extends ConsumerWidget {
     final running = run != null && !run.isFinished;
 
     return CruxStatusBar(
+      semanticsLabel: l10n.accessibilityStatusBarRegion,
       segments: [
         if (configPath.isNotEmpty) CruxStatusSegment(p.basename(configPath)),
         if (totals != null) ...[
@@ -93,6 +94,7 @@ class RegressionStatusBar extends ConsumerWidget {
   /// than a platform constraint.
   static Widget idle(BuildContext context) => Consumer(
     builder: (context, ref, _) => CruxStatusBar(
+      semanticsLabel: L10N.of(context).accessibilityStatusBarRegion,
       segments: [CruxStatusSegment(L10N.of(context).statusBarNoConfig)],
       trailing: ref.watch(statusBarTrailingWidgetsProvider),
     ),
