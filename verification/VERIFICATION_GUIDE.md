@@ -1049,16 +1049,21 @@ so in two places, both silent under every other licence:
 
 - **Status bar.** The right end of the bar (after the progress indicator and
   the Pro extension slot) shows the EDU chip, `Non-commercial use` and the
-  licence's address, with the terms and the end date in a tooltip. A click
-  opens Settings > License. It is mounted unconditionally in both the
+  licence's address, with the terms and the end date in a tooltip. A click,
+  or Enter / Space with keyboard focus (it is in the Tab order), opens
+  Settings > License. It is mounted unconditionally in both the
   per-tab bar and the empty-canvas bar; the open-core build never shows it
   because `licenseStatusProvider` defaults to Open Core there, and the Pro
-  overlay publishes the real status.
+  overlay publishes the real status. It is the bar's only EDU statement:
+  `SimCruxEditionBadge` in the extension slot renders nothing under an EDU
+  licence (it still shows PRO / ENT); the About dialog and the licence panel
+  keep their EDU badge.
 - **Report mark.** The HTML results report closes with a footer
-  `Made with SimCrux Educational · Non-commercial use only`: from Tools >
-  Export Results… under an EDU licence (in the app's language), and from
-  `--ci --export html=<path>` when the run's licence resolves to EDU (always
-  English). JUnit XML, JSON and CSV are byte-identical under every licence:
+  `Made with SimCrux Educational · Non-commercial use only`, in English in
+  every app language (the report is an English document): from Tools >
+  Export Results… under an EDU licence, and from
+  `--ci --export html=<path>` when the run's licence resolves to EDU.
+  JUnit XML, JSON and CSV are byte-identical under every licence:
   a tool reads them back, and a stray line would break it.
 
 **Setup.** An EDU licence file (`--license-file`) for the CLI half; a Pro
@@ -1077,6 +1082,7 @@ half is in the overlay's guide).
 |---|---|---|
 | Chip shown under EDU, after the extension slot, bar text style | **Yes** | `test/features/workspace/widgets/simcrux_edu_status_chip_test.dart` |
 | No chip and no gap at open core / Pro / Enterprise | **Yes** | same file |
+| One EDU badge in the bar: the edition badge steps aside under EDU, still PRO / ENT | **Yes** | same file, and `test/shared/widgets/simcrux_edition_badge_test.dart` |
 | Click opens Settings at the License category | **Yes** | same file |
 | GUI HTML export marked under EDU only; data formats unchanged | **Yes** | `test/features/export/export_results_flow_test.dart` |
 | CI HTML export marked at `LicenseTier.edu` only | **Yes** | `test/services/ci/ci_runner_test.dart` |

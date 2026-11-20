@@ -43,15 +43,17 @@ SimCrux shows that in two places. Neither appears under any other license.
 **In the status bar.** The right end of the status bar shows the
 <span class="tier tier-edu">EDU</span> chip, `Non-commercial use` and the
 address the license was issued to. Hover it for the terms and the date the
-license is valid until; click it to open **Settings → License**.
+license is valid until; click it, or Tab to it and press Enter, to open
+**Settings → License**. It is the only EDU chip in the status bar; the About
+dialog and the License panel still show their own.
 
 **On reports you export.** A report meant to be read closes with the line
-`Made with SimCrux Educational · Non-commercial use only`:
+`Made with SimCrux Educational · Non-commercial use only`, in English
+whatever language the app is in, like the report itself:
 
 - the HTML results report, from **Tools → Export Results…** or from
   `--export html=<path>` when the CI run's [license file](cli.md#license-in-ci)
-  is an EDU license (the CI copy is always in English; the app's follows the
-  app language);
+  is an EDU license;
 - the RISC-V compatibility report from **Export report…** on the Pro
   **Compatibility** screen.
 

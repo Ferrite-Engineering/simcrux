@@ -50,10 +50,12 @@ void main() {
         expect(bare, isNot(contains('2027-08-02')));
         expect(bare, isNot(contains('{')));
 
-        final mark = strings.exportMark('SimCrux');
-        // The product name is a brand and is never translated.
-        expect(mark, contains('SimCrux'));
-        expect(mark, isNot(contains('—')));
+        // Exports are English documents, so the mark is English in every
+        // locale.
+        expect(
+          strings.exportMark('SimCrux'),
+          const CruxEduNoticeStringsEn().exportMark('SimCrux'),
+        );
       });
     }
   });

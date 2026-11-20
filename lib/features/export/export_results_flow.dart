@@ -10,7 +10,6 @@ import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:simcrux/core/license/simcrux_edu_notice_strings.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/export/widgets/export_format_dialog.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -89,11 +88,12 @@ Future<void> runExportResultsFlow({
   );
   final configPath = tabContainer.read(activeConfigProvider)?.projectFilePath;
   // An educational licence stamps what it exports. The exporter decides
-  // where: the HTML report gets a footer, the data formats ignore it.
+  // where: the HTML report gets a footer, the data formats ignore it. In
+  // English whatever the app language, like the report around it and like
+  // every other EDACrux export.
   final exportMark = cruxEduExportMark(
     tabContainer.read(licenseStatusProvider),
     CruxProduct.simCrux.displayName,
-    strings: SimCruxEduNoticeStrings(l10n),
   );
 
   final String? path;

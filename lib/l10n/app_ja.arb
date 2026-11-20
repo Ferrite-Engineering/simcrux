@@ -1856,15 +1856,6 @@
       }
     }
   },
-  "eduNoticeExportMark": "{productName} 教育版で作成 · 非商用に限ります",
-  "@eduNoticeExportMark": {
-    "description": "Line stamped on a report exported under an educational license (the HTML results report footer). productName is the product name, SimCrux, and is never translated.",
-    "placeholders": {
-      "productName": {
-        "type": "String"
-      }
-    }
-  },
   "aboutDialogTitle": "SimCrux について",
   "@aboutDialogTitle": {
     "description": "Title of the About dialog (shown in the header / app bar)."

@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/shared/widgets/simcrux_edition_badge.dart';
 
+import '../../support/edu_license_status.dart';
+
 Widget _harness(
   Widget child, {
   required LicenseTier tier,
@@ -42,7 +44,34 @@ void main() {
     // enterprise. That was correct for the EDU-only badge it grew out of, and
     // it is the exact behaviour the generalization exists to remove: a paying
     // customer saw nothing anywhere stating what they were running.
-    testWidgets('renders EDU for an Educational licence', (tester) async {
+    // Under an educational licence the status bar's EDU notice is the one EDU
+    // statement, so this badge steps aside rather than repeat it.
+    testWidgets('renders nothing under an educational licence', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            licenseTierProvider.overrideWithValue(LicenseTier.edu),
+            licenseStatusProvider.overrideWithValue(
+              testLicenseStatus(LicenseTier.edu),
+            ),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: L10N.localizationsDelegates,
+            supportedLocales: L10N.supportedLocales,
+            home: Scaffold(body: Center(child: SimCruxEditionBadge())),
+          ),
+        ),
+      );
+      expect(find.text('EDU'), findsNothing);
+      expect(find.byType(EditionBadge), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    // A tier forced to EDU (`--dart-define=LICENSE_TIER=edu`) with no EDU
+    // licence behind it puts up no EDU notice, so the badge still states it.
+    testWidgets('renders EDU for an EDU tier with no EDU licence status', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _harness(const SimCruxEditionBadge(), tier: LicenseTier.edu),
       );

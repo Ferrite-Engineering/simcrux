@@ -1856,15 +1856,6 @@
       }
     }
   },
-  "eduNoticeExportMark": "使用 {productName} 教育版制作 · 仅限非商业用途",
-  "@eduNoticeExportMark": {
-    "description": "Line stamped on a report exported under an educational license (the HTML results report footer). productName is the product name, SimCrux, and is never translated.",
-    "placeholders": {
-      "productName": {
-        "type": "String"
-      }
-    }
-  },
   "aboutDialogTitle": "关于 SimCrux",
   "@aboutDialogTitle": {
     "description": "Title of the About dialog (shown in the header / app bar)."

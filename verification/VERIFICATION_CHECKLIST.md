@@ -233,7 +233,9 @@
 
 - [ ] Under an EDU licence the status bar ends with the EDU chip, `Non-commercial use` and the address; tooltip gives terms and end date; click opens Settings > License — `[Coverage: AUTOMATED — simcrux_edu_status_chip_test.dart]`
 - [ ] No EDU notice (and no gap) at Open Core, Pro or Enterprise — `[Coverage: AUTOMATED — simcrux_edu_status_chip_test.dart]`
-- [ ] Tools > Export Results… HTML ends with `Made with SimCrux Educational · Non-commercial use only` under EDU only; JUnit / JSON / CSV byte-identical — `[Coverage: AUTOMATED — export_results_flow_test.dart]`
+- [ ] The chip is in the Tab order; Enter / Space open Settings > License — `[Coverage: AUTOMATED — crux_license edu_status_chip_test.dart]` + `[Coverage: MANUAL]` (Tab from the bar in a Pro build)
+- [ ] Only one EDU badge in the status bar under EDU: `SimCruxEditionBadge` renders nothing there, still PRO / ENT otherwise; About and the licence panel keep their EDU badge — `[Coverage: AUTOMATED — simcrux_edu_status_chip_test.dart, simcrux_edition_badge_test.dart]`
+- [ ] Tools > Export Results… HTML ends with `Made with SimCrux Educational · Non-commercial use only` under EDU only, in English in every app language; JUnit / JSON / CSV byte-identical — `[Coverage: AUTOMATED — export_results_flow_test.dart]`
 - [ ] `--ci --export html=` under an EDU `--license-file` carries the English mark; JUnit unchanged — `[Coverage: AUTOMATED — ci_runner_test.dart]` + `[Coverage: MANUAL]` (real EDU licence file)
 
 ### Auto-reload + scheduler isolation

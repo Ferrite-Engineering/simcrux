@@ -358,17 +358,25 @@ void main() {
       expect(html, contains(kEnglishEduExportMark));
     });
 
-    testWidgets('the mark follows the app language', (tester) async {
-      final html = await exportAs(
+    // The report is an English document in every app language, and so is
+    // the line stamped on it.
+    for (final locale in const [
+      Locale('ja'),
+      Locale('zh', 'CN'),
+      Locale('ko'),
+    ]) {
+      testWidgets('the mark is English under ${locale.toLanguageTag()}', (
         tester,
-        ExportFormat.html,
-        testLicenseStatus(LicenseTier.edu),
-        locale: const Locale('ja'),
-      );
-      final l10n = await L10N.delegate.load(const Locale('ja'));
-      expect(html, contains(l10n.eduNoticeExportMark('SimCrux')));
-      expect(html, isNot(contains(kEnglishEduExportMark)));
-    });
+      ) async {
+        final html = await exportAs(
+          tester,
+          ExportFormat.html,
+          testLicenseStatus(LicenseTier.edu),
+          locale: locale,
+        );
+        expect(html, contains(kEnglishEduExportMark));
+      });
+    }
 
     for (final status in kUnmarkedLicenseStatuses) {
       testWidgets('no mark on the HTML report at ${status.tier.name}', (

@@ -8,6 +8,7 @@ import 'package:crux_settings/crux_settings.dart';
 import 'package:crux_settings_ui/crux_settings_ui.dart';
 import 'package:crux_status_bar/crux_status_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -21,6 +22,7 @@ import 'package:simcrux/features/workspace/widgets/simcrux_edu_status_chip.dart'
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/plugins/status_bar_trailing_widgets_provider.dart';
 import 'package:simcrux/services/settings/simcrux_settings_codec.dart';
+import 'package:simcrux/shared/widgets/simcrux_edition_badge.dart';
 
 import '../../../support/edu_license_status.dart';
 
@@ -52,19 +54,22 @@ Future<Widget> _harness(
   Widget child, {
   required CruxLicenseStatus status,
   Locale locale = const Locale('en'),
+  List<Widget> extensionSlot = const <Widget>[
+    // A visible stand-in for whatever the Pro overlay injects, so the
+    // chip's place after the extension slot can be measured.
+    SizedBox(key: _extensionMarker, width: 10, height: 10),
+  ],
 }) async {
   final prefs = await SharedPreferences.getInstance();
   return ProviderScope(
     overrides: [
       licenseStatusProvider.overrideWithValue(status),
+      // The tier follows the status, as the Pro overlay's override does.
+      licenseTierProvider.overrideWithValue(status.tier),
       dashboardTotalsProvider.overrideWith(
         (ref) => const Stream<DashboardTotals>.empty(),
       ),
-      // A visible stand-in for whatever the Pro overlay injects, so the
-      // chip's place after the extension slot can be measured.
-      statusBarTrailingWidgetsProvider.overrideWithValue(const <Widget>[
-        SizedBox(key: _extensionMarker, width: 10, height: 10),
-      ]),
+      statusBarTrailingWidgetsProvider.overrideWithValue(extensionSlot),
       settingsServiceProvider.overrideWithValue(
         SettingsService<AppSettings>(
           const SimcruxSettingsCodec(),
@@ -208,6 +213,34 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('Tab reaches it and Enter opens Settings at License', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(1400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        await _harness(_bar, status: testLicenseStatus(LicenseTier.edu)),
+      );
+      await tester.pump();
+
+      // The chip is the bar's only focusable control in this harness.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        tester
+            .widget<CruxSettingsInitialCategory>(
+              find.byType(CruxSettingsInitialCategory),
+            )
+            .id,
+        kCruxLicenseCategoryId,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('the empty-canvas bar carries it too', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1400, 600));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -224,6 +257,58 @@ void main() {
         findsOneWidget,
       );
     });
+  });
+
+  group('one edition statement in the bar', () {
+    // The Pro overlay mounts SimCruxEditionBadge in the extension slot. Under
+    // an educational licence the EDU notice carries the only EDU chip.
+    testWidgets('EDU: the notice is the only EDU badge', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        await _harness(
+          _bar,
+          status: testLicenseStatus(LicenseTier.edu),
+          extensionSlot: const <Widget>[SimCruxEditionBadge()],
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(EditionBadge), findsOneWidget);
+      expect(find.text('EDU'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(CruxEduStatusChip),
+          matching: find.byType(EditionBadge),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    for (final (tier, label) in const <(LicenseTier, String)>[
+      (LicenseTier.pro, 'PRO'),
+      (LicenseTier.enterprise, 'ENT'),
+    ]) {
+      testWidgets('${tier.name}: the edition badge says $label, no notice', (
+        tester,
+      ) async {
+        await tester.binding.setSurfaceSize(const Size(1400, 600));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(
+          await _harness(
+            _bar,
+            status: testLicenseStatus(tier),
+            extensionSlot: const <Widget>[SimCruxEditionBadge()],
+          ),
+        );
+        await tester.pump();
+
+        expect(find.text(label), findsOneWidget);
+        expect(find.byType(CruxEduStatusChip), findsNothing);
+        expect(find.textContaining('Non-commercial'), findsNothing);
+      });
+    }
   });
 
   group('status bar under any other licence', () {

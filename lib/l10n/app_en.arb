@@ -1905,15 +1905,6 @@
       }
     }
   },
-  "eduNoticeExportMark": "Made with {productName} Educational · Non-commercial use only",
-  "@eduNoticeExportMark": {
-    "description": "Line stamped on a report exported under an educational license (the HTML results report footer). productName is the product name, SimCrux, and is never translated.",
-    "placeholders": {
-      "productName": {
-        "type": "String"
-      }
-    }
-  },
   "aboutDialogTitle": "About SimCrux",
   "@aboutDialogTitle": {
     "description": "Title of the About dialog (shown in the header / app bar)."
