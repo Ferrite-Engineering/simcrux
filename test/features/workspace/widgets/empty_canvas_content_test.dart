@@ -301,7 +301,9 @@ void main() {
   });
 
   group('EmptyCanvasContent — primary actions and version', () {
-    testWidgets('renders the three primary Open actions in en', (tester) async {
+    testWidgets('renders Open Config only; no Open Session or Workspace', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(900, 800));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await _pumpWith(
@@ -310,8 +312,10 @@ void main() {
         workspaceService: workspaceService,
       );
       expect(find.text('Open Config…'), findsOneWidget);
-      expect(find.text('Open Session…'), findsOneWidget);
-      expect(find.text('Open Workspace…'), findsOneWidget);
+      // No menu, palette or save path backs a session or a workspace, so the
+      // launch surface offers neither.
+      expect(find.text('Open Session…'), findsNothing);
+      expect(find.text('Open Workspace…'), findsNothing);
       // The discredited "New Config" button (opened an empty, unpopulatable
       // config tab) has been removed — the welcome offers only real Opens.
       expect(find.text('New Config'), findsNothing);

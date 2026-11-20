@@ -183,7 +183,7 @@
 ### Empty-canvas state
 
 - [ ] Fresh install → window opens to the SimCrux empty-canvas card with localized headline + subtitle in en/zh_CN/zh/ja/ko — `[Coverage: AUTOMATED — flutter test (empty_canvas_content_test.dart locale sweep)]`
-- [ ] Four primary actions present and labeled per active locale: Open Config… / Open Session… / Open Workspace… / New Config — `[Coverage: AUTOMATED — flutter test]`
+- [ ] The one primary action, Open Config…, is present and labeled per active locale; Open Session… and Open Workspace… are absent — `[Coverage: AUTOMATED — flutter test]`
 - [ ] The Recent projects list renders the saved recent project paths; "No recent projects" placeholder when empty — `[Coverage: AUTOMATED — flutter test]`
 - [ ] Opening a config from the picker hides the empty-canvas state and renders the per-tab dashboard scaffold — `[Coverage: MANUAL]`
 - [ ] "New Config" creates an empty-payload tab that renders the projectScreenPlaceholder — `[Coverage: MANUAL]`

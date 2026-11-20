@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// **Open-core default.** Returns `null`; `WorkspaceScreen` falls
 /// back to the built-in `EmptyCanvasContent` (recent configs +
-/// Open Config / Open Session / Open Workspace / New Config actions).
+/// Open Config action).
 ///
 /// **Pro override.** The Pro overlay replaces this with a builder
 /// returning `EmptyWorkspaceState`, which hosts the same

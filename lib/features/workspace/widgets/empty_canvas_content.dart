@@ -62,16 +62,6 @@ class EmptyCanvasContent extends ConsumerWidget {
           icon: const Icon(Icons.folder_open),
           label: Text(l10n.emptyCanvasOpenConfig),
         ),
-        OutlinedButton.icon(
-          onPressed: () => _openSession(context, ref),
-          icon: const Icon(Icons.history_outlined),
-          label: Text(l10n.emptyCanvasOpenSession),
-        ),
-        OutlinedButton.icon(
-          onPressed: () => _openWorkspace(context, ref),
-          icon: const Icon(Icons.dashboard_outlined),
-          label: Text(l10n.emptyCanvasOpenWorkspace),
-        ),
       ],
       // What the other three products do for someone who is here, looking at
       // a regression. Above the suite line, which is the quieter version of
@@ -145,57 +135,11 @@ class EmptyCanvasContent extends ConsumerWidget {
     await _openConfigAtPath(context, ref, path, source: 'yaml');
   }
 
-  Future<void> _openSession(BuildContext context, WidgetRef ref) async {
-    final l10n = L10N.of(context);
-    final FilePickerResult? result;
-    try {
-      result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['simcrux-session'],
-      );
-    } on Object catch (error) {
-      if (!context.mounted) return;
-      showCruxErrorSnack(context, l10n.emptyCanvasOpenFailed('$error'));
-      return;
-    }
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    if (!context.mounted) return;
-    // .simcrux-session is the per-tab session export; the underlying
-    // config path is carried inside it (SimcruxTabPayload.configPath).
-    // The session loader is not wired into the workspace, so the
-    // session-open path opens the bare config the session refers to;
-    // inspector selection / filters in the session are not applied.
-    await _openConfigAtPath(context, ref, path, source: 'session');
-  }
-
-  Future<void> _openWorkspace(BuildContext context, WidgetRef ref) async {
-    final l10n = L10N.of(context);
-    final FilePickerResult? result;
-    try {
-      result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['simcrux-workspace'],
-      );
-    } on Object catch (error) {
-      if (!context.mounted) return;
-      showCruxErrorSnack(context, l10n.emptyCanvasOpenFailed('$error'));
-      return;
-    }
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    if (!context.mounted) return;
-    await ref.read(workspaceProvider.notifier).loadFrom(path);
-  }
-
   /// Opens [path] as a workspace tab and records how the user got here.
   ///
-  /// [source] is required rather than defaulted precisely because this helper
-  /// is shared by routes with different answers — the Open Config picker and
-  /// the Open Session picker. A default would silently attribute one to the
-  /// other, which is the failure the `project.opened` counter exists to avoid.
+  /// [source] is required rather than defaulted so a route that is added later
+  /// has to say how it got here, which is what the `project.opened` counter
+  /// measures.
   Future<void> _openConfigAtPath(
     BuildContext context,
     WidgetRef ref,

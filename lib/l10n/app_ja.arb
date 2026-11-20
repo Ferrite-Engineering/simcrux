@@ -1668,14 +1668,6 @@
   "@emptyCanvasOpenConfig": {
     "description": "Primary action button label on the empty-canvas state — opens a simcrux.yaml project file."
   },
-  "emptyCanvasOpenSession": "セッションを開く…",
-  "@emptyCanvasOpenSession": {
-    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-session export."
-  },
-  "emptyCanvasOpenWorkspace": "ワークスペースを開く…",
-  "@emptyCanvasOpenWorkspace": {
-    "description": "Primary action button label on the empty-canvas state — opens a saved .simcrux-workspace file."
-  },
   "emptyCanvasOpenFailed": "ファイルピッカーを開けませんでした: {error}",
   "@emptyCanvasOpenFailed": {
     "description": "Snackbar shown when the file picker throws (e.g. macOS rejects an unknown extension). Surfaces the underlying error so file-open failures are not silent.",

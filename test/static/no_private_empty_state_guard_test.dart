@@ -45,9 +45,8 @@ const _allowlist = <_Allowance>[
     'lib/features/workspace/widgets/empty_canvas_content.dart',
     'EmptyCanvasContent',
     'the welcome screen content hosted in EmptyCanvasState (crux_workspace): '
-        'app icon, recent configs, and the Open Config / Open Session / Open '
-        'Workspace / New Config actions. A different surface, not a panel '
-        'placeholder.',
+        'app icon, recent configs, and the Open Config action. A different '
+        'surface, not a panel placeholder.',
   ),
 ];
 

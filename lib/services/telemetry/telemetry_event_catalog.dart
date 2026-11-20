@@ -642,11 +642,11 @@ const List<String> kSimcruxRegressionTriggerTokens = <String>[
 /// `yaml` is a `simcrux.yaml` chosen from the file picker, `fusesoc` an
 /// imported `.core`, `riscv` either of the two RISC-V importers, `formal`
 /// File > Import Formal Project, `recent` a click in the empty canvas's
-/// recents list, `session` a `.simcrux-session`, and `cli` a path handed to
-/// the app on the command line. All seven are entry points that exist today;
-/// the token names the *route in*, never the file at the end of it.
+/// recents list, and `cli` a path handed to the app on the command line. All
+/// six are entry points that exist today; the token names the *route in*,
+/// never the file at the end of it.
 ///
-/// `recent`, `session` and `cli` are not new features — they are the routes a
+/// `recent` and `cli` are not new features — they are the routes a
 /// user most plausibly takes, and a vocabulary that omitted them would drop
 /// the property on every launch that opened a project from the command line,
 /// which for a CI-adjacent tool is most of them.
@@ -656,7 +656,6 @@ const List<String> kSimcruxProjectSourceTokens = <String>[
   'riscv',
   'formal',
   'recent',
-  'session',
   'cli',
 ];
 

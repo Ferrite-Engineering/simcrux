@@ -107,7 +107,7 @@ Fixture families:
 
 ### 3.3 Empty-canvas launch surface — theme + locale sweep
 
-**What it does (plain language).** On cold boot with no project loaded, SimCrux shows `EmptyCanvasContent` (`lib/features/workspace/widgets/empty_canvas_content.dart`, backed by `empty_canvas_content_provider.dart`) — the primary actions (Open Config…, Open Session…, Open Workspace…) plus the Recent projects list (the suite's shared Recent list, §3.4) — localized in all four locales and themed by the active preset. (There is no separate "welcome" screen; the empty canvas is the launch surface.)
+**What it does (plain language).** On cold boot with no project loaded, SimCrux shows `EmptyCanvasContent` (`lib/features/workspace/widgets/empty_canvas_content.dart`, backed by `empty_canvas_content_provider.dart`) — the primary action (Open Config…) plus the Recent projects list (the suite's shared Recent list, §3.4) — localized in all four locales and themed by the active preset. (There is no separate "welcome" screen; the empty canvas is the launch surface.)
 
 **Setup.** Launch with an empty workspace (or clear the persisted workspace first).
 
@@ -122,7 +122,7 @@ Fixture families:
 **Edge cases.**
 
 - No recent projects → the placeholder text renders and there is no Clear button; recent projects present → the list renders instead.
-- The four primary action labels are asserted in English so a missing ARB key fails the test.
+- The Open Config… label is asserted in English so a missing ARB key fails the test, and the absence of Open Session… and Open Workspace… is asserted too.
 
 **Tier-gate scenarios.** N/A — Open Core.
 
@@ -722,8 +722,8 @@ workspace has zero tabs.
 - The Recent projects section either renders the localized
   "No recent projects" placeholder or the list of recent project
   paths (§3.4).
-- Four primary actions: Open Config… / Open Session… /
-  Open Workspace… / New Config.
+- One primary action: Open Config…. There is no Open Session… or Open
+  Workspace… button, and no New Config.
 - No tab bar, no inspector pane.
 - App settings + diagnostics surfaces (when enabled in debug) remain
   reachable.
@@ -736,7 +736,7 @@ workspace has zero tabs.
   dashboard until the user picks a config.
 
 **Automation Assessment.** Widget-test `EmptyCanvasContent` covers
-the locale sweep + presence of the four primary actions; the file-
+the locale sweep + presence of the primary action; the file-
 picker / new-tab flows belong in integration tests once the CLI
 end-to-end pass is in place.
 
