@@ -38,6 +38,7 @@ class HtmlExporter implements ResultExporter {
     required TestRun run,
     required List<DashboardRow> rows,
     String? configPath,
+    String? exportMark,
   }) {
     final totals = <TestStatus, int>{};
     for (final row in rows) {
@@ -68,6 +69,7 @@ class HtmlExporter implements ResultExporter {
 
     return HtmlReportShell.document(
       title: 'SimCrux regression — ${configPath ?? run.id}',
+      exportMark: exportMark,
       body:
           '''
 <h1>SimCrux regression</h1>

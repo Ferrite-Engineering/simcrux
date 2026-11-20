@@ -100,10 +100,16 @@ class HtmlReportShell {
   /// [title] is escaped here so callers never have to. [extraCss] is
   /// appended after [baseCss], so a document may add rules but the shared
   /// palette is always present.
+  ///
+  /// [exportMark], when given, is the educational-licence line
+  /// (`cruxEduExportMark` in crux_license) and closes the page as a small
+  /// right-aligned footer. Null leaves the document exactly as it was, so
+  /// a report exported under any other licence carries no trace of it.
   static String document({
     required String title,
     required String body,
     String extraCss = '',
+    String? exportMark,
   }) =>
       '''
 <!DOCTYPE html>
@@ -116,10 +122,17 @@ class HtmlReportShell {
 $baseCss$extraCss</style>
 </head>
 <body>
-$body
+$body${exportMark == null ? '' : eduMarkFooter(exportMark)}
 </body>
 </html>
 ''';
+
+  /// The footer that carries an educational licence's [mark]. Styled inline
+  /// so the stylesheet of an unmarked report is unchanged.
+  static String eduMarkFooter(String mark) =>
+      '<footer class="crux-edu-mark" style="margin-top: 24px; '
+      'text-align: right; font-size: 11px; color: #888;">'
+      '${escape(mark)}</footer>\n';
 
   /// A status pill using the [baseCss] palette. [status] is a
   /// `TestStatus.name`.

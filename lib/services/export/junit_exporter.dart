@@ -37,6 +37,7 @@ class JunitExporter implements ResultExporter {
     required TestRun run,
     required List<DashboardRow> rows,
     String? configPath,
+    String? exportMark,
   }) {
     final bySuite = <String, List<DashboardRow>>{};
     for (final row in rows) {

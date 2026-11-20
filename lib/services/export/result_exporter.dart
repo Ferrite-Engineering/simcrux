@@ -58,9 +58,17 @@ abstract class ResultExporter {
   ExportFormat get format;
 
   /// Encode the run + rows into the exporter's target format.
+  ///
+  /// [exportMark] is the line an educational licence stamps on what it
+  /// exports (`Made with SimCrux Educational · Non-commercial use only`), or
+  /// null when the licence is not educational. Only a format a person reads
+  /// carries it (the HTML report, as a footer). A format a tool reads back
+  /// (JUnit XML, JSON, CSV) ignores it: a stray line there would break the
+  /// reader, so the bytes are the same under every licence.
   String encode({
     required TestRun run,
     required List<DashboardRow> rows,
     String? configPath,
+    String? exportMark,
   });
 }

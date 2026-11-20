@@ -1042,6 +1042,47 @@ against the live workspace) is driven end-to-end in
 `--workspace`/`--session` combined with positional configs and
 the `--help`/`--ci`/`--json` paths remain manual.
 
+### 6.6a Educational-licence notice: status bar and report mark
+
+**What it does.** An EDU licence is for non-commercial use, and SimCrux says
+so in two places, both silent under every other licence:
+
+- **Status bar.** The right end of the bar (after the progress indicator and
+  the Pro extension slot) shows the EDU chip, `Non-commercial use` and the
+  licence's address, with the terms and the end date in a tooltip. A click
+  opens Settings > License. It is mounted unconditionally in both the
+  per-tab bar and the empty-canvas bar; the open-core build never shows it
+  because `licenseStatusProvider` defaults to Open Core there, and the Pro
+  overlay publishes the real status.
+- **Report mark.** The HTML results report closes with a footer
+  `Made with SimCrux Educational · Non-commercial use only`: from Tools >
+  Export Results… under an EDU licence (in the app's language), and from
+  `--ci --export html=<path>` when the run's licence resolves to EDU (always
+  English). JUnit XML, JSON and CSV are byte-identical under every licence:
+  a tool reads them back, and a stray line would break it.
+
+**Setup.** An EDU licence file (`--license-file`) for the CLI half; a Pro
+build with an EDU licence entered for the status-bar half (the chip's Pro
+half is in the overlay's guide).
+
+**Steps.**
+
+1. `simcrux proj.yaml --ci --license-file edu.lic --export html=r.html
+   --export junit=r.xml`; open `r.html`: the footer line is at the bottom
+   right. Repeat with no licence: no footer, and `r.xml` differs only in its
+   timestamps.
+2. Open-core desktop build: the status bar shows no EDU notice.
+
+| Check | Automatable? | How |
+|---|---|---|
+| Chip shown under EDU, after the extension slot, bar text style | **Yes** | `test/features/workspace/widgets/simcrux_edu_status_chip_test.dart` |
+| No chip and no gap at open core / Pro / Enterprise | **Yes** | same file |
+| Click opens Settings at the License category | **Yes** | same file |
+| GUI HTML export marked under EDU only; data formats unchanged | **Yes** | `test/features/export/export_results_flow_test.dart` |
+| CI HTML export marked at `LicenseTier.edu` only | **Yes** | `test/services/ci/ci_runner_test.dart` |
+| Shell footer escaped, absent without a mark | **Yes** | `test/services/export/edu_export_mark_test.dart` |
+| Strings in every locale; English matches the package | **Yes** | `test/core/license/simcrux_edu_notice_strings_test.dart` |
+
 ### 6.7 Auto-reload under multi-tab
 
 **What it covers.** Per-tab `AutoReloadNotifier` — a file-change

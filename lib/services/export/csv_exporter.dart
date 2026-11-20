@@ -25,6 +25,7 @@ class CsvExporter implements ResultExporter {
     required TestRun run,
     required List<DashboardRow> rows,
     String? configPath,
+    String? exportMark,
   }) {
     final buffer = StringBuffer()
       ..write(

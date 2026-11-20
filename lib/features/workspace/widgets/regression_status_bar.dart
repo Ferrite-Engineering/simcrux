@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/dashboard/providers/regression_runner.dart';
+import 'package:simcrux/features/workspace/widgets/simcrux_edu_status_chip.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/plugins/status_bar_trailing_widgets_provider.dart';
 
@@ -63,13 +64,15 @@ class RegressionStatusBar extends ConsumerWidget {
           ?_countIfAny(l10n.dashboardTotalsError, totals, TestStatus.unknown),
         ],
       ],
-      // Suite grammar: progress first, then the Pro extension slot.
+      // Suite grammar: progress first, then the Pro extension slot, then the
+      // educational-licence notice (nothing unless the licence is EDU).
       trailing: [
         if (running)
           CruxStatusBusyIndicator(
             semanticsLabel: l10n.statusBarBusyRegression,
           ),
         ...ref.watch(statusBarTrailingWidgetsProvider),
+        const SimCruxEduStatusChip(),
       ],
     );
   }
@@ -91,10 +94,17 @@ class RegressionStatusBar extends ConsumerWidget {
   /// overlay mounts: WaveCrux states the edition on its welcome screen, and
   /// not doing so here would be a suite UI consistency divergence rather
   /// than a platform constraint.
+  ///
+  /// The educational-licence notice follows it for the same reason: a
+  /// non-commercial licence says so whether or not a config is open. It reads
+  /// only `licenseStatusProvider`, which is app-wide, not per-tab.
   static Widget idle(BuildContext context) => Consumer(
     builder: (context, ref, _) => CruxStatusBar(
       segments: [CruxStatusSegment(L10N.of(context).statusBarNoConfig)],
-      trailing: ref.watch(statusBarTrailingWidgetsProvider),
+      trailing: [
+        ...ref.watch(statusBarTrailingWidgetsProvider),
+        const SimCruxEduStatusChip(),
+      ],
     ),
   );
 

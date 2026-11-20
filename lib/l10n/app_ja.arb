@@ -1834,6 +1834,37 @@
   "@tierBadgeEduSemantic": {
     "description": "Accessibility / screen reader label expanding the abbreviated EDU edition badge."
   },
+  "eduNoticeStatusLabel": "非商用",
+  "@eduNoticeStatusLabel": {
+    "description": "Status-bar text beside the EDU chip, shown only while an educational license is active. The holder's email follows it after a middle dot."
+  },
+  "eduNoticeStatusTooltip": "{hasEmail, select, true{{email} の教育版ライセンス} other{教育版ライセンス}}。非商用の教育、学習、研究に限り使用できます。{hasValidUntil, select, true{{validUntil} まで有効です。} other{}}",
+  "@eduNoticeStatusTooltip": {
+    "description": "Tooltip and screen-reader label of the status-bar educational-license chip. hasEmail / hasValidUntil are \"true\" or \"false\"; validUntil is a yyyy-MM-dd date.",
+    "placeholders": {
+      "hasEmail": {
+        "type": "String"
+      },
+      "email": {
+        "type": "String"
+      },
+      "hasValidUntil": {
+        "type": "String"
+      },
+      "validUntil": {
+        "type": "String"
+      }
+    }
+  },
+  "eduNoticeExportMark": "{productName} 教育版で作成 · 非商用に限ります",
+  "@eduNoticeExportMark": {
+    "description": "Line stamped on a report exported under an educational license (the HTML results report footer). productName is the product name, SimCrux, and is never translated.",
+    "placeholders": {
+      "productName": {
+        "type": "String"
+      }
+    }
+  },
   "aboutDialogTitle": "SimCrux について",
   "@aboutDialogTitle": {
     "description": "Title of the About dialog (shown in the header / app bar)."

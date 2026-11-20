@@ -187,6 +187,68 @@ RegressionConfig _config(List<TestSpec> tests) {
 }
 
 void main() {
+  group('CiRunner educational-licence mark', () {
+    /// Runs one passing test under [tier] with an HTML and a JUnit export,
+    /// and returns what was written.
+    Future<Map<String, String>> exportUnder(LicenseTier tier) async {
+      final writes = <String, String>{};
+      final runner = CiRunner(
+        configLoader: ConfigLoader(),
+        schedulerFactory: (_) => _FakeScheduler((_) => TestStatus.pass),
+        exporterRegistry: const ExporterRegistry(),
+        fileWriter: (path, contents) async => writes[path] = contents,
+        stdoutWriter: (_) {},
+        stderrWriter: (_) {},
+        streamingWriterFactory: _testStreamingFactory(),
+        licenseTier: tier,
+      );
+      await runner.run(
+        args: const CliArgs(
+          projectPaths: ['/p/simcrux.yaml'],
+          ciMode: true,
+          exportTargets: [
+            CliExportTarget(formatId: 'html', outputPath: '/o/r.html'),
+            CliExportTarget(formatId: 'junit', outputPath: '/o/r.xml'),
+          ],
+        ),
+        config: _config([_spec('unit', 'one')]),
+      );
+      return writes;
+    }
+
+    const mark = 'Made with SimCrux Educational · Non-commercial use only';
+
+    test('an EDU licence stamps the HTML report, in English', () async {
+      final writes = await exportUnder(LicenseTier.edu);
+      expect(writes['/o/r.html'], contains(mark));
+      expect(writes['/o/r.html'], contains('class="crux-edu-mark"'));
+    });
+
+    test('the JUnit report is the same under an EDU licence', () async {
+      final edu = await exportUnder(LicenseTier.edu);
+      final openCore = await exportUnder(LicenseTier.openCore);
+      expect(edu['/o/r.xml'], isNot(contains('Educational')));
+      // The timestamps differ between two runs; everything else must not.
+      String stripTimes(String? s) => (s ?? '').replaceAll(
+        RegExp('(timestamp|time)="[^"]*"'),
+        '',
+      );
+      expect(stripTimes(edu['/o/r.xml']), stripTimes(openCore['/o/r.xml']));
+    });
+
+    for (final tier in [
+      LicenseTier.openCore,
+      LicenseTier.pro,
+      LicenseTier.enterprise,
+    ]) {
+      test('no mark at ${tier.name}', () async {
+        final writes = await exportUnder(tier);
+        expect(writes['/o/r.html'], isNot(contains('crux-edu-mark')));
+        expect(writes['/o/r.html'], isNot(contains('Educational')));
+      });
+    }
+  });
+
   group('CiRunner', () {
     test(
       'completes the run, writes exports, and reports exit code 0 on pass',

@@ -8,6 +8,7 @@
 // `export*` ARB keys are referenced by nothing. These tests cover the flow the dialog drives, not the exporters themselves —
 // those have their own suites under test/services/export/.
 
+import 'package:crux_license/crux_license.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,6 +24,7 @@ import 'package:simcrux/services/export/result_exporter.dart';
 import 'package:simcrux/services/result_store/in_memory_result_store.dart';
 import 'package:simcrux/services/result_store/result_store_provider.dart';
 
+import '../../support/edu_license_status.dart';
 import '../../support/recording_telemetry_service.dart';
 
 class _ImmediateResultStoreNotifier extends ResultStoreNotifier {
@@ -75,6 +77,7 @@ _pumpFlow(
   pathPicker,
   ExportFileWriter? fileWriter,
   Locale locale = const Locale('en'),
+  CruxLicenseStatus licenseStatus = CruxLicenseStatus.openCore,
 }) async {
   final writes = <({String path, String contents})>[];
   final telemetry = RecordingTelemetryService();
@@ -84,6 +87,7 @@ _pumpFlow(
         () => _ImmediateResultStoreNotifier(store),
       ),
       telemetryServiceProvider.overrideWithValue(telemetry),
+      licenseStatusProvider.overrideWithValue(licenseStatus),
     ],
   );
   addTearDown(container.dispose);
@@ -318,6 +322,86 @@ void main() {
       // cover the button this helper taps.
       await tester.tap(find.text(l10n.exportActionCancel));
       await tester.pumpAndSettle();
+    }
+  });
+
+  group('the educational-licence mark', () {
+    /// Runs the flow once in [format] under [status] and returns what was
+    /// written.
+    Future<String> exportAs(
+      WidgetTester tester,
+      ExportFormat format,
+      CruxLicenseStatus status, {
+      Locale locale = const Locale('en'),
+    }) async {
+      final result = await _pumpFlow(
+        tester,
+        store: _storeWithOneResult(),
+        pathPicker: _picksPath,
+        licenseStatus: status,
+        locale: locale,
+      );
+      await tester.tap(find.byKey(Key('exportFormat_${format.id}')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(kExportFormatDialogExportKey));
+      await tester.pumpAndSettle();
+      return result.writes.single.contents;
+    }
+
+    testWidgets('an EDU licence stamps the HTML report', (tester) async {
+      final html = await exportAs(
+        tester,
+        ExportFormat.html,
+        testLicenseStatus(LicenseTier.edu),
+      );
+      expect(html, contains('class="crux-edu-mark"'));
+      expect(html, contains(kEnglishEduExportMark));
+    });
+
+    testWidgets('the mark follows the app language', (tester) async {
+      final html = await exportAs(
+        tester,
+        ExportFormat.html,
+        testLicenseStatus(LicenseTier.edu),
+        locale: const Locale('ja'),
+      );
+      final l10n = await L10N.delegate.load(const Locale('ja'));
+      expect(html, contains(l10n.eduNoticeExportMark('SimCrux')));
+      expect(html, isNot(contains(kEnglishEduExportMark)));
+    });
+
+    for (final status in kUnmarkedLicenseStatuses) {
+      testWidgets('no mark on the HTML report at ${status.tier.name}', (
+        tester,
+      ) async {
+        final html = await exportAs(tester, ExportFormat.html, status);
+        expect(html, isNot(contains('crux-edu-mark')));
+        expect(html, isNot(contains('Educational')));
+      });
+    }
+
+    for (final format in [
+      ExportFormat.junit,
+      ExportFormat.json,
+      ExportFormat.csv,
+    ]) {
+      testWidgets('${format.id} is byte-identical under an EDU licence', (
+        tester,
+      ) async {
+        final underEdu = await exportAs(
+          tester,
+          format,
+          testLicenseStatus(LicenseTier.edu),
+        );
+        final underOpenCore = await exportAs(
+          tester,
+          format,
+          CruxLicenseStatus.openCore,
+        );
+        expect(underEdu, underOpenCore);
+        expect(underEdu, isNot(contains('Educational')));
+        expect(underEdu, isNot(contains('Non-commercial')));
+      });
     }
   });
 }

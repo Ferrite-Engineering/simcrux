@@ -193,6 +193,9 @@ class CiRunner {
   /// they build the runner and load the project at it, so the gate and the
   /// `seeds:` expansion see one answer. Defaults to Open Core, like the
   /// loader's.
+  ///
+  /// It also decides whether the HTML report carries the educational-licence
+  /// mark: it does when this is [LicenseTier.edu].
   final LicenseTier licenseTier;
 
   /// The organization's implementation-flow thresholds, evaluated against
@@ -589,6 +592,15 @@ class CiRunner {
     String? configPath,
   }) async {
     var allWritten = true;
+    // The headless run resolved its licence before it started ([licenseTier]),
+    // so an educational licence stamps the HTML report here as it does in the
+    // app. English: a CI log and its artefacts carry no locale. The data
+    // formats ignore the mark.
+    final exportMark = licenseTier == LicenseTier.edu
+        ? const CruxEduNoticeStringsEn().exportMark(
+            CruxProduct.simCrux.displayName,
+          )
+        : null;
     for (final target in args.exportTargets) {
       final format = ExportFormat.fromId(target.formatId);
       if (format == null) {
@@ -610,6 +622,7 @@ class CiRunner {
           run: run,
           rows: rows,
           configPath: configPath,
+          exportMark: exportMark,
         );
         await fileWriter(target.outputPath, bytes);
       } on Object catch (e) {

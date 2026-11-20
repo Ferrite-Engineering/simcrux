@@ -229,6 +229,13 @@
 - [ ] `simcrux --help` lists `--workspace` alongside the other options — `[Coverage: AUTOMATED — flutter test]`
 - [ ] `--ci` loads the project at the tier from `--license-file` / `SIMCRUX_LICENSE_FILE` / the policy file (offline validation, grace on expiry); an unreadable explicit license file exits `2` before running; a machine file resolves only when the shared `crux/license/install.fingerprint` (or, before it exists, the adopted legacy `simcrux.fingerprint`) names its fingerprint — `[Coverage: AUTOMATED — flutter test (headless_license_tier_test.dart, simcrux_cli_test.dart, app_ci_driver_injection_test.dart)]`
 
+### Educational-licence notice (Guide §6.6a)
+
+- [ ] Under an EDU licence the status bar ends with the EDU chip, `Non-commercial use` and the address; tooltip gives terms and end date; click opens Settings > License — `[Coverage: AUTOMATED — simcrux_edu_status_chip_test.dart]`
+- [ ] No EDU notice (and no gap) at Open Core, Pro or Enterprise — `[Coverage: AUTOMATED — simcrux_edu_status_chip_test.dart]`
+- [ ] Tools > Export Results… HTML ends with `Made with SimCrux Educational · Non-commercial use only` under EDU only; JUnit / JSON / CSV byte-identical — `[Coverage: AUTOMATED — export_results_flow_test.dart]`
+- [ ] `--ci --export html=` under an EDU `--license-file` carries the English mark; JUnit unchanged — `[Coverage: AUTOMATED — ci_runner_test.dart]` + `[Coverage: MANUAL]` (real EDU licence file)
+
 ### Auto-reload + scheduler isolation
 
 - [ ] A file change in tab A's source re-runs tab A only; tab B is untouched — `[Coverage: AUTOMATED — flutter test (per_tab_auto_reload_test.dart)]`

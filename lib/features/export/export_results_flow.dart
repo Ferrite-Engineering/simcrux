@@ -5,10 +5,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crux_ide_layout/crux_ide_layout.dart';
+import 'package:crux_license/crux_license.dart';
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simcrux/core/license/simcrux_edu_notice_strings.dart';
 import 'package:simcrux/features/dashboard/providers/dashboard_providers.dart';
 import 'package:simcrux/features/export/widgets/export_format_dialog.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
@@ -86,6 +88,13 @@ Future<void> runExportResultsFlow({
     config: tabContainer.read(activeConfigProvider),
   );
   final configPath = tabContainer.read(activeConfigProvider)?.projectFilePath;
+  // An educational licence stamps what it exports. The exporter decides
+  // where: the HTML report gets a footer, the data formats ignore it.
+  final exportMark = cruxEduExportMark(
+    tabContainer.read(licenseStatusProvider),
+    CruxProduct.simCrux.displayName,
+    strings: SimCruxEduNoticeStrings(l10n),
+  );
 
   final String? path;
   try {
@@ -103,7 +112,12 @@ Future<void> runExportResultsFlow({
   try {
     final encoded = registry
         .exporterFor(format)
-        .encode(run: run, rows: rows, configPath: configPath);
+        .encode(
+          run: run,
+          rows: rows,
+          configPath: configPath,
+          exportMark: exportMark,
+        );
     await fileWriter(path, encoded);
   } on Object catch (e) {
     if (!context.mounted) return;
