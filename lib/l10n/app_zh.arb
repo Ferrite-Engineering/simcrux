@@ -1631,7 +1631,7 @@
   "@emptyCanvasTitle": {
     "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
   },
-  "emptyCanvasSubtitle": "打开回归配置以开始 — 或打开已保存的工作区。",
+  "emptyCanvasSubtitle": "打开回归配置以开始。",
   "@emptyCanvasSubtitle": {
     "description": "One-line subtitle shown under the empty-canvas headline."
   },

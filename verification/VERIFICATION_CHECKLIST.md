@@ -211,15 +211,15 @@
 ### Workspace persistence
 
 - [x] Auto-managed `workspace.json` auto-saves on tab mutation and restores tabs on the next load — `[Coverage: AUTOMATED — flutter test --tags integration (workspace/restore_round_trip_test.dart)]` (approximates close+relaunch by flushing the debounced save and re-reading through a fresh `WorkspaceService`; pane-layout + active-selection restoration on a real relaunch remains `[Coverage: MANUAL]`)
-- [x] File → Save Workspace As… writes a parseable `.simcrux-workspace` JSON document; File → Open Workspace… (`loadFrom`) round-trips it back — `[Coverage: AUTOMATED — flutter test --tags integration (workspace/named_workspace_test.dart)]`
-- [ ] `simcrux --workspace <path>` (or File → Open Workspace…) replaces the current workspace — `[Coverage: AUTOMATED (parser) — flutter test (cli_arg_parser_test.dart); MANUAL (end-to-end)]`
+- [x] The notifier's `saveAs` writes a parseable `.simcrux-workspace` JSON document and `loadFrom` round-trips it back (SimCrux has no Save Workspace As… or Open Workspace… command; the welcome screen's Open Workspace… button is gone) — `[Coverage: AUTOMATED — flutter test --tags integration (workspace/named_workspace_test.dart)]`
+- [ ] `simcrux --workspace <path>` (or a double-click on a `.simcrux-workspace` file) replaces the current workspace — `[Coverage: AUTOMATED (parser) — flutter test (cli_arg_parser_test.dart); MANUAL (end-to-end)]`
 - [ ] No "unsaved changes?" prompt under any tab/pane mutation — `[Coverage: MANUAL]`
 - [ ] Corrupt `workspace.json` falls back to `Workspace.empty()` without crashing; the broken file is preserved — `[Coverage: AUTOMATED — flutter test (simcrux_workspace_codec_test.dart)]`
 
 ### Tab export as `.simcrux-session`
 
-- [ ] File → Export Tab as Session… writes a `.simcrux-session` for the active tab — `[Coverage: MANUAL]`
-- [ ] Opening a `.simcrux-session` adds a new tab to the current workspace — `[Coverage: MANUAL]`
+- [ ] No command writes a `.simcrux-session` (there is no Export Tab as Session… item in the File menu or the command palette) — `[Coverage: MANUAL]`
+- [ ] Opening a `.simcrux-session` (`--session <path>` or a double-click) adds a new tab to the current workspace, loaded as a project file; no selection, filter or layout state is restored — `[Coverage: MANUAL]`
 
 ### CLI behavior
 

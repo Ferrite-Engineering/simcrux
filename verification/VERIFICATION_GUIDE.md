@@ -843,10 +843,12 @@ remain manual.
 **Expected behavior.**
 - Closing and re-launching the app restores the exact tab list +
   pane layout + active selection.
-- File → Save Workspace As… writes a `.simcrux-workspace` JSON
-  document the user can share or commit alongside their project.
-- File → Open Workspace… (or `simcrux --workspace <path>`)
-  replaces the current workspace with the named document.
+- `simcrux --workspace <path>`, or a double-click on a
+  `.simcrux-workspace` file, replaces the current workspace with the
+  named document. SimCrux has no Save Workspace As… or Open
+  Workspace… command, and the welcome screen no longer offers Open
+  Workspace…; the document is written only through the notifier's
+  `saveAs` (tests and tooling).
 - No "unsaved changes?" prompt under any tab/pane mutation — the
   workspace auto-saves continuously (debounced 2s).
 - A corrupt `workspace.json` does not crash the app: the package's
@@ -865,9 +867,9 @@ remain manual.
   (`Coverage: AUTOMATED — flutter test --tags integration`) — this
   approximates "close + restart" (a single Flutter process can't
   literally relaunch itself mid-test).
-- The named `.simcrux-workspace` save/reset/open flow (File → Save
-  Workspace As… / Open Workspace…) is driven end-to-end against the
-  live `saveAs` / `resetWorkspace` / `loadFrom` notifier API in
+- The named `.simcrux-workspace` save/reset/open flow is driven
+  end-to-end against the live `saveAs` / `resetWorkspace` /
+  `loadFrom` notifier API (no menu command reaches `saveAs`) in
   `integration_test/workspace/named_workspace_test.dart`
   (`Coverage: AUTOMATED — flutter test --tags integration`).
 - The corrupt-`workspace.json` quarantine-and-recover-empty path
@@ -967,13 +969,13 @@ for sharing a single tab's UI state (config + selection + filters
 and a test selected in the inspector.
 
 **Expected behavior.**
-- File → Export Tab as Session… writes a `.simcrux-session` file
-  the user can drop into another SimCrux install.
-- Opening a `.simcrux-session` adds a new tab to the current
-  workspace.
+- No command writes a `.simcrux-session` file: there is no Export
+  Tab as Session… item in the File menu or the command palette.
+- Opening a `.simcrux-session` (`simcrux --session <path>` or a
+  double-click) adds a new tab to the current workspace.
 
-**Status.** The bare File→Open path for `.simcrux-session` opens
-the underlying config; lifting selection / filter chips / sort
+**Status.** Opening a `.simcrux-session` opens it as a project
+file; lifting selection / filter chips / sort
 column from the session document into the per-tab payload is not
 implemented.
 

@@ -1631,7 +1631,7 @@
   "@emptyCanvasTitle": {
     "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
   },
-  "emptyCanvasSubtitle": "リグレッション構成を開いて始めましょう — または保存済みワークスペースを開きます。",
+  "emptyCanvasSubtitle": "リグレッション構成を開いて始めましょう。",
   "@emptyCanvasSubtitle": {
     "description": "One-line subtitle shown under the empty-canvas headline."
   },

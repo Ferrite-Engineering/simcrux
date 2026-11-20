@@ -92,7 +92,9 @@ for adding a simulator SimCrux does not ship; no vendor plugin is available.
 
 With nothing open, SimCrux shows a start screen with your **Recent configs**
 and three buttons: **Open Config…**, **Open Session…** and
-**Open Workspace…**. The menu bar, command palette and Settings are all
+**Open Workspace…**. From SimCrux 1.2 it has one button, **Open Config…**;
+a `.simcrux-workspace` or `.simcrux-session` file still opens with a
+double-click or from the [command line](cli.md). The menu bar, command palette and Settings are all
 reachable before any project is loaded, so you can set simulator paths first.
 On the next launch SimCrux reopens the tabs you had open.
 

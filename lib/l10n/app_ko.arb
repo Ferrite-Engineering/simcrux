@@ -1631,7 +1631,7 @@
   "@emptyCanvasTitle": {
     "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
   },
-  "emptyCanvasSubtitle": "회귀 구성을 열어 시작하세요 — 또는 저장된 워크스페이스를 엽니다.",
+  "emptyCanvasSubtitle": "회귀 구성을 열어 시작하세요.",
   "@emptyCanvasSubtitle": {
     "description": "One-line subtitle shown under the empty-canvas headline."
   },

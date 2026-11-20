@@ -1640,7 +1640,7 @@
   "@emptyCanvasTitle": {
     "description": "Headline shown on the empty-canvas state when the workspace has no open tabs."
   },
-  "emptyCanvasSubtitle": "Open a regression config to get started — or open a saved workspace.",
+  "emptyCanvasSubtitle": "Open a regression config to get started.",
   "@emptyCanvasSubtitle": {
     "description": "One-line subtitle shown under the empty-canvas headline."
   },

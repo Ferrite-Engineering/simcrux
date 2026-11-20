@@ -274,8 +274,8 @@ the next launch; `--no-restore` skips that once, and `--reset` clears it (see
 
 | File | Status today |
 |---|---|
-| `.simcrux-workspace` | A multi-tab workspace document. **Open Workspace…** on the start screen and `--workspace <path>` load one. SimCrux has no command to save a workspace to a file of your choosing. |
-| `.simcrux-session` | A single tab's state. **Open Session…** accepts the file, but session restore is not implemented: SimCrux does not yet read filters, selection or layout from it, and has no command to create one. |
+| `.simcrux-workspace` | A multi-tab workspace document. `--workspace <path>` and a double-click on the file load one, and before SimCrux 1.2 so did **Open Workspace…** on the start screen. SimCrux has no command to save a workspace to a file of your choosing. |
+| `.simcrux-session` | A single tab's state. `--session <path>` and a double-click accept the file, and before SimCrux 1.2 so did **Open Session…** on the start screen, but session restore is not implemented: SimCrux does not yet read filters, selection or layout from it, and has no command to create one. |
 
 Local run history lives in the trend database described on
 [Trends, flaky tests & seeds](trends-and-flaky.md#history).
