@@ -24,7 +24,7 @@ Notes:
 
 
 --------------------------------------------------------------------------
-1. Simulators — separate programs, invoked as subprocesses
+1. Simulators and engines — separate programs, invoked as subprocesses
 --------------------------------------------------------------------------
 
 1.0 Process isolation — why this section is separate
@@ -158,12 +158,148 @@ distributed. See §9.
   linkage is between cocotb and the simulator, inside the child process
   tree — SimCrux is not a party to it.
 
-1.6 Verification status of the simulator licenses above
+1.6 Formal and Flow engines — separate programs, invoked as subprocesses
 
-Each license identifier in §1.2–§1.5 was read from the LICENSE file at the
-HEAD of the named upstream repository. SimCrux pins no simulator version
-and redistributes no simulator artifact, so no per-release license text was
-downloaded or diffed. Re-verify if bundling is ever activated (§9).
+The Formal and Flow drivers (`lib/services/simulator/sby_driver.dart` and
+`eqy_driver.dart`, and `lib/services/flow/nextpnr_flow_driver.dart` and
+`librelane_flow_driver.dart`, with their toolchain probes) follow the same
+boundary as §1.0: each tool below is started with `Process.start`,
+SimCrux exchanges only arguments, environment variables, working-directory
+paths and captured output with it, and none is linked, bundled or
+redistributed. A tool is resolved from the host `PATH` or from a path the
+user configures. The OSS CAD Suite, which a user may install to get several
+of them, is the user's own installation and is governed by its own notices.
+
+1.6.1 Yosys
+
+  Component: Yosys (`yosys`, which also carries `yosys-abc`)
+  Role:      Synthesis front end for SymbiYosys and EQY, and a step of
+             LibreLane flows; probed and invoked by the Formal and Flow
+             drivers
+  License:   ISC
+  Upstream:  https://github.com/YosysHQ/yosys
+  Copyright: Claire Xenia Wolf and the Yosys contributors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.6.2 yosys-slang
+
+  Component: yosys-slang (the `slang` plugin loaded by Yosys)
+  Role:      SystemVerilog front end; SimCrux only checks that Yosys can
+             load it
+  License:   ISC
+  Upstream:  https://github.com/povik/yosys-slang
+  Copyright: Martin Povišer and the yosys-slang contributors
+
+  Loaded by the user's Yosys inside its own process; SimCrux does not load
+  it.
+
+1.6.3 SymbiYosys (sby)
+
+  Component: SymbiYosys (`sby`)
+  Role:      Formal property checking (bounded model checking, k-induction,
+             cover); driver at `lib/services/simulator/sby_driver.dart`
+  License:   ISC
+  Upstream:  https://github.com/YosysHQ/sby
+  Copyright: Claire Xenia Wolf and the SymbiYosys contributors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.6.4 EQY
+
+  Component: EQY (`eqy`)
+  Role:      Equivalence checking; driver at
+             `lib/services/simulator/eqy_driver.dart`
+  License:   ISC
+  Upstream:  https://github.com/YosysHQ/eqy
+  Copyright: Claire Xenia Wolf, N. Engelhardt and the EQY contributors,
+             and National Technology and Engineering Solutions of Sandia,
+             LLC
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.6.5 nextpnr
+
+  Component: nextpnr (`nextpnr-ice40`, `nextpnr-ecp5`, `nextpnr-himbaechel`)
+  Role:      FPGA place and route; the Flow drivers run it and read its
+             report and log
+  License:   ISC
+  Upstream:  https://github.com/YosysHQ/nextpnr
+  Copyright: Claire Xenia Wolf, gatecat and the nextpnr contributors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.6.6 LibreLane
+
+  Component: LibreLane (`librelane`)
+  Role:      RTL-to-layout flow runner; the Flow drivers start it and read
+             the run directory it writes. SimCrux never passes it
+             `--overwrite` or `--last-run`
+  License:   Apache-2.0
+  Upstream:  https://github.com/librelane/librelane
+  Copyright: The LibreLane contributors
+
+  Invoked as a separate program; not linked. See §1.0. LibreLane in turn
+  runs Yosys, OpenROAD, KLayout and other tools inside its own process
+  tree; SimCrux is not a party to that.
+
+1.6.7 OpenROAD
+
+  Component: OpenROAD (`openroad`)
+  Role:      Placement, routing and timing steps of a LibreLane run; the
+             Flow readers read its reports, and SimCrux may run it directly
+             on a user-configured path
+  License:   BSD-3-Clause
+  Upstream:  https://github.com/The-OpenROAD-Project/OpenROAD
+  Copyright: The OpenROAD Authors
+
+  Invoked as a separate program; not linked. See §1.0.
+
+1.6.8 KLayout
+
+  Component: KLayout (`klayout`)
+  Role:      Layout viewing and checks (GDS and OASIS) in a LibreLane run;
+             SimCrux may run it directly on a user-configured path
+  License:   GPL (the repository's LICENSE file is the GPL-3.0 text; the
+             source headers state version 2 or later)
+  Upstream:  https://github.com/KLayout/klayout
+  Copyright: Matthias Koefferlein and the KLayout contributors
+
+  Invoked as a separate program; not linked. See §1.0. As with Icarus
+  Verilog and GHDL, the process boundary is what keeps its copyleft terms
+  apart from SimCrux's Apache-2.0 code.
+
+1.6.9 SAT and SMT solvers
+
+  SymbiYosys and EQY run solvers and engines the user installs. SimCrux
+  probes for and can be pointed at the ones below; it links none of them.
+
+  Z3        MIT                https://github.com/Z3Prover/z3
+            Copyright: Microsoft Corporation
+  Boolector MIT                https://github.com/Boolector/boolector
+            Copyright: the Boolector authors and contributors
+  Bitwuzla  MIT                https://github.com/bitwuzla/bitwuzla
+            Copyright: the Bitwuzla authors and contributors
+  Yices 2   BSD-3-Clause       https://github.com/SRI-CSL/yices2
+            Copyright: SRI International
+  ABC       UC Berkeley        https://github.com/berkeley-abc/abc
+            permissive licence (no fee, with the copyright notice kept);
+            Copyright: The Regents of the University of California
+
+  The other engine tools `sby` accepts as `formal.tools` keys (suprove,
+  aigbmc, avy, rIC3, btormc, itp-bmc, pono) are likewise separate programs
+  the user supplies, each under its own project's licence; SimCrux names
+  them only as command-line options.
+
+1.7 Verification status of the licenses above
+
+Each license identifier in §1.2–§1.6 was read from the LICENSE or COPYING
+file at the HEAD of the named upstream repository. SimCrux pins no simulator
+or engine version and redistributes no simulator or engine artifact, so no
+per-release license text was downloaded or diffed. A user's installed copy of
+an engine is governed by the licence it ships with, which for an older
+release may differ from the file at HEAD. Re-verify if bundling is ever
+activated (§9).
 
 
 --------------------------------------------------------------------------
@@ -493,7 +629,7 @@ open-source flip.
     It is Apache-2.0, and flips public at the same moment the open
     cores do.
 
-9.3 Simulator licenses are HEAD-verified, not release-verified. §1.6
+9.3 Simulator licenses are HEAD-verified, not release-verified. §1.7
     records the limitation. SimCrux redistributes no simulator artifact, so
     there is nothing to diff today; re-verify if bundling is activated.
 
