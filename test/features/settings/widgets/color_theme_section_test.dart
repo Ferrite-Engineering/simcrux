@@ -139,6 +139,31 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
         expect(tester.takeException(), isNull, reason: '$locale');
+
+        // The subsection headings come from the locale's ARB values via
+        // `SimCruxThemeAppearanceStrings`, not from the English defaults.
+        final l10n = L10N.of(tester.element(find.byType(ColorThemeSection)));
+        expect(
+          find.text(l10n.appearancePresetSectionHeading),
+          findsOneWidget,
+          reason: '$locale',
+        );
+        expect(
+          find.text(l10n.appearanceTokenOverridesSectionHeading),
+          findsOneWidget,
+          reason: '$locale',
+        );
+        expect(
+          find.text(l10n.appearanceThemePackBrowserSectionHeading),
+          findsOneWidget,
+          reason: '$locale',
+        );
+        if (locale.languageCode != 'en') {
+          const en = ThemeAppearanceStringsEn();
+          expect(find.text(en.presetSectionHeading), findsNothing);
+          expect(find.text(en.tokenOverridesSectionHeading), findsNothing);
+          expect(find.text(en.themePackBrowserSectionHeading), findsNothing);
+        }
       }
     });
   });
