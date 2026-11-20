@@ -2251,6 +2251,7 @@
       }
     }
   },
+  "accessibilityStatusBarRegion": "状态栏",
   "accessibilityToolbarRegion": "工具栏",
   "toolbarOverflowActions": "操作",
   "toolbarToggleCrossProbe": "交叉探测面板",
