@@ -76,7 +76,7 @@ full list of notices, and how the hand-off works, is on
 A [formal](formal.md) row has a waveform too: the counterexample (or cover
 witness) trace SymbiYosys or EQY wrote for the failing property, which SimCrux
 records on the row as it would a simulation dump. **Debug in WaveCrux**,
-**Cross-probe to** and **Cross-probe Selection** send it to WaveCrux together
+**Cross-probe to** and **Cross-Probe Selection** send it to WaveCrux together
 with the step the solver reported, counting the trace's initial state as step 0.
 From WaveCrux 1.2 the cursor lands on that step. When no property states a step,
 or the task checks more than one clock, the trace opens without one; SimCrux

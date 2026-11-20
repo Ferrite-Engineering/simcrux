@@ -24,7 +24,7 @@ binding can be changed in **Settings → Keyboard Shortcuts**.
 | ++cmd+2++ / ++ctrl+2++ | Toggle Inspector (the Details panel) |
 | ++cmd+3++ / ++ctrl+3++ | Toggle Log Panel |
 | ++cmd+shift+x++ / ++ctrl+shift+x++ | Open Cross-Probe Panel (named **Show Cross-Probe Panel** from SimCrux 1.2) |
-| ++cmd+shift+enter++ / ++ctrl+shift+enter++ | Cross-probe Selection… (from SimCrux 1.2). Sends the selected test to a running EDACrux app; while a text box has focus the keys stay with the box. |
+| ++cmd+shift+enter++ / ++ctrl+shift+enter++ | Cross-Probe Selection… (from SimCrux 1.2). Sends the selected test to a running EDACrux app; while a text box has focus the keys stay with the box. |
 | ++cmd+backslash++ / ++ctrl+backslash++ | Split Pane Right |
 | ++cmd+shift+k++ / ++ctrl+shift+k++ | Toggle Theme |
 
