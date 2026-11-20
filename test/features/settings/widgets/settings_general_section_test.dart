@@ -284,6 +284,70 @@ void main() {
       expect(prefs.getBool('settings.diagnosticsEnabled'), isTrue);
     });
 
+    testWidgets('renders the restore-tabs toggle, on by default', (
+      tester,
+    ) async {
+      // SimCrux honoured the preference at launch
+      // (`shouldRestoreOnLaunch`) but offered no way to set it.
+      await tester.pumpWidget(await _wrap());
+      await tester.pump();
+
+      final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+      expect(find.text(l10n.settingsRestoreTabsOnLaunchLabel), findsOneWidget);
+      expect(
+        find.text(l10n.settingsRestoreTabsOnLaunchDescription),
+        findsOneWidget,
+      );
+      final finder = find.byKey(const Key('settings.restoreTabsOnLaunch'));
+      expect(tester.widget<CruxFormRow>(finder).value, isTrue);
+      expect(tester.getSize(finder).height, greaterThanOrEqualTo(44.0));
+    });
+
+    testWidgets('toggling restore-tabs persists the value launch reads', (
+      tester,
+    ) async {
+      await tester.pumpWidget(await _wrap());
+      await tester.pump();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(SettingsGeneralSection)),
+      );
+      await container.read(appSettingsProvider.future);
+      await tester.pump();
+
+      final finder = find.byKey(const Key('settings.restoreTabsOnLaunch'));
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(appSettingsProvider).value?.restoreTabsOnLaunch,
+        isFalse,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('settings.restoreTabsOnLaunch'), isFalse);
+      // What the next launch reads back.
+      final reloaded = await container.read(settingsServiceProvider).load();
+      expect(reloaded.restoreTabsOnLaunch, isFalse);
+    });
+
+    test('the restore-tabs label is localized in every locale', () async {
+      final labels = <String>{};
+      for (final locale in L10N.supportedLocales) {
+        final l10n = await L10N.delegate.load(locale);
+        expect(l10n.settingsRestoreTabsOnLaunchLabel, isNotEmpty);
+        if (locale.languageCode != 'en') {
+          expect(
+            l10n.settingsRestoreTabsOnLaunchLabel,
+            isNot('Restore tabs on launch'),
+            reason: '$locale',
+          );
+        }
+        labels.add(l10n.settingsRestoreTabsOnLaunchLabel);
+      }
+      expect(labels.length, greaterThan(2));
+    });
+
     testWidgets('locale sweep renders without exceptions', (tester) async {
       for (final locale in const [
         Locale('en'),

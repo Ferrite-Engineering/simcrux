@@ -168,6 +168,20 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     await ref.read(settingsServiceProvider).save(updated);
   }
 
+  /// Persists whether the tabs open at last quit are reopened at launch
+  /// (lives on CoreSettings). Read back by
+  /// `SimcruxWorkspaceNotifier.shouldRestoreOnLaunch` on the next launch.
+  Future<void> updateRestoreTabsOnLaunch({required bool enabled}) async {
+    final current = state.value;
+    if (current == null) return;
+    if (current.restoreTabsOnLaunch == enabled) return;
+    final updated = current.copyWith(
+      core: current.core.copyWith(restoreTabsOnLaunch: enabled),
+    );
+    state = AsyncData(updated);
+    await ref.read(settingsServiceProvider).save(updated);
+  }
+
   /// Persists whether opening a regression config auto-starts the run.
   Future<void> updateAutoRunOnOpen({required bool enabled}) async {
     final current = state.value;
