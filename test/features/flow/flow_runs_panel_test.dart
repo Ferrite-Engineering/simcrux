@@ -11,6 +11,7 @@ import 'package:simcrux/core/shortcuts/simcrux_action.dart';
 import 'package:simcrux/features/flow/providers/flow_pro_seams.dart';
 import 'package:simcrux/features/flow/providers/flow_providers.dart';
 import 'package:simcrux/features/flow/widgets/flow_dialogs.dart';
+import 'package:simcrux/features/flow/widgets/flow_keyboard_table.dart';
 import 'package:simcrux/features/flow/widgets/flow_runs_panel.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
@@ -412,6 +413,82 @@ void main() {
     final log = tester.getRect(find.text(words.flowOpenRunLog));
     expect(note.top - buttons.bottom, lessThan(32));
     expect(log.top - buttons.bottom, lessThan(32));
+  });
+
+  testWidgets('six runs in a short dock: the list shows a scroll bar, the '
+      'thumb clears the last column, and the sixth run is reachable '
+      '(simcrux#67)', (tester) async {
+    // Six LibreLane runs of one entry, newest first, as the index lists
+    // them; a dock 140 px tall has room for the header and four rows.
+    final tags = <String>[
+      for (final stamp in const [
+        '195201',
+        '195058',
+        '183945',
+        '183855',
+        '183747',
+        '183602',
+      ])
+        'drive-20261121T${stamp}Z',
+    ];
+    final index = FlowRunIndex(
+      runs: <FlowRunIndexEntry>[
+        for (final tag in tags)
+          FlowRunIndexEntry(
+            reading: FlowReading(
+              run: FlowRun(
+                ref: FlowRunRef(
+                  kind: FlowKind.librelane,
+                  root: '$kFlowProjectRoot/librelane/runs/$tag',
+                  tag: tag,
+                  readerVersion: '3.0.17',
+                  verified: true,
+                ),
+                verdict: FlowVerdict.met,
+              ),
+              reader: 'librelane-contract',
+              target: 'sky130',
+            ),
+            origin: FlowRunOrigin.project,
+          ),
+      ],
+    );
+    final container = await pumpFlowPanel(
+      tester,
+      index: index,
+      size: const Size(1600, 140),
+    );
+    final runList = find.byKey(const ValueKey('flowRuns.semantics'));
+    final scrollbar = find.descendant(
+      of: runList,
+      matching: find.byType(Scrollbar),
+    );
+    expect(scrollbar, findsOneWidget);
+    expect(tester.widget<Scrollbar>(scrollbar).thumbVisibility, isTrue);
+    // The fifth and sixth runs are below the edge, which the thumb shows.
+    final list = tester.getRect(
+      find.descendant(of: runList, matching: find.byType(ListView)),
+    );
+    expect(
+      tester.getRect(find.text(tags[3])).bottom,
+      lessThanOrEqualTo(list.bottom),
+    );
+    expect(find.text(tags[5]), findsNothing);
+    // The last column's text ends left of the thumb's gutter.
+    final flow = tester.getRect(find.text('LibreLane').first);
+    expect(
+      flow.right,
+      lessThanOrEqualTo(list.right - kFlowTableScrollbarGutter),
+    );
+
+    await tester.tap(find.text(tags[0]));
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.end);
+    await tester.pumpAndSettle();
+    expect(container.read(flowSelectedRunProvider)?.root, endsWith(tags[5]));
+    final sixth = tester.getRect(find.text(tags[5]));
+    expect(sixth.top, greaterThanOrEqualTo(list.top));
+    expect(sixth.bottom, lessThanOrEqualTo(list.bottom));
   });
 
   for (final size in const <Size>[

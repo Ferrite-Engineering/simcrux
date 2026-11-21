@@ -23,6 +23,11 @@ import 'package:flutter/services.dart';
 /// - **Pointer.** A click makes a row current and focuses the table; a
 ///   double-click activates it. Rows are pointer targets only, never Tab
 ///   stops.
+/// The room kept free at the right of the header and of every row for the
+/// table's scroll bar: Material's desktop thumb (8) and its margin (2), and
+/// two to spare, so the thumb never sits on the last column's text.
+const double kFlowTableScrollbarGutter = 12;
+
 class FlowKeyboardTable<C extends Enum> extends StatefulWidget {
   /// Creates the table.
   const FlowKeyboardTable({
@@ -252,18 +257,21 @@ class _FlowKeyboardTableState<C extends Enum>
     final value = current < 0 ? '' : widget.rowLabel(current);
 
     final header = ExcludeSemantics(
-      child: CruxTableHeader<C>(
-        tableId: widget.tableId,
-        layout: widget.layout,
-        controller: widget.controller,
-        cellBuilder: (context, column) => _HeaderCell(
-          label: widget.headerLabels[column] ?? column.name,
-          tooltip: widget.headerTooltips[column],
+      child: Padding(
+        padding: const EdgeInsets.only(right: kFlowTableScrollbarGutter),
+        child: CruxTableHeader<C>(
+          tableId: widget.tableId,
+          layout: widget.layout,
+          controller: widget.controller,
+          cellBuilder: (context, column) => _HeaderCell(
+            label: widget.headerLabels[column] ?? column.name,
+            tooltip: widget.headerTooltips[column],
+          ),
         ),
       ),
     );
 
-    final body = ListView.builder(
+    final list = ListView.builder(
       controller: _scroll,
       itemExtent: kCruxTableRowHeight,
       itemCount: widget.rowCount,
@@ -288,7 +296,10 @@ class _FlowKeyboardTableState<C extends Enum>
                   ? Border.all(color: scheme.primary, width: 1.5)
                   : null,
             ),
-            child: Row(children: widget.cellsBuilder(context, index)),
+            child: Padding(
+              padding: const EdgeInsets.only(right: kFlowTableScrollbarGutter),
+              child: Row(children: widget.cellsBuilder(context, index)),
+            ),
           ),
         );
         if (menu == null) return row;
@@ -306,6 +317,19 @@ class _FlowKeyboardTableState<C extends Enum>
           child: row,
         );
       },
+    );
+
+    // The scroll bar stays shown while rows are below the edge: macOS hides
+    // an idle one, and a short dock otherwise gives no sign that there are
+    // more runs than the rows in view (simcrux#67). The platform's own
+    // transient bar is turned off so the two are never drawn together.
+    final body = Scrollbar(
+      controller: _scroll,
+      thumbVisibility: true,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: list,
+      ),
     );
 
     return Focus(
