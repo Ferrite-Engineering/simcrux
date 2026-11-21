@@ -89,6 +89,17 @@ every run its own tag, `<tag_prefix>-<UTC time>` such as
 A tag whose directory already exists is never reused: SimCrux adds `-2`, `-3` and
 so on.
 
+LibreLane cannot run a design whose directory path contains a space, a tab, a
+line break, a double quote or a backslash: its cell-model step hands Yosys an
+unquoted path inside the run, and its Verilator lint writes the path into a
+quoted configuration string, so the run ends in a lint error that does not name
+the cause. SimCrux checks the directory LibreLane would be given, with every
+symlink resolved, and refuses before launching under every launcher: **Tools →
+Run Flow Entry** and **Run Regression** show a message that names the path, and
+`simcrux flow run` prints it on stderr and exits 2. Move the project, or run it
+from a path without spaces. Ingesting a finished run from such a path works as
+before.
+
 SimCrux never passes `--overwrite` or `--last-run` to LibreLane, and never
 deletes or resumes a run directory. An earlier run is always still there to
 [compare](flow-runs.md).

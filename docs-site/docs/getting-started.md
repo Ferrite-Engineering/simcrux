@@ -13,13 +13,19 @@ SimCrux is desktop-first. It runs natively on Linux, macOS and Windows: wherever
 
 | Platform | Versions | How you get it |
 |---|---|---|
-| Linux | x86_64 | AppImage or `.tar.gz` from the [downloads page](https://simcrux.app/download). |
+| Linux | x86_64; from SimCrux 1.2, glibc 2.28 or later (RHEL, Rocky Linux and AlmaLinux 8 and 9, Ubuntu 22.04 and later, Debian 12), the headless CLI included; before 1.2, glibc 2.34 | AppImage or `.tar.gz` from the [downloads page](https://simcrux.app/download), or `.deb` and `.rpm` for managed fleets. |
 | macOS | 12.0 (Monterey) or later, universal (Intel and Apple silicon) | Signed and notarized `.dmg` from the [downloads page](https://simcrux.app/download). |
 | Windows | 10 / 11, x86_64 | Installer or portable `.zip` from the [downloads page](https://simcrux.app/download). |
 | Web (read-only) | Any modern browser | The [web dashboard](web-mode.md) opens exported results. You cannot launch runs from it. |
 
 SimCrux is localized in English, Simplified Chinese, Japanese and Korean. The
 **Language** picker is in **Settings → Appearance**.
+
+### Linux over a remote display {#linux-remote}
+
+On a remote X session (VNC, X forwarding, ETX or NX) or a virtual machine without 3D support there is often no OpenGL. From SimCrux 1.2 the app checks for it at startup and, when there is none, draws with the software renderer and prints one line on stderr saying so; setting `FLUTTER_LINUX_RENDERER=opengl` keeps OpenGL. Before 1.2 the window stayed empty on such a display. SimCrux also needs the EGL and OpenGL ES libraries (`libEGL.so.1`, `libGLESv2.so.2`, from Mesa); the `.deb` and `.rpm` declare them from 1.2.
+
+From SimCrux 1.2 typing works over `ssh -X` from a client that keeps OpenSSH's default of untrusted X forwarding, as macOS does. Before 1.2 the first key press there ended the app, and `ssh -Y` avoided it. From SimCrux 1.2, Backspace, Escape, Return and Tab work in text fields over X forwarding from a Mac (XQuartz). Some Ctrl+letter shortcuts can still act as a different letter there.
 
 ### Building from source {#from-source}
 
