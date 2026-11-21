@@ -1,6 +1,8 @@
 // Copyright 2026 Ferrite Engineering LLC
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
+
 import 'package:crux_projects/crux_projects.dart';
 import 'package:crux_workspace/crux_workspace.dart' as crux;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,13 +84,25 @@ class ProjectWorkspaceSync {
   /// fireImmediately so restored state on both sides (the crux
   /// workspace file and the Pro registry's workspace.json) converges
   /// at boot instead of waiting for the first user mutation.
+  ///
+  /// When [projectRegistryLoadedProvider] supplies a future, no pass runs
+  /// until it settles; kicks that arrive meanwhile are held and run as one
+  /// pass afterwards. See [projectRegistryLoadedProvider] for why.
   ProjectWorkspaceSync.start(this._ref) {
+    final loaded = _ref.read(projectRegistryLoadedProvider);
+    _registryLoaded = loaded == null;
+    if (loaded != null) {
+      // A registry that fails to load is no reason to stop syncing: the
+      // sync then behaves as it did before the gate existed.
+      unawaited(
+        loaded.then<void>((_) {}, onError: (Object _) {}).whenComplete(() {
+          _registryLoaded = true;
+          if (_ref.mounted) _kick();
+        }),
+      );
+    }
     _ref
-      ..listen(
-        workspaceProvider,
-        (_, _) => _kick(),
-        fireImmediately: true,
-      )
+      ..listen(workspaceProvider, (_, _) => _kick(), fireImmediately: true)
       ..listen(
         projectWorkspaceProvider,
         (_, _) => _kick(),
@@ -97,6 +111,10 @@ class ProjectWorkspaceSync {
   }
 
   final Ref _ref;
+
+  /// False until the registry behind [projectRegistryProvider] has loaded
+  /// its saved session (see [projectRegistryLoadedProvider]).
+  late bool _registryLoaded;
 
   /// Previous registry snapshot; used to detect registry-originated
   /// closures / activation as deltas.
@@ -119,7 +137,7 @@ class ProjectWorkspaceSync {
   static const int _maxPasses = 8;
 
   void _kick() {
-    if (_running) {
+    if (_running || !_registryLoaded) {
       _dirty = true;
       return;
     }
@@ -292,6 +310,26 @@ class ProjectWorkspaceSync {
     }
   }
 }
+
+/// Settles once the registry behind [projectRegistryProvider] holds the
+/// session it saved at the last quit, or null when it holds it from the start.
+///
+/// [ProjectWorkspaceSync] decides what the *user* did by comparing the
+/// registry against the last snapshot it saw: a different active project
+/// means the switcher or a Reopen, and the sync opens a tab for it. A
+/// registry that loads its saved session after launch, as the Pro overlay's
+/// does, would otherwise be first seen empty and then seen with last
+/// session's project active, which reads as exactly that: an activation. The
+/// sync would reopen the last project's tab even when Restore tabs on launch
+/// is off and the workspace correctly came up empty. Waiting for the load
+/// makes the restored registry the baseline instead, so with restoring off
+/// its projects move to the recent projects and no tab opens.
+///
+/// The open-core default is null: [NoopProjectRegistry] keeps nothing across
+/// launches. An overlay whose registry loads asynchronously overrides this
+/// with a future that completes once the registry the sync reads has loaded.
+final Provider<Future<void>?> projectRegistryLoadedProvider =
+    Provider<Future<void>?>((_) => null);
 
 /// App-lifetime provider realizing the sync. Anchored from
 /// `lib/app.dart` alongside the CXP emitters so both listeners are

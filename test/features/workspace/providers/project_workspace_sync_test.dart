@@ -35,6 +35,13 @@ class _FakeMultiRegistry implements ProjectRegistry {
 
   void _emit() => _controller.add(_ws);
 
+  /// Stands in for a registry reading its saved session from disk after
+  /// launch: the state appears all at once, with no mutation call.
+  void restore(ProjectWorkspace saved) {
+    _ws = saved;
+    _emit();
+  }
+
   ProjectDescriptor? _byPath(String path) {
     for (final d in _ws.openProjects) {
       if (d.projectPath == path) return d;
@@ -415,6 +422,114 @@ void main() {
       expect(
         activeTab.payload.configPath,
         registry.current.activeProject?.projectPath,
+      );
+    });
+  });
+
+  group('registry that loads its saved session after launch', () {
+    // A registry such as the Pro overlay's reads its saved session from disk
+    // after the workspace has come up. With Restore tabs on launch off the
+    // workspace is empty, and the registry's restored active project must
+    // not be mistaken for the user activating it.
+    late Directory lateDir;
+    late _FakeMultiRegistry lateRegistry;
+    late Completer<void> loaded;
+    late ProviderContainer lateContainer;
+
+    final saved = ProjectWorkspace(
+      openProjects: [
+        ProjectDescriptor(
+          id: ProjectDescriptor.idForPath('/proj/a.yaml'),
+          displayName: 'a.yaml',
+          projectPath: '/proj/a.yaml',
+          loadedAt: DateTime(2026),
+          lastAccessedAt: DateTime(2026),
+        ),
+      ],
+      activeProjectId: ProjectDescriptor.idForPath('/proj/a.yaml'),
+    );
+
+    setUp(() async {
+      lateDir = await Directory.systemTemp.createTemp('simcrux-sync-late-');
+      lateRegistry = _FakeMultiRegistry();
+      loaded = Completer<void>();
+      lateContainer = ProviderContainer(
+        overrides: [
+          ...answeredTelemetryOverrides(),
+          simcruxWorkspaceServiceProvider.overrideWithValue(
+            WorkspaceService<SimcruxTabPayload>(
+              codec: const SimcruxWorkspaceCodec(),
+              directoryFactory: () async => lateDir,
+            ),
+          ),
+          projectRegistryProvider.overrideWithValue(lateRegistry),
+          projectRegistryLoadedProvider.overrideWithValue(loaded.future),
+        ],
+      );
+      await lateContainer.read(workspaceProvider.future);
+      lateContainer.listen(projectWorkspaceSyncProvider, (_, _) {});
+      await _settle();
+    });
+
+    tearDown(() async {
+      await lateContainer.read(workspaceProvider.notifier).flushPendingSave();
+      lateContainer.dispose();
+      if (lateDir.existsSync()) await lateDir.delete(recursive: true);
+    });
+
+    test('its restored active project does not open a tab', () async {
+      lateRegistry.restore(saved);
+      loaded.complete();
+      await _settle();
+
+      expect(lateContainer.read(workspaceProvider).value!.tabs, isEmpty);
+      // The project the workspace did not restore moves to the recents,
+      // where Reopen brings it back.
+      expect(lateRegistry.current.openProjects, isEmpty);
+      expect(
+        lateRegistry.current.recentProjects.map((d) => d.projectPath),
+        contains('/proj/a.yaml'),
+      );
+    });
+
+    test('nothing converges until the registry has loaded, then a tab '
+        'opened meanwhile is recorded', () async {
+      await lateContainer
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'b',
+            payload: SimcruxTabPayload(configPath: '/proj/b.yaml'),
+          );
+      await _settle();
+      expect(lateRegistry.totalMutations, 0);
+
+      lateRegistry.restore(saved);
+      loaded.complete();
+      await _settle();
+
+      final ws = lateContainer.read(workspaceProvider).value!;
+      expect(ws.tabs.map((t) => t.payload.configPath), ['/proj/b.yaml']);
+      expect(
+        lateRegistry.current.openProjects.map((d) => d.projectPath),
+        ['/proj/b.yaml'],
+      );
+      expect(lateRegistry.current.activeProject?.projectPath, '/proj/b.yaml');
+    });
+
+    test('a registry that fails to load does not stop the sync', () async {
+      loaded.completeError(StateError('unreadable'));
+      await _settle();
+      await lateContainer
+          .read(workspaceProvider.notifier)
+          .openTab(
+            displayName: 'b',
+            payload: SimcruxTabPayload(configPath: '/proj/b.yaml'),
+          );
+      await _settle();
+
+      expect(
+        lateRegistry.current.openProjects.map((d) => d.projectPath),
+        ['/proj/b.yaml'],
       );
     });
   });
