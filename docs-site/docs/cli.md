@@ -23,9 +23,11 @@ want depends on whether a display exists:
 - **The standalone `simcrux` binary.** From 1.1 it ships with every release:
   `brew install ferrite-engineering/tap/simcrux-cli` on macOS (Apple silicon)
   and Linux, or the `simcrux-cli-<version>-<platform>` archive (`.zip` on
-  macOS and Windows, `.tar.gz` on Linux) from the release's download prefix,
-  one executable plus the licence; `simcrux --version` prints the version it
-  is. It can also be built from `bin/simcrux.dart` in the open-source tree
+  macOS and Windows, `.tar.gz` on Linux) from the release's download prefix.
+  The archive holds `bin/simcrux`, the `lib/` folder of native libraries it
+  loads (SQLite among them) and the licence; keep `bin/` and `lib/` side by
+  side, and run `bin/simcrux` or put `bin/` on `PATH`. `simcrux --version`
+  prints the version it is. It can also be built from `bin/simcrux.dart` in the open-source tree
   with `tool/build_cli.sh` (`dart build cli`), landing at
   `build/cli/bundle/bin/simcrux`. No window, no display server, no Flutter
   engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
