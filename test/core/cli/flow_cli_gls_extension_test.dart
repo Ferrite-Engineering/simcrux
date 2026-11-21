@@ -168,6 +168,61 @@ suites:
     expect(r.inner.submitted, isEmpty);
   });
 
+  test('with two LibreLane entries and no --entry, the run takes the gls: '
+      'block of the entry whose runs/ holds it (simcrux#69)', () async {
+    final mac = p.absolute('$kGlFixtures/mac');
+    final owned = p.join(tmp.path, 'librelane', 'runs', 'drive-1');
+    Directory(owned).createSync(recursive: true);
+    writeMacRun(run: owned, pdkParent: tmp.path);
+    File(
+      p.join(tmp.path, 'librelane', 'config.yaml'),
+    ).writeAsStringSync('DESIGN_NAME: dut\n');
+    File(
+        p.join(tmp.path, 'other', 'config.yaml'),
+      )
+      ..createSync(recursive: true)
+      ..writeAsStringSync('DESIGN_NAME: dut\n');
+    final two = p.join(tmp.path, 'two.simcrux.yaml');
+    File(two).writeAsStringSync('''
+version: "1"
+suites:
+  mac:
+    tests:
+      - name: plain
+        simulator: icarus
+        top: tb
+        sources: [$mac/dut.v, $mac/tb.v]
+        defines: {OUT: '"mac.txt"'}
+flow:
+  entries:
+    - name: other_entry
+      kind: librelane
+      config: other/config.yaml
+      gls:
+        tests: [nothing_by_this_name]
+    - name: adder_sky130
+      kind: librelane
+      config: librelane/config.yaml
+      tag_prefix: drive
+      gls:
+        tests: [plain]
+''');
+    final inner = FakeGlsInner(
+      (_) => glsPass(),
+      onRun: glsVcdWriter(rtl: 'rtl_x', gate: 'gate_x'),
+    );
+    final code = await FlowCli(
+      stdoutSink: (_) {},
+      stderrSink: (_) {},
+      driverRegistry: SimulatorDriverRegistry(const {}),
+      schedulerFactory: (_) => inner,
+      glsScratchRoot: () => p.join(tmp.path, 'scratch'),
+      environment: () => <String, String>{'HOME': tmp.path},
+    ).run(<String>['gls', owned, '--project', two, '--json']);
+    expect(code, 0);
+    expect(inner.submitted, isNotEmpty);
+  });
+
   test(
     'a malformed line is usage, 64, before the extension is asked',
     () async {

@@ -3,11 +3,11 @@
 
 import 'dart:io';
 
-import 'package:crux_flow/crux_flow.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/services/flow/flow_archive_extractor.dart';
+import 'package:simcrux/services/flow/flow_entry_for_run.dart';
 import 'package:simcrux/services/flow/flow_run_importer.dart';
 import 'package:simcrux/services/flow/flow_run_ingestor.dart';
 import 'package:simcrux/services/flow/flow_run_reading.dart';
@@ -30,6 +30,7 @@ class FlowRunIndexEntry {
     required this.reading,
     required this.origin,
     this.modified,
+    this.entry,
   });
 
   /// The run as read.
@@ -41,14 +42,26 @@ class FlowRunIndexEntry {
   /// When the run directory last changed, for ordering.
   final DateTime? modified;
 
+  /// The name of the project's `flow:` entry that wrote the run, when one
+  /// did ([flowEntryForRun]).
+  final String? entry;
+
   /// The run directory.
   String get root => reading.run.ref.root;
 
-  /// The test id the run is filed under (`flow/<design>`).
-  String get testId => FlowRunIngestor.testIdFor(reading);
+  /// The test id the run is filed under: `flow/<entry>` for a run of one of
+  /// the project's entries, the id a launched run of that entry records;
+  /// else `flow/<directory above runs/>` ([FlowRunIngestor.testIdFor]).
+  String get testId {
+    final name = entry;
+    return name == null
+        ? FlowRunIngestor.testIdFor(reading)
+        : FlowRunImporter.specIdFor(name);
+  }
 
-  /// The design the run belongs to: the entry name, or the directory above
-  /// `runs/`.
+  /// The design the run belongs to: the entry name, or, for a run of no
+  /// entry, the directory above `runs/`. A LibreLane run's directory above
+  /// `runs/` is its config folder, never the entry (simcrux#69).
   String get design {
     final id = testId;
     const prefix = '${FlowRunImporter.kFlowSuiteName}/';
@@ -128,24 +141,11 @@ class FlowRunIndexRequest {
   /// Where zipped artifacts are extracted; SimCrux's default when null.
   final String? archiveScratch;
 
-  /// The run directories the project's own entries write into.
-  List<String> get entryRunDirs => <String>[
-    for (final entry in entries) ?_runsDirOf(entry),
-  ];
-
-  String? _runsDirOf(FlowEntry entry) {
-    switch (entry.kind) {
-      case FlowKind.nextpnr:
-        return p.join(projectRoot, 'runs', entry.name);
-      case FlowKind.librelane:
-        final config = entry.config;
-        if (config == null) return null;
-        final absolute = p.isAbsolute(config)
-            ? config
-            : p.join(projectRoot, config);
-        return p.join(p.dirname(p.normalize(absolute)), 'runs');
-    }
-  }
+  /// The run directories the project's own entries write into, each once
+  /// (two LibreLane entries can share a config folder).
+  List<String> get entryRunDirs => <String>{
+    for (final entry in entries) ?flowEntryRunsDir(entry, projectRoot),
+  }.toList();
 
   @override
   bool operator ==(Object other) =>
@@ -207,6 +207,11 @@ Future<FlowRunIndex> buildFlowRunIndex(
           reading: reading,
           origin: origin,
           modified: _modified(root),
+          entry: flowEntryForRun(
+            request.entries,
+            projectRoot: request.projectRoot,
+            runRoot: root,
+          )?.name,
         ),
       );
     }

@@ -112,8 +112,11 @@ simcrux flow gls <run-dir> [--entry <name>] [--test <name>]...
 ```
 
 The tests come from `--test`, or from the entry's `gls: tests`. `--entry`
-names the LibreLane entry whose block supplies the defaults; with one
-LibreLane entry in the project it is chosen for you.
+names the LibreLane entry whose block supplies the defaults. Without it, the
+run's own entry is used: the one whose `runs/` (beside its config) holds the
+run, told apart by tag prefix when two entries share a config folder. With one
+LibreLane entry in the project it is chosen for you. **Run Gate-Level
+Simulation** in the app picks the entry the same way.
 
 | Exit code | Meaning |
 |---|---|

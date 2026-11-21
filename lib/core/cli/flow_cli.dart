@@ -21,6 +21,7 @@ import 'package:simcrux/domain/models/regression_request.dart';
 import 'package:simcrux/domain/models/test_result.dart';
 import 'package:simcrux/domain/models/test_spec.dart';
 import 'package:simcrux/services/config/config_loader.dart';
+import 'package:simcrux/services/flow/flow_entry_for_run.dart';
 import 'package:simcrux/services/flow/flow_export.dart';
 import 'package:simcrux/services/flow/flow_gate.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
@@ -706,7 +707,8 @@ class FlowCli {
     }
 
     // The entry whose `gls:` block supplies the defaults: the one named, else
-    // the project's only LibreLane entry.
+    // the one whose run directory holds the run, else the project's only
+    // LibreLane entry (the rule the app's Run Gate-Level Simulation shares).
     final entries = <FlowEntry>[
       for (final e in config.flow?.entries ?? const <FlowEntry>[])
         if (e.kind == FlowKind.librelane) e,
@@ -720,8 +722,14 @@ class FlowCli {
       if (entry == null) {
         throw _UsageException('no LibreLane flow entry named $named');
       }
-    } else if (entries.length == 1) {
-      entry = entries.single;
+    } else {
+      String fromCwd(String path) =>
+          p.isAbsolute(path) ? path : p.join(_cwd(), path);
+      entry = flowGlsEntryForRun(
+        entries,
+        projectRoot: p.dirname(p.normalize(fromCwd(project))),
+        runRoot: p.normalize(fromCwd(runDir)),
+      );
     }
     final defaults = entry?.gls;
     final typed = results.multiOption('test');

@@ -29,24 +29,56 @@ void main() {
   testWidgets('the run is read on a real isolate, and its answer is shown', (
     tester,
   ) async {
-    final dir = (await tester.runAsync(
-      () => Directory.systemTemp.createTemp('gls_isolate'),
-    ))!;
-    addTearDown(() => dir.deleteSync(recursive: true));
-    final run = Directory(p.join(dir.path, 'counter', 'runs', 'RUN_1'))
-      ..createSync(recursive: true);
-    File(p.join(dir.path, 'counter', 'counter.v')).writeAsStringSync(
-      'module counter(input clk, output reg q); '
-      'always @(posedge clk) q <= ~q; endmodule\n',
+    await _expectRunReached(
+      tester,
+      entry: 'counter',
+      folder: 'counter',
+      design: 'counter',
     );
-    File(p.join(dir.path, 'tb.v')).writeAsStringSync(
-      'module tb; reg clk = 0; counter dut(.clk(clk), .q()); endmodule\n',
+  });
+
+  testWidgets('a LibreLane run finds its entry when the entry is not named '
+      'after the folder holding runs/ (simcrux#69)', (tester) async {
+    // The run sits in librelane/runs/, so the panel once named its design
+    // `librelane`; the entry is counter_sky130. The run is matched to the
+    // entry whose run directory holds it, so its gls: tests are found and
+    // the run is read (unreadable here), not refused for having no tests.
+    await _expectRunReached(
+      tester,
+      entry: 'counter_sky130',
+      folder: 'librelane',
+      design: 'librelane',
     );
-    File(p.join(dir.path, 'counter', 'config.yaml')).writeAsStringSync(
-      'DESIGN_NAME: counter\n',
-    );
-    final yaml = File(p.join(dir.path, 'simcrux.yaml'))
-      ..writeAsStringSync('''
+  });
+}
+
+/// Selects run RUN_1 of a project whose LibreLane [entry] keeps its config
+/// in [folder], with the selection naming [design], clicks Run Gate-Level
+/// Simulation, and expects the empty run's "run unreadable" answer.
+Future<void> _expectRunReached(
+  WidgetTester tester, {
+  required String entry,
+  required String folder,
+  required String design,
+}) async {
+  final dir = (await tester.runAsync(
+    () => Directory.systemTemp.createTemp('gls_isolate'),
+  ))!;
+  addTearDown(() => dir.deleteSync(recursive: true));
+  final run = Directory(p.join(dir.path, folder, 'runs', 'RUN_1'))
+    ..createSync(recursive: true);
+  File(p.join(dir.path, folder, 'counter.v')).writeAsStringSync(
+    'module counter(input clk, output reg q); '
+    'always @(posedge clk) q <= ~q; endmodule\n',
+  );
+  File(p.join(dir.path, 'tb.v')).writeAsStringSync(
+    'module tb; reg clk = 0; counter dut(.clk(clk), .q()); endmodule\n',
+  );
+  File(p.join(dir.path, folder, 'config.yaml')).writeAsStringSync(
+    'DESIGN_NAME: counter\n',
+  );
+  final yaml = File(p.join(dir.path, 'simcrux.yaml'))
+    ..writeAsStringSync('''
 version: '1'
 defaults:
   simulator: icarus
@@ -55,66 +87,66 @@ suites:
     tests:
       - name: smoke
         top: tb
-        sources: [counter/counter.v, tb.v]
+        sources: [$folder/counter.v, tb.v]
 flow:
   entries:
-    - name: counter
+    - name: $entry
       kind: librelane
-      config: counter/config.yaml
+      config: $folder/config.yaml
       gls:
         tests: [smoke]
 ''');
 
-    final root = ProviderContainer();
-    addTearDown(root.dispose);
-    final tab = ProviderContainer(parent: root);
-    addTearDown(tab.dispose);
-    final config = await tester.runAsync(() => ConfigLoader().load(yaml.path));
-    tab.read(activeConfigProvider.notifier).replace(config);
-    // The tab's runner exists, as it does in the app.
-    tab.read(regressionRunnerProvider.notifier);
-    tab
-        .read(flowSelectedRunProvider.notifier)
-        .select(
-          FlowRunSelection(
-            root: run.path,
-            kind: FlowKind.librelane,
-            design: 'counter',
-          ),
-        );
+  final root = ProviderContainer();
+  addTearDown(root.dispose);
+  final tab = ProviderContainer(parent: root);
+  addTearDown(tab.dispose);
+  final config = await tester.runAsync(() => ConfigLoader().load(yaml.path));
+  tab.read(activeConfigProvider.notifier).replace(config);
+  // The tab's runner exists, as it does in the app.
+  tab.read(regressionRunnerProvider.notifier);
+  tab
+      .read(flowSelectedRunProvider.notifier)
+      .select(
+        FlowRunSelection(
+          root: run.path,
+          kind: FlowKind.librelane,
+          design: design,
+        ),
+      );
 
-    late BuildContext context;
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: root,
-        child: MaterialApp(
-          localizationsDelegates: L10N.localizationsDelegates,
-          supportedLocales: L10N.supportedLocales,
-          home: Scaffold(
-            body: Builder(
-              builder: (c) {
-                context = c;
-                return const SizedBox();
-              },
-            ),
+  late BuildContext context;
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: root,
+      child: MaterialApp(
+        localizationsDelegates: L10N.localizationsDelegates,
+        supportedLocales: L10N.supportedLocales,
+        home: Scaffold(
+          body: Builder(
+            builder: (c) {
+              context = c;
+              return const SizedBox();
+            },
           ),
         ),
       ),
-    );
-    final words = L10N.of(context);
+    ),
+  );
+  final words = L10N.of(context);
 
-    await tester.runAsync(
-      () => FlowActions.runGateLevel(context, tab, root.read),
-    );
-    await tester.pump();
+  await tester.runAsync(
+    () => FlowActions.runGateLevel(context, tab, root.read),
+  );
+  await tester.pump();
 
-    expect(
-      find.text(
-        words.flowGlsCannotRun(
-          GlsLabels.reason(words, GlsNotRunReason.runUnreadable),
-        ),
+  expect(find.text(words.flowGlsNoTests), findsNothing);
+  expect(
+    find.text(
+      words.flowGlsCannotRun(
+        GlsLabels.reason(words, GlsNotRunReason.runUnreadable),
       ),
-      findsOneWidget,
-    );
-  });
+    ),
+    findsOneWidget,
+  );
 }

@@ -7,6 +7,7 @@ import 'package:crux_flow/crux_flow.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/models/flow_config.dart';
+import 'package:simcrux/services/flow/flow_entry_for_run.dart';
 import 'package:simcrux/services/flow/flow_run_index.dart';
 import 'package:simcrux/services/flow/flow_worst_paths.dart';
 
@@ -83,6 +84,68 @@ void main() {
     // The violated run misses its clock where the met one made it: its
     // slack is lower, so it is worse.
     expect(delta.improved, isFalse);
+  });
+
+  test('a LibreLane run is filed under the entry whose runs/ holds it, not '
+      'the folder above runs/ (simcrux#69)', () async {
+    // Two entries on one config folder, told apart by tag prefix; the
+    // folder is named `librelane`, neither entry is.
+    final base = p.join(tmp.path, 'librelane');
+    LibreLaneRunBuilder(base, tag: 'drive-20261121T183602Z')
+      ..step('yosys-synthesis')
+      ..finalMetrics(cleanMetrics);
+    LibreLaneRunBuilder(base, tag: 'fast-20261121T183747Z')
+      ..step('yosys-synthesis')
+      ..finalMetrics(cleanMetrics);
+    final entries = <FlowEntry>[
+      FlowEntry(
+        name: 'adder_sky130',
+        kind: FlowKind.librelane,
+        config: 'librelane/config.yaml',
+        tagPrefix: 'drive',
+      ),
+      FlowEntry(
+        name: 'adder_fast',
+        kind: FlowKind.librelane,
+        config: 'librelane/config.yaml',
+        tagPrefix: 'fast',
+      ),
+    ];
+    final index = await buildFlowRunIndex(
+      FlowRunIndexRequest(projectRoot: tmp.path, entries: entries),
+    );
+    final byTag = <String, FlowRunIndexEntry>{
+      for (final run in index.runs) run.reading.run.ref.tag: run,
+    };
+    expect(byTag, hasLength(2));
+    expect(byTag['drive-20261121T183602Z']?.design, 'adder_sky130');
+    expect(byTag['drive-20261121T183602Z']?.testId, 'flow/adder_sky130');
+    expect(byTag['fast-20261121T183747Z']?.design, 'adder_fast');
+    // The shared helper: one entry on the folder needs no prefix; a run
+    // of no entry's directory belongs to none; flow gls falls back to the
+    // only LibreLane entry.
+    final one = <FlowEntry>[entries.first];
+    final drive = byTag['drive-20261121T183602Z']!.root;
+    expect(
+      flowEntryForRun(one, projectRoot: tmp.path, runRoot: drive)?.name,
+      'adder_sky130',
+    );
+    expect(
+      flowEntryForRun(
+        one,
+        projectRoot: tmp.path,
+        runRoot: p.join(tmp.path, 'elsewhere', 'runs', 'RUN_1'),
+      ),
+      isNull,
+    );
+    expect(
+      flowGlsEntryForRun(
+        one,
+        projectRoot: tmp.path,
+        runRoot: p.join(tmp.path, 'elsewhere', 'runs', 'RUN_1'),
+      )?.name,
+      'adder_sky130',
+    );
   });
 
   test('ingest paths: the project list within the project, a user path '

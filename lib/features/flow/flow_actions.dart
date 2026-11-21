@@ -32,6 +32,7 @@ import 'package:simcrux/features/settings/providers/app_settings_provider.dart';
 import 'package:simcrux/features/viewer/providers/right_dock_provider.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 import 'package:simcrux/services/flow/flow_archive_extractor.dart';
+import 'package:simcrux/services/flow/flow_entry_for_run.dart';
 import 'package:simcrux/services/flow/flow_handoff_launcher.dart';
 import 'package:simcrux/services/flow/flow_handoff_provider.dart';
 import 'package:simcrux/services/flow/flow_metric_keys.dart';
@@ -269,12 +270,21 @@ abstract final class FlowActions {
       _toast(context, (l10n) => l10n.flowGlsNeedsLibreLane);
       return null;
     }
+    // The entry the run belongs to: the one the panel names, else the one
+    // whose run directory holds it, else the only LibreLane entry, the rule
+    // `simcrux flow gls` uses (simcrux#69).
+    final entries = config.flow?.entries ?? const <FlowEntry>[];
     FlowEntry? entry;
-    for (final e in config.flow?.entries ?? const <FlowEntry>[]) {
+    for (final e in entries) {
       if (e.kind == FlowKind.librelane && e.name == selection.design) {
         entry = e;
       }
     }
+    entry ??= flowGlsEntryForRun(
+      entries,
+      projectRoot: flowProjectRoot(config),
+      runRoot: selection.root,
+    );
     final gls = entry?.gls;
     if (entry == null || gls == null || gls.tests.isEmpty) {
       _toast(context, (l10n) => l10n.flowGlsNoTests);
