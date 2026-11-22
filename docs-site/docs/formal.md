@@ -306,11 +306,8 @@ Every send and receive below is free in every tier.
   ended with a counterexample (at most 8). WaveCrux groups the gold and gate
   scopes as a pair, with the miter's comparison signals on top.
 - **Show in NetCrux.** A row with a failing property offers it in the
-  inspector. NetCrux selects the first signal the property reads that its design
-  has and draws its fan-in. SymbiYosys reads your source with `FORMAL` defined
-  and NetCrux without it, so a signal declared under `` `ifdef FORMAL `` is not
-  in NetCrux's design: SimCrux moves on to the next signal the property reads,
-  and when NetCrux has none of them it says so. From NetCrux 1.2. See
+  inspector. NetCrux selects the first signal the property reads and draws its
+  fan-in. From NetCrux 1.2. See
   [Formal and implementation-flow results](https://docs.netcrux.app/integrations/cxp#formal-flow).
 - **A peer's signal filters the rows.** When NetCrux or WaveCrux sends a signal
   that names its design, and the project has `sby` tests, the results table
