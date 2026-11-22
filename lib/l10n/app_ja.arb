@@ -3919,6 +3919,7 @@
   },
   "inspectorActionShowInNetcrux": "NetCrux で表示",
   "inspectorActionShowInNetcruxTooltip": "失敗したプロパティが読み取る信号を NetCrux で選択し、その駆動元を表示します。このマシンで NetCrux が実行中である必要があります。",
+  "inspectorShowInNetcruxNoneInDesign": "このプロパティが読み取る信号（{signals}）は、NetCrux で開いている設計に存在しません。形式検証のためだけに宣言された信号（ifdef FORMAL の内側）は、NetCrux が構築するネットリストに含まれません。",
   "inspectorActionDebugPartitionInWavecrux": "{partition} を WaveCrux でデバッグ",
   "flowPathOpenStatement": "エディターでステートメントを開く",
   "flowPathNoStatement": "このパスには既知のソースステートメントがありません。",

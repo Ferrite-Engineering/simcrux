@@ -3919,6 +3919,7 @@
   },
   "inspectorActionShowInNetcrux": "在 NetCrux 中显示",
   "inspectorActionShowInNetcruxTooltip": "在 NetCrux 中选中失败属性读取的信号，并显示驱动它的逻辑。需要本机正在运行 NetCrux。",
+  "inspectorShowInNetcruxNoneInDesign": "此属性读取的信号（{signals}）在 NetCrux 打开的设计中都不存在。仅为形式验证声明的信号（位于 ifdef FORMAL 之下）不属于 NetCrux 构建的网表。",
   "inspectorActionDebugPartitionInWavecrux": "在 WaveCrux 中调试 {partition}",
   "flowPathOpenStatement": "在编辑器中打开语句",
   "flowPathNoStatement": "此路径没有已知的源语句。",

@@ -33,8 +33,26 @@ import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 /// EQY row; every partition's trace is still in the row's notes and log.
 const int kInspectorMaxPartitionHandoffs = 8;
 
+/// The most signal names the "not in NetCrux's design" message lists.
+const int kShownSignalNames = 3;
+
 /// NetCrux's product name on CXP.
 const String kNetcruxProductName = 'netcrux';
+
+/// What the user is told when NetCrux has none of [signals], the failing
+/// property's reads, or null when the property names none (then NetCrux's own
+/// reason for declining the property stands).
+///
+/// NetCrux reads the source without `FORMAL` defined, SymbiYosys reads it with
+/// `FORMAL` defined, so a signal declared under `ifdef FORMAL` is the usual
+/// cause. At most [kShownSignalNames] names are listed.
+String? netcruxNoneInDesignReason(L10N l10n, List<String> signals) {
+  if (signals.isEmpty) return null;
+  final shown = signals.take(kShownSignalNames).join(', ');
+  return l10n.inspectorShowInNetcruxNoneInDesign(
+    signals.length > kShownSignalNames ? '$shown, \u2026' : shown,
+  );
+}
 
 /// Row of action buttons in the inspector pane: open full log,
 /// re-run, re-run forcing waveform, open testbench source, open
@@ -97,8 +115,9 @@ class InspectorActions extends ConsumerWidget {
               l10n.inspectorActionDebugPartitionInWavecrux(partition.name),
             ),
           ),
-        // A failing property's signal to NetCrux, with its fan-in.
-        if (formalShowInNetCruxSelection(selection.result) != null)
+        // A failing property's signal to NetCrux, with its fan-in: the first
+        // signal it reads that NetCrux's design has.
+        if (formalShowInNetCruxAttempts(selection.result).isNotEmpty)
           Tooltip(
             message: l10n.inspectorActionShowInNetcruxTooltip,
             child: Builder(
@@ -109,9 +128,13 @@ class InspectorActions extends ConsumerWidget {
                     buttonContext,
                     ref,
                     productName: kNetcruxProductName,
-                    selection: formalShowInNetCruxSelection(
+                    attempts: formalShowInNetCruxAttempts(
                       selection.result,
                       designId: _designId(ref),
+                    ),
+                    allDeclinedReason: netcruxNoneInDesignReason(
+                      l10n,
+                      formalShowInNetCruxSignals(selection.result),
                     ),
                   ),
                 ),

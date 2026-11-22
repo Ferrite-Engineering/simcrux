@@ -5552,11 +5552,19 @@ receive surface carries a badge.
   `formal.eqy.gold_scope` `gold` and `formal.eqy.gate_scope` `gate`, the
   scopes EQY gives the two designs in its miter.
 - **Show in NetCrux.** A row with a failing property offers it in the
-  inspector. It sends the first signal the property reads as a `signal` with
-  `formal.property_kind` (and the label), which is what makes NetCrux select
-  it and draw its fan-in, and the property itself (`<file>:<line>`) after it,
-  which NetCrux offers its union cone for and which is sent alone when no
-  signal is known. With no NetCrux running it says so; with two it asks which.
+  inspector. A cross-probe carries one element and SimCrux cannot see which
+  signals NetCrux's design has, so it tries them in turn. It sends each signal
+  the property reads, nearest first, as a `signal` with `formal.property_kind`
+  (and the label), which is what makes NetCrux select it and draw its fan-in,
+  and stops at the first NetCrux shows. NetCrux reads the source without
+  `FORMAL` defined, so a signal declared under `` `ifdef FORMAL `` (SymbiYosys
+  reads the file with it defined) is not in its design and is declined. When
+  NetCrux declines every signal the property is sent (`<file>:<line>`), which
+  NetCrux Pro offers its union cone for; the property is also sent alone when
+  no signal is known. When NetCrux shows none of them, SimCrux says that none
+  of the signals is in NetCrux's design and that a signal declared only for
+  formal verification is not part of its netlist. With no NetCrux running it
+  says so; with two it asks which.
 - **What a property reads.** After a run, each property records the named
   signals on the combinational paths into it (through `$past`, stopping at the
   design's registers), nearest first, at most 16, rooted at the top module
@@ -5580,8 +5588,14 @@ this app and of WaveCrux and NetCrux 1.2, an OSS CAD Suite, and the corpus's
    "Debug alu.r in WaveCrux". The first lands on step 1 with gold and gate
    grouped; the second opens its trace at the start, because its summary
    states no step.
-3. On `prove_bug`, Show in NetCrux: NetCrux selects `f_wait` and draws its
-   fan-in.
+3. On `prove_bug`, Show in NetCrux: `f_wait` is declared under
+   `` `ifdef FORMAL ``, so NetCrux, which elaborates without `FORMAL`, has no
+   `f_wait` and declines it. SimCrux then sends the next signal the property
+   reads, if it recorded one (the reset `rst`, for example), and NetCrux
+   selects that and draws its fan-in. NetCrux Pro,
+   asked for the property itself, selects the union cone of the signals it
+   has. When NetCrux has none of the signals, SimCrux shows a message naming
+   the signals and `ifdef FORMAL`, and nothing is selected.
 4. In NetCrux, cross-probe `full` of the FIFO design to SimCrux: the results
    table shows only the `fifo_slang` rows with a property that reads it.
 
@@ -5604,11 +5618,12 @@ what its Pro cone needs.
 | Test | Coverage | File |
 |---|---|---|
 | The coordinate on the corpus: the hand-expected step, which the trace's own `smt_step` counts to; no step, another trace, multiclock, demo; EQY `sub_id`, partition traces, gold and gate; the corpus digest WaveCrux pins | `[Coverage: UNIT]` | `test/services/remote/cxp/formal_stream_coordinate_test.dart` |
-| The row selection (coordinate, keys, no signal, WaveCrux gets the trace) and Show in NetCrux (signal first, property alone) | `[Coverage: UNIT]` | `test/features/remote/services/formal_handoff_test.dart` |
+| The row selection (coordinate, keys, no signal, WaveCrux gets the trace) and Show in NetCrux (each signal in turn, property last or alone) | `[Coverage: UNIT]` | `test/features/remote/services/formal_handoff_test.dart` |
 | What each property reads, from the RTL | `[Coverage: UNIT]` | `test/services/formal/pretrace_detector_test.dart` |
 | The partition step from its summary | `[Coverage: UNIT]` | `test/services/formal/eqy_workdir_reader_test.dart` |
 | `multiclock on` per task | `[Coverage: UNIT]` | `test/domain/models/sby_script_test.dart` |
-| The inspector's partition hand-offs and Show in NetCrux | `[Coverage: WIDGET]` | `test/features/inspector/widgets/inspector_actions_test.dart` |
+| The inspector's partition hand-offs and Show in NetCrux, including a signal NetCrux declines because it exists only under `ifdef FORMAL` | `[Coverage: WIDGET]` | `test/features/inspector/widgets/inspector_actions_test.dart` |
+| Trying selections in turn: the first shown ends it, a decline moves on, all declined says why, a gate that refuses stops it | `[Coverage: WIDGET]` | `test/features/remote/services/cross_probe_attempts_test.dart` |
 | The receive filter, and the legacy filter without a design | `[Coverage: UNIT]` | `test/features/remote/providers/cxp_receive_filters_test.dart`, `test/features/dashboard/providers/dashboard_providers_test.dart` |
 | A counterexample crossing two shared runtimes | `[Coverage: INTEGRATION]` | `test/integration/remote/simcrux_cxp_conformance_test.dart` |
 | Every producer and filter has a caller | `[Coverage: UNIT]` | `test/static/cxp_reachability_test.dart` |

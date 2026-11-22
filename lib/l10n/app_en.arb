@@ -4178,6 +4178,16 @@
   "@inspectorActionShowInNetcruxTooltip": {
     "description": "Tooltip of the Show in NetCrux button."
   },
+  "inspectorShowInNetcruxNoneInDesign": "none of the signals this property reads ({signals}) is in the design NetCrux has open. A signal declared only for formal verification, under ifdef FORMAL, is not part of the netlist NetCrux builds.",
+  "@inspectorShowInNetcruxNoneInDesign": {
+    "description": "The reason shown after \"Cross-probe to NetCrux:\" when Show in NetCrux found none of the signals the failing formal property reads in NetCrux's design, so it is a clause that continues that sentence and starts in lower case. SymbiYosys reads the source with FORMAL defined and NetCrux without it, so a signal declared under ifdef FORMAL exists for the property and not for NetCrux. {signals} is up to three signal names as the run recorded them, comma separated, ending with an ellipsis when there are more; never translated. NetCrux, SymbiYosys, ifdef FORMAL stay as written.",
+    "placeholders": {
+      "signals": {
+        "type": "String",
+        "example": "handshake.f_wait, handshake.rst"
+      }
+    }
+  },
   "inspectorActionDebugPartitionInWavecrux": "Debug {partition} in WaveCrux",
   "@inspectorActionDebugPartitionInWavecrux": {
     "description": "Inspector button, one per failing EQY partition: opens that partition's counterexample in WaveCrux. {partition} is the partition's name as EQY wrote it, never translated.",
