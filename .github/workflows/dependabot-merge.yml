@@ -10,13 +10,10 @@
 name: Dependabot merge
 
 on:
-  # Paused until EDACrux 1.2 is cut, so no scheduled merge moves main under the
-  # release. Restore both cron lines afterwards and delete the "schedule is
-  # paused" test that pins this.
-  # schedule:
-  #   # Dependabot opens its pull request on Monday; CI has settled by these.
-  #   - cron: "17 18 * * 1"
-  #   - cron: "17 6 * * 2,3"
+  schedule:
+    # Dependabot opens its pull request on Monday; CI has settled by these.
+    - cron: "17 18 * * 1"
+    - cron: "17 6 * * 2,3"
   workflow_dispatch:
 
 permissions:

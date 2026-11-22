@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Static guard: the Dependabot merge workflow starts a CI run on main after
-// every merge, and does not run on a schedule while a release is being cut.
+// every merge.
 //
 // A pull request merged with `GITHUB_TOKEN` starts no push workflow, so the
 // merged tip had no `ci.yml` run and the release workflow, which waits for one,
@@ -40,16 +40,6 @@ void main() {
   late String workflow;
 
   setUpAll(() => workflow = _active());
-
-  // Delete this test when the schedule is restored after EDACrux 1.2 is cut.
-  test('the schedule is paused until 1.2 is cut', () {
-    expect(
-      RegExp(r'^\s*schedule:', multiLine: true).hasMatch(workflow),
-      isFalse,
-      reason: 'A scheduled merge would move main under the release.',
-    );
-    expect(workflow, isNot(contains('cron:')));
-  });
 
   test('can still be started by hand', () {
     expect(workflow, contains('workflow_dispatch:'));
