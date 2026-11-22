@@ -56,35 +56,59 @@ CrossProbeSelection crossProbeSelectionForRow(
   );
 }
 
-/// The selection "Show in NetCrux" sends for the formal row [result]: the
-/// signal the failing property reads first, as a `signal` with the property's
-/// `formal.property_kind` and `formal.property_label`, so NetCrux selects it
-/// and draws its fan-in; then the property itself (`<file>:<line>`), which
-/// NetCrux Pro widens to the union cone and the target's kind table offers
-/// only when no signal is known. Null when the row has no fired property.
-CrossProbeSelection? formalShowInNetCruxSelection(
+/// The distinct signals the fired property of the formal row [result] reads,
+/// nearest first (`formal.property.<n>.reads`, which the run records up to
+/// 16 of). Empty when the row has no fired property or none was recorded.
+List<String> formalShowInNetCruxSignals(TestResult result) {
+  final property = formalHandoffProperty(result);
+  if (property == null) return const <String>[];
+  final signals = <String>[];
+  for (final read in property.reads) {
+    final name = read.trim();
+    if (name.isNotEmpty && !signals.contains(name)) signals.add(name);
+  }
+  return signals;
+}
+
+/// What "Show in NetCrux" tries for the formal row [result], in order: each
+/// signal the failing property reads, nearest first, as a `signal` with the
+/// property's `formal.property_kind` and `formal.property_label` (so NetCrux
+/// selects it and draws its fan-in); then the property itself
+/// (`<file>:<line>`), which NetCrux Pro widens to the union cone of every
+/// signal of the property its design has. Empty when the row has no fired
+/// property.
+///
+/// A directed cross-probe carries one element, and SimCrux cannot see which
+/// signals NetCrux's netlist has: NetCrux reads the source without `FORMAL`
+/// defined, while SymbiYosys reads it with `FORMAL` defined, so a signal
+/// declared under `ifdef FORMAL` exists for the property and not for NetCrux.
+/// Each attempt is therefore its own selection, sent only while the previous
+/// one was declined (see `sendCrossProbeAttempts`).
+List<CrossProbeSelection> formalShowInNetCruxAttempts(
   TestResult result, {
   String? designId,
 }) {
   final property = formalHandoffProperty(result);
-  if (property == null) return null;
-  final signal = property.reads.isEmpty ? null : property.reads.first;
+  if (property == null) return const <CrossProbeSelection>[];
   final element = property.elementPath;
-  if (signal == null && element == null) return null;
-  return CrossProbeSelection(
-    candidates: <ElementId>[
-      if (signal != null) ElementId(kind: ElementKind.signal, path: signal),
-      if (element != null) ElementId(kind: ElementKind.property, path: element),
-    ],
+  final metadata = <String, Object?>{
+    // NetCrux draws the fan-in only for a signal that carries one of the
+    // two property keys; the role is always known.
+    cxpFormalPropertyKindMetadataKey: property.registeredKind ?? 'assert',
+    cxpFormalPropertyLabelMetadataKey: ?property.label,
+    cxpDesignIdMetadataKey: ?designId,
+  };
+  CrossProbeSelection selection(ElementId id) => CrossProbeSelection(
+    candidates: <ElementId>[id],
     displayName: property.label ?? property.location,
-    metadata: <String, Object?>{
-      // NetCrux draws the fan-in only for a signal that carries one of the
-      // two property keys; the role is always known.
-      cxpFormalPropertyKindMetadataKey: property.registeredKind ?? 'assert',
-      cxpFormalPropertyLabelMetadataKey: ?property.label,
-      cxpDesignIdMetadataKey: ?designId,
-    },
+    metadata: metadata,
   );
+  return <CrossProbeSelection>[
+    for (final signal in formalShowInNetCruxSignals(result))
+      selection(ElementId(kind: ElementKind.signal, path: signal)),
+    if (element != null)
+      selection(ElementId(kind: ElementKind.property, path: element)),
+  ];
 }
 
 /// What the tab [read] reads from would cross-probe now: the worst path the

@@ -41,6 +41,25 @@ TestResult _sbyRow({String? trace, String tool = 'sby'}) => TestResult(
   },
 );
 
+/// [base] with a failing assertion at `fifo.sv:38`, reading [reads] when
+/// given.
+TestResult _withProperty(TestResult base, {String? reads}) => TestResult(
+  testId: base.testId,
+  runId: 'r',
+  status: TestStatus.fail,
+  startedAt: DateTime.utc(2026, 10),
+  finishedAt: DateTime.utc(2026, 10),
+  waveformPath: base.waveformPath,
+  metrics: <String, String>{
+    ...base.metrics,
+    'formal.property.0.kind': 'ASSERT',
+    'formal.property.0.location': 'fifo.sv:38.3-38.9',
+    'formal.property.0.status': 'counterexample',
+    'formal.property.0.label': 'a_never_over',
+    'formal.property.0.reads': ?reads,
+  },
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues(<String, Object>{}));
 
@@ -129,53 +148,73 @@ void main() {
         const ElementId(kind: ElementKind.source, path: trace),
       );
 
-      // "Show in NetCrux": the signal the property reads first, with the
-      // keys that make NetCrux draw its fan-in; the property itself after.
-      final netcrux = formalShowInNetCruxSelection(result, designId: 'd1')!;
-      expect(netcrux.candidates, const <ElementId>[
-        ElementId(kind: ElementKind.signal, path: 'handshake.f_wait'),
-        ElementId(kind: ElementKind.property, path: 'handshake_imm.sv:45'),
-      ]);
-      expect(netcrux.metadata['formal.property_kind'], 'assert');
+      // "Show in NetCrux": each signal the property reads, nearest first,
+      // with the keys that make NetCrux draw its fan-in; the property itself
+      // last.
+      final attempts = formalShowInNetCruxAttempts(result, designId: 'd1');
       expect(
-        crossProbeElementFor(
-          netcrux,
-          const PeerIdentity(
-            peerId: 'netcrux-1-1',
-            productName: 'netcrux',
-            productVersion: '1.2.0',
-          ),
-        )!.kind,
-        ElementKind.signal,
+        [for (final a in attempts) a.candidates.single],
+        const <ElementId>[
+          ElementId(kind: ElementKind.signal, path: 'handshake.f_wait'),
+          ElementId(kind: ElementKind.signal, path: 'handshake.rst'),
+          ElementId(kind: ElementKind.property, path: 'handshake_imm.sv:45'),
+        ],
+      );
+      for (final attempt in attempts) {
+        expect(attempt.metadata['formal.property_kind'], 'assert');
+        expect(attempt.metadata[cxpDesignIdMetadataKey], 'd1');
+      }
+      const netcruxPeer = PeerIdentity(
+        peerId: 'netcrux-1-1',
+        productName: 'netcrux',
+        productVersion: '1.2.0',
+      );
+      expect(
+        [
+          for (final a in attempts) crossProbeElementFor(a, netcruxPeer)!.kind,
+        ],
+        const <ElementKind>[
+          ElementKind.signal,
+          ElementKind.signal,
+          ElementKind.property,
+        ],
       );
     });
 
     test('Show in NetCrux without a known signal sends the property', () {
       final result = _sbyRow(trace: '/w/engine_0/trace.vcd');
-      expect(formalShowInNetCruxSelection(result), isNull);
-      final withProperty = TestResult(
-        testId: result.testId,
-        runId: 'r',
-        status: TestStatus.fail,
-        startedAt: DateTime.utc(2026, 10),
-        finishedAt: DateTime.utc(2026, 10),
-        metrics: <String, String>{
-          ...result.metrics,
-          'formal.property.0.kind': 'ASSERT',
-          'formal.property.0.location': 'fifo.sv:38.3-38.9',
-          'formal.property.0.status': 'counterexample',
-          'formal.property.0.label': 'a_never_over',
-        },
-      );
-      final selection = formalShowInNetCruxSelection(withProperty)!;
+      expect(formalShowInNetCruxAttempts(result), isEmpty);
+      expect(formalShowInNetCruxSignals(result), isEmpty);
+      final withProperty = _withProperty(result);
+      final attempts = formalShowInNetCruxAttempts(withProperty);
       expect(
-        selection.candidates.single,
-        const ElementId(
-          kind: ElementKind.property,
-          path: 'fifo.sv:38',
-        ),
+        attempts.single.candidates.single,
+        const ElementId(kind: ElementKind.property, path: 'fifo.sv:38'),
       );
-      expect(selection.metadata['formal.property_label'], 'a_never_over');
+      expect(attempts.single.metadata['formal.property_label'], 'a_never_over');
+    });
+
+    test('Show in NetCrux offers every signal the property reads, once, '
+        'for a signal that exists only under ifdef FORMAL', () {
+      // `f_wait` is declared under `ifdef FORMAL`: SymbiYosys reads the file
+      // with FORMAL defined and so the property reads it, but NetCrux reads
+      // it without, so its netlist has no `f_wait`. The run records the
+      // property's reads, and a peer that lacks the first one needs the rest.
+      final result = _withProperty(
+        _sbyRow(trace: '/w/engine_0/trace.vcd'),
+        reads:
+            ' handshake_imm.f_wait,handshake_imm.valid,, '
+            'handshake_imm.f_wait,handshake_imm.ready',
+      );
+      expect(formalShowInNetCruxSignals(result), const <String>[
+        'handshake_imm.f_wait',
+        'handshake_imm.valid',
+        'handshake_imm.ready',
+      ]);
+      final attempts = formalShowInNetCruxAttempts(result);
+      expect(attempts, hasLength(4));
+      expect(attempts.every((a) => a.candidates.length == 1), isTrue);
+      expect(attempts.last.candidates.single.kind, ElementKind.property);
     });
 
     test('a row without a trace offers no source', () {

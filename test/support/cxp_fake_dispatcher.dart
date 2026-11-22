@@ -15,6 +15,7 @@ class FakeCrossProbeDispatcher extends CrossProbeDispatcher {
   FakeCrossProbeDispatcher({
     this.kind = CrossProbeOutcomeKind.sent,
     this.reason,
+    this.answer,
   }) : super(_unread);
 
   static T _unread<T>(ProviderListenable<T> provider) =>
@@ -25,6 +26,10 @@ class FakeCrossProbeDispatcher extends CrossProbeDispatcher {
 
   /// The peer's reason, for a refused send.
   final String? reason;
+
+  /// Decides how one send ends, in place of [kind] and [reason], for a test
+  /// where the peer shows some selections and declines others.
+  final CrossProbeOutcome Function(CrossProbeSelection? selection)? answer;
 
   /// Every send, in order.
   final List<(PeerIdentity, CrossProbeSelection?)> sent =
@@ -37,6 +42,15 @@ class FakeCrossProbeDispatcher extends CrossProbeDispatcher {
     String? label,
   }) async {
     sent.add((peer, selection));
+    final decide = answer;
+    if (decide != null) {
+      final outcome = decide(selection);
+      return CrossProbeOutcome(
+        outcome.kind,
+        target: label ?? cruxCxpDisplayName(peer.productName),
+        reason: outcome.reason,
+      );
+    }
     return CrossProbeOutcome(
       kind,
       target: label ?? cruxCxpDisplayName(peer.productName),

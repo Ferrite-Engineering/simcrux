@@ -3,6 +3,8 @@
 
 import 'dart:io';
 
+import 'package:crux_cxp/crux_cxp.dart';
+import 'package:crux_cxp_ui/crux_cxp_ui.dart';
 import 'package:crux_io/crux_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +33,8 @@ import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.da
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
 import '../../../support/answered_telemetry.dart';
+import '../../../support/cxp_fake_dispatcher.dart';
+import '../../../support/cxp_test_overrides.dart';
 
 TestSpec _spec() {
   return TestSpec(
@@ -206,6 +210,143 @@ void main() {
       final l10n = L10N.of(tester.element(find.byType(Scaffold)));
       expect(find.text(l10n.inspectorActionShowInNetcrux), findsOneWidget);
       expect(find.text('Pro'), findsNothing);
+    });
+
+    group('Show in NetCrux when a signal exists only under ifdef FORMAL', () {
+      // SymbiYosys reads the source with FORMAL defined, so the failing
+      // property reads `f_wait`; NetCrux reads it without, so its netlist has
+      // no `f_wait` and declines it. The click used to stop there.
+      const notInDesign = 'the element was not found in the open design';
+      final failing = <String, String>{
+        'formal.tool': 'sby',
+        'formal.verdict': 'FAIL',
+        'formal.property.0.kind': 'ASSERT',
+        'formal.property.0.location': 'handshake_imm.sv:45.15-45.38',
+        'formal.property.0.status': 'counterexample',
+        'formal.property.0.reads':
+            'handshake_imm.f_wait,handshake_imm.valid,handshake_imm.ready',
+      };
+
+      List<String> sentPaths(FakeCrossProbeDispatcher fake) => <String>[
+        for (final (_, selection) in fake.sent)
+          '${selection!.candidates.single.kind.name}:${selection.candidates.single.path}',
+      ];
+
+      testWidgets('selects the next signal NetCrux has, and stops there', (
+        tester,
+      ) async {
+        final fake = FakeCrossProbeDispatcher(
+          answer: (selection) =>
+              selection!.candidates.single.path == 'handshake_imm.valid'
+              ? const CrossProbeOutcome(CrossProbeOutcomeKind.sent)
+              : const CrossProbeOutcome(
+                  CrossProbeOutcomeKind.refused,
+                  reason: notInDesign,
+                ),
+        );
+        await _pump(
+          tester,
+          _formal(failing),
+          overrides: <Override>[
+            ...simcruxCxpTestOverrides(
+              running: true,
+              peers: <PeerIdentity>[cxpTestPeer('netcrux')],
+            ),
+            cxpFakeDispatcherOverride(fake),
+          ],
+        );
+        final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+        await tester.tap(find.text(l10n.inspectorActionShowInNetcrux));
+        await tester.pumpAndSettle();
+
+        expect(sentPaths(fake), <String>[
+          'signal:handshake_imm.f_wait',
+          'signal:handshake_imm.valid',
+        ]);
+        expect(find.byKey(const ValueKey('crossProbeOutcome')), findsNothing);
+      });
+
+      testWidgets('with none of them, offers the property and, when that is '
+          'declined too, says the signals are not in the design', (
+        tester,
+      ) async {
+        final fake = FakeCrossProbeDispatcher(
+          kind: CrossProbeOutcomeKind.refused,
+          reason: notInDesign,
+        );
+        await _pump(
+          tester,
+          _formal(<String, String>{
+            ...failing,
+            'formal.property.0.reads':
+                'handshake_imm.f_wait,handshake_imm.f_done,'
+                'handshake_imm.f_idle,handshake_imm.f_last',
+          }),
+          overrides: <Override>[
+            ...simcruxCxpTestOverrides(
+              running: true,
+              peers: <PeerIdentity>[cxpTestPeer('netcrux')],
+            ),
+            cxpFakeDispatcherOverride(fake),
+          ],
+        );
+        final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+        await tester.tap(find.text(l10n.inspectorActionShowInNetcrux));
+        await tester.pumpAndSettle();
+
+        expect(sentPaths(fake), <String>[
+          'signal:handshake_imm.f_wait',
+          'signal:handshake_imm.f_done',
+          'signal:handshake_imm.f_idle',
+          'signal:handshake_imm.f_last',
+          'property:handshake_imm.sv:45',
+        ]);
+        final message = tester.widget<Text>(
+          find.descendant(
+            of: find.byKey(const ValueKey('crossProbeOutcome')),
+            matching: find.byType(Text),
+          ),
+        );
+        expect(
+          message.data,
+          'Cross-probe to NetCrux: '
+          '${l10n.inspectorShowInNetcruxNoneInDesign('handshake_imm.f_wait, handshake_imm.f_done, handshake_imm.f_idle, \u2026')}',
+        );
+        expect(message.data, contains('ifdef FORMAL'));
+        expect(message.data, isNot(contains(notInDesign)));
+      });
+
+      testWidgets('the property is offered when no signal was recorded, and '
+          "its decline is NetCrux's own words", (tester) async {
+        final fake = FakeCrossProbeDispatcher(
+          kind: CrossProbeOutcomeKind.refused,
+          reason: 'the property reads no signal here',
+        );
+        await _pump(
+          tester,
+          _formal(
+            <String, String>{...failing}..remove('formal.property.0.reads'),
+          ),
+          overrides: <Override>[
+            ...simcruxCxpTestOverrides(
+              running: true,
+              peers: <PeerIdentity>[cxpTestPeer('netcrux')],
+            ),
+            cxpFakeDispatcherOverride(fake),
+          ],
+        );
+        final l10n = L10N.of(tester.element(find.byType(Scaffold)));
+        await tester.tap(find.text(l10n.inspectorActionShowInNetcrux));
+        await tester.pumpAndSettle();
+
+        expect(sentPaths(fake), <String>['property:handshake_imm.sv:45']);
+        expect(
+          find.text(
+            'Cross-probe to NetCrux: the property reads no signal here',
+          ),
+          findsOneWidget,
+        );
+      });
     });
 
     testWidgets('a simulation row offers neither', (tester) async {

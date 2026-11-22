@@ -151,7 +151,8 @@ void main() {
       'formalStreamCoordinateFor',
       'formalHandoffMetadata',
       // "Show in NetCrux" and the per-partition hand-off.
-      'formalShowInNetCruxSelection',
+      'formalShowInNetCruxAttempts',
+      'sendCrossProbeAttempts',
       'crossProbeToProduct',
       'eqyPartitionTracePath',
       // The worst-path row's selection, directed and broadcast.
