@@ -27,6 +27,9 @@ import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 /// [designId] is the active project's `crux.design_id`, which lets a peer
 /// with nothing open resolve the design through the shared workspace.
 ///
+/// [time], when the row is at a point in simulation time, is carried on the
+/// selection unchanged (CXP §9.3.3); null sends none.
+///
 /// A formal row's waveform is its counterexample (or cover witness). It
 /// travels as the `source` element with the `formal.trace_step` coordinate
 /// the row can state (CXP §9.9.3; absent when it cannot) and the registered
@@ -36,9 +39,11 @@ import 'package:simcrux/services/remote/cxp/formal_stream_coordinate.dart';
 CrossProbeSelection crossProbeSelectionForRow(
   DashboardRow row, {
   String? designId,
+  CxpTime? time,
 }) {
   final waveform = row.result.waveformPath;
   return CrossProbeSelection(
+    time: time,
     candidates: <ElementId>[
       ElementId(kind: ElementKind.test, path: row.testId),
       if (waveform != null && waveform.isNotEmpty)
