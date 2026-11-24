@@ -32,7 +32,8 @@ want depends on whether a display exists:
   `build/cli/bundle/bin/simcrux`. No window, no display server, no Flutter
   engine. It handles `--ci`, `--import-fusesoc`, the two RISC-V import
   subcommands, `export-dashboard` and `license`, and from 1.2 `import-sby`,
-  `import-eqy` and the `flow` family. It does not carry the
+  `import-eqy` and the `flow` family, and from 2.0 `run`, `results`, `test`,
+  `trend` and `mcp` (see [Reading results](#results-commands)). It does not carry the
   regression comparison engine, so it refuses `--fail-on-regression` with
   exit `2`.
 
@@ -242,13 +243,104 @@ own `--help`.
 | `simcrux flow run\|ingest\|gate\|export` | From 1.2. Run, read, gate and export implementation runs. See [CI gate](flow-ci.md). |
 | `simcrux flow gls <run-dir>` | From 1.2. Rerun a LibreLane run's tests against its gate-level netlist, functional simulation under Icarus. Exit codes `0`, `1`, `2`, `64`, `65`. See [Gate-level simulation](flow-gate-level.md#cli). |
 | `simcrux-pro flow gls --sdf <corner> <run-dir>` | <span class="tier tier-pro">Pro</span> From 1.2. The same, with the delays of the run's SDF file and no timing checks; exit `77` without a Pro licence. See [Delay-annotated simulation](flow-gate-level.md#sdf). |
+| `simcrux run <simcrux.yaml>` | From 2.0. Run a regression and describe each test, failures first. See [Reading results](#results-commands). |
+| `simcrux results <results.ndjson>` | From 2.0. Read a run already written; nothing is run. |
+| `simcrux test <results.ndjson> <suite/test>` | From 2.0. One test of a run: its row, seed, parameters and the end of its log. |
+| `simcrux trend <suite/test> <results.ndjson>...` | From 2.0. One test's history across runs, newest first. |
+| `simcrux mcp [--root <dir>]` | From 2.0. Serve those four as MCP tools. See [`simcrux mcp`](#mcp). |
+| `simcrux-pro compare <baseline.ndjson> <results.ndjson>` | <span class="tier tier-pro">Pro</span> From 2.0. Compare a run with a baseline run. See [`simcrux-pro compare`](#compare). |
 | `simcrux license fingerprint` | Print this install's machine fingerprint, the value a machine file is issued for. From 1.1. |
 | `simcrux license request --out <file>` | Write an offline activation request for this install to `<file>`, as **Settings → License** would, without the app. From 1.1. |
 
-!!! note "There is no `run` subcommand"
-    The project path is a positional argument, not something you run a verb
-    against: `simcrux simcrux.yaml --ci`, not `simcrux run --ci`. A word that is
-    not one of the subcommands above is treated as a config path.
+!!! note "`run` is not `--ci`"
+    From 2.0 `simcrux run <simcrux.yaml> --json` is a subcommand that writes a
+    new document (see [Reading results](#results-commands)). The older
+    `simcrux simcrux.yaml --ci` is unchanged, and so is `simcrux <config> --ci
+    --json`, which still prints `{"totals": ...}`. A word that is not one of the
+    subcommands above is treated as a config path.
+
+### Reading results: `run`, `results`, `test` and `trend` {#results-commands}
+
+From 2.0. These four commands answer with one JSON document, the same one the
+[MCP server](#mcp) returns as a tool's text, so a script and a coding agent read
+the same thing. Pass `--json` to write it on stdout. Each also takes `-h` /
+`--help`.
+
+| Command | Flags | What it does |
+|---|---|---|
+| `simcrux run <simcrux.yaml>` | `--filter <s>` / `-f`, `--max-parallel <n>` / `-j`, `--limit <n>`, `--license-file <path>` | Runs the project as `--ci` does and writes the same `results.ndjson` and `results.summary.json`, then describes each test, failures first. `--filter` is a substring of the test id; `--max-parallel` defaults to `4`; `--license-file` is read as for [`--ci`](#license-in-ci). |
+| `simcrux results <results.ndjson>` | `--status <s>` (repeatable), `--limit <n>` | Reads a run already written. `--status` keeps only tests with that status: `pass`, `fail`, `timeout`, `vacuous`, `cover`, `skipped`, `cancelled` or `unknown`. |
+| `simcrux test <results.ndjson> <suite/test>` | `--lines <n>` | One test: its row, `seed`, `parameters`, `kill_signal`, `first_failure` and the end of its log. |
+| `simcrux trend <suite/test> <results.ndjson>...` | none | The test's status and runtime in each run, newest first, from at most 200 files. |
+
+`--limit` defaults to 100 and is at most 1000, and `--lines` has the same
+bounds, with the log text also capped at 64 KiB. The document says when a list
+was cut short (`truncated`). `run` does not accept `--allow-project-tooling`,
+`--export`, `--keep-failures`, `--fail-threshold` or `--fail-on-vacuous`: a
+project file that needs project tooling fails to load, and the document names
+the flag to use with `--ci`.
+
+#### The outcome and the exit code {#results-outcome}
+
+Every document carries an `outcome`, and the exit code follows it:
+
+| Outcome | Exit code | Means |
+|---|---|---|
+| `completed` | `0` | Every test passed. |
+| `failed_gate` | `1` | A test is `fail`, `timeout` or `unknown`. An `unknown` test counts as failed, since SimCrux could not tell whether it passed. |
+| `usage_error` | `64` | A bad flag or value, or a path the command may not read. Nothing ran. |
+| `input_error` | `65` | A project that does not load, a filter that selected no test, a file that is not a `results.ndjson`, or a test the run does not have. |
+| `engine_error` | `3` | No test produced a result, the run was cancelled, or a scheduled test never reported. |
+| `licence_error` | `77` | A licence file you gave cannot be read, or the command needs a Pro licence you do not have. Nothing was done. |
+
+These exit codes belong to the four commands and `compare` only. The
+[table above](#exit-codes) is still the one for `--ci`, where a usage error is
+`2`, and `3` there means an organization's threshold failed. The `--ci --json`
+document is a different, older one and does not change.
+
+```bash
+simcrux run simcrux.yaml --json
+simcrux results results.ndjson --status fail --json
+simcrux test results.ndjson alu/sub_fail --json
+simcrux trend alu/sub_fail runs/*.ndjson --json
+```
+
+#### `simcrux mcp` {#mcp}
+
+```bash
+simcrux mcp --root <project directory> [--license-file <path>]
+```
+
+Serves `run`, `results`, `test` and `trend` as Model Context Protocol tools,
+newline-delimited JSON-RPC on stdin and stdout, for a coding agent. Every path a
+tool receives, and every file a `simcrux.yaml` names, must be inside `--root`
+(the working directory when omitted). The server makes no network call, and
+only `run` writes, exactly what `--ci` writes. It offers no way to run what a
+project file names, to write an export or to move the failure gate; do those
+from the command line. How an agent should call it and cite what it returns is
+on the agent page for SimCrux in the documentation of the open-source
+repository.
+
+#### Pro: `compare` and the flakiness class {#compare}
+
+<span class="tier tier-pro">Pro</span> From 2.0, `simcrux-pro` runs the same
+four commands and `mcp`, and adds two things under a Pro licence:
+
+- `simcrux-pro compare <baseline.ndjson> <results.ndjson> [--license-file <path>] --json`
+  compares a run with a baseline run and lists the tests newly failing, newly
+  passing, slower or faster by 20% or more, added and removed. The outcome is
+  `failed_gate` (exit `1`) when a test that passed in the baseline does not pass
+  now. A file with no test is `input_error`.
+- `simcrux-pro trend` also gives the test's flakiness class: `stable`,
+  `intermittent`, `flaky`, `highlyFlaky` or `consistentlyFailing`, with the score
+  and the pass-to-fail flips it was read from. A test whose newest run failed
+  after one flip is `consistentlyFailing`, a regression and not flakiness.
+
+The licence is found as for [`--ci`](#license-in-ci): `--license-file`, then
+`SIMCRUX_LICENSE_FILE`, then the organization's policy file. Below Pro,
+`trend` answers the history and says it left the class out, and `compare`
+exits `77` and compares nothing. `simcrux-pro mcp` serves the same tools, with
+`compare` as the fifth.
 
 ### `simcrux export-dashboard <out-dir>` {#export-dashboard}
 

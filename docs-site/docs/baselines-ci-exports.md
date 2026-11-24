@@ -76,6 +76,11 @@ desktop executable: `1` on a regression, `2` when the license does not include
 the gate or the baseline cannot be read. It needs the same Pro, EDU or
 Enterprise license. The standalone `simcrux` binary still refuses the gate.
 
+From 2.0, `simcrux-pro compare <baseline.ndjson> <results.ndjson> --json`
+lists what changed between two runs without gating a pipeline on it: newly
+failing and newly passing tests, tests slower or faster by 20% or more, and
+tests added or removed. See [`simcrux-pro compare`](cli.md#compare).
+
 ## Exports {#exports}
 
 SimCrux exports a completed run in the formats your downstream tooling expects.
