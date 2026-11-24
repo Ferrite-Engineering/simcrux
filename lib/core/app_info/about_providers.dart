@@ -10,19 +10,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:simcrux/l10n/generated/app_localizations.dart';
 
+/// Short commit of a release build, passed by the release build scripts as
+/// `--dart-define=BUILD_COMMIT=<sha>`. Empty in a local build.
+const String kBuildGitSha = String.fromEnvironment('BUILD_COMMIT');
+
+/// CPU architecture of a release build (`--dart-define=BUILD_ARCHITECTURE`).
+const String kBuildArchitecture = String.fromEnvironment('BUILD_ARCHITECTURE');
+
+/// Flutter SDK version of a release build
+/// (`--dart-define=BUILD_FLUTTER_VERSION`).
+const String kBuildFlutterVersion = String.fromEnvironment(
+  'BUILD_FLUTTER_VERSION',
+);
+
+/// Four-digit year the release was built (`--dart-define=BUILD_YEAR`).
+const String kBuildYear = String.fromEnvironment('BUILD_YEAR');
+
+/// A build fact as the About dialog shows it: the value a release build
+/// passed, or `dev` when a local build passed none.
+String resolveBuildFact(String raw) {
+  final value = raw.trim();
+  return value.isEmpty ? 'dev' : value;
+}
+
+/// The copyright year: the build year a release build passed, else the
+/// current year (a local build has no build date of its own).
+String resolveCopyrightYear(String raw, {DateTime? now}) {
+  final value = raw.trim();
+  if (RegExp(r'^\d{4}$').hasMatch(value)) return value;
+  return (now ?? DateTime.now()).year.toString();
+}
+
 /// Company branding shown in the SimCrux About box.
 final aboutBrandingProvider = Provider<ApplicationBranding>((ref) {
-  return const ApplicationBranding(
+  return ApplicationBranding(
     companyName: 'Ferrite Engineering',
     logoAssetPath: 'assets/branding/ferrite_engineering_logo.png',
     squareLogoAssetPath: 'assets/branding/ferrite_engineering_logo_square.png',
-    copyrightYear: '2025',
+    copyrightYear: resolveCopyrightYear(kBuildYear),
     websiteUrl: 'https://ferriteengineering.com',
   );
 });
 
-/// Build metadata for the running SimCrux instance, sourced from
-/// `PackageInfo.fromPlatform()` plus best-effort platform introspection.
+/// Build metadata for the running SimCrux instance: version and build number
+/// from `PackageInfo.fromPlatform()`, commit, architecture and Flutter
+/// version from the release build's dart-defines (`dev` in a local build).
 final aboutBuildInfoProvider = FutureProvider<ApplicationBuildInfo>((
   ref,
 ) async {
@@ -30,10 +62,10 @@ final aboutBuildInfoProvider = FutureProvider<ApplicationBuildInfo>((
   return ApplicationBuildInfo(
     version: info.version.isNotEmpty ? info.version : 'dev',
     buildNumber: info.buildNumber.isNotEmpty ? info.buildNumber : '0',
-    gitShortSha: 'dev',
+    gitShortSha: resolveBuildFact(kBuildGitSha),
     os: _resolveOs(),
-    architecture: 'unknown',
-    flutterSdkVersion: 'unknown',
+    architecture: resolveBuildFact(kBuildArchitecture),
+    flutterSdkVersion: resolveBuildFact(kBuildFlutterVersion),
     dartSdkVersion: _dartVersion(),
   );
 });
