@@ -673,6 +673,17 @@ class SimcruxActionHandlers {
         }
         opener(ctx);
       },
+      // View > Signed Coverage Report…: the same seam shape. The Pro override
+      // picks the file and owns the gate.
+      SimcruxAction.openSignedReport: () {
+        final ctx = navigatorContext();
+        final opener = ref.read(signedReportOpenerProvider);
+        if (opener == null || ctx == null) {
+          _snackProGated(ctx, SimcruxAction.openSignedReport);
+          return;
+        }
+        opener(ctx);
+      },
       // Trend tracking openers. Open-core
       // builds register the actions and dispatch through the
       // opener provider; the Pro overlay's `proOverrides`

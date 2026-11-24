@@ -81,6 +81,7 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
     // The views onto the run's results that are screens, not panels.
     [
       SimcruxAction.openFormalProperties,
+      SimcruxAction.openSignedReport,
     ],
     [
       SimcruxAction.splitPaneRight,

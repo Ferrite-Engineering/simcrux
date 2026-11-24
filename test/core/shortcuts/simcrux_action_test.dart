@@ -23,6 +23,9 @@ const _proActions = <SimcruxAction>{
   // The formal properties dashboard. Import Formal Project, the verdicts
   // and the hand-off are open core and deliberately absent from this set.
   SimcruxAction.openFormalProperties,
+  // Reading a signed coverage report. Its verdicts are the report's own;
+  // the screen that checks the signature and opens the evidence is Pro.
+  SimcruxAction.openSignedReport,
   SimcruxAction.showTrendChart,
   SimcruxAction.showSuiteTrendChart,
   SimcruxAction.showCalendarHeatmap,

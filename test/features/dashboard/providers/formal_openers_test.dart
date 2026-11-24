@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/features/dashboard/providers/formal_openers.dart';
 
-// The four Pro formal seams. Each is null in open core, for every tier: the
+// The five Pro formal seams. Each is null in open core, for every tier: the
 // Pro overlay owns the gate, and nothing on the open-core side may read a
 // tier here, because the verdicts the screens analyse are free.
 void main() {
@@ -16,6 +16,7 @@ void main() {
     'formalHistoryOpenerProvider': formalHistoryOpenerProvider,
     'pretraceAnalysisOpenerProvider': pretraceAnalysisOpenerProvider,
     'eqyExplorerOpenerProvider': eqyExplorerOpenerProvider,
+    'signedReportOpenerProvider': signedReportOpenerProvider,
   };
 
   for (final MapEntry(key: name, value: seam) in seams.entries) {

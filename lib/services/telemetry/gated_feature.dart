@@ -110,6 +110,10 @@ enum SimcruxGatedFeature {
   /// (`eqyExplorerOpenerProvider`).
   eqyExplorer,
 
+  /// Reading and verifying a signed coverage report
+  /// (`signedReportOpenerProvider`).
+  signedReport,
+
   // Flow. The same rule: running a flow, its verdict, metrics, worst paths,
   // RTL mapping, the CI gate and functional gate-level simulation are never
   // gated.

@@ -45,6 +45,9 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   // "select something first" and "no peer is running" are answers the user
   // should be given, not a greyed item that explains nothing.
   SimcruxAction.crossProbeSelection ||
+  // Signed Coverage Report: it opens a file of its own, so it needs no tab,
+  // project or result, like an import.
+  SimcruxAction.openSignedReport ||
   SimcruxAction.openAppDiagnostics ||
   SimcruxAction.openAbout ||
   SimcruxAction.openDocumentation ||

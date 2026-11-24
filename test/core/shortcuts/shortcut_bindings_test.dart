@@ -86,6 +86,8 @@ void main() {
     // The Pro formal properties dashboard: a drill-down, like the
     // seed-failure heatmap.
     SimcruxAction.openFormalProperties,
+    // Signed Coverage Report: opens a file a user is handed, now and then.
+    SimcruxAction.openSignedReport,
     // Export Results. A Tools-menu / palette workflow reached
     // once at the end of a run, and it opens two modals before it does
     // anything — a headline chord would buy nothing. Cmd/Ctrl+E stays free.

@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// screen to the active pane.
 typedef FormalScreenOpener = void Function(BuildContext context);
 
-// The four Pro formal seams, in one file so every one is reachable from the
-// action handler that reads the first.
+// The five Pro formal seams, in one file so every one is reachable from the
+// action handlers that read them.
 //
 // **Open-core default: null.** Each screen is Pro analysis over a result set
 // that is not gated at all: the `sby` and `riscv_formal` drivers, the
@@ -51,4 +51,15 @@ final Provider<FormalScreenOpener?> pretraceAnalysisOpenerProvider =
 /// per-partition status of an EQY row is open core and does not go through
 /// this seam.
 final Provider<FormalScreenOpener?> eqyExplorerOpenerProvider =
+    Provider<FormalScreenOpener?>((ref) => null);
+
+/// A signed coverage report: a report file's signature state, its run, and
+/// each point's verdict with the evidence it opens. Gate
+/// `SimcruxGatedFeature.signedReport`.
+///
+/// Read by View > Signed Coverage Report…, which answers "requires SimCrux
+/// Pro" while this is null. The Pro opener asks for the file itself; it
+/// reads nothing from a tab, and a report's rows never enter the results
+/// table, the history or the regression comparison.
+final Provider<FormalScreenOpener?> signedReportOpenerProvider =
     Provider<FormalScreenOpener?>((ref) => null);

@@ -252,6 +252,15 @@ enum SimcruxAction implements CruxAction {
   /// it: they are in the results table in every tier.
   openFormalProperties,
 
+  /// Open a signed coverage report file (View > Signed Coverage Report…):
+  /// the report's signature state, its run, and each point's verdict with
+  /// the evidence it opens.
+  ///
+  /// Open core registers the action so it is discoverable and badged; the
+  /// screen lives behind `signedReportOpenerProvider`, which the Pro overlay
+  /// overrides and gates.
+  openSignedReport,
+
   /// Open the Pro per-test trend chart screen.
   ///
   /// Open-core surfaces the action through the
@@ -449,6 +458,7 @@ enum SimcruxAction implements CruxAction {
       // the upgrade context.
       case SimcruxAction.openSeedFailureHeatmap:
       case SimcruxAction.openFormalProperties:
+      case SimcruxAction.openSignedReport:
       case SimcruxAction.showTrendChart:
       case SimcruxAction.showSuiteTrendChart:
       case SimcruxAction.showCalendarHeatmap:
@@ -601,6 +611,8 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.toggleFlowRuns:
       // A view onto the run's formal rows, as the plan's menu table puts it.
       case SimcruxAction.openFormalProperties:
+      // A report file is read, not run: a view, beside Formal Properties.
+      case SimcruxAction.openSignedReport:
       case SimcruxAction.splitPaneRight:
       case SimcruxAction.closePane:
       case SimcruxAction.focusOtherPane:
@@ -679,6 +691,8 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionImportFormalProject;
       case SimcruxAction.openFormalProperties:
         return l10n.actionOpenFormalProperties;
+      case SimcruxAction.openSignedReport:
+        return l10n.actionOpenSignedReport;
       case SimcruxAction.closeProject:
         return l10n.actionCloseProject;
       case SimcruxAction.closeTab:

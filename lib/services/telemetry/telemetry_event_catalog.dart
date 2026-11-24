@@ -581,6 +581,36 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
           'diagnosis': kEqyPartitionDiagnosisTokens,
         },
       ),
+
+      // ── Pro: signed coverage reports ────────────────────────────────────
+      // Recorded by the report screen past its opener's gate. What the
+      // signature came to and which kind of points the report holds; never
+      // the design, the run key, a licence, a path, a point or a count.
+      TelemetryCatalogEvent(
+        'formal.report_opened',
+        enumeratedValues: <String, List<String>>{
+          'signature': kFormalReportSignatureTokens,
+          'points': kFormalReportPointsTokens,
+        },
+      ),
+      // A file the reader refused, by the kind of refusal: never the JSON
+      // pointer, the reason text or the path.
+      TelemetryCatalogEvent(
+        'formal.report_refused',
+        enumeratedValues: <String, List<String>>{
+          'code': kFormalReportRefusalTokens,
+        },
+      ),
+      // Each evidence action a report row ran: what it opened, how, and
+      // whether it got there. Never the file, the signal or the time.
+      TelemetryCatalogEvent(
+        'formal.report_evidence_opened',
+        enumeratedValues: <String, List<String>>{
+          'kind': kFormalReportEvidenceKindTokens,
+          'via': kFormalReportEvidenceViaTokens,
+        },
+        boolProperties: <String>['ok'],
+      ),
     ];
 
 /// The ingestion Worker's ceiling on an integer property value: anything with
@@ -858,6 +888,7 @@ const List<String> kSimcruxGatedFeatureTokens = <String>[
   'formal_history',
   'formal_pretrace',
   'eqy_explorer',
+  'signed_report',
   'flow_trends',
   'flow_compare',
   'flow_ppa_dashboard',
@@ -952,6 +983,51 @@ const List<String> kFormalDashboardViewTokens = <String>[
   'history',
   'pretrace',
   'eqy_partitions',
+];
+
+/// `formal.report_opened.signature`: what a report's signature came to. Two
+/// verified forms (a licensed installation's signature, a countersignature),
+/// a signature that failed a check, one this build holds no trusted key for,
+/// and no signature at all.
+const List<String> kFormalReportSignatureTokens = <String>[
+  'verified_installation',
+  'verified_countersigned',
+  'did_not_verify',
+  'no_trusted_key',
+  'unsigned',
+];
+
+/// `formal.report_opened.points`: covergroup bins or code-coverage points.
+const List<String> kFormalReportPointsTokens = <String>['bins', 'code'];
+
+/// `formal.report_refused.code`: why a report file was not shown. The
+/// reader's refusal kinds, and `unreadable` for a file that could not be
+/// read at all.
+const List<String> kFormalReportRefusalTokens = <String>[
+  'too_large',
+  'not_json',
+  'not_i_json',
+  'not_a_report',
+  'version',
+  'shape',
+  'invalid',
+  'not_as_written',
+  'unreadable',
+];
+
+/// `formal.report_evidence_opened.kind`: a point's source line or its
+/// witness waveform.
+const List<String> kFormalReportEvidenceKindTokens = <String>[
+  'source',
+  'witness',
+];
+
+/// `formal.report_evidence_opened.via`: the configured editor, a connected
+/// waveform viewer over CXP, or a link handed to the operating system.
+const List<String> kFormalReportEvidenceViaTokens = <String>[
+  'editor',
+  'cxp',
+  'link',
 ];
 
 /// `eqy.partition.diagnosed.diagnosis`: a failing partition whose match

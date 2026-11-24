@@ -356,7 +356,7 @@ void main() {
     }
   });
 
-  // ── The two Formal actions ──────────────────────────────────────────────
+  // ── The three Formal actions ────────────────────────────────────────────
   group('the Formal actions', () {
     test('Import Formal Project is a File importer on the menu and the '
         'palette, never the toolbar, enabled with nothing open', () {
@@ -392,6 +392,22 @@ void main() {
         ),
         isTrue,
       );
+    });
+
+    test('View > Signed Coverage Report is a Pro View action on the menu and '
+        'the palette, enabled with nothing open', () {
+      const action = SimcruxAction.openSignedReport;
+      expect(action.category, ActionCategory.view);
+      expect(action.requiredTier, LicenseTier.pro);
+      expect(descriptorFor(action).surfaces, {
+        SimcruxActionSurface.menu,
+        SimcruxActionSurface.palette,
+      });
+      expect(
+        isActionEnabled(action, const SimcruxActionContext()),
+        isTrue,
+      );
+      expect(paletteActionsFor(const SimcruxActionContext()), contains(action));
     });
   });
 

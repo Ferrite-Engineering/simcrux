@@ -59,6 +59,8 @@ void main() {
       SimcruxAction.importFormalProject,
       // The Pro formal properties dashboard — View menu / palette only.
       SimcruxAction.openFormalProperties,
+      // Signed Coverage Report — View menu / palette only.
+      SimcruxAction.openSignedReport,
       // Export Results — Tools menu / palette only, no chord.
       SimcruxAction.exportResults,
       // The implementation flow: menu and palette only.

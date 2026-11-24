@@ -2717,6 +2717,10 @@
   "@actionOpenFormalProperties": {
     "description": "View menu and command palette action that opens the Pro formal properties dashboard."
   },
+  "actionOpenSignedReport": "Signed Coverage Report…",
+  "@actionOpenSignedReport": {
+    "description": "View menu and command palette action that opens a signed coverage report file in the Pro report screen."
+  },
   "dashboardColumnVerdict": "Verdict",
   "@dashboardColumnVerdict": {
     "description": "Header of the results-table column that shows a formal row's verdict (Proved, Counterexample, Inconclusive, Did not run). Blank for simulation rows."

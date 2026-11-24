@@ -131,6 +131,10 @@ const Set<String> _proOnlyEvents = <String>{
   'formal.dashboard_opened',
   'formal.regression.raised',
   'eqy.partition.diagnosed',
+  // The Pro signed coverage report screen.
+  'formal.report_opened',
+  'formal.report_refused',
+  'formal.report_evidence_opened',
   // The commercial group. Its one recording site is
   // `showProUpgradeDialog`, which lives in the Pro overlay because the dialog
   // does — open core has no `CruxUpgradeDialog` call at all.

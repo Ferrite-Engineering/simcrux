@@ -188,6 +188,9 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // View > Formal Properties…: formalPropertiesOpenerProvider is null in
   // open core.
   SimcruxAction.openFormalProperties: _Dispatch.proGatedSnack,
+  // View > Signed Coverage Report…: signedReportOpenerProvider is null in
+  // open core.
+  SimcruxAction.openSignedReport: _Dispatch.proGatedSnack,
   SimcruxAction.showTrendChart: _Dispatch.proGatedSnack,
   SimcruxAction.showSuiteTrendChart: _Dispatch.proGatedSnack,
   SimcruxAction.showCalendarHeatmap: _Dispatch.proGatedSnack,

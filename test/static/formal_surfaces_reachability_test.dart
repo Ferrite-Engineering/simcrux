@@ -115,6 +115,17 @@ void main() {
     );
   });
 
+  test('View > Signed Coverage Report… reads the Pro seam', () {
+    expect(
+      kMenuLayout.values.expand((g) => g).expand((a) => a),
+      contains(SimcruxAction.openSignedReport),
+    );
+    expect(
+      _read('lib/core/shortcuts/simcrux_action_handlers.dart'),
+      contains('ref.read(signedReportOpenerProvider)'),
+    );
+  });
+
   test('the formal counters are recorded by both run paths', () {
     for (final path in const [
       'lib/features/dashboard/providers/regression_runner.dart',
