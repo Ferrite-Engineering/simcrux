@@ -23,11 +23,20 @@ class FlutterWindow : public Win32Window {
                          LPARAM const lparam) noexcept override;
 
  private:
+  // Runs the app's exit listeners before a Windows logoff, shutdown or
+  // restart ends the process: sends the framework the cancelable exit request
+  // a last-window close sends, then pumps messages until Dart answers or
+  // kSessionEndDeadlineMs passes. Called once, from WM_ENDSESSION.
+  void RunExitListenersBeforeSessionEnds();
+
   // The project to run.
   flutter::DartProject project_;
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+
+  // Whether WM_ENDSESSION has already started the exit request.
+  bool session_ending_ = false;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_
