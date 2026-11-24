@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "trend",
+  "outcome": "completed",
+  "engines": [],
+  "design": null,
+  "body": {
+    "id": "alu/sqrt_missing",
+    "history": [],
+    "flakiness": null
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "trend.not_executed",
+      "message": "In 1 of the 1 runs the test never ran its simulator; those runs are left out of the history.",
+      "fix": null,
+      "location": null
+    },
+    {
+      "severity": "warning",
+      "code": "licence.withheld",
+      "message": "The flakiness class needs a Pro licence and was left out of this answer; the rest of the answer stands.",
+      "fix": "SimCrux Pro gives it under a Pro licence; this command line holds no flakiness scoring.",
+      "location": null
+    }
+  ]
+}

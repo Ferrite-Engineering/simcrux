@@ -16,14 +16,14 @@ import 'package:simcrux/services/result_store/streaming_results_writer.dart';
 // `TestResult.metrics`, NOT a new typed field on `TestResult`.
 //
 // The NDJSON layer tolerates unknown keys at *line* level, which makes a
-// new typed field look like it works — it survives `_encodeRow` and
+// new typed field look like it works — it survives `encodeRow` and
 // `decode`. It dies at `hydrate`, which projects a fixed key list; four
 // existing fields already leak that way. `metrics` is the one channel
 // that survives all three stages with zero edits, so this test walks the
 // whole path — writer → reader → hydrator — and asserts the `golden.*`
 // keys arrive intact and unabridged.
 //
-// MUTATION: drop `metrics` from `_encodeRow` or from `hydrate`'s
+// MUTATION: drop `metrics` from `encodeRow` or from `hydrate`'s
 // TestResult construction and this file fails, while an in-memory-only
 // test of the same data would still pass.
 class _CaptureSink implements IOSink {

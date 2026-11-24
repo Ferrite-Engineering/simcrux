@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "run",
+  "outcome": "failed_gate",
+  "engines": [],
+  "design": null,
+  "body": {
+    "version": 1,
+    "config_path": "/spec/fixtures/design/simcrux.yaml",
+    "run": {
+      "id": "1795435200000",
+      "started_at": "2026-11-23T12:00:00.000Z",
+      "finished_at": "2026-11-23T12:00:00.000Z",
+      "total": 4
+    },
+    "totals": {
+      "pass": 1,
+      "fail": 1,
+      "timeout": 0,
+      "vacuous": 1,
+      "cover": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "unknown": 1
+    },
+    "results_path": "/spec/fixtures/design/results.ndjson",
+    "returned": 2,
+    "truncated": true,
+    "tests": [
+      {
+        "id": "alu/sub_fail",
+        "name": "sub_fail",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "fail",
+        "runtime_ms": 200,
+        "started_at": "2026-11-20T09:00:01.000Z",
+        "finished_at": "2026-11-20T09:00:01.200Z",
+        "exit_code": 1,
+        "waveform_path": "/spec/fixtures/waves/sub_fail.vcd",
+        "stdout_path": "/spec/fixtures/logs/alu_sub_fail.txt",
+        "stderr_path": null,
+        "failure_message": "ERROR: sub_fail: expected 0x3, got 0x4",
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/sub_fail",
+          "run": "1795435200000",
+          "file": "/spec/fixtures/logs/alu_sub_fail.txt",
+          "line": 3
+        },
+        "waveform": {
+          "file": "/spec/fixtures/waves/sub_fail.vcd",
+          "time": {
+            "at": 0,
+            "unit": "tick"
+          }
+        }
+      },
+      {
+        "id": "alu/mul_unknown",
+        "name": "mul_unknown",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "unknown",
+        "runtime_ms": 300,
+        "started_at": "2026-11-20T09:00:02.000Z",
+        "finished_at": "2026-11-20T09:00:02.300Z",
+        "exit_code": null,
+        "waveform_path": null,
+        "stdout_path": "/spec/fixtures/logs/alu_mul_unknown.txt",
+        "stderr_path": null,
+        "failure_message": "scheduler error: the driver stopped answering",
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/mul_unknown",
+          "run": "1795435200000",
+          "file": "/spec/fixtures/logs/alu_mul_unknown.txt",
+          "line": null
+        },
+        "waveform": null
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "gate.failed",
+      "message": "2 of 4 tests failed the gate (1 fail, 1 unknown); an unknown test counts as failed.",
+      "fix": null,
+      "location": null
+    }
+  ]
+}

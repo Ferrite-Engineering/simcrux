@@ -4,21 +4,29 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:crux_license/crux_license_core.dart';
+import 'package:crux_mcp/crux_mcp.dart'
+    hide CruxTelemetryProduct, HeadlessTelemetry, TelemetryPolicy;
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
 import 'package:simcrux/core/cli/ci_retention.dart';
 import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/flow_cli.dart';
+import 'package:simcrux/core/cli/flow_signal_reaper.dart';
 import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/telemetry/crux_telemetry_headless.dart';
 import 'package:simcrux/domain/enums/formal_import_kind.dart';
 import 'package:simcrux/domain/enums/riscv_import_kind.dart';
+import 'package:simcrux/domain/interfaces/job_scheduler.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/formal_import_result.dart';
 import 'package:simcrux/domain/models/regression_config.dart';
 import 'package:simcrux/domain/models/riscv_import_result.dart';
+import 'package:simcrux/headless/sim_commands.dart';
+import 'package:simcrux/headless/sim_document.dart';
+import 'package:simcrux/headless/simcrux_mcp.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/cli/cli_args.dart' as launch_cli;
@@ -34,6 +42,7 @@ import 'package:simcrux/services/job_scheduler/dump_retention.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
 import 'package:simcrux/services/license/headless_license_tier.dart';
+import 'package:simcrux/services/scratch/simcrux_scratch.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
 import 'package:simcrux/services/simulator/dart_test_driver.dart';
 import 'package:simcrux/services/simulator/eqy_driver.dart';
@@ -99,6 +108,18 @@ class SimcruxCli {
   /// [licenseTierResolver] and [configLoaderFactory] are injectable so tests
   /// can supply a license without a signed credential, and a loader with the
   /// beta period off.
+  ///
+  /// [program] is the `tool` every `--json` document names. [classify] maps
+  /// a run to its outcome and is replaced only by the test that proves a
+  /// broken mapping is caught. [trendFlakiness] gives `trend` its flakiness
+  /// class; without it (open core) the class is withheld and the document
+  /// says so. [mcpTelemetry] makes the `mcp` server's counter (`null`
+  /// counts nothing). [runSchedulerFactory], [runRoot] and [now] are seams
+  /// for the `run` command's tests: the scheduler a run executes on, the
+  /// directory its work folders go under (SimCrux scratch unless given), and
+  /// its clock. [installSignalHandlers] makes `run` and `mcp` cancel their
+  /// runs on SIGINT or SIGTERM; only `bin/simcrux.dart` turns it on, since
+  /// the handlers are process-wide.
   SimcruxCli({
     SimulatorDriverRegistry? driverRegistry,
     this.failOnRegressionPolicy = const UnavailableFailOnRegressionPolicy(),
@@ -107,11 +128,46 @@ class SimcruxCli {
     LicenseCli? licenseCli,
     ConfigLoader Function(LicenseTier tier, {required bool allowTooling})?
     configLoaderFactory,
+    this.program = const McpProgram(
+      name: kSimcruxProgramName,
+      version: SimCruxBuildInfo.productVersion,
+    ),
+    this.classify = classifySimRun,
+    this.trendFlakiness,
+    McpTelemetry? Function()? mcpTelemetry,
+    this.runSchedulerFactory,
+    this.runRoot,
+    this.now,
+    this.installSignalHandlers = false,
   }) : driverRegistry = driverRegistry ?? defaultDriverRegistry(),
        licenseTierResolver =
            licenseTierResolver ?? HeadlessLicenseTierResolver(),
        licenseCli = licenseCli ?? LicenseCli(),
-       configLoaderFactory = configLoaderFactory ?? _defaultConfigLoader;
+       configLoaderFactory = configLoaderFactory ?? _defaultConfigLoader,
+       _mcpTelemetry = mcpTelemetry ?? simcruxMcpTelemetry;
+
+  /// The program every `--json` document and the `mcp` server name.
+  final McpProgram program;
+
+  /// Maps a run to its outcome.
+  final SimRunClassifier classify;
+
+  /// The flakiness class `trend` gives, when this build computes one.
+  final SimTrendFlakiness? trendFlakiness;
+
+  final McpTelemetry? Function() _mcpTelemetry;
+
+  /// The scheduler `run` executes on; [ciSchedulerFor] when null.
+  final JobScheduler Function(RegressionConfig config)? runSchedulerFactory;
+
+  /// Where `run`'s work folders go; SimCrux scratch when null.
+  final String? runRoot;
+
+  /// `run`'s clock; the wall clock when null.
+  final DateTime Function()? now;
+
+  /// Whether `run` and `mcp` watch SIGINT and SIGTERM.
+  final bool installSignalHandlers;
 
   /// Simulator drivers available to `--ci` runs.
   final SimulatorDriverRegistry driverRegistry;
@@ -181,11 +237,35 @@ class SimcruxCli {
   /// the desktop app would open a window here — is an error for this
   /// binary: it prints the usage block and exits `2` rather than
   /// silently doing nothing.
+  ///
+  /// `run`, `results`, `test` and `trend` write one JSON document with
+  /// `--json` and exit with the suite's codes for its outcome; `mcp` serves
+  /// the four as MCP tools, reading requests from [input] and writing
+  /// answers to [output] (the process's stdin and stdout unless given).
   Future<int> run(
     List<String> args, {
     required void Function(String line) stdoutSink,
     required void Function(String line) stderrSink,
+    Stream<List<int>>? input,
+    StreamSink<List<int>>? output,
   }) async {
+    if (args.isNotEmpty && args.first == kMcpSubcommand) {
+      return await _serve(
+        args.sublist(1),
+        stdoutSink: stdoutSink,
+        stderrSink: stderrSink,
+        input: input,
+        output: output,
+      );
+    }
+    if (args.isNotEmpty && SimCommands.names.contains(args.first)) {
+      return await _command(
+        args.first,
+        args.sublist(1),
+        stdoutSink: stdoutSink,
+        stderrSink: stderrSink,
+      );
+    }
     // Tolerate the suite-shared launch recovery flags (`--reset` /
     // `--no-restore`) the way `bootstrap()` does: strip them before the
     // strict parser, so a shell alias shared between the app and the
@@ -199,6 +279,8 @@ class SimcruxCli {
       final parsed = CliArgParser().parse(launchArgs);
       if (parsed is HelpCliArgs) {
         stdoutSink(CliArgParser().usage);
+        stdoutSink('');
+        stdoutSink(kCommandsUsage);
         return 0;
       }
       if (parsed is VersionCliArgs) {
@@ -270,9 +352,10 @@ class SimcruxCli {
     // for these; this binary cannot, and pretending the run happened
     // would be the silent-false-clean failure mode.
     stderrSink(
-      'simcrux: nothing to do headless — pass --ci <config>, '
+      'simcrux: nothing to do headless: pass --ci <config>, '
       '--import-fusesoc, import-riscv-arch-test, import-riscv-formal, '
-      'import-sby, import-eqy, export-dashboard, license, or flow. The '
+      'import-sby, import-eqy, export-dashboard, license, flow, run, '
+      'results, test, trend, or mcp. The '
       'graphical workflows '
       'need the SimCrux desktop app.',
     );
@@ -455,5 +538,252 @@ class SimcruxCli {
       stderrSink('simcrux: $e');
       return 2;
     }
+  }
+
+  // ── run, results, test, trend, mcp ────────────────────────────────
+
+  /// The word that starts the MCP server.
+  static const String kMcpSubcommand = 'mcp';
+
+  /// The lines `--help` adds below the option list.
+  static const String kCommandsUsage =
+      'Commands that write one JSON document with --json (each has --help):\n'
+      '  run <simcrux.yaml>                 run a regression, each test '
+      'described\n'
+      '  results <results.ndjson>           the results of a run\n'
+      '  test <results.ndjson> <suite/test> one test, its log and seed\n'
+      "  trend <suite/test> <results.ndjson>... a test's history\n"
+      '  mcp [--root <dir>]                 serve the four as MCP tools on '
+      'stdio';
+
+  /// SimCrux's own `runs/` folder, where `run` keeps failing tests' work
+  /// folders.
+  String scratchRuns() => p.join(runRoot ?? SimcruxScratch.jobs(), 'runs');
+
+  /// The four commands, running regressions through [executeRun] with
+  /// [log] for what a run says on the way.
+  SimCommands commands({required void Function(String line) log}) =>
+      SimCommands(
+        program: program,
+        classify: classify,
+        trendFlakiness: trendFlakiness,
+        scratchRuns: scratchRuns,
+        execute: (request) => executeRun(request, log: log),
+      );
+
+  /// Runs [request] the way `--ci` runs a project: the licence tier from
+  /// the same resolver, the project loaded at it with project tooling off,
+  /// the same `CiRunner` and scheduler. No export, and no telemetry but the
+  /// server's own `mcp.tool_call`. [log] gets what `--ci` prints on stderr.
+  Future<SimRunExecution> executeRun(
+    SimRunRequest request, {
+    required void Function(String line) log,
+  }) async {
+    final resolution = await licenseTierResolver.resolve(
+      licenseFilePath: request.licenseFile,
+    );
+    resolution.notes.map((note) => 'simcrux: $note').forEach(log);
+    final tier = resolution.tier;
+    final loader = configLoaderFactory(tier, allowTooling: false);
+    final config = await loader.load(request.configPath);
+    final retention = ciDumpRetentionPolicy(keepFailures: null, log: log);
+    final runner = CiRunner(
+      configLoader: loader,
+      schedulerFactory:
+          runSchedulerFactory ??
+          (config) => LocalJobScheduler(
+            driverRegistry: driverRegistry,
+            config: config,
+            runRoot: runRoot,
+            dumpRetentionPolicy: retention,
+          ),
+      exporterRegistry: const ExporterRegistry(),
+      stdoutWriter: log,
+      stderrWriter: log,
+      licenseTier: tier,
+      now: now,
+    );
+    final result = await runner.run(
+      args: CliArgs(
+        projectPaths: <String>[request.configPath],
+        filter: request.filter,
+        maxParallel: request.maxParallel,
+        ciMode: true,
+      ),
+      config: config,
+      cancel: request.cancel,
+      onProgress: request.onProgress,
+    );
+    return (
+      result: result,
+      loadWarnings: <String>[for (final w in config.loadWarnings) w.format()],
+    );
+  }
+
+  /// Writes [document] as the whole of stdout: [McpDocument.render] ends in
+  /// the newline [sink] adds.
+  static void _writeDocument(void Function(String) sink, McpDocument document) {
+    final text = document.render();
+    sink(text.substring(0, text.length - 1));
+  }
+
+  Future<int> _command(
+    String name,
+    List<String> args, {
+    required void Function(String line) stdoutSink,
+    required void Function(String line) stderrSink,
+  }) async {
+    if (args.contains('--help') || args.contains('-h')) {
+      stdoutSink(SimCommands.usageOf(name));
+      stdoutSink(SimCommands.parserFor(name).usage);
+      return 0;
+    }
+    final stop = Completer<void>();
+    final reaper = installSignalHandlers && name == kRunCommand
+        ? (FlowSignalReaper()..install((_) {
+            if (!stop.isCompleted) stop.complete();
+          }))
+        : null;
+    final McpDocument document;
+    try {
+      document = await commands(
+        log: stderrSink,
+      ).document(name, args, cancel: stop.future);
+    } finally {
+      await reaper?.dispose();
+    }
+    if (args.contains('--json')) {
+      _writeDocument(stdoutSink, document);
+    } else {
+      SimCommands.describe(document).forEach(stdoutSink);
+    }
+    for (final d in document.diagnostics) {
+      stderrSink('simcrux $name: ${d.severity.name}: ${d.message}');
+    }
+    return reaper?.exitCode ?? McpExitCodes.suite.exitCodeFor(document.outcome);
+  }
+
+  /// The MCP server over `run`, `results`, `test` and `trend`, its paths
+  /// held inside [root]. Every call runs the command line the tool's fields
+  /// make, plus `--root` (so a log is read only inside the root or SimCrux
+  /// scratch) and, for `run`, the server's [licenseFile]; [stop] cancels
+  /// every run in flight.
+  McpServer server({
+    required String root,
+    String? licenseFile,
+    McpTelemetry? telemetry,
+    void Function(String line)? log,
+    Future<void>? stop,
+  }) {
+    final sink = log ?? (String line) => stderr.writeln(line);
+    final confinement = Confinement(root);
+    return McpServer(
+      program: program,
+      instructions: kSimcruxMcpInstructions,
+      tools: kSimcruxMcpTools,
+      confinement: confinement,
+      telemetry: telemetry,
+      log: log,
+      runner: (call) async {
+        final name = call.tool.command;
+        final cancel = stop == null
+            ? call.whenCancelled
+            : Future.any(<Future<void>>[call.whenCancelled, stop]);
+        return McpCommandOutput.document(
+          await commands(log: sink).document(
+            name,
+            <String>[
+              ...call.arguments.argv,
+              '--root',
+              confinement.root,
+              if (name == kRunCommand && licenseFile != null) ...<String>[
+                '--license-file',
+                licenseFile,
+              ],
+              '--json',
+            ],
+            cancel: cancel,
+            onProgress: (finished, submitted) =>
+                call.progress(finished, total: submitted),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<int> _serve(
+    List<String> args, {
+    required void Function(String line) stdoutSink,
+    required void Function(String line) stderrSink,
+    Stream<List<int>>? input,
+    StreamSink<List<int>>? output,
+  }) async {
+    final parser = ArgParser()
+      ..addOption(
+        'root',
+        help: 'Every path a tool receives must be inside it.',
+        valueHelp: 'dir',
+        defaultsTo: Directory.current.path,
+      )
+      ..addOption(
+        'license-file',
+        valueHelp: 'path',
+        help:
+            'A SimCrux licence file for run, read as --ci reads it. The '
+            'four tools of this binary are free.',
+      )
+      ..addFlag('help', abbr: 'h', negatable: false, help: 'This text.');
+    final ArgResults parsed;
+    try {
+      parsed = parser.parse(args);
+    } on FormatException catch (e) {
+      stderrSink('simcrux mcp: ${e.message}');
+      stderrSink(parser.usage);
+      return McpExitCodes.suite.usageError;
+    }
+    if (parsed.flag('help')) {
+      stdoutSink(
+        'Serve run, results, test and trend as MCP tools: newline-delimited '
+        'JSON-RPC on stdin and stdout.\n\n'
+        'Usage: simcrux mcp [--root <dir>] [--license-file <path>]',
+      );
+      stdoutSink(parser.usage);
+      return 0;
+    }
+    if (parsed.rest.isNotEmpty) {
+      stderrSink('simcrux mcp: unexpected `${parsed.rest.first}`');
+      return McpExitCodes.suite.usageError;
+    }
+    final stop = Completer<void>();
+    final server = this.server(
+      root: parsed.option('root')!,
+      licenseFile: parsed.option('license-file'),
+      telemetry: _mcpTelemetry(),
+      log: stderrSink,
+      stop: stop.future,
+    );
+    final problem = server.confinement.rootProblem();
+    if (problem != null) {
+      stderrSink('simcrux mcp: $problem');
+      return McpExitCodes.suite.usageError;
+    }
+    // A signal cancels every run in flight (killing its simulators), and
+    // the binary exits with the signal's code once they have stopped.
+    final reaper = installSignalHandlers
+        ? (FlowSignalReaper()..install((_) {
+            if (!stop.isCompleted) stop.complete();
+          }))
+        : null;
+    try {
+      await Future.any(<Future<void>>[
+        server.serve(input ?? stdin, output ?? stdout),
+        stop.future.then(
+          (_) => Future<void>.delayed(const Duration(seconds: 10)),
+        ),
+      ]);
+    } finally {
+      await reaper?.dispose();
+    }
+    return reaper?.exitCode ?? 0;
   }
 }

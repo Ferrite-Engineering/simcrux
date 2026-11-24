@@ -1,0 +1,22 @@
+# The spec's main project: one test of each kind the run gate tells apart.
+# The tests run on the spec's scripted scheduler
+# (test/headless/support/spec_scheduler.dart), which reads each result off
+# the test's name.
+version: '1'
+defaults:
+  simulator: scripted
+  pass_fail:
+    type: exit_code
+suites:
+  alu:
+    sources:
+      - rtl/alu.v
+    tests:
+      - name: add
+        top: alu
+      - name: sub_fail
+        top: alu
+      - name: mul_unknown
+        top: alu
+      - name: div_vacuous
+        top: alu

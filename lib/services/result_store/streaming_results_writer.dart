@@ -134,7 +134,7 @@ class StreamingResultsWriter {
       );
     }
     _totals.update(row.result.status, (n) => n + 1, ifAbsent: () => 1);
-    _sink!.writeln(jsonEncode(_encodeRow(row)));
+    _sink!.writeln(jsonEncode(encodeRow(row)));
   }
 
   /// Writes the trailing `summary` line to the NDJSON, closes the
@@ -204,8 +204,12 @@ class StreamingResultsWriter {
     };
   }
 
-  static Map<String, Object?> _encodeRow(DashboardRow row) {
+  /// The `result` line [recordRow] writes for [row], as a map: one
+  /// definition of the line, so a reader of the file and a reader of a run
+  /// still in memory (`simcrux run --json`) see the same row.
+  static Map<String, Object?> encodeRow(DashboardRow row) {
     final r = row.result;
+    final parameters = r.boundParameters;
     return <String, Object?>{
       'type': 'result',
       'id': row.testId,
@@ -232,6 +236,13 @@ class StreamingResultsWriter {
       // in, which is what its `trends.db` rows assumed anyway.
       'did_execute': r.didExecute,
       if (r.metrics.isNotEmpty) 'metrics': Map<String, String>.from(r.metrics),
+      // The seed the simulator ran with and the parameter slice of a swept
+      // test, so `simcrux test` can say how to reproduce a failure from the
+      // archive alone. Additive like `did_execute`, and written only when
+      // known, so a run without either writes the lines it always wrote.
+      if (r.executionSeed != null) 'seed': r.executionSeed,
+      if (parameters != null && parameters.isNotEmpty)
+        'parameters': Map<String, String>.from(parameters),
     };
   }
 
@@ -438,7 +449,7 @@ class StreamingResultsSummary {
 ///
 /// Streaming throws away suite/simulator/test-name (they live only
 /// in the NDJSON) but the reader keeps them, so this helper is the
-/// inverse of [StreamingResultsWriter._encodeRow].
+/// inverse of [StreamingResultsWriter.encodeRow].
 class StreamingResultsHydrator {
   /// Const constructor.
   const StreamingResultsHydrator();

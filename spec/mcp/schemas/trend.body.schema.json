@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The body of simcrux trend",
+  "description": "A test's history across the results.ndjson files given, newest first: its last row in each file whose simulator ran. A run in which the simulator never ran is left out, and a warning counts it. flakiness is the Pro FlakinessScoringEngine's class; the open-core command gives null and a licence.withheld warning.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "history", "flakiness"],
+  "properties": {
+    "id": {"type": "string"},
+    "history": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["run", "started_at", "status", "runtime_ms"],
+        "properties": {
+          "run": {"type": "string"},
+          "started_at": {"type": "string"},
+          "status": {"enum": ["pass", "fail", "vacuous", "cover", "skipped", "timeout", "cancelled", "unknown"]},
+          "runtime_ms": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "flakiness": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["class", "score", "flips", "window"],
+          "properties": {
+            "class": {"enum": ["stable", "intermittent", "flaky", "highlyFlaky", "consistentlyFailing"]},
+            "score": {"type": "number"},
+            "flips": {"type": "integer", "minimum": 0},
+            "window": {"type": "integer", "minimum": 0}
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "trend",
+  "outcome": "input_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "trend.not_found",
+      "message": "None of the 1 runs has a test `alu/nosuch`.",
+      "fix": "List a run's tests with simcrux results; an id is suite/test.",
+      "location": null
+    }
+  ]
+}

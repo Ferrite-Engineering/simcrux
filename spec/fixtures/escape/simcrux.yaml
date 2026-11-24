@@ -1,0 +1,14 @@
+# A project inside the root that names a source outside it: the server
+# refuses it before anything runs.
+version: '1'
+defaults:
+  simulator: scripted
+  pass_fail:
+    type: exit_code
+suites:
+  smoke:
+    sources:
+      - ../../outside/alu.v
+    tests:
+      - name: a
+        top: alu

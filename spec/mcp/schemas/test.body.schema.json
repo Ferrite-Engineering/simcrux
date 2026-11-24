@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The body of simcrux test",
+  "description": "One test of a run: its row (as run and results give it), the seed and parameter slice it ran with, the signal that killed it, the log line its failure message came from, and the end of its log: at most lines lines and at most 64 KiB. The log is the row's stdout, or its stderr when stdout is empty; log is null when it is not recorded, not there, or outside the root and SimCrux scratch, and a warning says which.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["test", "seed", "parameters", "kill_signal", "first_failure", "log"],
+  "properties": {
+    "test": {"$ref": "#/$defs/testRow"},
+    "seed": {"type": ["integer", "null"]},
+    "parameters": {"type": ["object", "null"]},
+    "kill_signal": {"type": ["string", "null"]},
+    "first_failure": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/source"}]},
+    "log": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "from_line", "lines", "truncated"],
+          "properties": {
+            "path": {"type": "string"},
+            "from_line": {"type": "integer", "minimum": 1},
+            "lines": {"type": "array", "maxItems": 1000, "items": {"type": "string"}},
+            "truncated": {"type": "boolean"}
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "line", "column"],
+      "properties": {
+        "file": {"type": "string"},
+        "line": {"type": "integer", "minimum": 1},
+        "column": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "testRow": {
+      "description": "As in run.body.schema.json.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "suite", "simulator", "status", "runtime_ms", "started_at", "finished_at", "exit_code", "waveform_path", "stdout_path", "stderr_path", "failure_message", "metrics", "did_execute", "location", "waveform"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "suite": {"type": "string"},
+        "simulator": {"type": "string"},
+        "status": {"enum": ["pass", "fail", "vacuous", "cover", "skipped", "timeout", "cancelled", "unknown"]},
+        "runtime_ms": {"type": "integer", "minimum": 0},
+        "started_at": {"type": "string"},
+        "finished_at": {"type": ["string", "null"]},
+        "exit_code": {"type": ["integer", "null"]},
+        "waveform_path": {"type": ["string", "null"]},
+        "stdout_path": {"type": ["string", "null"]},
+        "stderr_path": {"type": ["string", "null"]},
+        "failure_message": {"type": ["string", "null"]},
+        "metrics": {"type": ["object", "null"]},
+        "did_execute": {"type": "boolean"},
+        "location": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["test", "run", "file", "line"],
+          "properties": {
+            "test": {"type": "string"},
+            "run": {"type": "string"},
+            "file": {"type": ["string", "null"]},
+            "line": {"type": ["integer", "null"], "minimum": 1}
+          }
+        },
+        "waveform": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["file", "time"],
+              "properties": {
+                "file": {"type": "string"},
+                "time": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["at", "unit"],
+                  "properties": {
+                    "at": {"type": "integer", "minimum": 0},
+                    "unit": {"enum": ["fs", "ps", "ns", "us", "ms", "s", "tick"]}
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

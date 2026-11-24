@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "test",
+  "outcome": "completed",
+  "engines": [],
+  "design": null,
+  "body": {
+    "test": {
+      "id": "alu/sub_fail",
+      "name": "sub_fail",
+      "suite": "alu",
+      "simulator": "scripted",
+      "status": "fail",
+      "runtime_ms": 300,
+      "started_at": "2026-11-19T09:00:01.000Z",
+      "finished_at": "2026-11-19T09:00:01.300Z",
+      "exit_code": 1,
+      "waveform_path": "/spec/fixtures/waves/sub_fail.vcd",
+      "stdout_path": "/spec/fixtures/logs/alu_sub_fail.txt",
+      "stderr_path": null,
+      "failure_message": "ERROR: sub_fail: expected 0x3, got 0x4",
+      "metrics": {
+        "cycles": "120"
+      },
+      "did_execute": true,
+      "location": {
+        "test": "alu/sub_fail",
+        "run": "1795597200000",
+        "file": "/spec/fixtures/logs/alu_sub_fail.txt",
+        "line": 3
+      },
+      "waveform": {
+        "file": "/spec/fixtures/waves/sub_fail.vcd",
+        "time": {
+          "at": 0,
+          "unit": "tick"
+        }
+      }
+    },
+    "seed": 7,
+    "parameters": {
+      "WIDTH": "8"
+    },
+    "kill_signal": null,
+    "first_failure": {
+      "file": "/spec/fixtures/logs/alu_sub_fail.txt",
+      "line": 3,
+      "column": null
+    },
+    "log": {
+      "path": "/spec/fixtures/logs/alu_sub_fail.txt",
+      "from_line": 1,
+      "lines": [
+        "simcrux scripted simulator",
+        "running alu/sub_fail with seed 7",
+        "ERROR: sub_fail: expected 0x3, got 0x4",
+        "$finish called at 120 (1ns)"
+      ],
+      "truncated": false
+    }
+  },
+  "diagnostics": []
+}

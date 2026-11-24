@@ -1,0 +1,2 @@
+simcrux scripted simulator
+running smoke/y_unknown

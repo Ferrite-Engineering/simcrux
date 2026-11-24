@@ -52,6 +52,8 @@
 import 'dart:io';
 
 import 'package:crux_license/crux_license.dart';
+import 'package:crux_mcp/crux_mcp.dart'
+    show kMcpDurationBuckets, kMcpToolCallEvent, kMcpToolCallOutcomes;
 import 'package:crux_telemetry/crux_telemetry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,6 +63,7 @@ import 'package:simcrux/domain/enums/regression_trigger.dart';
 import 'package:simcrux/domain/models/flakiness_score.dart';
 import 'package:simcrux/domain/models/trend_alert.dart';
 import 'package:simcrux/features/remote/services/debug_in_wavecrux_dispatcher.dart';
+import 'package:simcrux/headless/simcrux_mcp.dart' show kSimcruxMcpTools;
 import 'package:simcrux/services/export/result_exporter.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
 import 'package:simcrux/services/telemetry/gated_feature.dart';
@@ -142,6 +145,8 @@ const Set<String> _proOnlyEvents = <String>{
 const Set<String> _sharedEvents = <String>{
   'app.uncaught_error',
   'app.unclean_shutdown',
+  // `crux_mcp`'s `McpTelemetry`, once per tool call of `simcrux mcp`.
+  'mcp.tool_call',
 };
 
 void main() {
@@ -478,6 +483,21 @@ void main() {
       entry.enumeratedValues['library'],
       containsAll(<String>['none', 'other']),
     );
+  });
+
+  test("mcp.tool_call carries crux_mcp's vocabulary and the served tools", () {
+    // Recorded by `crux_mcp`, not by a call site here, so the lists are the
+    // package's: a token the package records that the catalog lacks would be
+    // a value the catalog never declared.
+    final entry = catalog.firstWhere((e) => e.name == kMcpToolCallEvent);
+    expect(entry.propertyKeys.toSet(), <String>{'tool', 'outcome', 'duration'});
+    expect(entry.enumeratedValues['outcome']!.toSet(), kMcpToolCallOutcomes);
+    expect(entry.enumeratedValues['duration'], kMcpDurationBuckets);
+    expect(
+      entry.enumeratedValues['tool'],
+      containsAll(kSimcruxMcpTools.map((t) => t.name)),
+    );
+    expect(_sharedEvents, contains(kMcpToolCallEvent));
   });
 
   test('app.unclean_shutdown is the shared constant, with no properties', () {

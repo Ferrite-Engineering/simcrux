@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "run",
+  "outcome": "usage_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "usage",
+      "message": "`/spec/outside/more.yaml` is outside the root /spec/fixtures; the server reads only inside it",
+      "fix": null,
+      "location": null
+    }
+  ]
+}

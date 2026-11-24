@@ -45,6 +45,16 @@ class TelemetryCatalogEvent {
   ];
 }
 
+/// The `tool` vocabulary of `mcp.tool_call`: every tool the open-core
+/// `simcrux mcp` and the Pro edition's server list.
+const List<String> kSimcruxMcpToolNames = <String>[
+  'run',
+  'results',
+  'test',
+  'trend',
+  'compare',
+];
+
 /// **The** SimCrux event catalog — every telemetry event either repository
 /// may record, with the closed vocabulary of every property.
 ///
@@ -384,6 +394,33 @@ const List<TelemetryCatalogEvent> kSimcruxEventCatalog =
       // the headless-closure reason above; the conformance test asserts the
       // two are equal.
       TelemetryCatalogEvent('app.unclean_shutdown'),
+
+      // `crux_mcp`'s `McpTelemetry` records this once per tool call of the
+      // headless `simcrux mcp` server, under the consent this desktop app
+      // recorded and never when `CI` is set; no call site in either
+      // repository spells it. Three properties and nothing else: never an
+      // argument, a path, a test id or a file name. `outcome` and `duration`
+      // are the package's `kMcpToolCallOutcomes` and `kMcpDurationBuckets`,
+      // as literals for the headless-closure reason above; the conformance
+      // test holds them equal. `tool` is every tool either edition's server
+      // lists.
+      TelemetryCatalogEvent(
+        'mcp.tool_call',
+        enumeratedValues: <String, List<String>>{
+          'tool': kSimcruxMcpToolNames,
+          'outcome': <String>[
+            'completed',
+            'failed_gate',
+            'usage_error',
+            'input_error',
+            'engine_error',
+            'licence_error',
+            'unreadable',
+            'crashed',
+          ],
+          'duration': <String>['lt_1s', '1s_10s', '10s_1m', '1m_10m', 'ge_10m'],
+        },
+      ),
 
       // ── the commercial group ───────────────────────────────────────────────
       // Every other counter in this file records a feature

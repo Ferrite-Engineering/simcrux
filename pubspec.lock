@@ -237,6 +237,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  crux_mcp:
+    dependency: "direct main"
+    description:
+      path: "crux-shared/packages/crux_mcp"
+      relative: true
+    source: path
+    version: "0.1.0"
   crux_menu_bar:
     dependency: "direct main"
     description:

@@ -1,0 +1,16 @@
+# A project inside the root that includes a project file outside it: the
+# server refuses it without reading the included file.
+version: '1'
+includes:
+  - ../../outside/more.yaml
+defaults:
+  simulator: scripted
+  pass_fail:
+    type: exit_code
+suites:
+  smoke:
+    sources:
+      - ../design/rtl/alu.v
+    tests:
+      - name: a
+        top: alu

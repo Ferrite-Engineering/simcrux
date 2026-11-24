@@ -49,6 +49,8 @@ class StreamingResultRow {
     this.killSignal,
     this.didExecute = true,
     this.metrics = const <String, String>{},
+    this.seed,
+    this.parameters,
   });
 
   /// Projects a decoded `result` line, or returns `null` when the line cannot
@@ -85,6 +87,8 @@ class StreamingResultRow {
       // recorded only tests that ran.
       didExecute: row['did_execute'] is! bool || row['did_execute']! as bool,
       metrics: _metrics(row['metrics']),
+      seed: row['seed'] is int ? row['seed']! as int : null,
+      parameters: row['parameters'] is Map ? _metrics(row['parameters']) : null,
     );
   }
 
@@ -140,6 +144,12 @@ class StreamingResultRow {
 
   /// Free-form simulator-emitted metrics.
   final Map<String, String> metrics;
+
+  /// The seed the simulator ran with, when the archive recorded one.
+  final int? seed;
+
+  /// The parameter slice of a swept test, when the archive recorded one.
+  final Map<String, String>? parameters;
 
   @override
   String toString() => 'StreamingResultRow($testId, ${status.name})';

@@ -1,0 +1,15 @@
+# Two tests that pass on the spec's scripted scheduler: a completed run.
+version: '1'
+defaults:
+  simulator: scripted
+  pass_fail:
+    type: exit_code
+suites:
+  smoke:
+    sources:
+      - ../design/rtl/alu.v
+    tests:
+      - name: a
+        top: alu
+      - name: b
+        top: alu

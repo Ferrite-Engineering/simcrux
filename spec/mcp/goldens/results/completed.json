@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "results",
+  "outcome": "completed",
+  "engines": [],
+  "design": null,
+  "body": {
+    "version": 1,
+    "config_path": "/spec/fixtures/design/simcrux.yaml",
+    "run": {
+      "id": "1795510800000",
+      "started_at": "2026-11-18T09:00:00.000Z",
+      "finished_at": "2026-11-18T09:00:03.000Z",
+      "total": 3
+    },
+    "totals": {
+      "pass": 3,
+      "fail": 0,
+      "timeout": 0,
+      "vacuous": 0,
+      "cover": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "results_path": "/spec/fixtures/runs/run_a.ndjson",
+    "returned": 3,
+    "truncated": false,
+    "tests": [
+      {
+        "id": "alu/add",
+        "name": "add",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "pass",
+        "runtime_ms": 250,
+        "started_at": "2026-11-18T09:00:00.000Z",
+        "finished_at": "2026-11-18T09:00:00.250Z",
+        "exit_code": 0,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": null,
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/add",
+          "run": "1795510800000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      },
+      {
+        "id": "alu/mul_unknown",
+        "name": "mul_unknown",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "pass",
+        "runtime_ms": 400,
+        "started_at": "2026-11-18T09:00:02.000Z",
+        "finished_at": "2026-11-18T09:00:02.400Z",
+        "exit_code": 0,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": null,
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/mul_unknown",
+          "run": "1795510800000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      },
+      {
+        "id": "alu/sub_fail",
+        "name": "sub_fail",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "pass",
+        "runtime_ms": 300,
+        "started_at": "2026-11-18T09:00:01.000Z",
+        "finished_at": "2026-11-18T09:00:01.300Z",
+        "exit_code": 0,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": null,
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/sub_fail",
+          "run": "1795510800000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      }
+    ]
+  },
+  "diagnostics": []
+}

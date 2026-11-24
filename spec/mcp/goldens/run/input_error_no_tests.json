@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "run",
+  "outcome": "input_error",
+  "engines": [],
+  "design": null,
+  "body": {
+    "version": 1,
+    "config_path": "/spec/fixtures/design/simcrux.yaml",
+    "run": {
+      "id": "1795435200000",
+      "started_at": "2026-11-23T12:00:00.000Z",
+      "finished_at": "2026-11-23T12:00:00.000Z",
+      "total": 0
+    },
+    "totals": {
+      "pass": 0,
+      "fail": 0,
+      "timeout": 0,
+      "vacuous": 0,
+      "cover": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "results_path": "/spec/fixtures/design/results.ndjson",
+    "returned": 0,
+    "truncated": false,
+    "tests": []
+  },
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "run.no_tests",
+      "message": "No test was selected: the config has none, or the filter matched none.",
+      "fix": "List the config's test ids with simcrux results on an earlier run, and give a filter that one of them contains.",
+      "location": null
+    }
+  ]
+}

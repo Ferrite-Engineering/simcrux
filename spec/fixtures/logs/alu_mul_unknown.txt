@@ -1,0 +1,2 @@
+simcrux scripted simulator
+running alu/mul_unknown

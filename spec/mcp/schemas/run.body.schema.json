@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The body of simcrux run and simcrux results",
+  "description": "A run, its totals over every row, and up to limit of its rows, failures first (fail, timeout, unknown, cancelled, vacuous, skipped, cover, pass; then by id). results reads it from the run's results.ndjson, run from the run it just made; for the same run the two are the same. finished_at is null for a file with no summary line.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "config_path", "run", "totals", "results_path", "returned", "truncated", "tests"],
+  "properties": {
+    "version": {"const": 1},
+    "config_path": {"type": ["string", "null"]},
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "started_at", "finished_at", "total"],
+      "properties": {
+        "id": {"type": "string"},
+        "started_at": {"type": "string"},
+        "finished_at": {"type": ["string", "null"]},
+        "total": {"type": "integer", "minimum": 0}
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pass", "fail", "timeout", "vacuous", "cover", "skipped", "cancelled", "unknown"],
+      "properties": {
+        "pass": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0},
+        "timeout": {"type": "integer", "minimum": 0},
+        "vacuous": {"type": "integer", "minimum": 0},
+        "cover": {"type": "integer", "minimum": 0},
+        "skipped": {"type": "integer", "minimum": 0},
+        "cancelled": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0}
+      }
+    },
+    "results_path": {"type": ["string", "null"]},
+    "returned": {"type": "integer", "minimum": 0},
+    "truncated": {"type": "boolean"},
+    "tests": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/testRow"}}
+  },
+  "$defs": {
+    "testRow": {
+      "description": "The --export json version 1 test row, metrics always present (null when empty), plus did_execute, location and waveform.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "suite", "simulator", "status", "runtime_ms", "started_at", "finished_at", "exit_code", "waveform_path", "stdout_path", "stderr_path", "failure_message", "metrics", "did_execute", "location", "waveform"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "suite": {"type": "string"},
+        "simulator": {"type": "string"},
+        "status": {"enum": ["pass", "fail", "vacuous", "cover", "skipped", "timeout", "cancelled", "unknown"]},
+        "runtime_ms": {"type": "integer", "minimum": 0},
+        "started_at": {"type": "string"},
+        "finished_at": {"type": ["string", "null"]},
+        "exit_code": {"type": ["integer", "null"]},
+        "waveform_path": {"type": ["string", "null"]},
+        "stdout_path": {"type": ["string", "null"]},
+        "stderr_path": {"type": ["string", "null"]},
+        "failure_message": {"type": ["string", "null"]},
+        "metrics": {"type": ["object", "null"]},
+        "did_execute": {"type": "boolean"},
+        "location": {"$ref": "#/$defs/testLocation"},
+        "waveform": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/place"}]}
+      }
+    },
+    "testLocation": {
+      "description": "The test, its log (stdout, or stderr when stdout is empty) and the log line its failure message came from, when known.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test", "run", "file", "line"],
+      "properties": {
+        "test": {"type": "string"},
+        "run": {"type": "string"},
+        "file": {"type": ["string", "null"]},
+        "line": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "place": {
+      "description": "The start of the test's waveform: tick 0. No link member; wavecrux://open?file=<file>&t=0 opens it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "time"],
+      "properties": {
+        "file": {"type": "string"},
+        "time": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["at", "unit"],
+          "properties": {
+            "at": {"type": "integer", "minimum": 0},
+            "unit": {"enum": ["fs", "ps", "ns", "us", "ms", "s", "tick"]}
+          }
+        }
+      }
+    }
+  }
+}

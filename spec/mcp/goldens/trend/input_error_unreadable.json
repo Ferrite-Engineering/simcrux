@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "trend",
+  "outcome": "input_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "input.unreadable",
+      "message": "/spec/fixtures/runs/missing.ndjson is not a file.",
+      "fix": "Give the results.ndjson a run wrote; simcrux run names it as results_path.",
+      "location": null
+    }
+  ]
+}

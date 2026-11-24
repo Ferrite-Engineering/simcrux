@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The document simcrux run, results, test and trend write with --json, and every tool of simcrux mcp returns",
+  "description": "Eight members, always present, in this order. body is given per command by run.body.schema.json (run and results), test.body.schema.json and trend.body.schema.json. The document, not the exit code, is the authority; the four commands use the suite's exit codes. simcrux --ci --json is a different document ({\"totals\": ...}) and does not change.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tool", "command", "outcome", "engines", "design", "body", "diagnostics"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "simcrux"},
+        "version": {"type": "string"}
+      }
+    },
+    "command": {"enum": ["run", "results", "test", "trend"]},
+    "outcome": {"enum": ["completed", "failed_gate", "usage_error", "input_error", "engine_error", "licence_error"]},
+    "engines": {
+      "description": "Empty: each test row names the simulator it ran on.",
+      "type": "array",
+      "maxItems": 0
+    },
+    "design": {"type": "null"},
+    "body": {"type": ["object", "null"]},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}}
+  },
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message", "fix", "location"],
+      "properties": {
+        "severity": {"enum": ["error", "warning", "note"]},
+        "code": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"},
+        "message": {"type": "string"},
+        "fix": {"type": ["string", "null"]},
+        "location": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/source"}]}
+      }
+    },
+    "source": {
+      "description": "A line of the project file a load error is about.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "line", "column"],
+      "properties": {
+        "file": {"type": "string"},
+        "line": {"type": "integer", "minimum": 1},
+        "column": {"type": ["integer", "null"], "minimum": 1}
+      }
+    }
+  }
+}

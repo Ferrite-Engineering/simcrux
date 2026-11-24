@@ -41,11 +41,21 @@ class CiRunResult {
     required List<DashboardRow> rows,
     required this.exitCode,
     required Map<TestStatus, int> totalsByStatus,
+    this.cancelled = false,
+    this.resultsPath,
   }) : rows = List<DashboardRow>.unmodifiable(rows),
        totalsByStatus = Map<TestStatus, int>.unmodifiable(totalsByStatus);
 
   /// Completed [TestRun].
   final TestRun run;
+
+  /// Whether the scheduler reported the run cancelled: some of its tests
+  /// never finished, whatever the totals say.
+  final bool cancelled;
+
+  /// The `results.ndjson` this run streamed its results to, or null when
+  /// streaming was off.
+  final String? resultsPath;
 
   /// Rendered dashboard rows.
   final List<DashboardRow> rows;
@@ -132,7 +142,9 @@ class CiRunner {
     this.telemetry = const NoopTelemetryService(),
     this.orgFlowGate,
     this.readFlowRun,
-  }) : fileWriter = fileWriter ?? _defaultWriter,
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now,
+       fileWriter = fileWriter ?? _defaultWriter,
        stdoutWriter = stdoutWriter ?? _defaultStdout,
        stderrWriter = stderrWriter ?? _defaultStderr,
        streamingWriterFactory =
@@ -213,6 +225,10 @@ class CiRunner {
   /// ingestor's reader when null. Tests pass one.
   final Future<FlowReading?> Function(Map<String, String> metrics)? readFlowRun;
 
+  /// The clock the run id and the run's start and finish times are read
+  /// from; [DateTime.now] unless a test fixes it.
+  final DateTime Function() _now;
+
   static StreamingResultsWriter _defaultStreamingWriterFactory({
     required String resultsPath,
     required String summaryPath,
@@ -226,9 +242,16 @@ class CiRunner {
   /// Runs the regression at [args.projectPath] (or the supplied
   /// [config] if already loaded), emits any configured exports, and
   /// returns a [CiRunResult].
+  ///
+  /// When [cancel] completes before the run ends, the scheduler is asked to
+  /// cancel it, which kills every running test's process tree; the result
+  /// then says [CiRunResult.cancelled]. [onProgress] hears the count of
+  /// tests finished out of the tests submitted, after each one.
   Future<CiRunResult> run({
     required CliArgs args,
     RegressionConfig? config,
+    Future<void>? cancel,
+    void Function(int finished, int submitted)? onProgress,
   }) async {
     config ??= await configLoader.load(args.projectPath!);
     // Load advisories — for example a `seeds:` sweep a tier did not unlock
@@ -241,7 +264,7 @@ class CiRunner {
       for (final suite in config.suites)
         ...suite.tests.where((t) => _matchesFilter(t, args.filter)),
     ];
-    final runId = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+    final runId = _now().toUtc().millisecondsSinceEpoch.toString();
     final scheduler = schedulerFactory(config);
     final results = <TestResult>[];
     final rows = <DashboardRow>[];
@@ -250,13 +273,15 @@ class CiRunner {
     };
     final completer = Completer<void>();
     var cancelled = false;
-    final startedAt = DateTime.now().toUtc();
+    final startedAt = _now().toUtc();
     // CI mode promotes streaming to `true` regardless of the YAML;
     // interactive runs may opt in via `output: { streaming: true }`.
     final streamingOn = args.ciMode || config.output.streaming;
     StreamingResultsWriter? streamingWriter;
+    String? resultsPath;
     if (streamingOn) {
       final resolved = _resolveStreamingPath(args, config);
+      resultsPath = resolved.results;
       streamingWriter = streamingWriterFactory(
         resultsPath: resolved.results,
         summaryPath: resolved.summary,
@@ -298,6 +323,7 @@ class CiRunner {
                 if (streamingWriter != null) {
                   await streamingWriter.recordRow(row);
                 }
+                onProgress?.call(results.length, tests.length);
               case RegressionFinished(cancelled: final wasCancelled):
                 cancelled = wasCancelled;
                 if (!completer.isCompleted) completer.complete();
@@ -311,6 +337,13 @@ class CiRunner {
             if (!completer.isCompleted) completer.completeError(error, st);
           },
         );
+    if (cancel != null) {
+      unawaited(
+        cancel.then((_) async {
+          if (!completer.isCompleted) await scheduler.cancel(runId);
+        }),
+      );
+    }
     try {
       await completer.future;
     } on Object {
@@ -324,7 +357,7 @@ class CiRunner {
     } finally {
       await sub.cancel();
     }
-    final finishedAt = DateTime.now().toUtc();
+    final finishedAt = _now().toUtc();
     if (streamingWriter != null) {
       await streamingWriter.recordRunCompletion(finishedAt: finishedAt);
     }
@@ -425,6 +458,8 @@ class CiRunner {
       rows: rows,
       exitCode: exitCode,
       totalsByStatus: totals,
+      cancelled: cancelled,
+      resultsPath: resultsPath,
     );
   }
 

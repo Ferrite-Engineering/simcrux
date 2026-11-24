@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "results",
+  "outcome": "failed_gate",
+  "engines": [],
+  "design": null,
+  "body": {
+    "version": 1,
+    "config_path": "/spec/fixtures/design/simcrux.yaml",
+    "run": {
+      "id": "1795597200000",
+      "started_at": "2026-11-19T09:00:00.000Z",
+      "finished_at": "2026-11-19T09:00:05.000Z",
+      "total": 5
+    },
+    "totals": {
+      "pass": 1,
+      "fail": 2,
+      "timeout": 0,
+      "vacuous": 1,
+      "cover": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "unknown": 1
+    },
+    "results_path": "/spec/fixtures/runs/run_b.ndjson",
+    "returned": 5,
+    "truncated": false,
+    "tests": [
+      {
+        "id": "alu/sqrt_missing",
+        "name": "sqrt_missing",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "fail",
+        "runtime_ms": 0,
+        "started_at": "2026-11-19T09:00:04.000Z",
+        "finished_at": "2026-11-19T09:00:04.000Z",
+        "exit_code": null,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": "scripted binary `scripted-sim` not available (path).",
+        "metrics": null,
+        "did_execute": false,
+        "location": {
+          "test": "alu/sqrt_missing",
+          "run": "1795597200000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      },
+      {
+        "id": "alu/sub_fail",
+        "name": "sub_fail",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "fail",
+        "runtime_ms": 300,
+        "started_at": "2026-11-19T09:00:01.000Z",
+        "finished_at": "2026-11-19T09:00:01.300Z",
+        "exit_code": 1,
+        "waveform_path": "/spec/fixtures/waves/sub_fail.vcd",
+        "stdout_path": "/spec/fixtures/logs/alu_sub_fail.txt",
+        "stderr_path": null,
+        "failure_message": "ERROR: sub_fail: expected 0x3, got 0x4",
+        "metrics": {
+          "cycles": "120"
+        },
+        "did_execute": true,
+        "location": {
+          "test": "alu/sub_fail",
+          "run": "1795597200000",
+          "file": "/spec/fixtures/logs/alu_sub_fail.txt",
+          "line": 3
+        },
+        "waveform": {
+          "file": "/spec/fixtures/waves/sub_fail.vcd",
+          "time": {
+            "at": 0,
+            "unit": "tick"
+          }
+        }
+      },
+      {
+        "id": "alu/mul_unknown",
+        "name": "mul_unknown",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "unknown",
+        "runtime_ms": 400,
+        "started_at": "2026-11-19T09:00:02.000Z",
+        "finished_at": "2026-11-19T09:00:02.400Z",
+        "exit_code": null,
+        "waveform_path": null,
+        "stdout_path": "/spec/fixtures/logs/alu_mul_unknown.txt",
+        "stderr_path": null,
+        "failure_message": "scheduler error: the driver stopped answering",
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/mul_unknown",
+          "run": "1795597200000",
+          "file": "/spec/fixtures/logs/alu_mul_unknown.txt",
+          "line": null
+        },
+        "waveform": null
+      },
+      {
+        "id": "alu/div_vacuous",
+        "name": "div_vacuous",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "vacuous",
+        "runtime_ms": 500,
+        "started_at": "2026-11-19T09:00:03.000Z",
+        "finished_at": "2026-11-19T09:00:03.500Z",
+        "exit_code": 0,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": null,
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/div_vacuous",
+          "run": "1795597200000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      },
+      {
+        "id": "alu/add",
+        "name": "add",
+        "suite": "alu",
+        "simulator": "scripted",
+        "status": "pass",
+        "runtime_ms": 250,
+        "started_at": "2026-11-19T09:00:00.000Z",
+        "finished_at": "2026-11-19T09:00:00.250Z",
+        "exit_code": 0,
+        "waveform_path": null,
+        "stdout_path": "/spec/fixtures/logs/gone.txt",
+        "stderr_path": null,
+        "failure_message": null,
+        "metrics": null,
+        "did_execute": true,
+        "location": {
+          "test": "alu/add",
+          "run": "1795597200000",
+          "file": "/spec/fixtures/logs/gone.txt",
+          "line": null
+        },
+        "waveform": null
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "gate.failed",
+      "message": "3 of 5 tests failed the gate (2 fail, 1 unknown); an unknown test counts as failed.",
+      "fix": null,
+      "location": null
+    },
+    {
+      "severity": "warning",
+      "code": "engine.missing",
+      "message": "1 of 5 tests never ran their simulator (scripted), so their rows say nothing about the design.",
+      "fix": "Install the simulator, or put it on PATH, and run again.",
+      "location": null
+    }
+  ]
+}

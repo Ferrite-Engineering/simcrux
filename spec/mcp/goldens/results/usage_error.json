@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "results",
+  "outcome": "usage_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "usage",
+      "message": "--status \"broken\" is not one of pass, fail, timeout, vacuous, cover, skipped, cancelled, unknown.",
+      "fix": null,
+      "location": null
+    }
+  ]
+}

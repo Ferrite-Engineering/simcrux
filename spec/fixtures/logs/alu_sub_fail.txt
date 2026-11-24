@@ -1,0 +1,4 @@
+simcrux scripted simulator
+running alu/sub_fail with seed 7
+ERROR: sub_fail: expected 0x3, got 0x4
+$finish called at 120 (1ns)

@@ -26,7 +26,9 @@ import 'package:simcrux/core/cli/simcrux_cli.dart';
 /// desktop app do. `dart build cli` is the supported replacement; the
 /// executable it emits under `bundle/bin/` runs standalone.)
 Future<void> main(List<String> args) async {
-  final cli = SimcruxCli();
+  // `run` and `mcp` cancel their runs, killing the simulators, on SIGINT and
+  // SIGTERM; the handlers are process-wide, so only the binary installs them.
+  final cli = SimcruxCli(installSignalHandlers: true);
   final code = await cli.run(
     args,
     stdoutSink: stdout.writeln,

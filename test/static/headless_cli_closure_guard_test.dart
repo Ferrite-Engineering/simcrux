@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Static guard: the headless `simcrux` binary's import closure never reaches
-// Flutter.
+// Flutter, and never reaches a language-model client (the binary serves
+// `simcrux mcp`, whose verdicts come from the simulators alone).
 //
 // ## The defect class this closes
 //
@@ -35,6 +36,23 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
+/// Packages that talk to a language model. None may be in the closure.
+const Set<String> _modelClientPackages = <String>{
+  'anthropic_sdk_dart',
+  'anthropic_dart',
+  'openai_dart',
+  'dart_openai',
+  'google_generative_ai',
+  'firebase_vertexai',
+  'firebase_ai',
+  'langchain',
+  'langchain_openai',
+  'langchain_anthropic',
+  'mistralai_dart',
+  'ollama_dart',
+  'dart_mcp',
+};
+
 void main() {
   final packages = _loadPackageConfig('.');
 
@@ -59,6 +77,77 @@ void main() {
     expect(
       reached.any((f) => f.contains('${p.separator}crux_license')),
       isTrue,
+    );
+    // The `simcrux mcp` server and its four commands are in it too, so the
+    // model-client walk below covers what the server can reach.
+    for (final needed in <String>[
+      p.join('lib', 'headless', 'simcrux_mcp.dart'),
+      p.join('lib', 'headless', 'sim_commands.dart'),
+      p.join('lib', 'headless', 'sim_document.dart'),
+      p.join('lib', 'services', 'ci', 'ci_runner.dart'),
+    ]) {
+      expect(reached.any((f) => f.endsWith(needed)), isTrue, reason: needed);
+    }
+    expect(
+      reached.any((f) => f.contains('${p.separator}crux_mcp')),
+      isTrue,
+    );
+  });
+
+  test('bin/ never reaches a model client', () {
+    // `simcrux mcp` gives verdicts from the simulators and SimCrux's own
+    // pass/fail detectors alone (contracts 2.11): nothing that calls a
+    // language model may be reachable from the binary that serves it.
+    final result = _walk(_entries(), packages);
+    final roots = <String>[
+      for (final name in _modelClientPackages)
+        if (packages[name] case final String root)
+          p.normalize(p.absolute(root)),
+    ];
+    final modelFiles = <String>[
+      for (final f in result.reached)
+        if (roots.any((r) => p.isWithin(r, f)) ||
+            f.contains('${p.separator}ai${p.separator}'))
+          f,
+    ];
+    expect(
+      modelFiles.map((f) => result.chainTo(f).map(p.basename).join(' -> ')),
+      isEmpty,
+      reason:
+          "The MCP server's answers come from the simulators and SimCrux's "
+          'own detectors; nothing that calls a model may be reachable from '
+          'bin/.',
+    );
+  });
+
+  test('the model-client check sees a model client', () {
+    // The check above is only worth something if a reached file under a
+    // model package or an `ai/` folder is caught; prove it on a fixture.
+    final root = Directory.systemTemp.createTempSync('headless_model_walk_');
+    addTearDown(() => root.deleteSync(recursive: true));
+    File(p.join(root.path, 'demo', 'bin', 'tool.dart'))
+      ..createSync(recursive: true)
+      ..writeAsStringSync("import 'package:demo/services/ai/advisor.dart';\n");
+    File(p.join(root.path, 'demo', 'lib', 'services', 'ai', 'advisor.dart'))
+      ..createSync(recursive: true)
+      ..writeAsStringSync("import 'package:anthropic_sdk_dart/a.dart';\n");
+    File(p.join(root.path, 'anthropic_sdk_dart', 'lib', 'a.dart'))
+      ..createSync(recursive: true)
+      ..writeAsStringSync('');
+    final result = _walk(
+      <String>[p.join(root.path, 'demo', 'bin', 'tool.dart')],
+      <String, String>{
+        'demo': p.join(root.path, 'demo'),
+        'anthropic_sdk_dart': p.join(root.path, 'anthropic_sdk_dart'),
+      },
+    );
+    expect(
+      result.reached.where(
+        (f) =>
+            f.contains('${p.separator}ai${p.separator}') ||
+            p.isWithin(p.join(root.path, 'anthropic_sdk_dart'), f),
+      ),
+      hasLength(2),
     );
   });
 

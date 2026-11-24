@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "results",
+  "outcome": "input_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "results.not_results",
+      "message": "/spec/fixtures/design/simcrux.yaml is not a SimCrux results.ndjson: it has no meta line naming its run.",
+      "fix": null,
+      "location": null
+    }
+  ]
+}

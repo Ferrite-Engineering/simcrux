@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "test",
+  "outcome": "input_error",
+  "engines": [],
+  "design": null,
+  "body": null,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "test.not_found",
+      "message": "The run in /spec/fixtures/runs/run_b.ndjson has no test `alu/nosuch`.",
+      "fix": "List its tests with simcrux results; an id is suite/test.",
+      "location": null
+    }
+  ]
+}

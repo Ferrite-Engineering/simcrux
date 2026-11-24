@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "trend",
+  "outcome": "completed",
+  "engines": [],
+  "design": null,
+  "body": {
+    "id": "alu/sub_fail",
+    "history": [
+      {
+        "run": "1795683600000",
+        "started_at": "2026-11-20T09:00:01.000Z",
+        "status": "fail",
+        "runtime_ms": 350
+      },
+      {
+        "run": "1795597200000",
+        "started_at": "2026-11-19T09:00:01.000Z",
+        "status": "fail",
+        "runtime_ms": 300
+      },
+      {
+        "run": "1795510800000",
+        "started_at": "2026-11-18T09:00:01.000Z",
+        "status": "pass",
+        "runtime_ms": 300
+      }
+    ],
+    "flakiness": null
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "licence.withheld",
+      "message": "The flakiness class needs a Pro licence and was left out of this answer; the rest of the answer stands.",
+      "fix": "SimCrux Pro gives it under a Pro licence; this command line holds no flakiness scoring.",
+      "location": null
+    }
+  ]
+}

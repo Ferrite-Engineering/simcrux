@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "results",
+  "outcome": "engine_error",
+  "engines": [],
+  "design": null,
+  "body": {
+    "version": 1,
+    "config_path": "/spec/fixtures/nores/simcrux.yaml",
+    "run": {
+      "id": "1795770000000",
+      "started_at": "2026-11-21T09:00:00.000Z",
+      "finished_at": "2026-11-21T09:00:01.000Z",
+      "total": 1
+    },
+    "totals": {
+      "pass": 0,
+      "fail": 1,
+      "timeout": 0,
+      "vacuous": 0,
+      "cover": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "results_path": "/spec/fixtures/runs/run_d.ndjson",
+    "returned": 1,
+    "truncated": false,
+    "tests": [
+      {
+        "id": "smoke/x_missing",
+        "name": "x_missing",
+        "suite": "smoke",
+        "simulator": "scripted",
+        "status": "fail",
+        "runtime_ms": 0,
+        "started_at": "2026-11-21T09:00:00.000Z",
+        "finished_at": "2026-11-21T09:00:00.000Z",
+        "exit_code": null,
+        "waveform_path": null,
+        "stdout_path": null,
+        "stderr_path": null,
+        "failure_message": "scripted binary `scripted-sim` not available (path).",
+        "metrics": null,
+        "did_execute": false,
+        "location": {
+          "test": "smoke/x_missing",
+          "run": "1795770000000",
+          "file": null,
+          "line": null
+        },
+        "waveform": null
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "run.no_results",
+      "message": "No test produced a result: each of the 1 tests is unknown, cancelled or skipped, or never ran its simulator.",
+      "fix": "Read a test with simcrux test for its failure message and log; a simulator that is not installed is named there.",
+      "location": null
+    }
+  ]
+}

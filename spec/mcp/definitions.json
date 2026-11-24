@@ -1,0 +1,54 @@
+[
+  {
+    "name": "run",
+    "description": "Run a regression from its simcrux.yaml and return each test's status, failure message, log and waveform, failures first. Writes what simcrux --ci writes for that config. Long; cancelling stops it.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "config": {"type": "string"},
+        "filter": {"type": "string", "description": "Only tests whose id contains this."},
+        "max_parallel": {"type": "integer"},
+        "limit": {"type": "integer", "description": "Tests returned, default 100, at most 1000."}
+      },
+      "required": ["config"]
+    }
+  },
+  {
+    "name": "results",
+    "description": "The results of a finished run, read from its results.ndjson. Runs nothing.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "results": {"type": "string"},
+        "status": {"type": "array", "items": {"type": "string"}, "description": "For example fail, timeout, unknown."},
+        "limit": {"type": "integer", "description": "Default 100, at most 1000."}
+      },
+      "required": ["results"]
+    }
+  },
+  {
+    "name": "test",
+    "description": "One test of a run: status, failure message, the end of its log with the first failing line, seed and parameters, and its waveform.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "results": {"type": "string"},
+        "id": {"type": "string", "description": "suite/test"},
+        "lines": {"type": "integer", "description": "Log lines, default 100, at most 1000."}
+      },
+      "required": ["results", "id"]
+    }
+  },
+  {
+    "name": "trend",
+    "description": "A test's history across runs: status and runtime in each. At Pro, also its flakiness class.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "runs": {"type": "array", "items": {"type": "string"}, "description": "results.ndjson files, any order, at most 200."}
+      },
+      "required": ["runs", "id"]
+    }
+  }
+]

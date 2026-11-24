@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "simcrux",
+    "version": "0.0.0"
+  },
+  "command": "test",
+  "outcome": "completed",
+  "engines": [],
+  "design": null,
+  "body": {
+    "test": {
+      "id": "alu/add",
+      "name": "add",
+      "suite": "alu",
+      "simulator": "scripted",
+      "status": "pass",
+      "runtime_ms": 250,
+      "started_at": "2026-11-19T09:00:00.000Z",
+      "finished_at": "2026-11-19T09:00:00.250Z",
+      "exit_code": 0,
+      "waveform_path": null,
+      "stdout_path": "/spec/fixtures/logs/gone.txt",
+      "stderr_path": null,
+      "failure_message": null,
+      "metrics": null,
+      "did_execute": true,
+      "location": {
+        "test": "alu/add",
+        "run": "1795597200000",
+        "file": "/spec/fixtures/logs/gone.txt",
+        "line": null
+      },
+      "waveform": null
+    },
+    "seed": null,
+    "parameters": null,
+    "kill_signal": null,
+    "first_failure": null,
+    "log": null
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "log.missing",
+      "message": "The log /spec/fixtures/logs/gone.txt is not there any more: SimCrux keeps the work folders of failing tests only, and removes the oldest past its --keep-failures count.",
+      "fix": null,
+      "location": null
+    }
+  ]
+}

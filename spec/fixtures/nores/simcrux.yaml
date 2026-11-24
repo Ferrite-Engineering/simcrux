@@ -1,0 +1,16 @@
+# No test produces a result: one never runs its simulator and one cannot be
+# classified. The run is engine_error, never completed.
+version: '1'
+defaults:
+  simulator: scripted
+  pass_fail:
+    type: exit_code
+suites:
+  smoke:
+    sources:
+      - ../design/rtl/alu.v
+    tests:
+      - name: x_missing
+        top: alu
+      - name: y_unknown
+        top: alu
