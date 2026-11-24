@@ -97,6 +97,7 @@ nav:
       - Team results database: team-database.md
       - Cross-probe & the suite: integrations.md
       - Use in VS Code: vscode.md
+      - For coding agents: agents.md
       - Updates, usage statistics & issue reporting: integrations/updates-and-feedback.md
   - Migrating:
       - migrating/index.md
