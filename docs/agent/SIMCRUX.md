@@ -131,6 +131,12 @@ stands. From SimCrux Pro, `licence.source` notes beside it say why the licence
 found did not admit it (expired, another product's). `log.missing`: SimCrux removed the log (it keeps failing tests' work
 folders only, the oldest removed first).
 
+**Logs do not last.** A failing test's log lives in SimCrux's scratch folder,
+and every SimCrux run on the machine, from the command line or the server,
+keeps only the newest 50 failing tests' folders across all runs (the
+`--keep-failures` default). A later run can therefore remove the log an earlier
+document cites: cite a log soon after the run, or copy it into the project.
+
 **Tests.** `totals` and `run.total` count every test of the run; `tests` lists
 up to `limit` of them, failures first (`fail`, `timeout`, `unknown`,
 `cancelled`, then `vacuous`, `skipped`, `cover`, `pass`, each by id). When
