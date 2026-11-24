@@ -733,11 +733,32 @@ Future<(Map<String, Object?>, List<McpDiagnostic>)> testBody({
   );
 }
 
-/// The flakiness class of a test's history, when this build computes one:
-/// the `flakiness` member of a `trend` body. Null in open core, whose
-/// `trend` says the class was withheld.
+/// What a build that scores flakiness says about test [id]'s [history]
+/// (newest first): the `flakiness` member of a `trend` body and the
+/// diagnostics that go with it. Open core has none, and its `trend` says the
+/// class was withheld.
 typedef SimTrendFlakiness =
-    FutureOr<Map<String, Object?>?> Function(List<SimTrendPoint> history);
+    FutureOr<SimFlakinessAnswer> Function(
+      String id,
+      List<SimTrendPoint> history,
+    );
+
+/// A [SimTrendFlakiness] answer.
+class SimFlakinessAnswer {
+  /// The `flakiness` member [flakiness] (null when there is no class to
+  /// give) and the [diagnostics] that say why or how.
+  const SimFlakinessAnswer(
+    this.flakiness, {
+    this.diagnostics = const <McpDiagnostic>[],
+  });
+
+  /// `{class, score, flips, window}`, or null.
+  final Map<String, Object?>? flakiness;
+
+  /// A `licence.withheld` warning when the licence did not admit the class,
+  /// or a note when the history holds nothing to classify.
+  final List<McpDiagnostic> diagnostics;
+}
 
 /// One run of a test in its history.
 class SimTrendPoint {

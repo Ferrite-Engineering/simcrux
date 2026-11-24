@@ -113,6 +113,51 @@ void main() {
       },
     );
 
+    test('a build that scores flakiness gives the class and its own words, '
+        'and no withheld warning', () async {
+      final seen = <String>[];
+      final cli = SimcruxCli(
+        program: spec.goldenProgram,
+        mcpTelemetry: () => null,
+        trendFlakiness: (id, history) {
+          seen.add('$id: ${history.map((h) => h.run).join(', ')}');
+          return const SimFlakinessAnswer(
+            <String, Object?>{'class': 'stable'},
+            diagnostics: <McpDiagnostic>[
+              McpDiagnostic(
+                severity: McpSeverity.note,
+                code: 'scorer.note',
+                message: 'from the scorer',
+              ),
+            ],
+          );
+        },
+      );
+      final (out, _, code) = await run(<String>[
+        'trend',
+        'alu/sub_fail',
+        p.join(spec.root, 'runs', 'run_a.ndjson'),
+        p.join(spec.root, 'runs', 'run_b.ndjson'),
+        '--json',
+      ], cli: cli);
+      expect(code, 0);
+      // The scorer gets the id and the history newest first.
+      expect(seen, <String>['alu/sub_fail: 1795597200000, 1795510800000']);
+      final doc = jsonDecode(out.join('\n')) as Map<String, Object?>;
+      expect(
+        (doc['body']! as Map<String, Object?>)['flakiness'],
+        <String, Object?>{
+          'class': 'stable',
+        },
+      );
+      final codes = <Object?>[
+        for (final d in doc['diagnostics']! as List<Object?>)
+          (d! as Map<String, Object?>)['code'],
+      ];
+      expect(codes, <Object?>['scorer.note']);
+      expect(codes, isNot(contains(kMcpWithheldCode)));
+    });
+
     test('run refuses a missing config as input_error', () async {
       final (out, _, code) = await run(<String>[
         'run',

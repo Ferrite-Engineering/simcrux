@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "The document simcrux run, results, test and trend write with --json, and every tool of simcrux mcp returns",
-  "description": "Eight members, always present, in this order. body is given per command by run.body.schema.json (run and results), test.body.schema.json and trend.body.schema.json. The document, not the exit code, is the authority; the four commands use the suite's exit codes. simcrux --ci --json is a different document ({\"totals\": ...}) and does not change.",
+  "description": "Eight members, always present, in this order. body is given per command by run.body.schema.json (run and results), test.body.schema.json and trend.body.schema.json, and for SimCrux Pro's compare by compare.body.schema.json. The document, not the exit code, is the authority; the four commands use the suite's exit codes. simcrux --ci --json is a different document ({\"totals\": ...}) and does not change.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "tool", "command", "outcome", "engines", "design", "body", "diagnostics"],
@@ -16,7 +16,7 @@
         "version": {"type": "string"}
       }
     },
-    "command": {"enum": ["run", "results", "test", "trend"]},
+    "command": {"enum": ["run", "results", "test", "trend", "compare"]},
     "outcome": {"enum": ["completed", "failed_gate", "usage_error", "input_error", "engine_error", "licence_error"]},
     "engines": {
       "description": "Empty: each test row names the simulator it ran on.",

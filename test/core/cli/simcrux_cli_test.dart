@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crux_license/crux_license_core.dart';
+import 'package:crux_license/crux_license_headless.dart';
 import 'package:crux_policy/crux_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -19,7 +20,6 @@ import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_run.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/config/config_loader.dart';
-import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
 /// Answers license validation from a table keyed by the credential text.
@@ -427,6 +427,7 @@ suites:
         }),
         failOnRegressionPolicy: policy,
         licenseTierResolver: HeadlessLicenseTierResolver(
+          product: CruxProduct.simCrux,
           validator: _TableValidator(outcomes),
           environment: const <String, String>{},
           loadPolicy: () =>

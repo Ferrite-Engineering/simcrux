@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "The body of compare, a SimCrux Pro command and tool",
+  "description": "A run (results) against a baseline run, by the engine behind --fail-on-regression: a test whose baseline status was pass, vacuous or cover and whose status in the run is anything else is newFailure, the reverse newPass; a test with the same polarity whose runtime moved by 20% or more of the baseline's is runtimeRegressed or runtimeImproved; tests in only one run are added or removed. counts covers every test, unchanged included; entries lists all but the unchanged ones, by kind in the order of counts, then by test id. Each entry's location is the test in the run (in the baseline for a removed test), with its log and, for a failing test, the log line its failure message came from. Only SimCrux Pro's command line and server answer compare.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["baseline_run", "candidate_run", "has_regression", "counts", "entries"],
+  "properties": {
+    "baseline_run": {"type": "string"},
+    "candidate_run": {"type": "string"},
+    "has_regression": {"type": "boolean"},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["newFailure", "newPass", "runtimeRegressed", "runtimeImproved", "added", "removed", "unchanged"],
+      "properties": {
+        "newFailure": {"type": "integer", "minimum": 0},
+        "newPass": {"type": "integer", "minimum": 0},
+        "runtimeRegressed": {"type": "integer", "minimum": 0},
+        "runtimeImproved": {"type": "integer", "minimum": 0},
+        "added": {"type": "integer", "minimum": 0},
+        "removed": {"type": "integer", "minimum": 0},
+        "unchanged": {"type": "integer", "minimum": 0}
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["testId", "kind", "baselineStatus", "candidateStatus", "baselineRuntime_ms", "candidateRuntime_ms", "location"],
+        "properties": {
+          "testId": {"type": "string"},
+          "kind": {"enum": ["newFailure", "newPass", "runtimeRegressed", "runtimeImproved", "added", "removed"]},
+          "baselineStatus": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/status"}]},
+          "candidateStatus": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/status"}]},
+          "baselineRuntime_ms": {"type": ["integer", "null"]},
+          "candidateRuntime_ms": {"type": ["integer", "null"]},
+          "location": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["test", "run", "file", "line"],
+            "properties": {
+              "test": {"type": "string"},
+              "run": {"type": "string"},
+              "file": {"type": ["string", "null"]},
+              "line": {"type": ["integer", "null"], "minimum": 1}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "status": {"enum": ["pass", "fail", "vacuous", "cover", "skipped", "timeout", "cancelled", "unknown", "running"]}
+  }
+}

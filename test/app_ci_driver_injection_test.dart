@@ -13,6 +13,7 @@
 import 'dart:io' as io;
 
 import 'package:crux_license/crux_license_core.dart';
+import 'package:crux_license/crux_license_headless.dart';
 import 'package:crux_policy/crux_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simcrux/app.dart';
@@ -29,7 +30,7 @@ import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/config/simulator_policy_provider.dart';
 import 'package:simcrux/services/flow/flow_org_gate.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
-import 'package:simcrux/services/license/headless_license_tier.dart';
+import 'package:simcrux/services/license/headless_license_resolver_provider.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
 
 /// Minimal in-process [SimulatorDriver] registered as `icarus` that
@@ -489,6 +490,7 @@ void main() {
 class _RecordingResolver extends HeadlessLicenseTierResolver {
   _RecordingResolver()
     : super(
+        product: CruxProduct.simCrux,
         environment: const <String, String>{},
         loadPolicy: () =>
             const PolicyLoadResult(document: PolicyDocument.absent),

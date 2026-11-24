@@ -8,6 +8,7 @@ import 'package:args/args.dart';
 // The Flutter-free barrel only: this file sits inside the headless CLI's
 // import closure, which `dart build cli` links without `dart:ui`.
 import 'package:crux_license/crux_license_core.dart';
+import 'package:crux_license/crux_license_headless.dart';
 
 /// A `simcrux license` invocation the parser cannot interpret, with the
 /// usage block so the caller can print both.
@@ -113,21 +114,15 @@ No credential store and no network are used.''';
   }
 
   /// This install's machine fingerprint: the suite's shared file, else the
-  /// value an earlier SimCrux release kept in its own file, adopted into the
-  /// shared one, else a fresh one, minted and recorded. The same resolution
-  /// `--ci` applies when it validates a machine file.
+  /// value an earlier SimCrux (then LintCrux) command line kept in its own
+  /// file, adopted into the shared one, else a fresh one, minted and
+  /// recorded. The same reader `--ci` applies when it validates a machine
+  /// file ([HeadlessLicenseTierResolver.sharedInstallFingerprint]).
   Future<String> fingerprint() async {
-    final value =
-        await SharedInstallFingerprint(
-          environment: _environment,
-        ).readOrCreate(
-          legacy: [
-            InstallFingerprintFile.legacy(
-              'simcrux',
-              environment: _environment,
-            ).read,
-          ],
-        );
+    final value = await HeadlessLicenseTierResolver.sharedInstallFingerprint(
+      product: CruxProduct.simCrux,
+      environment: _environment,
+    )();
     if (value == null) {
       throw const LicenseCliException(
         'the install fingerprint could not be read or recorded: the suite '

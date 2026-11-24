@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:crux_license/crux_license_core.dart';
+import 'package:crux_license/crux_license_headless.dart';
 import 'package:crux_mcp/crux_mcp.dart'
     hide CruxTelemetryProduct, HeadlessTelemetry, TelemetryPolicy;
 import 'package:path/path.dart' as p;
@@ -41,7 +42,6 @@ import 'package:simcrux/services/import/riscv_import_cli.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention.dart';
 import 'package:simcrux/services/job_scheduler/local_job_scheduler.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
-import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/scratch/simcrux_scratch.dart';
 import 'package:simcrux/services/simulator/cocotb_driver.dart';
 import 'package:simcrux/services/simulator/dart_test_driver.dart';
@@ -141,7 +141,8 @@ class SimcruxCli {
     this.installSignalHandlers = false,
   }) : driverRegistry = driverRegistry ?? defaultDriverRegistry(),
        licenseTierResolver =
-           licenseTierResolver ?? HeadlessLicenseTierResolver(),
+           licenseTierResolver ??
+           HeadlessLicenseTierResolver(product: CruxProduct.simCrux),
        licenseCli = licenseCli ?? LicenseCli(),
        configLoaderFactory = configLoaderFactory ?? _defaultConfigLoader,
        _mcpTelemetry = mcpTelemetry ?? simcruxMcpTelemetry;
@@ -684,30 +685,48 @@ class SimcruxCli {
       confinement: confinement,
       telemetry: telemetry,
       log: log,
-      runner: (call) async {
-        final name = call.tool.command;
-        final cancel = stop == null
-            ? call.whenCancelled
-            : Future.any(<Future<void>>[call.whenCancelled, stop]);
-        return McpCommandOutput.document(
-          await commands(log: sink).document(
-            name,
-            <String>[
-              ...call.arguments.argv,
-              '--root',
-              confinement.root,
-              if (name == kRunCommand && licenseFile != null) ...<String>[
-                '--license-file',
-                licenseFile,
-              ],
-              '--json',
-            ],
-            cancel: cancel,
-            onProgress: (finished, submitted) =>
-                call.progress(finished, total: submitted),
-          ),
-        );
-      },
+      runner: (call) async => McpCommandOutput.document(
+        await toolDocument(
+          call,
+          root: confinement.root,
+          licenseFile: licenseFile,
+          log: sink,
+          stop: stop,
+        ),
+      ),
+    );
+  }
+
+  /// The document a call of `run`, `results`, `test` or `trend` answers:
+  /// the command line the tool's fields make, plus `--root` [root] and, for
+  /// `run`, the server's [licenseFile], run through [commands]. [stop]
+  /// cancels a run in flight, as the call's own cancellation does.
+  Future<McpDocument> toolDocument(
+    McpCall call, {
+    required String root,
+    required void Function(String line) log,
+    String? licenseFile,
+    Future<void>? stop,
+  }) async {
+    final name = call.tool.command;
+    final cancel = stop == null
+        ? call.whenCancelled
+        : Future.any(<Future<void>>[call.whenCancelled, stop]);
+    return await commands(log: log).document(
+      name,
+      <String>[
+        ...call.arguments.argv,
+        '--root',
+        root,
+        if (name == kRunCommand && licenseFile != null) ...<String>[
+          '--license-file',
+          licenseFile,
+        ],
+        '--json',
+      ],
+      cancel: cancel,
+      onProgress: (finished, submitted) =>
+          call.progress(finished, total: submitted),
     );
   }
 

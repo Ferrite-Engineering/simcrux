@@ -12,6 +12,7 @@ import 'package:crux_issue_reporter/crux_issue_reporter.dart';
 import 'package:crux_keybindings/crux_keybindings.dart'
     show installLinuxKeyEventRepair;
 import 'package:crux_license/crux_license.dart';
+import 'package:crux_license/crux_license_headless.dart';
 import 'package:crux_linux_integration/crux_linux_integration.dart';
 import 'package:crux_settings_ui/crux_settings_ui.dart'
     show CruxPolicyLockScope;
@@ -90,7 +91,7 @@ import 'package:simcrux/services/import/fusesoc_importer.dart';
 import 'package:simcrux/services/import/riscv_import_cli.dart';
 import 'package:simcrux/services/job_scheduler/dump_retention_provider.dart';
 import 'package:simcrux/services/job_scheduler/job_scheduler_provider.dart';
-import 'package:simcrux/services/license/headless_license_tier.dart';
+import 'package:simcrux/services/license/headless_license_resolver_provider.dart';
 import 'package:simcrux/services/logging/headless_debug_print.dart';
 import 'package:simcrux/services/logging/severe_log_stderr_sink.dart';
 import 'package:simcrux/services/telemetry/headless_telemetry.dart';

@@ -227,7 +227,7 @@
 - [x] `simcrux a.yaml b.yaml c.yaml` opens three tabs, one per positional config — `[Coverage: AUTOMATED — flutter test --tags integration (tabs/cli_multi_config_test.dart)]`
 - [ ] `--workspace` + positional configs both honored together — `[Coverage: AUTOMATED (parser) — flutter test]`
 - [ ] `simcrux --help` lists `--workspace` alongside the other options — `[Coverage: AUTOMATED — flutter test]`
-- [ ] `--ci` loads the project at the tier from `--license-file` / `SIMCRUX_LICENSE_FILE` / the policy file (offline validation, grace on expiry); an unreadable explicit license file exits `2` before running; a machine file resolves only when the shared `crux/license/install.fingerprint` (or, before it exists, the adopted legacy `simcrux.fingerprint`) names its fingerprint — `[Coverage: AUTOMATED — flutter test (headless_license_tier_test.dart, simcrux_cli_test.dart, app_ci_driver_injection_test.dart)]`
+- [ ] `--ci` loads the project at the tier from `--license-file` / `SIMCRUX_LICENSE_FILE` / the policy file (offline validation, grace on an expired paid licence, none on an expired evaluation); an unreadable explicit license file exits `2` before running; a machine file resolves only when the shared `crux/license/install.fingerprint` (or, before it exists, the adopted legacy `simcrux.fingerprint`) names its fingerprint — `[Coverage: AUTOMATED — flutter test (simcrux_cli_test.dart, app_ci_driver_injection_test.dart; the resolver's own cases in crux-shared's crux_license headless_license_tier_test.dart)]`
 
 ### Educational-licence notice (Guide §6.6a)
 

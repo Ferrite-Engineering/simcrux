@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:crux_license/crux_license_headless.dart';
 import 'package:crux_mcp/crux_mcp.dart' hide HeadlessTelemetry;
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/test_status.dart';
@@ -18,7 +19,6 @@ import 'package:simcrux/domain/models/config_loader_error.dart';
 import 'package:simcrux/headless/sim_document.dart';
 import 'package:simcrux/services/ci/ci_runner.dart';
 import 'package:simcrux/services/config/project_output_path.dart';
-import 'package:simcrux/services/license/headless_license_tier.dart';
 import 'package:simcrux/services/result_store/streaming_result_row.dart';
 import 'package:simcrux/services/result_store/streaming_results_writer.dart';
 
@@ -66,8 +66,8 @@ typedef SimRunExecutor = Future<SimRunExecution> Function(SimRunRequest r);
 class SimCommands {
   /// Commands writing documents as [program], running regressions with
   /// [execute], deciding outcomes with [classify]. [trendFlakiness] gives
-  /// `trend` its flakiness class; without it the class is withheld, and the
-  /// document says so. [scratchRuns] is SimCrux's own `runs/` folder, where
+  /// `trend` its flakiness class and what to say about it; without it the
+  /// class is withheld, and the document says so. [scratchRuns] is SimCrux's own `runs/` folder, where
   /// a `--root` run may still read a failing test's log.
   SimCommands({
     required this.program,
@@ -536,7 +536,12 @@ class SimCommands {
       );
     }
     final scorer = trendFlakiness;
-    final flakiness = scorer == null ? null : await scorer(history);
+    final answer = scorer == null
+        ? SimFlakinessAnswer(
+            null,
+            diagnostics: <McpDiagnostic>[withheldFlakiness()],
+          )
+        : await scorer(id, history);
     return McpDocument(
       tool: program,
       command: kTrendCommand,
@@ -544,7 +549,7 @@ class SimCommands {
       body: <String, Object?>{
         'id': id,
         'history': <Object?>[for (final h in history) h.toJson()],
-        'flakiness': flakiness,
+        'flakiness': answer.flakiness,
       },
       diagnostics: <McpDiagnostic>[
         if (notRun > 0)
@@ -553,7 +558,7 @@ class SimCommands {
             'In $notRun of the ${paths.length} runs the test never ran its '
                 'simulator; those runs are left out of the history.',
           ),
-        if (scorer == null) withheldFlakiness(),
+        ...answer.diagnostics,
       ],
     );
   }

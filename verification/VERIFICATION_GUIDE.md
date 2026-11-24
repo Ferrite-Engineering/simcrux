@@ -1026,11 +1026,13 @@ configs + `--session` + `--workspace`).
   (or, before that file exists, when the legacy `simcrux.fingerprint` does —
   its value is adopted into the shared file), and prints `… (wrongMachine: …);
   running as Open Core` when it names another one or none can be read. A build
-  agent with neither file gets one minted into the shared file.
+  agent with neither file gets one minted into the shared file. An expired
+  evaluation licence runs as Open Core at once (no grace period), as in the
+  app. The resolver is crux_license's shared `HeadlessLicenseTierResolver`.
   **Manual check:** `simcrux proj.yaml --ci --license-file missing.lic; echo $?`
   → error naming the path, `2`. (`Coverage: AUTOMATED —
-  test/services/license/headless_license_tier_test.dart,
-  test/core/cli/simcrux_cli_test.dart, test/app_ci_driver_injection_test.dart`)
+  test/core/cli/simcrux_cli_test.dart, test/app_ci_driver_injection_test.dart`;
+  the resolver's own cases run in crux-shared)
 - `type: use` under `--ci` fails the load (exit `2`) with a message saying
   `--ci` never reads the app's detector library.
 
