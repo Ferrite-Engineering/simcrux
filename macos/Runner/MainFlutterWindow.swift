@@ -3,6 +3,7 @@ import FlutterMacOS
 
 class MainFlutterWindow: NSWindow {
   private var windowAttentionPlugin: WindowAttentionPlugin?
+  private var windowForegroundPlugin: WindowForegroundPlugin?
 
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
@@ -26,6 +27,9 @@ class MainFlutterWindow: NSWindow {
     // bounce, never a focus steal).
     windowAttentionPlugin = WindowAttentionPlugin(
       messenger: flutterViewController.engine.binaryMessenger)
+    // A directed cross-probe's foreground hand-off: yield to the target, or
+    // come forward when a peer hands over.
+    windowForegroundPlugin = WindowForegroundPlugin(messenger: flutterViewController.engine.binaryMessenger, window: self)
     // Registers the channels a Finder double-click delivers on. The singleton
     // buffers anything that arrived before now, which on a cold launch is the
     // document that caused the launch in the first place.

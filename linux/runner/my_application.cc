@@ -4,6 +4,11 @@
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
+#ifdef GDK_WINDOWING_WAYLAND
+#include <gdk/gdkwayland.h>
+#endif
+
+#include <cstring>
 
 #include "flutter/generated_plugin_registrant.h"
 #include "crux_file_dialogs.h"
@@ -14,6 +19,104 @@ struct _MyApplication {
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+// The token a directed cross-probe hands the target so it may come forward:
+// on Wayland an xdg-activation token from the compositor (GDK's launch
+// context asks for one), on X11 a "_TIME<user time>" startup id, and null
+// where the desktop supports neither, which makes no hand-off.
+static FlValue* foreground_yield_token(GtkWindow* window) {
+  GdkDisplay* display = gtk_widget_get_display(GTK_WIDGET(window));
+#ifdef GDK_WINDOWING_WAYLAND
+  if (GDK_IS_WAYLAND_DISPLAY(display)) {
+    // GLib's launch context query checks for an app info; this one is never
+    // launched.
+    g_autoptr(GError) error = nullptr;
+    GAppInfo* info = g_app_info_create_from_commandline(
+        "true", "SimCrux", G_APP_INFO_CREATE_NONE, &error);
+    if (info == nullptr) {
+      return nullptr;
+    }
+    GdkAppLaunchContext* context = gdk_display_get_app_launch_context(display);
+    gchar* token = g_app_launch_context_get_startup_notify_id(
+        G_APP_LAUNCH_CONTEXT(context), info, nullptr);
+    g_object_unref(context);
+    g_object_unref(info);
+    FlValue* value = nullptr;
+    if (token != nullptr && token[0] != '\0') {
+      value = fl_value_new_string(token);
+    }
+    g_free(token);
+    return value;
+  }
+#endif
+#ifdef GDK_WINDOWING_X11
+  if (GDK_IS_X11_DISPLAY(display)) {
+    // The time of this app's last user event (the click that sent the
+    // cross-probe) on the X server both apps share, as GTK's "_TIME" startup
+    // id: the target presents its window with that timestamp, so the window
+    // manager's focus-stealing prevention sees a fresh user action.
+    g_autofree gchar* token = g_strdup_printf(
+        "_TIME%u", static_cast<guint>(gdk_x11_display_get_user_time(display)));
+    return fl_value_new_string(token);
+  }
+#endif
+  (void)display;
+  return nullptr;
+}
+
+// Answers crux_window_chrome's `crux_window_chrome/foreground` channel, the
+// directed cross-probe's foreground hand-off. `yieldForeground {pid}` answers
+// the token above; `takeForeground {token}` sets the window's startup id to a
+// non-empty token (on Wayland GTK activates the window with it; a "_TIME"
+// id presents it with that timestamp), presents the window and answers true;
+// where the desktop declines to raise it (focus-stealing prevention), the
+// window manager marks it as asking for attention. Anything else is not
+// implemented.
+static void foreground_method_call(FlMethodChannel* channel,
+                                   FlMethodCall* method_call,
+                                   gpointer user_data) {
+  GtkWindow* window = GTK_WINDOW(user_data);
+  const gchar* method = fl_method_call_get_name(method_call);
+  g_autoptr(GError) error = nullptr;
+  gboolean answered = FALSE;
+  if (strcmp(method, "yieldForeground") == 0) {
+    g_autoptr(FlValue) token = foreground_yield_token(window);
+    answered = fl_method_call_respond_success(method_call, token, &error);
+  } else if (strcmp(method, "takeForeground") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    FlValue* token = fl_value_get_type(args) == FL_VALUE_TYPE_MAP
+                         ? fl_value_lookup_string(args, "token")
+                         : nullptr;
+    if (token != nullptr && fl_value_get_type(token) == FL_VALUE_TYPE_STRING &&
+        fl_value_get_string(token)[0] != '\0') {
+      gtk_window_set_startup_id(window, fl_value_get_string(token));
+    }
+    gtk_window_present(window);
+    g_autoptr(FlValue) raised = fl_value_new_bool(TRUE);
+    answered = fl_method_call_respond_success(method_call, raised, &error);
+  } else {
+    answered = fl_method_call_respond_not_implemented(method_call, &error);
+  }
+  if (!answered) {
+    g_warning("Failed to answer the foreground call: %s",
+              error != nullptr ? error->message : "unknown error");
+  }
+}
+
+static void register_foreground_channel(FlView* view, GtkWindow* window) {
+  // Lives as long as the process: there is one window and one engine.
+  static FlMethodChannel* channel = nullptr;
+  if (channel != nullptr) {
+    return;
+  }
+  FlEngine* engine = fl_view_get_engine(view);
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  channel = fl_method_channel_new(fl_engine_get_binary_messenger(engine),
+                                  "crux_window_chrome/foreground",
+                                  FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(channel, foreground_method_call,
+                                            window, nullptr);
+}
 
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
@@ -75,6 +178,8 @@ static void my_application_activate(GApplication* application) {
   // process.
   crux_register_file_dialog_channel(view);
   crux_tolerate_refused_x_bell("SimCrux");
+  // A directed cross-probe from a peer brings this window forward.
+  register_foreground_channel(view, window);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }

@@ -1,12 +1,39 @@
 #include "flutter_window.h"
 
+#include <flutter/standard_method_codec.h>
+
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
+#include <variant>
 
 #include "flutter/generated_plugin_registrant.h"
 
 namespace {
+
+// crux_window_chrome's foreground hand-off channel.
+constexpr char kForegroundChannel[] = "crux_window_chrome/foreground";
+
+// The `pid` argument of a `yieldForeground` call, or 0 when it is missing or
+// not a positive integer.
+int64_t ForegroundPidArgument(const flutter::EncodableValue* arguments) {
+  const auto* map = std::get_if<flutter::EncodableMap>(arguments);
+  if (map == nullptr) {
+    return 0;
+  }
+  const auto entry = map->find(flutter::EncodableValue("pid"));
+  if (entry == map->end()) {
+    return 0;
+  }
+  if (const auto* small = std::get_if<int32_t>(&entry->second)) {
+    return *small;
+  }
+  if (const auto* large = std::get_if<int64_t>(&entry->second)) {
+    return *large;
+  }
+  return 0;
+}
 
 // The framework's platform channel and, as a JSON method call on it, the
 // cancelable exit request the engine itself sends when the last window
@@ -45,6 +72,7 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+  RegisterForegroundChannel();
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -60,6 +88,7 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  foreground_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -97,6 +126,45 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);
+}
+
+void FlutterWindow::RegisterForegroundChannel() {
+  foreground_channel_ =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(), kForegroundChannel,
+          &flutter::StandardMethodCodec::GetInstance());
+  foreground_channel_->SetMethodCallHandler(
+      [this](const flutter::MethodCall<flutter::EncodableValue>& call,
+             std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>>
+                 result) {
+        if (call.method_name() == "yieldForeground") {
+          const int64_t pid = ForegroundPidArgument(call.arguments());
+          // Allowed only while this process owns the foreground, which it
+          // does at the user's click; null tells the sender no hand-off was
+          // made, so the target asks for attention instead.
+          if (pid <= 0 || pid > MAXDWORD ||
+              !::AllowSetForegroundWindow(static_cast<DWORD>(pid))) {
+            result->Success();
+            return;
+          }
+          result->Success(flutter::EncodableValue(std::string()));
+          return;
+        }
+        if (call.method_name() == "takeForeground") {
+          HWND window = GetHandle();
+          if (window == nullptr) {
+            result->Success(flutter::EncodableValue(false));
+            return;
+          }
+          if (::IsIconic(window)) {
+            ::ShowWindow(window, SW_RESTORE);
+          }
+          const bool raised = ::SetForegroundWindow(window) != FALSE;
+          result->Success(flutter::EncodableValue(raised));
+          return;
+        }
+        result->NotImplemented();
+      });
 }
 
 void FlutterWindow::RunExitListenersBeforeSessionEnds() {
