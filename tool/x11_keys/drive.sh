@@ -64,7 +64,7 @@ esac
 echo "Extensions a $trust client sees:" \
   "$(XAUTHORITY="$work/client" xdpyinfo -queryExtensions |
     awk '/^number of extensions/ { on = 1; next }
-         on && /^    [^ ]/ { sub(/ +\(opcode.*/, ""); sub(/^ +/, ""); print }
+         on && /^    [^ ]/ { sub(/ +\(opcode.*/, ""); sub(/^ +/, ""); print; next }
          on && /^[^ ]/ { on = 0 }' | paste -sd ',' -)"
 
 XAUTHORITY="$work/client" "$@" >"$log" 2>&1 &
