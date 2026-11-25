@@ -745,7 +745,7 @@ of an attribution question.
   crypto                                       3.0.7            BSD-3-Clause
   cupertino_ui                                 1.1.4            BSD-3-Clause
   dbus                                         0.7.15           MPL-2.0
-  edacrux_cxp                                  0.2.0            SDK
+  edacrux_cxp                                  0.3.0            SDK
   fake_async                                   1.3.3            Apache-2.0
   ffi                                          2.2.0            BSD-3-Clause
   ffi_leak_tracker                             0.1.2            BSD-3-Clause
