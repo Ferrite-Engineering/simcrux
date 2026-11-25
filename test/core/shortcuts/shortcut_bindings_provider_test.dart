@@ -39,6 +39,7 @@ void main() {
       SimcruxAction.pinActiveProject,
       SimcruxAction.closeAllProjects,
       SimcruxAction.closeAllTabs,
+      SimcruxAction.resetWorkspace,
       // Settings-panel / command-palette only.
       SimcruxAction.openPluginManager,
       SimcruxAction.reloadPlugins,

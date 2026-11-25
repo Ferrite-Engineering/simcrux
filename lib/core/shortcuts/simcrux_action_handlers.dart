@@ -220,6 +220,9 @@ class SimcruxActionHandlers {
         }
         unawaited(_closeAllTabs(ctx, ref));
       },
+      SimcruxAction.resetWorkspace: () {
+        unawaited(_resetWorkspace(navigatorContext(), ref));
+      },
       SimcruxAction.runRegression: () {
         final tabContainer = activeTabContainer();
         final config = tabContainer?.read(activeConfigProvider);
@@ -887,6 +890,27 @@ class SimcruxActionHandlers {
     for (final tab in ws.tabs) {
       await notifier.closeTab(tab.id);
     }
+  }
+
+  /// File > Reset Workspace… — confirms, then empties the workspace, as the
+  /// same action does in WaveCrux, NetCrux and LintCrux. Dismissing the
+  /// dialog, or activating with no navigator mounted, leaves it untouched.
+  static Future<void> _resetWorkspace(
+    BuildContext? context,
+    WidgetRef ref,
+  ) async {
+    if (context == null || !context.mounted) return;
+    final l10n = L10N.of(context);
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: l10n.workspaceResetConfirmTitle,
+      body: l10n.workspaceResetConfirmBody,
+      cancelLabel: l10n.closeAllTabsConfirmCancel,
+      confirmLabel: l10n.workspaceResetConfirmAction,
+    );
+    if (!confirmed) return;
+    if (!context.mounted) return;
+    await ref.read(workspaceProvider.notifier).resetWorkspace();
   }
 
   /// File → Open Project — picks a `simcrux.yaml` or a

@@ -89,6 +89,7 @@ SimcruxActionDescriptor descriptorFor(SimcruxAction action) => switch (action) {
   // not a toolbar action.
   SimcruxAction.closeTab ||
   SimcruxAction.closeAllTabs ||
+  SimcruxAction.resetWorkspace ||
   SimcruxAction.closeAllProjects ||
   SimcruxAction.pinActiveProject ||
   SimcruxAction.toggleTestBrowser ||

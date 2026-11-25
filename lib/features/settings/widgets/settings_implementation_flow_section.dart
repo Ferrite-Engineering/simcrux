@@ -138,7 +138,24 @@ class _FlowToolchainCheckState extends ConsumerState<FlowToolchainCheck> {
             for (final row in report.tools)
               _ReportLine(
                 found: row.found,
-                text: !row.found
+                text: row.flakePath != null
+                    ? (row.found
+                          ? l10n.settingsFlowToolsNixFlake(
+                              row.tool.binaryName,
+                              row.flakePath!,
+                            )
+                          : l10n.settingsFlowToolsNixNoFlake(
+                              row.tool.binaryName,
+                              row.flakePath!,
+                            ))
+                    : row.problem != null
+                    // What the tool printed instead of a version, under the
+                    // failing glyph.
+                    ? l10n.settingsFormalToolsFoundVersion(
+                        row.tool.binaryName,
+                        row.problem!,
+                      )
+                    : !row.found
                     ? l10n.settingsFormalToolsMissing(row.tool.binaryName)
                     : row.version == null
                     ? l10n.settingsFormalToolsFound(row.tool.binaryName)

@@ -373,6 +373,14 @@ enum SimcruxAction implements CruxAction {
   /// registry-aware, pin-respecting variant carries the PRO badge.
   closeAllTabs,
 
+  /// Empty the workspace: close every tab and put the layout back to its
+  /// default, after confirmation (File > Reset Workspace…). WaveCrux, NetCrux
+  /// and LintCrux have the same action; the `--reset` launch flag is the
+  /// same operation done at startup.
+  ///
+  /// Open-core, unconditional: it only touches the workspace document.
+  resetWorkspace,
+
   /// Open the cross-project search dialog (Ctrl/Cmd+Shift+F).
   /// Searches test names, failure messages, and file paths across
   /// every currently-open project; results group by project with a
@@ -555,6 +563,7 @@ enum SimcruxAction implements CruxAction {
       // `closeActiveProject` the same way.
       case SimcruxAction.closeAllTabs:
       case SimcruxAction.closeTab:
+      case SimcruxAction.resetWorkspace:
       // The theme toggle operates on the app shell, which is never a paid
       // capability — open core in every suite product.
       case SimcruxAction.toggleTheme:
@@ -582,6 +591,7 @@ enum SimcruxAction implements CruxAction {
       case SimcruxAction.closeProject:
       case SimcruxAction.closeAllProjects:
       case SimcruxAction.closeAllTabs:
+      case SimcruxAction.resetWorkspace:
         return ActionCategory.file;
       // Quit lives in the "App" category so it renders at the top of the
       // macOS application menu (the menu labelled with the app name), as
@@ -799,6 +809,8 @@ extension SimcruxActionLabel on SimcruxAction {
         return l10n.actionCloseAllProjects;
       case SimcruxAction.closeAllTabs:
         return l10n.actionCloseAllTabs;
+      case SimcruxAction.resetWorkspace:
+        return l10n.actionResetWorkspace;
       case SimcruxAction.searchAcrossProjects:
         return l10n.actionSearchAcrossProjects;
       case SimcruxAction.openPluginManager:

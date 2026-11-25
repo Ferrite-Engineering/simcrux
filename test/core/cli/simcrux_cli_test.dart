@@ -10,6 +10,7 @@ import 'package:crux_policy/crux_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/core/app_info/build_info.dart';
+import 'package:simcrux/core/cli/cli_arg_parser.dart';
 import 'package:simcrux/core/cli/cli_args.dart';
 import 'package:simcrux/core/cli/license_cli.dart';
 import 'package:simcrux/core/cli/simcrux_cli.dart';
@@ -18,6 +19,7 @@ import 'package:simcrux/domain/enums/test_status.dart';
 import 'package:simcrux/domain/interfaces/simulator_driver.dart';
 import 'package:simcrux/domain/models/simulator_binary_config.dart';
 import 'package:simcrux/domain/models/test_run.dart';
+import 'package:simcrux/headless/sim_commands.dart';
 import 'package:simcrux/services/ci/fail_on_regression_policy.dart';
 import 'package:simcrux/services/config/config_loader.dart';
 import 'package:simcrux/services/simulator/simulator_driver_registry.dart';
@@ -154,6 +156,42 @@ suites:
       expect(out.join('\n'), contains('--ci'));
       expect(out.join('\n'), contains('--import-fusesoc'));
     });
+
+    test('--help starts with a usage line and lists every command `run` '
+        'dispatches on, then the option table', () async {
+      expect(await run(const ['--help']), 0);
+      final text = out.join('\n');
+      expect(text, startsWith('Usage: simcrux <command> [options]'));
+      final commands = <String>{
+        ...CliArgParser.kSubcommands,
+        ...SimCommands.names,
+        SimcruxCli.kMcpSubcommand,
+      };
+      for (final name in commands) {
+        expect(
+          RegExp(
+            '^  ${RegExp.escape(name)}[ \n]',
+            multiLine: true,
+          ).hasMatch(text),
+          isTrue,
+          reason: '--help does not list `$name`',
+        );
+      }
+      expect(
+        text.indexOf('Options:'),
+        lessThan(text.indexOf('--fail-threshold')),
+      );
+    });
+
+    test(
+      'the nothing-to-do error prints the same usage and command list',
+      () async {
+        expect(await run(const <String>[]), 2);
+        final text = err.join('\n');
+        expect(text, contains('Usage: simcrux <command> [options]'));
+        expect(text, contains('  import-sby '));
+      },
+    );
 
     test('--version prints `simcrux <version>` and exits 0', () async {
       // The suite's headless convention, and the line the Homebrew formula's

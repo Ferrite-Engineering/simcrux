@@ -160,11 +160,17 @@ class SimcruxWorkspaceNotifier extends WorkspaceNotifier<SimcruxTabPayload> {
     if (willClose) _emit('pane.closed');
   }
 
-  // `resetWorkspace` carries no counter here, and `saveAs` carries none at
-  // all. SimCrux's only reset path is `bootstrap`'s `--reset` flag, which
-  // clears the document through the *service* before this notifier exists —
-  // so `workspace.reset` is recorded there, from the container, rather than
-  // from an override nothing calls. And SimCrux has no "Save Workspace As" or
+  /// File > Reset Workspace. The `--reset` launch flag clears the document
+  /// through the *service* before this notifier exists, so it records
+  /// `workspace.reset` itself in `bootstrap`; this override records the
+  /// menu path, and the two never both run for one reset.
+  @override
+  Future<void> resetWorkspace() async {
+    await super.resetWorkspace();
+    _emit('workspace.reset');
+  }
+
+  // `saveAs` carries no counter. SimCrux has no "Save Workspace As" or
   // "New Workspace" action at all, so `workspace.named.saved` and
   // `workspace.created` are absent from `kSimcruxEventCatalog` rather than
   // instrumented into a method with no caller: a counter wired to an

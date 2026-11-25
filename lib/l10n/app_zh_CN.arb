@@ -502,6 +502,15 @@
   "@dashboardEmpty": {
     "description": "Placeholder body text shown in the dashboard when no run is active."
   },
+  "dashboardEmptyProjectOpen": "暂无结果。选择“{action}”以运行项目。",
+  "@dashboardEmptyProjectOpen": {
+    "description": "Placeholder body text shown in the dashboard when a project is open and nothing has run yet. {action} is the label of the Run Regression action.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardNoMatches": "没有符合筛选条件的结果。",
   "@dashboardNoMatches": {
     "description": "Placeholder body text shown in the results table and the heatmap when results exist but the active filters exclude every one of them. A Clear filters button sits beneath it."
@@ -981,7 +990,31 @@
       }
     }
   },
-  "settingsFlowToolsNoPdk": "未找到 PDK。请在上方设置 PDK 根目录。",
+  "settingsFlowToolsNixFlake": "{tool}：位于 {path} 的 Nix flake",
+  "@settingsFlowToolsNixFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path holds a flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNixNoFlake": "{tool}：{path} 中没有 flake.nix",
+  "@settingsFlowToolsNixNoFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path has no flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNoPdk":"未找到 PDK。请在上方设置 PDK 根目录。",
   "@settingsFlowToolsNoPdk": {
     "description": "Flow tools report line when no PDK was found under the PDK root, or no PDK root is set."
   },
@@ -1772,6 +1805,22 @@
   "closeAllTabsConfirmConfirm": "全部关闭",
   "@closeAllTabsConfirmConfirm": {
     "description": "Confirm button label on the close-all-tabs confirmation dialog."
+  },
+  "actionResetWorkspace": "重置工作区…",
+  "@actionResetWorkspace": {
+    "description": "Menu / command palette label for the action that empties the current workspace. Same wording as WaveCrux, NetCrux and LintCrux."
+  },
+  "workspaceResetConfirmTitle": "重置工作区？",
+  "@workspaceResetConfirmTitle": {
+    "description": "Title of the confirmation dialog shown before File > Reset Workspace empties every open tab."
+  },
+  "workspaceResetConfirmBody": "所有已打开的标签页将被关闭，布局恢复默认。此操作无法撤销，但您的项目文件仍保留在磁盘上。",
+  "@workspaceResetConfirmBody": {
+    "description": "Body text of the confirmation dialog shown before File > Reset Workspace."
+  },
+  "workspaceResetConfirmAction": "重置",
+  "@workspaceResetConfirmAction": {
+    "description": "Confirmation button label on the reset-workspace dialog."
   },
   "actionSearchAcrossProjects": "跨项目搜索…",
   "@actionSearchAcrossProjects": {

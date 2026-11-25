@@ -279,9 +279,8 @@ class SimcruxCli {
     try {
       final parsed = CliArgParser().parse(launchArgs);
       if (parsed is HelpCliArgs) {
-        stdoutSink(CliArgParser().usage);
-        stdoutSink('');
         stdoutSink(kCommandsUsage);
+        stdoutSink(CliArgParser().usage);
         return 0;
       }
       if (parsed is VersionCliArgs) {
@@ -361,6 +360,7 @@ class SimcruxCli {
       'need the SimCrux desktop app.',
     );
     stderrSink('');
+    stderrSink(kCommandsUsage);
     stderrSink(CliArgParser().usage);
     return 2;
   }
@@ -546,16 +546,38 @@ class SimcruxCli {
   /// The word that starts the MCP server.
   static const String kMcpSubcommand = 'mcp';
 
-  /// The lines `--help` adds below the option list.
+  /// The lines `--help` and the "nothing to do" error print above the option
+  /// list: the usage line, then every command with one line of what it does.
+  /// A test holds it to every command `run` dispatches on.
   static const String kCommandsUsage =
-      'Commands that write one JSON document with --json (each has --help):\n'
+      'Usage: simcrux <command> [options]\n'
+      '       simcrux --ci <project> [options]\n'
+      '\n'
+      'Commands (each takes --help):\n'
       '  run <simcrux.yaml>                 run a regression, each test '
       'described\n'
       '  results <results.ndjson>           the results of a run\n'
       '  test <results.ndjson> <suite/test> one test, its log and seed\n'
       "  trend <suite/test> <results.ndjson>... a test's history\n"
       '  mcp [--root <dir>]                 serve the four as MCP tools on '
-      'stdio';
+      'stdio\n'
+      '  import-sby <file.sby|dir>          write a project from SymbiYosys '
+      'files\n'
+      '  import-eqy <file.eqy>              write a project from an EQY file\n'
+      '  import-riscv-arch-test <suite>     write a project from a RISC-V '
+      'architectural test suite\n'
+      '  import-riscv-formal <checks>       write a project from riscv-formal '
+      'checks\n'
+      '  export-dashboard <dir>             write the results dashboard as '
+      'static files\n'
+      '  license                            the install fingerprint and an '
+      'offline activation request\n'
+      '  flow                               run, ingest, gate and export '
+      'implementation flows\n'
+      '\n'
+      'run, results, test and trend write one JSON document with --json.\n'
+      '\n'
+      'Options:';
 
   /// SimCrux's own `runs/` folder, where `run` keeps failing tests' work
   /// folders.

@@ -136,6 +136,8 @@ const Map<SimcruxAction, _Dispatch> _expectedDispatch = {
   // implementation as closeProject, so the same no-project feedback.
   SimcruxAction.closeTab: _Dispatch.noProjectSnack,
   SimcruxAction.closeAllTabs: _Dispatch.noProjectSnack,
+  // Opens the confirmation dialog whether or not a tab is open.
+  SimcruxAction.resetWorkspace: _Dispatch.opensSurface,
   SimcruxAction.runRegression: _Dispatch.noProjectSnack,
   SimcruxAction.cancelRegression: _Dispatch.noProjectSnack,
   SimcruxAction.reRunSelected: _Dispatch.noProjectSnack,
@@ -1031,6 +1033,49 @@ void main() {
       // No registry involvement: closeAllTabs closes the tabs and
       // nothing else. This is the tier-free capability that survives
       // closeAllProjects becoming Pro.
+      expect(harness.scoped.read(workspaceProvider).value!.tabs, isEmpty);
+      await settleWorkspace(tester);
+    });
+  });
+
+  group('resetWorkspace', () {
+    Future<void> openTwo(WidgetTester tester, _Harness harness) async {
+      final notifier = harness.scoped.read(workspaceProvider.notifier);
+      await notifier.openTab(
+        displayName: 'a.yaml',
+        payload: SimcruxTabPayload(configPath: '/a/simcrux.yaml'),
+      );
+      await notifier.openTab(
+        displayName: 'b.yaml',
+        payload: SimcruxTabPayload(configPath: '/b/simcrux.yaml'),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('asks first, and cancelling keeps every tab', (tester) async {
+      final harness = await pumpHarness(tester);
+      await openTwo(tester, harness);
+
+      harness.handlers[SimcruxAction.resetWorkspace]!();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('confirmDialog')), findsOneWidget);
+      expect(find.text('Reset workspace?'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('confirmDialogCancel')));
+      await tester.pumpAndSettle();
+      expect(harness.scoped.read(workspaceProvider).value!.tabs.length, 2);
+      await settleWorkspace(tester);
+    });
+
+    testWidgets('confirming empties the workspace', (tester) async {
+      final harness = await pumpHarness(tester);
+      await openTwo(tester, harness);
+
+      harness.handlers[SimcruxAction.resetWorkspace]!();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('confirmDialogConfirm')));
+      await tester.pumpAndSettle();
+
       expect(harness.scoped.read(workspaceProvider).value!.tabs, isEmpty);
       await settleWorkspace(tester);
     });

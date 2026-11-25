@@ -55,6 +55,9 @@ void main() {
     // The open-core close-every-tab capability. Destructive and
     // confirmation-guarded; menu + command palette only, no chord.
     SimcruxAction.closeAllTabs,
+    // Reset Workspace: destructive and confirmation-guarded; menu + command
+    // palette only, no chord.
+    SimcruxAction.resetWorkspace,
     // Custom simulator-driver plugin SDK actions.
     // Both are Settings-panel + command-palette workflows triggered
     // manually outside the editor's hot path; no headline chord

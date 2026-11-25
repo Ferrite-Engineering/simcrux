@@ -502,6 +502,15 @@
   "@dashboardEmpty": {
     "description": "Placeholder body text shown in the dashboard when no run is active."
   },
+  "dashboardEmptyProjectOpen": "結果がまだありません。「{action}」を選んでプロジェクトを実行してください。",
+  "@dashboardEmptyProjectOpen": {
+    "description": "Placeholder body text shown in the dashboard when a project is open and nothing has run yet. {action} is the label of the Run Regression action.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardNoMatches": "フィルタに一致する結果はありません。",
   "@dashboardNoMatches": {
     "description": "Placeholder body text shown in the results table and the heatmap when results exist but the active filters exclude every one of them. A Clear filters button sits beneath it."
@@ -981,7 +990,31 @@
       }
     }
   },
-  "settingsFlowToolsNoPdk": "PDK が見つかりません。上で PDK ルートを設定してください。",
+  "settingsFlowToolsNixFlake": "{tool}: {path} の Nix flake",
+  "@settingsFlowToolsNixFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path holds a flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNixNoFlake": "{tool}: {path} に flake.nix がありません",
+  "@settingsFlowToolsNixNoFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path has no flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNoPdk":"PDK が見つかりません。上で PDK ルートを設定してください。",
   "@settingsFlowToolsNoPdk": {
     "description": "Flow tools report line when no PDK was found under the PDK root, or no PDK root is set."
   },
@@ -1772,6 +1805,22 @@
   "closeAllTabsConfirmConfirm": "すべて閉じる",
   "@closeAllTabsConfirmConfirm": {
     "description": "Confirm button label on the close-all-tabs confirmation dialog."
+  },
+  "actionResetWorkspace": "ワークスペースをリセット…",
+  "@actionResetWorkspace": {
+    "description": "Menu / command palette label for the action that empties the current workspace. Same wording as WaveCrux, NetCrux and LintCrux."
+  },
+  "workspaceResetConfirmTitle": "ワークスペースをリセットしますか？",
+  "@workspaceResetConfirmTitle": {
+    "description": "Title of the confirmation dialog shown before File > Reset Workspace empties every open tab."
+  },
+  "workspaceResetConfirmBody": "開いているすべてのタブが閉じられ、レイアウトが既定に戻ります。元に戻すことはできませんが、プロジェクトファイルはディスク上に残ります。",
+  "@workspaceResetConfirmBody": {
+    "description": "Body text of the confirmation dialog shown before File > Reset Workspace."
+  },
+  "workspaceResetConfirmAction": "リセット",
+  "@workspaceResetConfirmAction": {
+    "description": "Confirmation button label on the reset-workspace dialog."
   },
   "actionSearchAcrossProjects": "プロジェクト横断検索…",
   "@actionSearchAcrossProjects": {

@@ -91,13 +91,15 @@ Future<void> _pump(
   WidgetTester tester, {
   Widget results = const DashboardResultsTable(),
   bool withRun = true,
+  bool withProject = true,
   Locale locale = const Locale('en'),
 }) async {
   tester.view.physicalSize = const Size(1400, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final overrides = <Override>[
-    activeConfigProvider.overrideWith(() => _ConfigNotifier(_config)),
+    if (withProject)
+      activeConfigProvider.overrideWith(() => _ConfigNotifier(_config)),
   ];
   if (withRun) {
     final ids = <String>[
@@ -281,10 +283,10 @@ void main() {
       expect(find.text(l10n.dashboardNoMatches), findsOneWidget);
     });
 
-    testWidgets('with no results at all the table still says so', (
+    testWidgets('with no project open the table says to open one', (
       tester,
     ) async {
-      await _pump(tester, withRun: false);
+      await _pump(tester, withRun: false, withProject: false);
       final l10n = _l10n(tester);
 
       expect(find.text(l10n.dashboardEmpty), findsOneWidget);
@@ -295,6 +297,46 @@ void main() {
       await _type(tester, 'smoke');
       expect(find.text(l10n.dashboardEmpty), findsOneWidget);
       expect(find.text(l10n.dashboardNoMatches), findsNothing);
+    });
+
+    testWidgets('with a project open and no results the table says to run it, '
+        'not to open a project', (tester) async {
+      await _pump(tester, withRun: false);
+      final l10n = _l10n(tester);
+      final text = l10n.dashboardEmptyProjectOpen(l10n.actionRunRegression);
+
+      expect(find.text(text), findsOneWidget);
+      expect(find.text(l10n.dashboardEmpty), findsNothing);
+      expect(find.text(l10n.dashboardNoMatches), findsNothing);
+
+      await _type(tester, 'smoke');
+      expect(find.text(text), findsOneWidget);
+      expect(find.text(l10n.dashboardNoMatches), findsNothing);
+    });
+
+    testWidgets('both empty states render in every locale, the run prompt '
+        'naming the Run Regression label', (tester) async {
+      for (final locale in L10N.supportedLocales) {
+        for (final withProject in <bool>[false, true]) {
+          // A fresh scope: the override list differs between the two states.
+          await tester.pumpWidget(const SizedBox());
+          await _pump(
+            tester,
+            withRun: false,
+            withProject: withProject,
+            locale: locale,
+          );
+          final l10n = _l10n(tester);
+          final expected = withProject
+              ? l10n.dashboardEmptyProjectOpen(l10n.actionRunRegression)
+              : l10n.dashboardEmpty;
+          expect(find.text(expected), findsOneWidget, reason: '$locale');
+          if (withProject) {
+            expect(expected, contains(l10n.actionRunRegression));
+          }
+          expect(tester.takeException(), isNull);
+        }
+      }
     });
 
     testWidgets('every locale renders the message without exceptions', (

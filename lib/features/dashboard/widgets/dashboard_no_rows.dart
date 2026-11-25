@@ -12,8 +12,8 @@ import 'package:simcrux/l10n/generated/app_localizations.dart';
 /// Two different situations look the same from the rows alone, and the user
 /// needs to be told which one they are in:
 ///
-/// - No result has arrived yet (no project open, or a run just started): the
-///   prompt to open a project and begin a regression.
+/// - No result has arrived yet. With no project open, the prompt to open one;
+///   with a project open, the prompt to run it (Run Regression).
 /// - Results exist, and the active filters exclude every one of them: the
 ///   results are not missing, the filter is hiding them, so the view says that
 ///   and offers Clear filters, which resets the whole filter (text, chips,
@@ -30,7 +30,12 @@ class DashboardNoRows extends ConsumerWidget {
     final hasResults =
         totals != null && totals.byStatus.values.any((count) => count > 0);
     if (filter.isUnset || !hasResults) {
-      return CruxPanelEmptyState(message: l10n.dashboardEmpty);
+      final projectOpen = ref.watch(activeConfigProvider) != null;
+      return CruxPanelEmptyState(
+        message: projectOpen
+            ? l10n.dashboardEmptyProjectOpen(l10n.actionRunRegression)
+            : l10n.dashboardEmpty,
+      );
     }
     return CruxPanelEmptyState(
       message: l10n.dashboardNoMatches,

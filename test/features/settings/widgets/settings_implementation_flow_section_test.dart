@@ -148,4 +148,48 @@ void main() {
     expect(find.text(l10n.settingsFlowToolsNoPdk), findsOneWidget);
     expect(find.text(l10n.settingsFlowToolsGuidance), findsOneWidget);
   });
+
+  testWidgets('a tool that printed an error is shown as a failure, not '
+      'under a green tick', (tester) async {
+    const error = 'mkdir: /x/.local/share: Permission denied';
+    final container = ProviderContainer(
+      overrides: [
+        flowToolchainProbeProvider.overrideWithValue(
+          FlowToolchainProbe(
+            platform: RiscvHostPlatform.linux,
+            environment: const <String, String>{},
+            runner: (binary, args) async => binary.contains('nextpnr-ice40')
+                ? (exitCode: 0, lines: <String>[error])
+                : null,
+          ),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final settings = await container.read(appSettingsProvider.future);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          localizationsDelegates: const [
+            L10N.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: L10N.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: FlowToolchainCheck(settings: settings),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('flowToolsCheck')));
+    await tester.pumpAndSettle();
+    expect(find.text('nextpnr-ice40: $error'), findsOneWidget);
+    // Nothing answered with a version, so no row is ticked.
+    expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+  });
 }

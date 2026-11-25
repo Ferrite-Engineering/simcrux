@@ -63,6 +63,9 @@ const CruxMenuLayout<SimcruxAction> kMenuLayout = {
       SimcruxAction.closeProject,
       SimcruxAction.closeAllProjects,
     ],
+    [
+      SimcruxAction.resetWorkspace,
+    ],
   ],
 
   // ── View ──────────────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ import 'package:crux_io/crux_io.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:simcrux/domain/enums/riscv_host_platform.dart';
+import 'package:simcrux/domain/models/flow_config.dart';
 import 'package:simcrux/domain/models/flow_tool_settings.dart';
 import 'package:simcrux/services/job_scheduler/process_reaper.dart';
 
@@ -64,6 +65,8 @@ class FlowToolReport {
     required this.binary,
     required this.found,
     this.version,
+    this.problem,
+    this.flakePath,
   });
 
   /// The tool.
@@ -72,11 +75,20 @@ class FlowToolReport {
   /// The executable that was asked.
   final String binary;
 
-  /// Whether it answered.
+  /// Whether it answered with a version.
   final bool found;
 
-  /// The first line it printed, when it answered.
+  /// The version line it printed, when it answered.
   final String? version;
+
+  /// What the tool printed instead of a version, when it started but did not
+  /// answer: its first line, as printed. Null when it never started (not
+  /// found) or when [found].
+  final String? problem;
+
+  /// The LibreLane checkout checked as a Nix flake, when the Nix launcher is
+  /// chosen: [found] says whether it holds a `flake.nix`.
+  final String? flakePath;
 }
 
 /// What the probe found.
@@ -118,9 +130,13 @@ typedef FlowProbeRunner =
 ///
 /// Every spawn goes through the [ProcessReaper], is bounded by
 /// [kSpawnTimeout] and is killed as a tree when it overstays. The PDK check
-/// only lists `PDK_ROOT`: it reads no PDK file. LibreLane is asked through
-/// the `path` launcher only; a Nix or Docker launcher is checked by asking
-/// `nix` or `docker` for their versions, never by building an environment.
+/// only lists the PDK root (Settings, then `PDK_ROOT`, then `~/.ciel`, as
+/// LibreLane resolves it): it reads no PDK file. LibreLane is asked through
+/// the `path` launcher only; the Nix launcher is checked by looking for the
+/// `flake.nix` in the LibreLane path, and a Nix or Docker launcher's tool by
+/// asking `nix` or `docker` for its version, never by building an
+/// environment. A tool that exits 0 but prints only an error is reported as a
+/// problem, never as found.
 class FlowToolchainProbe {
   /// Creates the probe. [runner] defaults to a bounded reaper spawn;
   /// [platform] and [environment] to the host's.
@@ -192,25 +208,76 @@ class FlowToolchainProbe {
     final rows = <FlowToolReport>[];
     for (final tool in FlowTool.values) {
       final binary = binaryFor(tool);
+      // Under the Nix launcher the LibreLane path is a checkout holding a
+      // flake, which `nix develop` enters; it is not an executable.
+      if (tool == FlowTool.librelane && settings.launcher == FlowLauncher.nix) {
+        rows.add(_flakeRow(tool, librelanePath));
+        continue;
+      }
       final run = await (_runner ?? _defaultRun)(binary, tool.versionArgs);
-      final ok = run != null && run.exitCode == 0 && run.lines.isNotEmpty;
+      final version = run != null && run.exitCode == 0
+          ? versionLineOf(run.lines)
+          : null;
       rows.add(
         FlowToolReport(
           tool: tool,
           binary: binary,
-          found: ok,
-          version: ok ? run.lines.first : null,
+          found: version != null,
+          version: version,
+          // It started and did not answer with a version: say what it
+          // printed instead of "not found", and never tick it.
+          problem: version == null && run != null && run.lines.isNotEmpty
+              ? run.lines.first
+              : null,
         ),
       );
     }
-    final root = settings.pdkRoot.isNotEmpty
-        ? settings.pdkRoot
-        : _environment['PDK_ROOT'];
+    final root = _pdkRoot(settings);
     return FlowToolchainReport(
       tools: List<FlowToolReport>.unmodifiable(rows),
-      pdkRoot: root == null || root.isEmpty ? null : root,
-      pdks: root == null || root.isEmpty ? const <String>[] : pdksIn(root),
+      pdkRoot: root,
+      pdks: root == null ? const <String>[] : pdksIn(root),
     );
+  }
+
+  FlowToolReport _flakeRow(FlowTool tool, String? checkout) {
+    final path = checkout == null ? '' : checkout.trim();
+    final isFlake =
+        path.isNotEmpty && File(p.join(path, 'flake.nix')).existsSync();
+    return FlowToolReport(
+      tool: tool,
+      binary: path.isEmpty ? tool.binaryName : path,
+      found: isFlake,
+      flakePath: path.isEmpty ? null : path,
+    );
+  }
+
+  /// The PDK root a run would use: the Settings one, else `PDK_ROOT`, else
+  /// LibreLane's own default, `~/.ciel`. Null when none of them can be named.
+  String? _pdkRoot(FlowToolSettings settings) {
+    if (settings.pdkRoot.isNotEmpty) return settings.pdkRoot;
+    final fromEnv = _environment['PDK_ROOT'];
+    if (fromEnv != null && fromEnv.isNotEmpty) return fromEnv;
+    final home = _environment['HOME'] ?? _environment['USERPROFILE'] ?? '';
+    return home.isEmpty ? null : p.join(home, '.ciel');
+  }
+
+  /// Words that mark a line as an error message, not a version.
+  static final RegExp _errorLine = RegExp(
+    'permission denied|no such file|not found|cannot |can.t |could not|'
+    r'unable to|failed|traceback|\berror\b|\bdenied\b',
+    caseSensitive: false,
+  );
+
+  /// The line of [lines] that is a version: the first that is not an error
+  /// message and holds a digit. Null when there is none, so a tool that
+  /// exited 0 but printed only an error is not ticked.
+  static String? versionLineOf(List<String> lines) {
+    for (final line in lines) {
+      if (_errorLine.hasMatch(line)) continue;
+      if (RegExp(r'\d').hasMatch(line)) return line;
+    }
+    return null;
   }
 
   /// The PDKs under [root]: each `<root>/<pdk>/` that holds `libs.ref`, the

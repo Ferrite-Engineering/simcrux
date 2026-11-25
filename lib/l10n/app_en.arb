@@ -505,6 +505,15 @@
   "@dashboardEmpty": {
     "description": "Placeholder body text shown in the dashboard when no run is active."
   },
+  "dashboardEmptyProjectOpen": "No results yet. Choose {action} to run the project.",
+  "@dashboardEmptyProjectOpen": {
+    "description": "Placeholder body text shown in the dashboard when a project is open and nothing has run yet. {action} is the label of the Run Regression action.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardNoMatches": "No results match the filters.",
   "@dashboardNoMatches": {
     "description": "Placeholder body text shown in the results table and the heatmap when results exist but the active filters exclude every one of them. A Clear filters button sits beneath it."
@@ -984,7 +993,31 @@
       }
     }
   },
-  "settingsFlowToolsNoPdk": "No PDK was found. Set the PDK root above.",
+  "settingsFlowToolsNixFlake": "{tool}: Nix flake at {path}",
+  "@settingsFlowToolsNixFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path holds a flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNixNoFlake": "{tool}: no flake.nix in {path}",
+  "@settingsFlowToolsNixNoFlake": {
+    "description": "Flow tools report line for LibreLane under the Nix launcher when the LibreLane path has no flake.nix. {tool} is a program name and {path} a folder, never translated.",
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFlowToolsNoPdk":"No PDK was found. Set the PDK root above.",
   "@settingsFlowToolsNoPdk": {
     "description": "Flow tools report line when no PDK was found under the PDK root, or no PDK root is set."
   },
@@ -1781,6 +1814,22 @@
   "closeAllTabsConfirmConfirm": "Close All",
   "@closeAllTabsConfirmConfirm": {
     "description": "Confirm button label on the close-all-tabs confirmation dialog."
+  },
+  "actionResetWorkspace": "Reset Workspace…",
+  "@actionResetWorkspace": {
+    "description": "Menu / command palette label for the action that empties the current workspace. Same wording as WaveCrux, NetCrux and LintCrux."
+  },
+  "workspaceResetConfirmTitle": "Reset workspace?",
+  "@workspaceResetConfirmTitle": {
+    "description": "Title of the confirmation dialog shown before File > Reset Workspace empties every open tab."
+  },
+  "workspaceResetConfirmBody": "All open tabs will be closed and the layout returns to its default. This cannot be undone, but your project files stay on disk.",
+  "@workspaceResetConfirmBody": {
+    "description": "Body text of the confirmation dialog shown before File > Reset Workspace."
+  },
+  "workspaceResetConfirmAction": "Reset",
+  "@workspaceResetConfirmAction": {
+    "description": "Confirmation button label on the reset-workspace dialog."
   },
   "actionSearchAcrossProjects": "Search Across Projects…",
   "@actionSearchAcrossProjects": {
