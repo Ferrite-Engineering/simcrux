@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Ferrite Engineering LLC
+# SPDX-License-Identifier: Apache-2.0
+
 # Sourced by scripts/deploy_web.sh; not run on its own. The desktop release
 # scripts in the Pro overlay carry the same file.
 #
