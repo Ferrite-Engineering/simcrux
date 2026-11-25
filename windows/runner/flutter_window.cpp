@@ -15,6 +15,9 @@ namespace {
 // crux_window_chrome's foreground hand-off channel.
 constexpr char kForegroundChannel[] = "crux_window_chrome/foreground";
 
+// crux_window_chrome's request-attention channel.
+constexpr char kAttentionChannel[] = "crux_window_chrome/attention";
+
 // The `pid` argument of a `yieldForeground` call, or 0 when it is missing or
 // not a positive integer.
 int64_t ForegroundPidArgument(const flutter::EncodableValue* arguments) {
@@ -73,6 +76,7 @@ bool FlutterWindow::OnCreate() {
   }
   RegisterPlugins(flutter_controller_->engine());
   RegisterForegroundChannel();
+  RegisterAttentionChannel();
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -89,6 +93,7 @@ bool FlutterWindow::OnCreate() {
 
 void FlutterWindow::OnDestroy() {
   foreground_channel_ = nullptr;
+  attention_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -164,6 +169,35 @@ void FlutterWindow::RegisterForegroundChannel() {
           return;
         }
         result->NotImplemented();
+      });
+}
+
+void FlutterWindow::RegisterAttentionChannel() {
+  attention_channel_ =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(), kAttentionChannel,
+          &flutter::StandardMethodCodec::GetInstance());
+  attention_channel_->SetMethodCallHandler(
+      [this](const flutter::MethodCall<flutter::EncodableValue>& call,
+             std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>>
+                 result) {
+        if (call.method_name() != "requestUserAttention") {
+          result->NotImplemented();
+          return;
+        }
+        // Flashes the taskbar button until the window is focused, and never
+        // raises the window. `critical` is the same, with no count.
+        HWND window = GetHandle();
+        if (window != nullptr) {
+          FLASHWINFO info = {};
+          info.cbSize = sizeof(info);
+          info.hwnd = window;
+          info.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+          info.uCount = 0;
+          info.dwTimeout = 0;
+          ::FlashWindowEx(&info);
+        }
+        result->Success();
       });
 }
 

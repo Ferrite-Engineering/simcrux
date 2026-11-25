@@ -118,6 +118,45 @@ static void register_foreground_channel(FlView* view, GtkWindow* window) {
                                             window, nullptr);
 }
 
+// Answers crux_window_chrome's `crux_window_chrome/attention` channel.
+// `requestUserAttention {kind}` sets the window's urgency hint, which the
+// window manager shows as a flashing taskbar entry and GTK clears when the
+// window is focused; it never raises the window. Anything else is not
+// implemented.
+static void attention_method_call(FlMethodChannel* channel,
+                                  FlMethodCall* method_call,
+                                  gpointer user_data) {
+  GtkWindow* window = GTK_WINDOW(user_data);
+  g_autoptr(GError) error = nullptr;
+  gboolean answered = FALSE;
+  if (strcmp(fl_method_call_get_name(method_call), "requestUserAttention") ==
+      0) {
+    gtk_window_set_urgency_hint(window, TRUE);
+    answered = fl_method_call_respond_success(method_call, nullptr, &error);
+  } else {
+    answered = fl_method_call_respond_not_implemented(method_call, &error);
+  }
+  if (!answered) {
+    g_warning("Failed to answer the attention call: %s",
+              error != nullptr ? error->message : "unknown error");
+  }
+}
+
+static void register_attention_channel(FlView* view, GtkWindow* window) {
+  // Lives as long as the process: there is one window and one engine.
+  static FlMethodChannel* channel = nullptr;
+  if (channel != nullptr) {
+    return;
+  }
+  FlEngine* engine = fl_view_get_engine(view);
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  channel = fl_method_channel_new(fl_engine_get_binary_messenger(engine),
+                                  "crux_window_chrome/attention",
+                                  FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(channel, attention_method_call,
+                                            window, nullptr);
+}
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -180,6 +219,8 @@ static void my_application_activate(GApplication* application) {
   crux_tolerate_refused_x_bell("SimCrux");
   // A directed cross-probe from a peer brings this window forward.
   register_foreground_channel(view, window);
+  // A cross-probe that stays behind flashes the taskbar entry.
+  register_attention_channel(view, window);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }

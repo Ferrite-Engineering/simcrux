@@ -144,6 +144,37 @@ void main() {
       );
     });
 
+    test('the request-attention channel reaches every runner', () {
+      // `requestUserAttention` swallows a missing handler, so a runner that
+      // does not answer `crux_window_chrome/attention` leaves "Request
+      // attention on cross-probe" doing nothing in silence.
+      for (final runner in <String>[
+        p.join('macos', 'Runner', 'WindowAttentionPlugin.swift'),
+        p.join('windows', 'runner', 'flutter_window.cpp'),
+        p.join('linux', 'runner', 'my_application.cc'),
+      ]) {
+        final native = File(runner).readAsStringSync();
+        expect(
+          native,
+          contains('"crux_window_chrome/attention"'),
+          reason: '$runner does not register the attention channel',
+        );
+        expect(native, contains('requestUserAttention'), reason: runner);
+      }
+      expect(
+        File(
+          p.join('windows', 'runner', 'flutter_window.cpp'),
+        ).readAsStringSync(),
+        contains('FlashWindowEx'),
+        reason: 'the Windows runner must flash the taskbar button',
+      );
+      expect(
+        File(p.join('linux', 'runner', 'my_application.cc')).readAsStringSync(),
+        contains('gtk_window_set_urgency_hint'),
+        reason: 'the Linux runner must set the window urgency hint',
+      );
+    });
+
     test('the handler override is SimCrux request handler', () {
       final source = File(
         p.join('lib', 'features', 'remote', 'simcrux_cxp_overrides.dart'),

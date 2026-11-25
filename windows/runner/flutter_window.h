@@ -40,6 +40,12 @@ class FlutterWindow : public Win32Window {
   // refuses, it flashes the taskbar button itself.
   void RegisterForegroundChannel();
 
+  // Answers crux_window_chrome's `crux_window_chrome/attention` channel:
+  // `requestUserAttention {kind}` flashes the taskbar button until the window
+  // is focused (FlashWindowEx), without raising it; any other method is not
+  // implemented.
+  void RegisterAttentionChannel();
+
   // The project to run.
   flutter::DartProject project_;
 
@@ -49,6 +55,10 @@ class FlutterWindow : public Win32Window {
   // The foreground hand-off channel; see RegisterForegroundChannel.
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>>
       foreground_channel_;
+
+  // The request-attention channel; see RegisterAttentionChannel.
+  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>>
+      attention_channel_;
 
   // Whether WM_ENDSESSION has already started the exit request.
   bool session_ending_ = false;
