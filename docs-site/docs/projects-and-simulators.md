@@ -77,7 +77,7 @@ suites:
 | `seed:` / `seeds:` | test | One pinned seed, or a list / range to sweep. See [Seed sweeps](trends-and-flaky.md#sweeps). |
 | `description:` | suite | Free text. |
 | `includes:` | top level | Other project files to merge in. |
-| `output:` | top level | Where `simcrux --ci` writes `results.ndjson` and `results.summary.json`. See [Streaming results](baselines-ci-exports.md#streaming-results). |
+| `output:` | top level | Where `simcrux --ci` writes `results.ndjson` and `results.summary.json`, next to the project file unless redirected; add both to `.gitignore` or redirect them into an ignored directory (see [files a `--ci` run leaves](ci-integration.md#ci-output-files)). See [Streaming results](baselines-ci-exports.md#streaming-results). |
 | `formal:` | defaults, suite, test | From 1.2. The SymbiYosys or EQY job a test runs: `sby_file`, `eqy_file`, `task`, and the keys that choose a program. See [Formal verification](formal.md#config). |
 | `flow:` | top level | From 1.2. The implementation runs to launch (`entries:`) and the runs to read (`ingest:`). Not inherited. See [Implementation flow](flow.md#flow-block). |
 

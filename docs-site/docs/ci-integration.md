@@ -17,6 +17,25 @@ component, no build-time configuration and nothing to keep running.
    SimCrux source checkout. It does not depend on your results, so build it once
    per SimCrux version and cache it.
 
+### Files a `--ci` run leaves in the project folder {#ci-output-files}
+
+Every `--ci` run writes `results.ndjson` and `results.summary.json` next to
+`simcrux.yaml`. In a project that is a git repository they show up as untracked
+files after the first run. Add them to `.gitignore`:
+
+```gitignore
+results.ndjson
+results.summary.json
+```
+
+Alternatively, point `output.results_path` and `output.summary_path` in the
+project file at a directory that is already ignored, such as `build/` (the paths
+must stay inside the project directory unless you pass
+`--allow-project-tooling`; see
+[Streaming results](baselines-ci-exports.md#streaming-results)). The one
+`results.ndjson` worth keeping is a baseline for `--fail-on-regression`: copy it
+under a different name, such as `baseline.ndjson`, and commit that copy.
+
 ## Build the web bundle {#build}
 
 In a SimCrux source checkout:
