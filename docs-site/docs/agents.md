@@ -32,9 +32,9 @@ does those from the command line.
 | `test` | One test of a run: its row, seed, parameters, first failure and the end of its log |
 | `trend` | One test's history across `results.ndjson` files, newest first |
 
-SimCrux Pro serves the same four tools and a fifth. Its command is `simcrux-pro`
-in the desktop bundles (`simcrux_pro` when built from source), started the same
-way and also taking `--license-file <path>`:
+SimCrux Pro serves the same four tools and a fifth. The Pro command ships in
+the desktop bundles next to the open-core one, is started the same way and
+also takes `--license-file <path>`:
 
 | Tool | What it returns |
 |---|---|
@@ -64,7 +64,7 @@ agent read the same document.
 The `simcrux` command must be on the `PATH` of the program that starts the
 server. The instructions below were checked against each host's own
 documentation on 2026-11-24; hosts change, so check theirs if a step differs.
-To use Pro, replace `simcrux` with `simcrux-pro`.
+To use Pro, replace `simcrux` with the Pro command from the desktop bundle.
 
 === "Claude Code"
 
@@ -99,7 +99,7 @@ To use Pro, replace `simcrux` with `simcrux-pro`.
     configure. The extension registers the server with the editor for each
     workspace folder you open, with that folder as `--root`, and the editor asks
     you before it first runs. It needs a folder open in a trusted workspace.
-    It finds `simcrux-pro` or `simcrux` through the `edacrux.sim.executable`
+    It finds the Pro command or `simcrux` through the `edacrux.sim.executable`
     setting, then your `PATH`. Turn registration off with the
     `edacrux.sim.mcp.enabled` setting.
 
