@@ -2322,6 +2322,22 @@
   "@menuWindow": {
     "description": "Title of the standard macOS Window menu"
   },
+  "menuEditCut": "Cut",
+  "@menuEditCut": {
+    "description": "Cut item of the macOS Edit menu (Cmd+X)"
+  },
+  "menuEditCopy": "Copy",
+  "@menuEditCopy": {
+    "description": "Copy item of the macOS Edit menu (Cmd+C). Copies the selected text"
+  },
+  "menuEditPaste": "Paste",
+  "@menuEditPaste": {
+    "description": "Paste item of the macOS Edit menu (Cmd+V)"
+  },
+  "menuEditSelectAll": "Select All",
+  "@menuEditSelectAll": {
+    "description": "Select All item of the macOS Edit menu (Cmd+A)"
+  },
   "actionExit": "Exit",
   "@actionExit": {
     "description": "Windows/Linux label for the quit action at the bottom of the File menu; macOS uses actionQuit instead"

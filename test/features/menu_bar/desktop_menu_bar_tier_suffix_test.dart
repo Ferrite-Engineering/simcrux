@@ -57,6 +57,82 @@ Future<List<String>> _menuLabels(
 }
 
 void main() {
+  group('Edit commands', () {
+    Widget app(TargetPlatform platform) => ProviderScope(
+      child: MaterialApp(
+        theme: ThemeData(platform: platform),
+        localizationsDelegates: const [
+          L10N.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: L10N.supportedLocales,
+        home: DesktopMenuBar(
+          onAction: (_) {},
+          child: const SizedBox(),
+        ),
+      ),
+    );
+
+    testWidgets('the macOS Edit menu leads with Cut, Copy, Paste and Select '
+        'All on their Cmd chords', (tester) async {
+      await tester.pumpWidget(app(TargetPlatform.macOS));
+      await tester.pumpAndSettle();
+      final l10n = L10N.of(tester.element(find.byType(PlatformMenuBar)));
+      final bar = tester.widget<PlatformMenuBar>(find.byType(PlatformMenuBar));
+      final edit = bar.menus.whereType<PlatformMenu>().firstWhere(
+        (m) => m.label == l10n.actionCategoryEdit,
+      );
+      final first = (edit.menus.first as PlatformMenuItemGroup).members;
+      expect(
+        [for (final i in first) i.label],
+        [
+          l10n.menuEditCut,
+          l10n.menuEditCopy,
+          l10n.menuEditPaste,
+          l10n.menuEditSelectAll,
+        ],
+      );
+      expect(
+        [for (final i in first) i.label],
+        [
+          'Cut',
+          'Copy',
+          'Paste',
+          'Select All',
+        ],
+      );
+      for (final item in first) {
+        final chord = item.shortcut! as SingleActivator;
+        expect(chord.meta, isTrue, reason: item.label);
+      }
+    });
+
+    for (final platform in [TargetPlatform.windows, TargetPlatform.linux]) {
+      testWidgets('on $platform there is no native menu bar and no Copy item '
+          'in the in-window one', (tester) async {
+        await tester.pumpWidget(app(platform));
+        await tester.pumpAndSettle();
+        expect(find.byType(PlatformMenuBar), findsNothing);
+        final bar = tester.widget<MenuBar>(find.byType(MenuBar));
+        final labels = <String>[];
+        void visit(Widget w) {
+          if (w is SubmenuButton) {
+            w.menuChildren.forEach(visit);
+          } else if (w is MenuItemButton && w.child is Text) {
+            labels.add((w.child! as Text).data ?? '');
+          }
+        }
+
+        bar.children.forEach(visit);
+        expect(labels, isNotEmpty);
+        expect(labels, isNot(contains('Copy')));
+        expect(labels, isNot(contains('Select All')));
+      });
+    }
+  });
+
   testWidgets('Pro menu items get the (PRO) suffix, free items do not', (
     tester,
   ) async {

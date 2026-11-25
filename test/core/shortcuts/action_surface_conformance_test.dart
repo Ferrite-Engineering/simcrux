@@ -144,13 +144,25 @@ void main() {
 
         // Presence: the leaf labels are exactly the table's menu actions
         // (with tier suffixes).
+        // The macOS Edit menu also carries the standard Cut / Copy / Paste /
+        // Select All, which are the system's commands and not actions of the
+        // table; the shared menu bar's tests cover them.
+        final editLabels = {
+          l10n.menuEditCut,
+          l10n.menuEditCopy,
+          l10n.menuEditPaste,
+          l10n.menuEditSelectAll,
+        };
+        final leaves = _leafItems(
+          bar,
+        ).where((i) => !editLabels.contains(i.label)).toList();
         expect(
-          _leafItems(bar).map((e) => e.label).toSet(),
+          leaves.map((e) => e.label).toSet(),
           expected.map((a) => _menuLabel(a, l10n)).toSet(),
         );
 
         // Enablement: a menu item is enabled iff the table says so.
-        final leafByLabel = {for (final i in _leafItems(bar)) i.label: i};
+        final leafByLabel = {for (final i in leaves) i.label: i};
         for (final a in expected) {
           final item = leafByLabel[_menuLabel(a, l10n)];
           expect(item, isNotNull, reason: '$a missing from menu');

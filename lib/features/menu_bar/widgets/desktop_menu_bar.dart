@@ -70,6 +70,15 @@ class DesktopMenuBar extends ConsumerWidget {
       // States the edition in force, disabled, above `About SimCrux`.
       // Null at Open Core, so this is safe to pass unconditionally: the
       // Pro overlay supplies the licence status that gives it a value.
+      // The macOS Edit menu leads with Cut, Copy, Paste and Select All, so
+      // Cmd+C reaches a selection instead of beeping. macOS only: the shared
+      // menu bar renders nothing on Windows and Linux.
+      editCommands: CruxEditCommands(
+        cutLabel: l10n.menuEditCut,
+        copyLabel: l10n.menuEditCopy,
+        pasteLabel: l10n.menuEditPaste,
+        selectAllLabel: l10n.menuEditSelectAll,
+      ),
       editionLine: cruxLicenseEditionLine(
         ref.watch(licenseStatusProvider),
         SimCruxEditionLineStrings(l10n),
