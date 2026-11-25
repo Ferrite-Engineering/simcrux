@@ -35,6 +35,9 @@ Configure it in **Settings → CXP Cross-Probe**:
 - **Request attention on cross-probe**, on by default. Bounces the Dock icon
   (or flashes the taskbar) when a peer's request is acted on; never steals
   focus.
+- **Bring the target forward on a directed cross-probe**. When you
+  cross-probe to one named app, that app comes to the front. Both apps need
+  this on. A broadcast selection never brings an app forward.
 - **Broadcast selection automatically**, on by default. Announces each test or
   source selection to connected peers as you make it. When off, only explicit
   sends, **Debug in WaveCrux** and the panel's per-peer send, are shared.
