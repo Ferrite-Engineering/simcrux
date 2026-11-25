@@ -42,28 +42,32 @@ void main() {
     test('a LibreLane flake directory is found, not looked up as an '
         'executable', () async {
       final dir = flakeDir();
-      final report = await probe(
-        answers: const {},
-      ).probe(
-        librelanePath: dir.path,
-        settings: const FlowToolSettings(launcher: FlowLauncher.nix),
-      );
+      final report =
+          await probe(
+            answers: const {},
+          ).probe(
+            librelanePath: dir.path,
+            settings: const FlowToolSettings(launcher: FlowLauncher.nix),
+          );
       final librelane = row(report, FlowTool.librelane);
       expect(librelane.found, isTrue);
       expect(librelane.flakePath, dir.path);
       expect(librelane.problem, isNull);
     });
 
-    test('a directory with no flake.nix is not found, and says which', () async {
-      final dir = Directory(p.join(tmp.path, 'empty'))..createSync();
-      final report = await probe(answers: const {}).probe(
-        librelanePath: dir.path,
-        settings: const FlowToolSettings(launcher: FlowLauncher.nix),
-      );
-      final librelane = row(report, FlowTool.librelane);
-      expect(librelane.found, isFalse);
-      expect(librelane.flakePath, dir.path);
-    });
+    test(
+      'a directory with no flake.nix is not found, and says which',
+      () async {
+        final dir = Directory(p.join(tmp.path, 'empty'))..createSync();
+        final report = await probe(answers: const {}).probe(
+          librelanePath: dir.path,
+          settings: const FlowToolSettings(launcher: FlowLauncher.nix),
+        );
+        final librelane = row(report, FlowTool.librelane);
+        expect(librelane.found, isFalse);
+        expect(librelane.flakePath, dir.path);
+      },
+    );
 
     test('no LibreLane path is not found', () async {
       final report = await probe(answers: const {}).probe(
@@ -168,18 +172,23 @@ void main() {
       expect(yosys.problem, 'yosys: bad option -V');
     });
 
-    test('a tool that never started is not found, with no problem text', () async {
-      final report = await probe(answers: const {}).probe();
-      final openroad = row(report, FlowTool.openroad);
-      expect(openroad.found, isFalse);
-      expect(openroad.problem, isNull);
-    });
+    test(
+      'a tool that never started is not found, with no problem text',
+      () async {
+        final report = await probe(answers: const {}).probe();
+        final openroad = row(report, FlowTool.openroad);
+        expect(openroad.found, isFalse);
+        expect(openroad.problem, isNull);
+      },
+    );
   });
 
   group('versionLineOf', () {
     test('needs a digit and no error words', () {
-      expect(FlowToolchainProbe.versionLineOf(<String>['OpenROAD v2.0-123']),
-          'OpenROAD v2.0-123');
+      expect(
+        FlowToolchainProbe.versionLineOf(<String>['OpenROAD v2.0-123']),
+        'OpenROAD v2.0-123',
+      );
       expect(FlowToolchainProbe.versionLineOf(<String>['usage: foo']), isNull);
       expect(
         FlowToolchainProbe.versionLineOf(<String>['error 2: cannot open']),
