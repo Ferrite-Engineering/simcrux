@@ -29,11 +29,11 @@ int64_t ForegroundPidArgument(const flutter::EncodableValue* arguments) {
   if (entry == map->end()) {
     return 0;
   }
-  if (const auto* small = std::get_if<int32_t>(&entry->second)) {
-    return *small;
+  if (const auto* narrow = std::get_if<int32_t>(&entry->second)) {
+    return *narrow;
   }
-  if (const auto* large = std::get_if<int64_t>(&entry->second)) {
-    return *large;
+  if (const auto* wide = std::get_if<int64_t>(&entry->second)) {
+    return *wide;
   }
   return 0;
 }
