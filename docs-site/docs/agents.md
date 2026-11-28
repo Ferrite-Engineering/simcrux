@@ -66,6 +66,12 @@ server. The instructions below were checked against each host's own
 documentation on 2026-11-24; hosts change, so check theirs if a step differs.
 To use Pro, replace `simcrux` with the Pro command from the desktop bundle.
 
+The free command is also a command-line archive on the
+[download page](https://simcrux.app/download), for macOS (Apple silicon), Linux
+(x86_64) and Windows (x86_64). It unpacks into `bin/`, with the executable, and
+`lib/`, with the libraries it loads; put `bin/` on your `PATH`, or give the full
+path as the command.
+
 === "Claude Code"
 
     Add the server for the current project:
