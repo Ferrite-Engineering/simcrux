@@ -136,6 +136,132 @@ void main() {
     );
   });
 
+  test('a Windows root is put into the fixtures as JSON, and read back from '
+      'a document as the goldens write it', () {
+    // `Directory.systemTemp` on a Windows runner, and the root in it.
+    const tmp = r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1';
+    const root =
+        r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1'
+        r'\root';
+    const line =
+        '{"type":"meta","config_path":"@ROOT@/design/simcrux.yaml",'
+        '"stdout_path":"@ROOT@/logs/alu_sub_fail.txt","root":"@ROOT@"}';
+    // Put in raw, the backslashes are escapes and the line is not JSON.
+    expect(
+      () => jsonDecode(line.replaceAll('@ROOT@', root)),
+      throwsFormatException,
+    );
+    final installed = installSpecFixture(
+      line,
+      placeholder: '@ROOT@',
+      root: root,
+      context: p.windows,
+    );
+    expect(jsonDecode(installed), <String, Object?>{
+      'type': 'meta',
+      'config_path':
+          r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1\root'
+          r'\design\simcrux.yaml',
+      'stdout_path':
+          r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1\root'
+          r'\logs\alu_sub_fail.txt',
+      'root': root,
+    });
+    // On a POSIX host the fixture is the committed bytes with the root in.
+    expect(
+      installSpecFixture(
+        line,
+        placeholder: '@ROOT@',
+        root: '/tmp/simcrux_spec_1/root',
+        context: p.posix,
+      ),
+      line.replaceAll('@ROOT@', '/tmp/simcrux_spec_1/root'),
+    );
+
+    // A document a Windows run writes: JSON escapes each `\`.
+    final document = jsonEncode(<String, Object?>{
+      'file':
+          r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1\root'
+          r'\logs\alu_sub_fail.txt',
+      'outside':
+          r'C:\Users\runneradmin\AppData\Local\Temp\simcrux_spec_1'
+          r'\outside\simcrux.yaml',
+      'mixed':
+          'C:/Users/runneradmin/AppData/Local/Temp/simcrux_spec_1/root/runs/'
+          'run_a.ndjson',
+      'message': 'not "5000".\nkept as is',
+    });
+    expect(
+      normalizeSpecRoot(
+        document,
+        root: root,
+        tmp: tmp,
+        goldenRoot: '/spec/fixtures',
+        windows: true,
+      ),
+      jsonEncode(<String, Object?>{
+        'file': '/spec/fixtures/logs/alu_sub_fail.txt',
+        'outside': '/spec/outside/simcrux.yaml',
+        'mixed': '/spec/fixtures/runs/run_a.ndjson',
+        'message': 'not "5000".\nkept as is',
+      }),
+    );
+
+    // A path outside the root: `/x` is root-relative on Windows, not
+    // absolute, so the cases give it the temporary directory's drive there;
+    // it is still outside the root, and reads back as the golden writes it.
+    const outside = '/nonexistent-simcrux-spec/results.ndjson';
+    final prefix = specOutsidePrefix(tmp, windows: true);
+    expect(prefix, 'C:');
+    expect(specOutsidePrefix('/tmp/s', windows: false), '');
+    expect(p.windows.isRootRelative(outside), isTrue);
+    expect(p.windows.isAbsolute('$prefix$outside'), isTrue);
+    expect(p.windows.isRootRelative('$prefix$outside'), isFalse);
+    expect(p.windows.isWithin(root, '$prefix$outside'), isFalse);
+    expect(
+      hostOutsidePaths(<String, Object?>{
+        'results': outside,
+        'runs': <Object?>[outside, 'runs/run_a.ndjson'],
+        'lines': 5,
+      }, prefix),
+      <String, Object?>{
+        'results': '$prefix$outside',
+        'runs': <Object?>['$prefix$outside', 'runs/run_a.ndjson'],
+        'lines': 5,
+      },
+    );
+    expect(hostOutsidePaths(outside, ''), outside);
+    for (final given in <String>[
+      'C:/nonexistent-simcrux-spec/results.ndjson',
+      r'C:\\nonexistent-simcrux-spec\\results.ndjson',
+    ]) {
+      expect(
+        normalizeSpecRoot(
+          '"message": "`$given` is outside the root '
+          r'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\simcrux_spec_1'
+          r'\\root;"',
+          root: root,
+          tmp: tmp,
+          goldenRoot: '/spec/fixtures',
+          windows: true,
+        ),
+        '"message": "`/nonexistent-simcrux-spec/results.ndjson` is outside '
+        'the root /spec/fixtures;"',
+      );
+    }
+
+    expect(
+      normalizeSpecRoot(
+        '{"file":"/tmp/s/root/logs/x.txt","outside":"/tmp/s/outside/y"}',
+        root: '/tmp/s/root',
+        tmp: '/tmp/s',
+        goldenRoot: '/spec/fixtures',
+        windows: false,
+      ),
+      '{"file":"/spec/fixtures/logs/x.txt","outside":"/spec/outside/y"}',
+    );
+  });
+
   test('every tool has a golden for each outcome it can produce', () {
     final byTool = <String, Set<String>>{};
     for (final c in spec.cases) {

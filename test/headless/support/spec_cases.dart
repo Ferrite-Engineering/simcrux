@@ -27,7 +27,15 @@ class SpecCase {
   SpecCase._(Map<String, Object?> json)
     : golden = json['golden']! as String,
       tool = json['tool']! as String,
-      arguments = json['arguments']! as Map<String, Object?>,
+      // A path the cases name outside the root is spelled for this host
+      // (`C:/nonexistent-simcrux-spec/...` on Windows), so the server judges
+      // it outside the root, as on POSIX, and not "not an absolute path".
+      arguments =
+          hostOutsidePaths(
+                json['arguments'],
+                specOutsidePrefix(Directory.systemTemp.path),
+              )!
+              as Map<String, Object?>,
       exit = json['exit'] as int?,
       door = json['door'] as String? ?? 'both';
 
@@ -58,6 +66,107 @@ class SpecCase {
   String toString() => golden;
 }
 
+/// [text], a committed `results.ndjson` fixture, with each path that starts
+/// [placeholder] made the path under [root] this host would write, as JSON
+/// spells it.
+///
+/// The fixtures write `@ROOT@/logs/x.txt`. On a POSIX host that becomes
+/// `<root>/logs/x.txt`, the bytes as committed with the root put in. On
+/// Windows the root is `C:\...`, which JSON writes as `C:\\...`, and a run
+/// there joins every path under it with `\`, so the line reads
+/// `C:\\...\\root\\logs\\x.txt`: put in raw, the line would not be JSON at
+/// all. [context] says whose paths to write (the host's by default); it is a
+/// parameter so a test can prove the Windows case on any machine.
+String installSpecFixture(
+  String text, {
+  required String placeholder,
+  required String root,
+  p.Context? context,
+}) {
+  final host = context ?? p.context;
+  return text.replaceAllMapped(
+    RegExp('${RegExp.escape(placeholder)}((?:/[^"]*)?)'),
+    (m) {
+      final path = host.joinAll(<String>[
+        root,
+        ...m[1]!.split('/').where((s) => s.isNotEmpty),
+      ]);
+      final quoted = jsonEncode(path);
+      return quoted.substring(1, quoted.length - 1);
+    },
+  );
+}
+
+/// [text], a JSON document a tool wrote, with [root] written as the goldens
+/// write it ([goldenRoot]) and [tmp], the directory around it, as `/spec`.
+///
+/// On a POSIX host both appear verbatim. On Windows they are `C:\...`, which
+/// JSON writes as `C:\\...`, and every path under them joins with `\`, so the
+/// goldens' `/spec/fixtures/logs/x.txt` reads `C:\\...\\root\\logs\\x.txt`
+/// there: the same file, spelled by the host. [windows] says which spelling
+/// to undo (the host's by default); it is a parameter so a test can prove the
+/// Windows case on any machine.
+String normalizeSpecRoot(
+  String text, {
+  required String root,
+  required String tmp,
+  required String goldenRoot,
+  bool? windows,
+}) {
+  if (!(windows ?? Platform.isWindows)) {
+    return text.replaceAll(root, goldenRoot).replaceAll(tmp, '/spec');
+  }
+  var out = text;
+  for (final spell in <String Function(String)>[
+    (s) => s.replaceAll(r'\', r'\\'),
+    (s) => s.replaceAll(r'\', '/'),
+    (s) => s,
+  ]) {
+    // The root first: the temporary directory is a prefix of it.
+    out = out
+        .replaceAll(spell(root), goldenRoot)
+        .replaceAll(spell(tmp), '/spec');
+  }
+  return out
+      .replaceAll(r'\\', '/')
+      .replaceAll(
+        '${specOutsidePrefix(root, windows: true)}$kSpecOutsideDir',
+        kSpecOutsideDir,
+      );
+}
+
+/// The directory the cases name for a path that is outside the root and
+/// exists nowhere: absolute on a POSIX host, but not on Windows, where an
+/// absolute path has a drive.
+const String kSpecOutsideDir = '/nonexistent-simcrux-spec';
+
+/// What goes before [kSpecOutsideDir] so the path is absolute on the host
+/// whose temporary [root] is given: nothing on POSIX, the root's drive (`C:`)
+/// on Windows. The path stays outside the root and is still refused as such,
+/// never as "not absolute". [windows] is a parameter so a test can prove the
+/// Windows case on any machine.
+String specOutsidePrefix(String root, {bool? windows}) {
+  if (!(windows ?? Platform.isWindows)) return '';
+  final prefix = p.windows.rootPrefix(root);
+  return prefix.replaceAll(RegExp(r'[\\/]+$'), '');
+}
+
+/// [value] (a string, or a list or map holding strings) with every path that
+/// starts with [kSpecOutsideDir] made absolute on the host by [prefix].
+Object? hostOutsidePaths(Object? value, String prefix) {
+  if (prefix.isEmpty) return value;
+  return switch (value) {
+    final String s when s.startsWith(kSpecOutsideDir) => '$prefix$s',
+    final List<Object?> l => <Object?>[
+      for (final e in l) hostOutsidePaths(e, prefix),
+    ],
+    final Map<String, Object?> m => <String, Object?>{
+      for (final e in m.entries) e.key: hostOutsidePaths(e.value, prefix),
+    },
+    _ => value,
+  };
+}
+
 /// The cases, and the temporary root they run in.
 class SpecCases {
   SpecCases._(this.cases, this.tmp, this.root, this._json);
@@ -79,7 +188,11 @@ class SpecCases {
         ..createSync(recursive: true);
       if (e.path.endsWith('.ndjson')) {
         target.writeAsStringSync(
-          e.readAsStringSync().replaceAll(placeholder, root),
+          installSpecFixture(
+            e.readAsStringSync(),
+            placeholder: placeholder,
+            root: root,
+          ),
         );
       } else {
         target.writeAsBytesSync(e.readAsBytesSync());
@@ -200,9 +313,12 @@ class SpecCases {
 
   /// [text] with this machine's root written as the goldens write it, and
   /// the temporary directory around it as `/spec`.
-  String normalize(String text) => text
-      .replaceAll(root, _json['golden_root']! as String)
-      .replaceAll(tmp, '/spec');
+  String normalize(String text) => normalizeSpecRoot(
+    text,
+    root: root,
+    tmp: tmp,
+    goldenRoot: _json['golden_root']! as String,
+  );
 
   /// The golden of [c]. A missing golden fails the test, after writing what
   /// the tool answered to `build/spec-actual/` for a person to check by
